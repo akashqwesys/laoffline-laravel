@@ -75,7 +75,6 @@
                 axios.get('./productsub-category/company-name/'+id)
                 .then(response => {
                     var companyName = response.data;
-
                     return companyName;
                 });
             },
@@ -90,50 +89,85 @@
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#productSubCategory').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./productsub-category/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'main_category' },
-                        { data: 'fabric_group' },
-                        { data: 'company' },
-                        { data: 'action' },
-                    ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#productSubCategory').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./productsub-category/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'main_category' },
-                        { data: 'fabric_group' },
-                        { data: 'company' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
-                });
+                buttons = ['copy', 'csv', 'excel', 'print'];
             }
+            function init_dt_table () {
+                dt_table = $('#productSubCategory').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    responsive: true,
+                    ajax: {
+                        url: "./productsub-category/list",
+                        data: function (data) {
+                            if ($('#dt_name').val() == '') {
+                                data.columns[2].search.value = '';
+                            } else {
+                                data.columns[2].search.value = $('#dt_name').val();
+                            }
+                            if ($('#dt_email').val() == '') {
+                                data.columns[3].search.value = '';
+                            } else {
+                                data.columns[3].search.value = $('#dt_email').val();
+                            }
+                            if ($('#dt_mobile').val() == '') {
+                                data.columns[4].search.value = '';
+                            } else {
+                                data.columns[4].search.value = $('#dt_mobile').val();
+                            }
+                            if ($('#dt_user_group').val() == '') {
+                                data.columns[5].search.value = '';
+                            } else {
+                                data.columns[5].search.value = $('#dt_user_group').val();
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: 'Brtip',
+                    columns: [
+                        { data: 'id' },
+                        { data: 'name' },
+                        { data: 'main_category' },
+                        { data: 'fabric_group' },
+                        { data: 'company' },
+                        { data: 'action' },
+                    ],
+                    buttons: buttons
+                })
+                .on( 'init.dt', function () {
+                    $('<div class="dataTables_filter" id="product_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_category" class="form-control form-control-sm" placeholder="Main Category"><input type="search" id="fabric_group" class="form-control form-control-sm" placeholder="Fabric Group"><input type="search" id="dt_company" class="form-control form-control-sm" placeholder="Company"></div>').insertAfter('.dt-buttons.btn-group');
+                } );
+            }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#product_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    if (e.keyCode == 13) {
+                        dt_table.clear().draw();
+                    }
+                    draw = 0;
+                }
+            });
         },
     };
 </script>
 <style>
     .dataTables_filter {
-        padding: 10px;
+        display: flex;
+        margin-bottom: 15px;
     }
     .dataTables_filter input {
-        margin-left: 10px;
+        padding: 17px;
+        margin: 0 10px;
+        width: 25%;
     }
     .dt-buttons {
         position: relative;

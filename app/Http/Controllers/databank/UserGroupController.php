@@ -23,6 +23,7 @@ class UserGroupController extends Controller
     }
 
     public function index() {
+        $page_title = 'User Group';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
 
@@ -42,16 +43,17 @@ class UserGroupController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('databank.userGroups.userGroup',compact('financialYear'))->with('employees', $employees);
+        return view('databank.userGroups.userGroup',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function createUserGroup() {
+        $page_title = 'Add User Group';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('databank.userGroups.createUserGroup',compact('financialYear'))->with('employees', $employees);
+        return view('databank.userGroups.createUserGroup', compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function getPermissions() {
@@ -130,6 +132,7 @@ class UserGroupController extends Controller
     }
 
     public function editUserGroup($id) {
+        $page_title = 'Update User Group';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -138,7 +141,7 @@ class UserGroupController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('databank.userGroups.editUserGroup',compact('financialYear'))->with('employees', $employees);
+        return view('databank.userGroups.editUserGroup',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchUserGroup($id) {

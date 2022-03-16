@@ -8,10 +8,10 @@
         <!-- Fav Icon  -->
         <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
         <!-- Page Title  -->
-        <title>Sales Dashboard | DashLite Admin Template</title>
+        <title>@yield('title')</title>
         <!-- StyleSheets  -->
         <link rel="stylesheet" href="{{ asset('assets/css/dashlite.css') }}">
-        <link id="skin-default" rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">        
+        <link id="skin-default" rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
     </head>
 
 <body class="nk-body bg-lighter npc-general has-sidebar ">

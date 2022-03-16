@@ -22,6 +22,7 @@ class ProductCategoryController extends Controller
     }
 
     public function index(Request $request) {
+        $page_title = 'Product Category';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -40,16 +41,17 @@ class ProductCategoryController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('databank.productCategories.productCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.productCategories.productCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function createProductCategory() {
+        $page_title = 'Add Product Category';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('databank.productCategories.createProductCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.productCategories.createProductCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function listCategory() {
@@ -159,6 +161,7 @@ class ProductCategoryController extends Controller
     }
 
     public function editProductCategory($id) {
+        $page_title = 'Edit Product Category';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -167,7 +170,7 @@ class ProductCategoryController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('databank.productCategories.editProductCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.productCategories.editProductCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchProductCategory($id) {

@@ -50,6 +50,7 @@
     // import 'datatables.net-bs5';
     import 'datatables.net-bs5/js/dataTables.bootstrap5';
     import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
     import "datatables.net-buttons/js/buttons.flash.js";
     import "datatables.net-buttons/js/buttons.html5.js";
     import "datatables.net-buttons/js/buttons.print.js";
@@ -86,6 +87,7 @@
                 dt_table = $('#userGroup').DataTable({
                     processing: true,
                     serverSide: true,
+                    responsive: true,
                     ajax: {
                         url: "./users-group/list",
                         data: function (data) {
