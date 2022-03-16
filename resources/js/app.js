@@ -19,6 +19,8 @@ import CreateProductCategoryComponent from './components/databank/productCategor
 import ProductSubCategoryComponent from './components/databank/productSubCategoryComponents/ProductSubCategoryComponent.vue';
 import CreateProductSubCategoryComponent from './components/databank/productSubCategoryComponents/CreateProductSubCategoryComponent.vue';
 
+import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
+import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -61,6 +63,14 @@ const routes = [
             { path: 'edit-productsub-category/:id', component: CreateProductSubCategoryComponent },
         ]
     },
+    {
+        path: '/financialyear/',
+        component: FinancialYearComponent,
+        children: [
+            { path: 'create-financialyear', component: CreateFinancialYearComponent },
+            { path: 'edit-financialyear/:id', component: CreateFinancialYearComponent },
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -79,5 +89,7 @@ createApp({
         CreateProductCategoryComponent,
         ProductSubCategoryComponent,
         CreateProductSubCategoryComponent,
+        FinancialYearComponent,
+        CreateFinancialYearComponent,
     }
 }).use(router).mount('#app');
