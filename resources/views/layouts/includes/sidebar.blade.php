@@ -76,6 +76,12 @@
                         </a>
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
+                        <a href="{{ route('reference') }}" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
+                            <span class="nk-menu-text">Financial Year</span>
+                        </a>
+                    </li><!-- .nk-menu-item -->
+                    <li class="nk-menu-item">
                         <a href="{{ route('register') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
                             <span class="nk-menu-text">Register</span>
