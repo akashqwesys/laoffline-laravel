@@ -73,17 +73,24 @@ class BankDetailsController extends Controller
         $searchValue = $search_arr['value']; // Search value
 
         $totalRecords = BankDetails::where('id', '!=', '0')->select('count(*) as allcount')->count();
-        $totalRecordswithFilter = BankDetails::select('count(*) as allcount')->
-                                                   where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
-                                                   count();
+        if (!empty(trim($searchValue))) {
+            $totalRecordswithFilter = BankDetails::select('count(*) as allcount')
+                ->where('id', '!=', '0')
+                ->where('name', 'ILIKE', '%' .$searchValue . '%')
+                ->count();
+        } else {
+            $totalRecordswithFilter = $totalRecords;
+        }
 
-        $BankDetails = BankDetails::orderBy('bank_details.'.$columnName,$columnSortOrder)->
-                where('bank_details.name', 'like', '%' .$searchValue . '%')->
-                where('bank_details.is_delete', '0')->
-                skip($start)->
-                take($rowperpage)->
-                get();
+        $BankDetails = BankDetails::select('*');
+        if (!empty(trim($searchValue))) {
+            $BankDetails = $BankDetails->where('bank_details.name', 'ILIKE', '%' .$searchValue . '%');
+        }
+        $BankDetails = $BankDetails->where('bank_details.is_delete', '0')
+            ->orderBy('bank_details.'.$columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage)
+            ->get();
 
         $data_arr = array();
         $sno = $start+1;

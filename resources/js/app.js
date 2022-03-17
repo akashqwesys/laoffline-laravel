@@ -31,6 +31,9 @@ import CreateCompanyCategoryComponent from './components/databank/companyCategor
 import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
 import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
 
+import BankDetailsComponent from "./components/settings/bankDetailsComponents/BankDetailsComponent.vue";
+import CreateBankDetailsComponent from "./components/settings/bankDetailsComponents/CreateBankDetailsComponent.vue";
+
 import CountriesComponent from './components/settings/countriesComponents/CountriesComponent.vue';
 import CreateCountriesComponent from './components/settings/countriesComponents/CreateCountriesComponent.vue';
 
@@ -115,6 +118,14 @@ const routes = [
         ]
     },
     {
+        path: '/settings/bank-details/',
+        component: BankDetailsComponent,
+        children: [
+            { path: 'create-bank-details', component: CreateBankDetailsComponent },
+            { path: 'edit-bank-details/:id', component: CreateBankDetailsComponent },
+        ]
+    },
+    {
         path: '/settings/countries/',
         component: CountriesComponent,
         children: [
@@ -162,6 +173,8 @@ createApp({
         CreateCompanyComponent,
         CompanyCategoryComponent,
         CreateCompanyCategoryComponent,
+        BankDetailsComponent,
+        CreateBankDetailsComponent,
 
 
         FinancialYearComponent,
