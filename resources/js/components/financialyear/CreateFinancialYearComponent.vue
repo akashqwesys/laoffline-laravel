@@ -174,7 +174,7 @@
                     if (startdate > enddate) {
                         alert('Start Date must be Less than End Date');
                         this.form.startdate = null;
-                    } 
+                    }
                 }
             },
             register () {

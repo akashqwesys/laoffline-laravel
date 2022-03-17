@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -229,7 +229,7 @@
                                                 <li class="dropdown-toggle btn btn-icon btn-primary" @click="deleteContactDetailsRow(contactDetail)"><em class="icon ni ni-cross"></em></li>
                                             </div>
                                         </div>
-                                        <hr class="preview-hr">                                        
+                                        <hr class="preview-hr">
                                         <div class="row gy-4">
                                             <div class="col-md-12 d-flex align-items-center">
                                                 <span class="preview-title-lg overline-title d-inline-block w-100">Multiple Addresses</span>
@@ -653,7 +653,7 @@
         methods: {
             getStateList: function(event) {
                 if(event != null) {
-                    console.log(event);                    
+                    console.log(event);
                     axios.get('/settings/cities/list-state-id/'+event.id)
                     .then(response => {
                         this.stateList = response.data;
@@ -662,7 +662,7 @@
             },
             getCityList: function(event) {
                 if(event != null) {
-                    console.log(event);                    
+                    console.log(event);
                     axios.get('/settings/cities/list-city-id/'+event.id)
                     .then(response => {
                         this.cityList = response.data;
@@ -712,7 +712,7 @@
             deleteMultipleAddressesOwnersRow: function(row, subrow) {
                 row.multipleAddressesOwners.pop(subrow);
             },
-                        
+
             addMultipleEmailsRow: function() {
                 this.multipleEmails.push({
                     email_id: '',
@@ -739,8 +739,8 @@
                 formData.append('swot_details', JSON.stringify(this.swot));
                 formData.append('references_details', JSON.stringify(this.references));
                 formData.append('packaging_details', JSON.stringify(this.packaging));
-                formData.append('bank_details', JSON.stringify(this.bank));  
-                
+                formData.append('bank_details', JSON.stringify(this.bank));
+
                 this.contactDetails.forEach((contact,index)=>{
                     if(contact.contact_person_profile_pic){
                         formData.append(`contact_details_profile_pic[${index}]`, contact.contact_person_profile_pic);
@@ -787,12 +787,12 @@
             },
             getContactProfilePic(name){
                 var profile = '/upload/company/profilePic/' + name;
-                
+
                 return profile;
             },
             getOwnerProfilePic(name){
                 var profile = '/upload/company/multipleAddressProfilePic/' + name;
-                
+
                 return profile;
             }
         },
@@ -808,22 +808,22 @@
 
                         // Contacts Data
                         this.contactDetails = companies.contact_details;
-                        
+
                         // Multiple Address
                         this.multipleAddresses = companies.multiple_address;
-                        
+
                         // Multiple Emails
                         this.multipleEmails = companies.multiple_emails;
-                        
+
                         // SWOT
                         this.swot = companies.swot_details;
-                        
+
                         // Packaging
                         this.packaging = companies.packaging_details;
-                        
+
                         // References
                         this.references = companies.references_details;
-                        
+
                         // Bank
                         this.bank = companies.bank_details;
                     });
@@ -834,7 +834,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style>
     .form-control-wrap img {
         position: absolute;
@@ -910,7 +910,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

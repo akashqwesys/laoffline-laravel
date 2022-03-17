@@ -46,15 +46,13 @@
     </div>
 </template>
 <script>
-    import 'jquery/dist/jquery.min.js';
-    // import 'datatables.net-bs5';
+    import $ from 'jquery';
     import 'datatables.net-bs5/js/dataTables.bootstrap5';
     import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
     import "datatables.net-buttons/js/buttons.flash.js";
     import "datatables.net-buttons/js/buttons.html5.js";
     import "datatables.net-buttons/js/buttons.print.js";
-    import $ from 'jquery';
 
     export default {
         name: 'userGroup',
@@ -81,7 +79,7 @@
             var buttons = [];
             var dt_table = null;
             if(this.excelAccess == 1) {
-                buttons = ['copy', 'csv', 'excel', 'print'];
+                buttons = ['excel', 'pdf', 'print'];
             }
             function init_dt_table () {
                 dt_table = $('#userGroup').DataTable({

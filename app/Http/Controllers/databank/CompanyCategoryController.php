@@ -21,16 +21,17 @@ class CompanyCategoryController extends Controller
     }
 
     public function index(Request $request) {
+        $page_title = 'Company Category';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+
         $employees['excelAccess'] = $user->excel_access;
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -39,16 +40,17 @@ class CompanyCategoryController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('databank.companyCategories.companyCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companyCategories.companyCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function createCompanyCategory() {
+        $page_title = 'Add Company Category';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('databank.companyCategories.createCompanyCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companyCategories.createCompanyCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function listData(Request $request) {
@@ -74,17 +76,26 @@ class CompanyCategoryController extends Controller
 
         // Total records
         $totalRecords = CompanyCategory::select('count(*) as allcount')->count();
-        $totalRecordswithFilter = CompanyCategory::select('count(*) as allcount')->
-                                           where('category_name', 'ILIKE', '%' .$searchValue . '%')->
-                                           count();
+        if (!empty(trim($searchValue))) {
+            $totalRecordswithFilter = CompanyCategory::select('count(*) as allcount')
+                ->where('is_delete', 0)
+                ->where('category_name', 'ILIKE', '%' .$searchValue . '%')
+                ->count();
+        } else {
+            $totalRecordswithFilter = $totalRecords;
+        }
 
         // Fetch records
-        $companyCategory = CompanyCategory::orderBy($columnName,$columnSortOrder)->
-                                            where('category_name', 'ILIKE', '%' .$searchValue . '%')->
-                                            where('is_delete', 0)->
-                                            skip($start)->
-                                            take($rowperpage)->
-                                            get();
+        $companyCategory = CompanyCategory::select('*');
+        if (!empty(trim($searchValue))) {
+            $companyCategory = $companyCategory->where('category_name', 'ILIKE', '%' .$searchValue . '%');
+        }
+        $companyCategory = $companyCategory->where('category_name', 'ILIKE', '%' .$searchValue . '%')
+            ->where('is_delete', 0)
+            ->orderBy($columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage)
+            ->get();
 
         $data_arr = array();
         $sno = $start+1;
@@ -100,7 +111,7 @@ class CompanyCategoryController extends Controller
                 "id" => $id,
                 "name" => $name,
                 "action" => $action
-            ); 
+            );
         }
 
         $response = array(
@@ -108,13 +119,14 @@ class CompanyCategoryController extends Controller
             "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr
-        ); 
+        );
 
         echo json_encode($response);
         exit;
     }
 
     public function editCompanyCategory($id) {
+        $page_title = 'Update Company Category';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -123,10 +135,10 @@ class CompanyCategoryController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('databank.companyCategories.editCompanyCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companyCategories.editCompanyCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    public function fetchCompanyCategory($id) {        
+    public function fetchCompanyCategory($id) {
         $companyCategoriesData = CompanyCategory::where('id', $id)->first();
 
         return $companyCategoriesData;
@@ -136,10 +148,10 @@ class CompanyCategoryController extends Controller
         $companyCategoryData = CompanyCategory::where('id',$id)->first();
         $companyCategoryData->is_delete = 1;
         $companyCategoryData->save();
-        
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -167,7 +179,7 @@ class CompanyCategoryController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -181,7 +193,7 @@ class CompanyCategoryController extends Controller
         $this->validate($request, [
             'category_name' => 'required',
         ]);
-        
+
         $id = $request->id;
 
         $companyCategory = CompanyCategory::where('id', $id)->first();
@@ -191,7 +203,7 @@ class CompanyCategoryController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;

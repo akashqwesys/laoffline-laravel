@@ -12,6 +12,8 @@
         <!-- StyleSheets  -->
         <link rel="stylesheet" href="{{ asset('assets/css/dashlite.css') }}">
         <link id="skin-default" rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+        @yield('css')
     </head>
 
 <body class="nk-body bg-lighter npc-general has-sidebar ">
@@ -165,12 +167,13 @@
     </div><!-- .modal -->
     <!-- JavaScript -->
 
-    <script src="https://code.jquery.com/jquery-3.5.0.js" integrity="sha256-r/AaFHrszJtwpe+tHyNi/XCfMxYpbsRg2Uqn0x3s2zc=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script src="{{ asset('assets/js/nioapp/nioapp.min.js') }}"></script>
     <script src="{{ asset('assets/js/bundle.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <script src="{{ asset('assets/js/charts/gd-default.js') }}"></script>
     <script src="{{ asset('assets/js/libs/datatable-btns.js') }}"></script>
+    @yield('js')
 </body>
 
 </html>

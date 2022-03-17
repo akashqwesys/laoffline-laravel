@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="modal fade" id="addTransport">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -30,7 +30,7 @@
                                 </div>
                             </div>
                             <hr class="preview-hr">
-                            <div class="row gy-4">                                        
+                            <div class="row gy-4">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <a href="#" data-dismiss="modal" aria-label="Close" class="btn btn-dim btn-secondary">Cancel</a>
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     export default {
         name: 'createTransport',
         data() {

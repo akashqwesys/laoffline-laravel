@@ -107,20 +107,20 @@
                             } else {
                                 data.columns[2].search.value = $('#dt_name').val();
                             }
-                            if ($('#dt_email').val() == '') {
+                            if ($('#dt_category').val() == '') {
                                 data.columns[3].search.value = '';
                             } else {
-                                data.columns[3].search.value = $('#dt_email').val();
+                                data.columns[3].search.value = $('#dt_category').val();
                             }
-                            if ($('#dt_mobile').val() == '') {
+                            if ($('#fabric_group').val() == '') {
                                 data.columns[4].search.value = '';
                             } else {
-                                data.columns[4].search.value = $('#dt_mobile').val();
+                                data.columns[4].search.value = $('#fabric_group').val();
                             }
-                            if ($('#dt_user_group').val() == '') {
+                            if ($('#dt_company').val() == '') {
                                 data.columns[5].search.value = '';
                             } else {
-                                data.columns[5].search.value = $('#dt_user_group').val();
+                                data.columns[5].search.value = $('#dt_company').val();
                             }
                         },
                         complete: function (data) { }
