@@ -32,16 +32,17 @@ class ProductsController extends Controller
     }
 
     public function index(Request $request) {
+        $page_title = 'Catalog List';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+
         $employees['excelAccess'] = $user->excel_access;
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -50,16 +51,17 @@ class ProductsController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('databank.products.product',compact('financialYear'))->with('employees', $employees);
+        return view('databank.products.product',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function createProducts() {
+        $page_title = 'Add Product';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('databank.products.createProduct',compact('financialYear'))->with('employees', $employees);
+        return view('databank.products.createProduct',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function listCountries() {
@@ -103,20 +105,54 @@ class ProductsController extends Controller
 
         // Total records
         $totalRecords = Product::select('count(*) as allcount')->count();
-        $totalRecordswithFilter = Product::select('count(*) as allcount')->
-                                           where('product_name', 'ILIKE', '%' .$searchValue . '%')->
-                                           count();
+        $totalRecordswithFilter = Product::select('count(products.id) as allcount')
+            ->join('companies', 'products.company', '=', 'companies.id')
+            ->join('product_categories', 'products.category', '=', 'product_categories.id')
+            ->join('product_details', 'products.id', '=', 'product_details.product_id');
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('products.product_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
+                ->orWhere('products.catalogue_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
+                ->orWhere('products.brand_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
+                ->orWhere('products.model', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
+            });
+        }
+        // if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+        //     $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+        //         $q->orWhere('employees.mobile', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
+        //     });
+        // }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('product_categories.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
+        }
+        $totalRecordswithFilter = $totalRecordswithFilter->where('products.is_delete', 0)
+            ->count();
 
         // Fetch records
-        $products = Product::join('companies','products.company','=','companies.id')->
-                             join('product_categories','products.category','=','product_categories.id')->
-                             join('product_details','products.id','=','product_details.product_id')->
-                             orderBy('products.'.$columnName,$columnSortOrder)->
-                             where('products.product_name', 'ILIKE', '%' .$searchValue . '%')->
-                             where('products.is_delete', 0)->
-                             skip($start)->
-                             take($rowperpage)->
-                             get(['products.*','products.id as product_id','companies.company_name','product_categories.name as category_name','product_details.catalogue_price']);
+        $products = Product::join('companies','products.company','=','companies.id')
+            ->join('product_categories','products.category','=','product_categories.id')
+            ->join('product_details','products.id','=','product_details.product_id');
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $products = $products->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('products.product_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
+                ->orWhere('products.catalogue_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
+                ->orWhere('products.brand_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
+                ->orWhere('products.model', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
+            });
+        }
+        // if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+        //     $products = $products->where(function ($q) use ($columnName_arr) {
+        //         $q->orWhere('employees.mobile', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
+        //     });
+        // }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $products = $products->where('product_categories.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
+        }
+        $products = $products->where('products.is_delete', 0)
+            ->orderBy('products.'.$columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage)
+            ->get(['products.*','products.id as product_id','companies.company_name','product_categories.name as category_name','product_details.catalogue_price']);
 
         $data_arr = array();
         $sno = $start+1;
@@ -160,7 +196,7 @@ class ProductsController extends Controller
                 "category_name" => $category_name,
                 "catalogue_price" => $catalogue_price,
                 "action" => $action
-            );            
+            );
         }
 
         $response = array(
@@ -168,7 +204,7 @@ class ProductsController extends Controller
             "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr
-        ); 
+        );
 
         echo json_encode($response);
         exit;
@@ -178,7 +214,7 @@ class ProductsController extends Controller
         $mainCategory = ProductCategory::where('main_category_id', '!=', 0)->get();
         $mainCategoryData = [];
         $category_array = [];
-        
+
 
         foreach($mainCategory as $key => $category) {
             if (is_array(json_decode($category->company_id))) {
@@ -261,6 +297,7 @@ class ProductsController extends Controller
     }
 
     public function editProducts($id) {
+        $page_title = 'Update Product';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -269,7 +306,7 @@ class ProductsController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('databank.products.editProduct',compact('financialYear'))->with('employees', $employees);
+        return view('databank.products.editProduct',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchProducts($id) {
@@ -279,11 +316,11 @@ class ProductsController extends Controller
         $company = Company::where('id', $productData->company)->first();
         $comapnyData['id'] = $company->id;
         $comapnyData['company_name'] = $company->company_name;
-        
+
         $category = ProductCategory::where('id', $productData->category)->first();
         $categoryData['id'] = $category->id;
         $categoryData['name'] = $category->name;
-        
+
         $subCategory = ProductCategory::where('id', $productData->sub_category)->first();
         $subCategoryData['id'] = $subCategory->id;
         $subCategoryData['name'] = $subCategory->name;
@@ -320,10 +357,10 @@ class ProductsController extends Controller
         $productData = Product::where('id',$id)->first();
         $productData->is_delete = 1;
         $productData->save();
-        
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -382,7 +419,7 @@ class ProductsController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -395,7 +432,7 @@ class ProductsController extends Controller
     }
 
     public function insertProductsData(Request $request) {
-        $total_image = 0; 
+        $total_image = 0;
         $inserted_image = 0;
 
         $productData = json_decode($request->product_data);
@@ -408,7 +445,7 @@ class ProductsController extends Controller
             $fabrics[$key] = $data;
         }
 
-        $subCategoriesId = [];        
+        $subCategoriesId = [];
 
         foreach($productData->sub_category as $key => $subCategory) {
             $subCategoriesId[$key] = $subCategory->id;
@@ -434,7 +471,7 @@ class ProductsController extends Controller
         if(is_array($request->product_additional_images) && !empty($request->product_additional_images)) {
             $length = count($request->product_additional_images);
 
-            for ($i=0; $i<$length; $i++) {                
+            for ($i=0; $i<$length; $i++) {
                 if ($image = $request->product_additional_images[$i]) {
                     if(!is_string($image)) {
                         $profileImage = date('YmdHis') . "_additionalImage_" . $i . "." . $image->getClientOriginalExtension();
@@ -465,8 +502,8 @@ class ProductsController extends Controller
         $products->model = $productData->model;
         $products->launch_date = $productData->launch_date;
         $products->company = $productData->company->id;
-        $products->category = $productData->category->id;        
-        $products->sub_category = implode(',', $subCategoriesId);        
+        $products->category = $productData->category->id;
+        $products->sub_category = implode(',', $subCategoriesId);
         $products->main_image = $productData->main_image;
         $products->price_list_image = $productData->price_list_image;
         $products->description = $productData->description;
@@ -474,7 +511,7 @@ class ProductsController extends Controller
         $products->generated_by = Session::get('user')->employee_id;
         $products->updated_by = 0;
         $products->save();
-        
+
         $productDetailsLastId = ProductDetails::orderBy('id', 'DESC')->first('id');
         $productDetailsId = !empty($productDetailsLastId) ? $productDetailsLastId->id + 1 : 1;
 
@@ -488,11 +525,11 @@ class ProductsController extends Controller
         $productDetails->retail_discount = $productData->retail_discount;
         $productDetails->retail_brokerage = $productData->retail_brokerage;
         $productDetails->save();
-        
+
         foreach($AdditionalImage as $image) {
             $productImagesLastId = ProductsImages::orderBy('id', 'DESC')->first('id');
             $productImagesId = !empty($productImagesLastId) ? $productImagesLastId->id + 1 : 1;
-    
+
             $productImages = new ProductsImages;
             $productImages->id = $productImagesId;
             $productImages->product_id = $productsId;
@@ -503,7 +540,7 @@ class ProductsController extends Controller
             $productImages->sort_order = $image->sort_order;
             $productImages->save();
         }
-        
+
         $productFabricsLastId = ProductFabricDetails::orderBy('id', 'DESC')->first('id');
         $productFabricsId = !empty($productFabricsLastId) ? $productFabricsLastId->id + 1 : 1;
 
@@ -536,7 +573,7 @@ class ProductsController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -547,7 +584,7 @@ class ProductsController extends Controller
     }
 
     public function updateProductsData(Request $request) {
-        $total_image = 0; 
+        $total_image = 0;
         $inserted_image = 0;
 
         $productData = json_decode($request->product_data);
@@ -561,7 +598,7 @@ class ProductsController extends Controller
             $fabrics[$key] = $data;
         }
 
-        $subCategoriesId = [];        
+        $subCategoriesId = [];
         if(is_array($productData->sub_category)) {
             foreach($productData->sub_category as $key => $subCategory) {
                 $subCategoriesId[$key] = $subCategory->id;
@@ -584,7 +621,7 @@ class ProductsController extends Controller
             $inserted_image++;
         }
         $total_image++;
-        
+
         if ($image = $request->priceListImage) {
             $profileImage = date('YmdHis') . "_priceListImage." . $image->getClientOriginalExtension();
             $productData->price_list_image = $profileImage;
@@ -596,7 +633,7 @@ class ProductsController extends Controller
         if(is_array($request->product_additional_images) && !empty($request->product_additional_images) ) {
             $length = count($request->product_additional_images);
 
-            for ($i=0; $i<$length; $i++) {                
+            for ($i=0; $i<$length; $i++) {
                 if ($image = $request->product_additional_images[$i]) {
                     if(!is_string($image)) {
                         $profileImage = date('YmdHis') . "_additionalImage_" . $i . "." . $image->getClientOriginalExtension();
@@ -612,7 +649,7 @@ class ProductsController extends Controller
                 }
             }
         }
-        
+
         $complete_flag = 0;
         if($total_image != $inserted_image) {
             $complete_flag = 1;
@@ -625,7 +662,7 @@ class ProductsController extends Controller
         $products->model = $productData->model;
         $products->launch_date = $productData->launch_date;
         $products->company = $productData->company->id;
-        $products->category = $productData->category->id;        
+        $products->category = $productData->category->id;
         $products->sub_category = implode(',', $subCategoriesId);
         $products->main_image = $productData->main_image;
         $products->price_list_image = $productData->price_list_image;
@@ -633,7 +670,7 @@ class ProductsController extends Controller
         $products->complete_flag = $complete_flag;
         $products->updated_by = Session::get('user')->employee_id;
         $products->save();
-        
+
         $productDetails = ProductDetails::where('product_id', $id)->first();
         $productDetails->catalogue_price = $productData->catalogue_price;
         $productDetails->average_price = $productData->average_price;
@@ -644,10 +681,10 @@ class ProductsController extends Controller
         $productDetails->save();
 
         $productImages = ProductsImages::where('product_id', $id)->delete();
-        foreach($AdditionalImage as $image) {            
+        foreach($AdditionalImage as $image) {
             $productImageId = ProductsImages::orderBy('id', 'DESC')->first('id');
             $piId = !empty($productImageId) ? $productImageId->id + 1 : 1;
-                            
+
             $productImages = new ProductsImages;
             $productImages->id = $piId;
             $productImages->product_id = $products->id;
@@ -658,7 +695,7 @@ class ProductsController extends Controller
             $productImages->sort_order = $image->sort_order;
             $productImages->save();
         }
-        
+
         $productFabrics = ProductFabricDetails::where('product_id', $id)->first();
         $productFabrics->product_id = $products->id;
         $productFabrics->saree_fabric = isset($fabrics['saree_fabric']) ? $fabrics['saree_fabric'] : 0;
@@ -687,7 +724,7 @@ class ProductsController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;

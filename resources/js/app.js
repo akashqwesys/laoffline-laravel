@@ -19,6 +19,15 @@ import CreateProductCategoryComponent from './components/databank/productCategor
 import ProductSubCategoryComponent from './components/databank/productSubCategoryComponents/ProductSubCategoryComponent.vue';
 import CreateProductSubCategoryComponent from './components/databank/productSubCategoryComponents/CreateProductSubCategoryComponent.vue';
 
+import ProductComponent from './components/databank/productsComponents/ProductComponent.vue';
+import CreateProductComponent from './components/databank/productsComponents/CreateProductComponent.vue';
+
+import CompanyComponent from './components/databank/companyComponents/CompanyComponent.vue';
+import CreateCompanyComponent from './components/databank/companyComponents/CreateCompanyComponent.vue';
+
+import CompanyCategoryComponent from './components/databank/companyCategoryComponents/CompanyCategoryComponent.vue';
+import CreateCompanyCategoryComponent from './components/databank/companyCategoryComponents/CreateCompanyCategoryComponent.vue';
+
 import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
 import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
 /**
@@ -64,6 +73,30 @@ const routes = [
         ]
     },
     {
+        path: '/databank/catalog',
+        component: ProductComponent,
+        children: [
+            { path: 'create-products', component: CreateProductComponent },
+            { path: 'edit-products/:id', component: CreateProductComponent },
+        ]
+    },
+    {
+        path: '/databank/companies',
+        component: CompanyComponent,
+        children: [
+            { path: 'create-company', component: CreateCompanyComponent },
+            { path: 'edit-company/:id', component: CreateCompanyComponent },
+        ]
+    },
+    {
+        path: '/databank/companyCategory',
+        component: CompanyCategoryComponent,
+        children: [
+            { path: 'create-company-category', component: CreateCompanyCategoryComponent },
+            { path: 'edit-company-category/:id', component: CreateCompanyCategoryComponent },
+        ]
+    },
+    {
         path: '/financialyear/',
         component: FinancialYearComponent,
         children: [
@@ -89,6 +122,14 @@ createApp({
         CreateProductCategoryComponent,
         ProductSubCategoryComponent,
         CreateProductSubCategoryComponent,
+        ProductComponent,
+        CreateProductComponent,
+        CompanyComponent,
+        CreateCompanyComponent,
+        CompanyCategoryComponent,
+        CreateCompanyCategoryComponent,
+
+
         FinancialYearComponent,
         CreateFinancialYearComponent,
     }

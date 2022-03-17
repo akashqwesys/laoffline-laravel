@@ -1,4 +1,4 @@
-<template>   
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -11,7 +11,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -46,7 +46,7 @@
                                                         <input type="text" class="form-control" id="fv-brand-name" v-model="productData.brand_name">
                                                     </div>
                                                 </div>
-                                            </div> 
+                                            </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-model-name">Model / Acctress Name</label>
@@ -54,7 +54,7 @@
                                                         <input type="text" class="form-control" id="fv-model-name" v-model="productData.model">
                                                     </div>
                                                 </div>
-                                            </div> 
+                                            </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-launch-date">Launch Date</label>
@@ -64,9 +64,9 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
-                                                <div class="form-group code-block">
+                                                <div class="form-group code-block-">
                                                     <label class="form-label" for="fw-company">Company</label>
-                                                    <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#addCompany" title="Add new company"><span class="clipboard-text">Add New</span></button>
+                                                    <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add new company"><span class="clipboard-text">Add New</span></button>
                                                     <div>
                                                         <multiselect v-model="productData.company" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @input="getProductCategory"></multiselect>
                                                         <span v-if="errors.company" class="invalid">{{errors.company}}</span>
@@ -74,7 +74,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
-                                                <div class="form-group code-block">
+                                                <div class="form-group code-block-">
                                                     <label class="form-label" for="fw-company">Category</label>
                                                     <div>
                                                         <multiselect v-model="productData.category" :options="productCategories" placeholder="Select one" label="name" track-by="name" @input="getProductSubCategory"></multiselect>
@@ -83,7 +83,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
-                                                <div class="form-group code-block">
+                                                <div class="form-group code-block-">
                                                     <label class="form-label" for="fw-company">Sub Category</label>
                                                     <div>
                                                         <multiselect v-model="productData.sub_category" :options="productSubCategories" placeholder="Select one" label="name" track-by="name" :multiple="true" :taggable="true" @input="getFabricField"></multiselect>
@@ -132,7 +132,7 @@
                                                         <input type="number" class="form-control" id="fv-catalogue-price" v-model="productData.catalogue_price">
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-average-price">Average Price</label>
@@ -148,7 +148,7 @@
                                                         <input type="number" class="form-control" id="fv-wholesale-discount" v-model="productData.wholesale_discount" @change="addTotalWholesaleDiscount">
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-wholesale-brokerage">Wholesale Brokerage</label>
@@ -156,7 +156,7 @@
                                                         <input type="number" class="form-control" id="fv-wholesale-brokerage" v-model="productData.wholesale_brokerage" @change="addTotalWholesaleBrokerage">
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-total-wholesale-discount">Total Wholesale Discount</label>
@@ -172,7 +172,7 @@
                                                         <input type="number" class="form-control" id="fv-retail-discount" v-model="productData.retail_discount" @change="addTotalRetailDiscount">
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-retail-brokerage">Retail Brokerage</label>
@@ -180,7 +180,7 @@
                                                         <input type="number" class="form-control" id="fv-retail-brokerage" v-model="productData.retail_brokerage" @change="addTotalRetailBrokerage">
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-total-retail-discount">Total Retail Discount</label>
@@ -448,7 +448,7 @@
 
 <script>
     import Multiselect from 'vue-multiselect';
-    import AddCompany from './modal/AddNewCompanyModelComponent';
+    import AddCompany from './modal/AddNewCompanyModelComponent.vue';
 
     var products = [];
     var fabric_fields = [];
@@ -458,7 +458,7 @@
             scope: String,
             id: Number,
         },
-        components: { 
+        components: {
             Multiselect,
             AddCompany
         },
@@ -489,7 +489,7 @@
                     lining_view: 0,
                     gown_view: 0,
                 },
-                fabricsData : {                    
+                fabricsData : {
                     saree_fabric: '',
                     saree_cut: 0,
                     blouse_fabric: '',
@@ -568,10 +568,10 @@
                 this.productAdditionalImages.pop(row);
             },
             uploadMainImage (event) {
-                this.mainImage = event.target.files[0];        
+                this.mainImage = event.target.files[0];
             },
             uploadPriceListImage (event) {
-                this.priceListImage = event.target.files[0];        
+                this.priceListImage = event.target.files[0];
             },
             uploadProductImage (index, e) {
                 this.productAdditionalImages[index]['product_pic'] = e.target.files[0];
@@ -579,7 +579,7 @@
             getProductCategory: function(event) {
                 if(event != null) {
                     axios.get('/databank/catalog/main-category/'+event.id)
-                    .then(response => { 
+                    .then(response => {
                         this.productCategories = response.data;
                     });
                 }
@@ -590,7 +590,7 @@
                     .then(response => {
                         this.productSubCategories = response.data;
                     });
-                }                
+                }
             },
             getFabricField: function(event) {
                 if(event.length != 0) {
@@ -609,7 +609,7 @@
 
                         var i = 0;
                         for(i=0; i<fabric_fields.length; i++) {
-                            this.fabrics[fabric_fields[i]] = 1;                        
+                            this.fabrics[fabric_fields[i]] = 1;
                         }
                     });
                 }
@@ -695,7 +695,7 @@
                     axios.get(`/databank/catalog/fetch-product/${this.id}`)
                     .then(response => {
                         products = response.data;
-                
+
                         var fabricViews = [];
 
                         this.productData = products.productData;
@@ -706,7 +706,7 @@
                         this.productData.total_retail_discount = +products.productData.retail_brokerage + +products.productData.retail_discount;
 
                         fabricViews = products.fabricsView;
-                        
+
                         var i = 0;
                         for(i=0; i<fabricViews.length; i++) {
                             this.fabrics[fabricViews[i]] = 1;
@@ -719,7 +719,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style>
     .multiselect {
         height: calc(2.125rem + 2px);
@@ -787,7 +787,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

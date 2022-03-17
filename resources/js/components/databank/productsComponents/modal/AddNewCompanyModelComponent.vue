@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="modal fade" id="addCompany">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -19,7 +19,7 @@
                                             <multiselect v-model="form.company_type" :options="companyTypes" placeholder="Select one" label="name" track-by="name"></multiselect>
                                         </div>
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-label" for="fv-name">Name</label>
@@ -103,6 +103,7 @@
 
 <script>
     import Multiselect from 'vue-multiselect';
+    import Form from 'vform';
 
     export default {
         name: 'createCompany',
@@ -110,7 +111,7 @@
             ctype: String,
             id: Number,
         },
-        components: { 
+        components: {
             Multiselect
         },
         data() {
@@ -148,7 +149,7 @@
                         comType.push(element);
                     }
                 });
-                this.companyTypes = comType;          
+                this.companyTypes = comType;
             });
             axios.get('/databank/catalog/list-country')
             .then(response => {
@@ -175,11 +176,11 @@
             },
         },
         mounted() {
-            
+
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style>
     #addCompany .modal-dialog{
         max-width: 920px;
@@ -250,7 +251,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

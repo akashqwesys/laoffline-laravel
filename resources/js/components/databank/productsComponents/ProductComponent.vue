@@ -15,7 +15,7 @@
                                 <div class="toggle-wrap nk-block-tools-toggle">
                                     <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
                                     <div class="toggle-expand-content" data-content="pageMenu">
-                                        <ul class="nk-block-tools g-3">                                            
+                                        <ul class="nk-block-tools g-3">
                                             <li class="nk-block-tools-opt">
                                                 <a v-bind:href="create_product_category" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
                                             </li>
@@ -33,7 +33,7 @@
                                         <tr>
                                             <th>No</th>
                                             <th></th>
-                                            <th></th>
+                                            <th>Image</th>
                                             <th>Name</th>
                                             <th>Catalogue Name</th>
                                             <th>Brand Name</th>
@@ -55,14 +55,12 @@
 </template>
 
 <script>
-    import 'jquery/dist/jquery.min.js';
-    import "datatables.net-dt/js/dataTables.dataTables";
-    import "datatables.net-buttons/js/dataTables.buttons.js";
-    import "datatables.net-buttons/js/buttons.colVis.js";
-    import "datatables.net-buttons/js/buttons.flash.js";
-    import "datatables.net-buttons/js/buttons.html5.js";
-    import "datatables.net-buttons/js/buttons.print.js";
     import $ from 'jquery';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import 'pdfmake/build/pdfmake';
+    import "datatables.net-buttons/js/buttons.html5";
+    import "datatables.net-buttons/js/buttons.print";
 
     export default {
         name: 'product',
@@ -83,57 +81,79 @@
             },
             delete_data(id){
                 axios.delete('./catalog/delete/'+id)
-                .then(response => {                    
+                .then(response => {
                     location.reload();
                 });
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#product').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./catalog/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'image' },
-                        { data: 'name' },
-                        { data: 'catalogue_name' },
-                        { data: 'brand_name' },
-                        { data: 'model' },
-                        { data: 'company_name' },
-                        { data: 'category_name' },
-                        { data: 'catalogue_price' },
-                        { data: 'action' },
-                    ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#product').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./catalog/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'image' },
-                        { data: 'name' },
-                        { data: 'catalogue_name' },
-                        { data: 'brand_name' },
-                        { data: 'model' },
-                        { data: 'company_name' },
-                        { data: 'category_name' },
-                        { data: 'catalogue_price' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
-                });
+                buttons = ['excelHtml5', 'pdfHtml5', 'print'];
             }
+            function init_dt_table () {
+                dt_table = $('#product').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    responsive: true,
+                    ajax: {
+                        url: "./catalog/list",
+                        data: function (data) {
+                            if ($('#dt_name').val() == '') {
+                                data.columns[2].search.value = '';
+                            } else {
+                                data.columns[2].search.value = $('#dt_name').val();
+                            }
+                            if ($('#dt_company').val() == '') {
+                                data.columns[3].search.value = '';
+                            } else {
+                                data.columns[3].search.value = $('#dt_company').val();
+                            }
+                            if ($('#dt_category').val() == '') {
+                                data.columns[4].search.value = '';
+                            } else {
+                                data.columns[4].search.value = $('#dt_category').val();
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: 'Brtip',
+                    columns: [
+                        { data: 'id' },
+                        { data: 'flag' },
+                        { data: 'image' },
+                        { data: 'name' },
+                        { data: 'catalogue_name' },
+                        { data: 'brand_name' },
+                        { data: 'model' },
+                        { data: 'company_name' },
+                        { data: 'category_name' },
+                        { data: 'catalogue_price' },
+                        { data: 'action' },
+                    ],
+                    buttons: buttons
+                })
+                .on( 'init.dt', function () {
+                    $('<div class="dataTables_filter" id="product_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name/Catalogue/Brand/Model"><input type="search" id="dt_company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="dt_category" class="form-control form-control-sm" placeholder="Category"></div>').insertAfter('.dt-buttons.btn-group');
+                } );
+            }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#product_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    if (e.keyCode == 13) {
+                        dt_table.clear().draw();
+                    }
+                    draw = 0;
+                }
+            });
         },
     };
 </script>
@@ -152,19 +172,22 @@
         height: 100%;
     }
     .dataTables_filter {
-        padding: 10px;
+        display: flex;
+        margin-bottom: 15px;
     }
     .dataTables_filter input {
-        margin-left: 10px;
+        padding: 17px;
+        margin: 0 10px;
+        width: 25%;
     }
     .dt-buttons {
         position: relative;
         display: inline-flex;
         vertical-align: middle;
-        flex-wrap: wrap;        
+        flex-wrap: wrap;
         float: right;
     }
-    .dt-buttons .dt-button {    
+    .dt-buttons .dt-button {
         position: relative;
         flex: 1 1 auto;
         display: inline-flex;
@@ -189,9 +212,9 @@
         width: 2.125rem;
         font-family: "Nioicon";
     }
-    .dt-buttons .dt-button span {
+    /* .dt-buttons .dt-button span {
         display: none;
-    }
+    } */
     .dataTables_paginate {
         display: flex;
         padding-left: 0;

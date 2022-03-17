@@ -79,8 +79,8 @@ class ProductSubCategoryController extends Controller
 
         // Total records
         $totalRecords = ProductCategory::select('count(*) as allcount')->count();
-        $totalRecordswithFilter = ProductCategory::select('count(*) as allcount')
-            ->where('product_categories.main_category_id', '!=', '0')
+        $totalRecordswithFilter = ProductCategory::select('count(product_categories.id) as allcount')
+            ->where('product_categories.main_category_id', '<>', '0')
             ->where('product_categories.is_delete', '0');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
@@ -89,30 +89,50 @@ class ProductSubCategoryController extends Controller
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('employees.email_id', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
+                $q->where('name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%')
+                ->where('product_default_category_id', '<>', 0);
             });
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('employees.mobile', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
-            });
+            $totalRecordswithFilter = $totalRecordswithFilter->join('product_fabric_groups as pfg', 'product_categories.product_fabric_id', '=', 'pfg.id')
+            ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
-        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('user_groups.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
-            });
-        }
+        // if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+        //     $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+        //         $q->orWhere('user_groups.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
+        //     });
+        // }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         // Fetch records
-        $records = ProductCategory::join('product_categories as pc','product_categories.main_category_id','=','pc.id')
-            ->where('product_categories.main_category_id', '!=', '0')
-            ->where('product_categories.is_delete', '0')
-            ->orderBy('product_categories.'.$columnName,$columnSortOrder)
+        $records = ProductCategory::select('product_categories.*')
+            // ->where('product_categories.main_category_id', '<>', '0')
+            ->where('product_categories.is_delete', '0');
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $records = $records->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
+            });
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $records = $records->where(function ($q) use ($columnName_arr) {
+                $q->where('name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%')
+                ->where('product_default_category_id', '<>', 0);
+            });
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $records = $records->join('product_fabric_groups as pfg', 'product_categories.product_fabric_id', '=', 'pfg.id')
+                ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
+        }
+        $records = $records->orderBy('product_categories.'.$columnName,$columnSortOrder)
             ->skip($start)
             ->take($rowperpage)
-            ->get(['product_categories.*', 'pc.name as categoryName']);
-
+            ->get();
+        /* $main_category = collect($records)->where('product_default_category_id', '<>', 0)->pluck('name', 'id');
+        $select_ = '<select id="dt_category" class="form-control form-control-sm">';
+        foreach ($main_category as $k => $v) {
+            $select_ .= '<option value="' . $k . '" > ' . $v . '</option>';
+        }
+        $select_ .= '</select>'; */
         $data_arr = array();
         $sno = $start+1;
 
@@ -147,7 +167,6 @@ class ProductSubCategoryController extends Controller
             }
 
             $name = $record->name;
-            $main_category = $record->categoryName;
             $fabric_group = $record->fabricGroupName;
             $company_name = $record->companyName;
 
@@ -162,7 +181,7 @@ class ProductSubCategoryController extends Controller
             $data_arr[] = array(
                 "id" => $id,
                 "name" => $name,
-                "main_category" => $main_category,
+                "main_category" => $name,
                 "fabric_group" => $fabric_group,
                 "company" => $company_name,
                 "action" => $action
@@ -173,7 +192,8 @@ class ProductSubCategoryController extends Controller
             "draw" => intval($draw),
             "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordswithFilter,
-            "aaData" => $data_arr
+            "aaData" => $data_arr,
+            // 'main_category' => $select_
         );
 
         echo json_encode($response);

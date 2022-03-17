@@ -15,7 +15,7 @@
                                 <div class="toggle-wrap nk-block-tools-toggle">
                                     <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
                                     <div class="toggle-expand-content" data-content="pageMenu">
-                                        <ul class="nk-block-tools g-3">                                            
+                                        <ul class="nk-block-tools g-3">
                                             <li class="nk-block-tools-opt">
                                                 <a v-bind:href="create_company_category" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
                                             </li>
@@ -47,14 +47,12 @@
 </template>
 
 <script>
-    import 'jquery/dist/jquery.min.js';
-    import "datatables.net-dt/js/dataTables.dataTables";
-    import "datatables.net-buttons/js/dataTables.buttons.js";
-    import "datatables.net-buttons/js/buttons.colVis.js";
-    import "datatables.net-buttons/js/buttons.flash.js";
-    import "datatables.net-buttons/js/buttons.html5.js";
-    import "datatables.net-buttons/js/buttons.print.js";
     import $ from 'jquery';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import 'pdfmake/build/pdfmake';
+    import "datatables.net-buttons/js/buttons.html5";
+    import "datatables.net-buttons/js/buttons.print";
 
     export default {
         name: 'companyCategory',
@@ -72,17 +70,31 @@
             },
             delete_data(id){
                 axios.delete('./companyCategory/delete/'+id)
-                .then(response => {                    
+                .then(response => {
                     location.reload();
                 });
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#companyCategory').DataTable({
+                buttons = ['excel', 'pdf', 'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#companyCategory').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "./companyCategory/list",
+                    responsive: true,
+                    ajax: {
+                        url: "./companyCategory/list",
+                        data: function (data) {
+                            if ($('#companyCategory_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
                     pagingType: 'full_numbers',
                     dom: 'Bfrtip',
                     columns: [
@@ -90,23 +102,24 @@
                         { data: 'name' },
                         { data: 'action' },
                     ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#companyCategory').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./companyCategory/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
                 });
             }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#companyCategory_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
         },
     };
 </script>
@@ -121,10 +134,10 @@
         position: relative;
         display: inline-flex;
         vertical-align: middle;
-        flex-wrap: wrap;        
+        flex-wrap: wrap;
         float: right;
     }
-    .dt-buttons .dt-button {    
+    .dt-buttons .dt-button {
         position: relative;
         flex: 1 1 auto;
         display: inline-flex;
