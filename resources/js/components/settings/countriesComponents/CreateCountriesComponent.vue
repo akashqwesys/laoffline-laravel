@@ -60,6 +60,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var countries = [];
     export default {
         name: 'createCountries',

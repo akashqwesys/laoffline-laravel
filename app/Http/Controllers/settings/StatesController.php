@@ -98,12 +98,14 @@ class StatesController extends Controller
         foreach($State as $record){
             $id = $record->id;
             $name = $record->name;
+            $country = Country::where('id', $record->country_id)->first();
             $action = '<a href="./states/edit-states/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./states/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
                 "name" => $name,
+                "country" => $country->name,
                 "action" => $action
             );
         }
@@ -133,7 +135,7 @@ class StatesController extends Controller
 
     public function fetchStates($id) {
         $statesData = State::where('id', $id)->first();
-
+        $statesData['country'] = Country::where('id',$statesData->country_id)->first();
         return $statesData;
     }
 
@@ -161,13 +163,13 @@ class StatesController extends Controller
             'country_id' => 'required',
             'name' => 'required',
         ]);
-
+        
         $stateLastId = State::orderBy('id', 'DESC')->first('id');
         $stateId = !empty($stateLastId) ? $stateLastId->id + 1 : 1;
 
         $states = new State;
         $states->id = $stateId;
-        $states->country_id = $request->country_id;
+        $states->country_id = $request->country_id['id'];
         $states->name = $request->name;
         $states->save();
 
@@ -188,11 +190,10 @@ class StatesController extends Controller
             'country_id' => 'required',
             'name' => 'required',
         ]);
-
         $id = $request->id;
 
         $states = State::where('id', $id)->first();
-        $states->country_id = $request->country_id;
+        $states->country_id = $request->country_id['id'];
         $states->name = $request->name;
         $states->save();
 

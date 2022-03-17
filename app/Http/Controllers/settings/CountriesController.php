@@ -126,8 +126,7 @@ class CountriesController extends Controller
 
     public function fetchCountries($id) {
         $countriesData = Country::where('id', $id)->first();
-        $countriesData->is_delete = 1;
-        $countriesData->save();
+        
 
         return $countriesData;
     }

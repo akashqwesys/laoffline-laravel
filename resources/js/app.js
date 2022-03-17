@@ -21,6 +21,16 @@ import CreateProductSubCategoryComponent from './components/databank/productSubC
 
 import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
 import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
+
+import CountriesComponent from './components/settings/countriesComponents/CountriesComponent.vue';
+import CreateCountriesComponent from './components/settings/countriesComponents/CreateCountriesComponent.vue';
+
+import StatesComponent from './components/settings/statesComponents/StatesComponent.vue';
+import CreateStatesComponent from './components/settings/statesComponents/CreateStatesComponent.vue';
+
+import CitiesComponent from './components/settings/citiesComponents/CitiesComponent.vue';
+import CreateCitiesComponent from './components/settings/citiesComponents/CreateCitiesComponent.vue';
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -71,6 +81,30 @@ const routes = [
             { path: 'edit-financialyear/:id', component: CreateFinancialYearComponent },
         ]
     },
+    {
+        path: '/settings/countries/',
+        component: CountriesComponent,
+        children: [
+            { path: 'create-countries', component: CreateCountriesComponent },
+            { path: 'edit-countries/:id', component: CreateCountriesComponent },
+        ]
+    },
+    {
+        path: '/settings/states/',
+        component: StatesComponent,
+        children: [
+            { path: 'create-states', component: CreateStatesComponent },
+            { path: 'edit-states/:id', component: CreateStatesComponent },
+        ]
+    },
+    {
+        path: '/settings/cities/',
+        component: CitiesComponent,
+        children: [
+            { path: 'create-cities', component: CreateCitiesComponent },
+            { path: 'edit-cities/:id', component: CreateCitiesComponent },
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -91,5 +125,11 @@ createApp({
         CreateProductSubCategoryComponent,
         FinancialYearComponent,
         CreateFinancialYearComponent,
+        CountriesComponent,
+        CreateCountriesComponent,
+        StatesComponent,
+        CreateStatesComponent,
+        CreateCitiesComponent,
+        CitiesComponent,
     }
 }).use(router).mount('#app');

@@ -47,9 +47,14 @@
 
 <script>
     import 'jquery/dist/jquery.min.js';
-    import "datatables.net-dt/js/dataTables.dataTables";
-    import "datatables.net-buttons/js/dataTables.buttons.js";
-    import "datatables.net-buttons/js/buttons.colVis.js";
+    // import 'datatables.net-bs5';
+    import 'datatables.net-bs5/js/dataTables.bootstrap5';
+    // import 'datatables.net-datetime/js/dataTables.dateTime';
+    // import 'datatables.net-searchbuilder-bs5/js/searchBuilder.bootstrap5';
+    // import 'datatables.net-select-bs5/js/select.bootstrap5';
+    // import 'datatables.net-searchpanes-bs5/js/searchPanes.bootstrap5';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
     import "datatables.net-buttons/js/buttons.flash.js";
     import "datatables.net-buttons/js/buttons.html5.js";
     import "datatables.net-buttons/js/buttons.print.js";

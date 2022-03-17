@@ -26,7 +26,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-country">Country</label>
                                                     <div>
-                                                        <multiselect v-model="form.country" :options="countries" placeholder="Select one" label="name" track-by="name" @input="getStateList"></multiselect>
+                                                        <multiselect v-model="form.country" :options="countries" placeholder="Select one" label="name" track-by="name" @select="getStateList"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -77,6 +77,7 @@
 
 <script>
     import Multiselect from 'vue-multiselect';
+    import Form from 'vform';
 
     var cities = [];
     export default {
@@ -103,20 +104,19 @@
             }
         },
         created() {
-            axios.get('./list-country')
+            axios.get('/settings/cities/list-country')
             .then(response => {
                 this.countries = response.data;
             });
         },
         methods: {
-            getStateList: function(event) {
-                if(event != null) {
-                    console.log(event);                    
-                    axios.get('/settings/cities/list-state-id/'+event.id)
+            getStateList(option, id) {
+                                       
+                    axios.get('/settings/cities/list-state-id/'+option.id)
                     .then(response => {
                         this.states = response.data;
                     });
-                }
+                
             },
             register () {
                 if (this.scope == 'edit') {
@@ -140,8 +140,8 @@
                         cities = response.data;
 
                         this.form.id = cities.id;
-                        this.form.country = cities.country;
-                        this.form.state = cities.state;
+                        this.form.country = cities.country_id;
+                        this.form.state = cities.state_id;
                         this.form.name = cities.name;
                         this.form.std_code = cities.std_code;
                     });
@@ -152,7 +152,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
 <style>
     .multiselect {
         height: calc(2.125rem + 2px);

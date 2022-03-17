@@ -26,7 +26,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-country">Country</label>
                                                     <div>
-                                                        <multiselect v-model="form.country_id" :options="countries" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                                        <multiselect  v-model="form.country_id" :options="countries" placeholder="Select one" label="name" track-by="name"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -61,7 +61,7 @@
 
 <script>
     import Multiselect from 'vue-multiselect';
-
+    import Form from 'vform';
     var states = [];
     export default {
         name: 'createStates',
@@ -85,7 +85,7 @@
             }
         },
         created() {
-            axios.get('./list-country')
+            axios.get('/settings/states/list-country')
             .then(response => {
                 this.countries = response.data;
             });
@@ -110,10 +110,10 @@
                 case 'edit' :
                     axios.get(`/settings/states/fetch-states/${this.id}`)
                     .then(response => {
+                        
                         states = response.data;
-
                         this.form.id = states.id;
-                        this.form.country_id = states.country_id;
+                        this.form.country_id = states.country;
                         this.form.name = states.name;
                     });
                     break;
@@ -123,7 +123,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
 <style>
     .multiselect {
         height: calc(2.125rem + 2px);

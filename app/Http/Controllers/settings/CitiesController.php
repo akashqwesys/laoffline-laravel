@@ -117,12 +117,15 @@ class CitiesController extends Controller
         foreach($Cities as $record){
             $id = $record->id;
             $name = $record->name;
+            $state = State::where('id', $record->state)->first();
+            $country = Country::where('id', $record->country)->first();
             $action = '<a href="./cities/edit-cities/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./cities/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
                 "name" => $name,
+                "state" => $state->name.' - '.$country->country_code,
                 "action" => $action
             );
         }
@@ -152,7 +155,8 @@ class CitiesController extends Controller
 
     public function fetchCities($id) {
         $citiesData = Cities::where('id', $id)->first();
-
+        $citiesData['state_id'] = State::where('id', $citiesData->state)->first();
+        $citiesData['country_id'] = Country::where('id', $citiesData->country)->first();
         return $citiesData;
     }
 
@@ -190,8 +194,8 @@ class CitiesController extends Controller
         $cities->id = $citiesId;
         $cities->name = $request->name;
         $cities->std_code = $request->std_code;
-        $cities->country = $request->country;
-        $cities->state = $request->state;
+        $cities->country = $request->country['id'];
+        $cities->state = $request->state['id'];
         $cities->save();
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
@@ -219,8 +223,8 @@ class CitiesController extends Controller
         $cities = Cities::where('id', $id)->first();
         $cities->name = $request->name;
         $cities->std_code = $request->std_code;
-        $cities->country = $request->country;
-        $cities->state = $request->state;
+        $cities->country = $request->country['id'];
+        $cities->state = $request->state['id'];
         $cities->save();
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
