@@ -28,13 +28,14 @@ class LinkCompaniesController extends Controller
         $user = Session::get('user');
 
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
-                               join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+                               join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+                               ->where('employees.id', $user->employee_id)->first();
+
         $employees['excelAccess'] = $user->excel_access;
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -108,7 +109,7 @@ class LinkCompaniesController extends Controller
         return view('databank.linkCompanies.editLinkCompany',compact('financialYear'))->with('employees', $employees);
     }
 
-    public function fetchLinkCompanies($id) { 
+    public function fetchLinkCompanies($id) {
         $userGroupData = linkCompanies::where('id', $id)->first();
 
         return $userGroupData;
@@ -116,10 +117,10 @@ class LinkCompaniesController extends Controller
 
     public function deleteLinkCompanies($id){
         $userGroupData = linkCompanies::where('id', $id)->first();
-        
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -155,7 +156,7 @@ class LinkCompaniesController extends Controller
         } elseif ($companyType->company_type == 3) {
             foreach($linkedCompany as $cmpid) {
                 if($cmpid != '') {
-                    
+
                 }
             }
         }
@@ -177,15 +178,15 @@ class LinkCompaniesController extends Controller
         $company = Company::where('id',$request->company_id['id'])->first();
         $company->is_linked = 1;
         $company->save();
-        
+
 
         $linkCompany = Company::where('id',$request->link_companies_id['id'])->first();
         $linkCompany->is_linked = 1;
         $linkCompany->save();
-        
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -193,7 +194,7 @@ class LinkCompaniesController extends Controller
         $logs->log_subject = 'Link Companies - "'.$request->company_id['company_name'].'" was linked by '.Session::get('user')->username.'.';
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
-        
+
         $linkComapniesLogs = new linkCompaniesLog;
         $linkComapniesLogs->company_id = $request->company_id['id'];
         $linkComapniesLogs->subject = '"'.$request->company_id['company_name'].'" was linked with "'.$request->link_companies_id['company_name'].'".';
@@ -201,14 +202,14 @@ class LinkCompaniesController extends Controller
     }
 
     public function updateLinkCompaniesData(Request $request) {
-        $this->validate($request, [ 
+        $this->validate($request, [
             'name' => 'required',
             'access_permission' => 'required',
             'modify_permission' => 'required',
         ]);
-        
-        $id = $request->id;        
-        
+
+        $id = $request->id;
+
         $userGroup = linkCompanies::where('id', $id)->first();
         $userGroup->name = $request->name;
         $userGroup->access_permission = json_encode($request->access_permission);
@@ -217,7 +218,7 @@ class LinkCompaniesController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;

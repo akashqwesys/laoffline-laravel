@@ -21,12 +21,12 @@ class CreateCompaniesTable extends Migration
             $table->string('company_state')->nullable();
             $table->string('company_city')->nullable();
             $table->string('company_website')->nullable();
-            $table->json('company_landline')->nullable();
-            $table->json('company_mobile')->nullable();
+            $table->jsonb('company_landline')->nullable();
+            $table->jsonb('company_mobile')->nullable();
             $table->string('company_watchout')->nullable();
             $table->text('company_remark_watchout')->nullable();
             $table->text('company_about')->nullable();
-            $table->json('company_category')->nullable();
+            $table->jsonb('company_category')->nullable();
             $table->integer('company_transport')->default('0');
             $table->string('company_discount')->nullable();
             $table->integer('company_payment_terms_in_days')->default('0');

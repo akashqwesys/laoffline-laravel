@@ -17,7 +17,7 @@ class CreateCompanyAddressOwnersTable extends Migration
             $table->integer('id');
             $table->integer('company_address_id')->default('0');
             $table->string('name')->nullable();
-            $table->json('designation')->nullable();
+            $table->jsonb('designation')->nullable();
             $table->string('profile_pic')->nullable();
             $table->string('mobile')->nullable();
             $table->string('email')->nullable();

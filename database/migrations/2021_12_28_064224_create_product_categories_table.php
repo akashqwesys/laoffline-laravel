@@ -18,7 +18,7 @@ class CreateProductCategoriesTable extends Migration
             $table->integer('product_default_category_id')->default('0');
             $table->string('name')->nullable();
             $table->integer('main_category_id')->default('0');
-            $table->json('company_id')->nullable();
+            $table->jsonb('company_id')->nullable();
             $table->integer('product_fabric_id')->nullable();
             $table->integer('sort_order')->default('0');
             $table->integer('multiple_company')->default('0');

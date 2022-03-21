@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="modal fade" :id="'mergeCompany1'">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -30,7 +30,7 @@
                                 </div>
                             </div>
                             <hr class="preview-hr">
-                            <div class="row gy-4">                                        
+                            <div class="row gy-4">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <a href="#" data-dismiss="modal" aria-label="Close" class="btn btn-dim btn-secondary">Cancel</a>
@@ -87,7 +87,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style>
     .multiselect {
         height: calc(2.125rem + 2px);
@@ -155,7 +155,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

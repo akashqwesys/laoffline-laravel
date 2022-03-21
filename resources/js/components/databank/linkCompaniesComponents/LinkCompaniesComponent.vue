@@ -16,7 +16,7 @@
                                 <div class="toggle-wrap nk-block-tools-toggle">
                                     <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
                                     <div class="toggle-expand-content" data-content="pageMenu">
-                                        <ul class="nk-block-tools g-3">                                            
+                                        <ul class="nk-block-tools g-3">
                                             <li class="nk-block-tools-opt">
                                                 <a v-bind:href="create_employee" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
                                             </li>
@@ -91,7 +91,7 @@
                                     </div>
                                 </div>
                                 <hr class="preview-hr">
-                                <div class="row gy-4">                                        
+                                <div class="row gy-4">
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <a href="#" data-dismiss="modal" aria-label="Close" class="btn btn-dim btn-secondary">Cancel</a>
@@ -109,6 +109,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     import Multiselect from 'vue-multiselect';
     import VueLoader from './../../../VueLoader';
 
@@ -166,7 +167,7 @@
                         });
                     });
                 });
-                
+
                 $(mId).modal('show');
             },
             edit_data(id){
@@ -187,7 +188,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style>
     .multiselect {
         height: calc(2.125rem + 2px);
@@ -255,7 +256,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

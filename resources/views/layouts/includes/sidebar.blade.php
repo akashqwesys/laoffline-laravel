@@ -30,7 +30,7 @@
                             <span class="nk-menu-text">Employee Log</span>
                             <!-- <span class="nk-menu-badge">HOT</span> -->
                         </a>
-                    </li><!-- .nk-menu-item -->                    
+                    </li><!-- .nk-menu-item -->
                     <li class="nk-menu-heading">
                         <h6 class="overline-title text-primary-alt">Management</h6>
                     </li><!-- .nk-menu-heading -->
@@ -64,15 +64,12 @@
                             <li class="nk-menu-item">
                                 <a href="{{ route('link-company') }}" class="nk-menu-link"><span class="nk-menu-text">Link Companies</span></a>
                             </li>
-                            <li class="nk-menu-item">
-                                <a href="html/project-list.html" class="nk-menu-link"><span class="nk-menu-text">Attendence</span></a>
-                            </li>
                         </ul><!-- .nk-menu-sub -->
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
                         <a href="{{ route('reference') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
-                            <span class="nk-menu-text">Reference Id</span>
+                            <span class="nk-menu-text">Reference ID</span>
                         </a>
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
@@ -206,3 +203,4 @@
         </div><!-- .nk-sidebar-content -->
     </div><!-- .nk-sidebar-element -->
 </div>
+

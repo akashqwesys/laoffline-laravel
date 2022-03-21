@@ -16,7 +16,7 @@ class CreateEmployeesSeeder extends Seeder
     {
         $employee = [
             [
-                'id' => 2,
+                'id' => 1,
                 'firstname' => 'Admin',
                 'middlename' => 'Admin',
                 'lastname' => 'Admin',
@@ -34,7 +34,7 @@ class CreateEmployeesSeeder extends Seeder
                 'web_login' => '',
             ]
         ];
-  
+
         foreach ($employee as $key => $value) {
             Employee::create($value);
         }

@@ -94,9 +94,10 @@ class CreateFabricFieldSeeder extends Seeder
                 'sort_order' => '1',
             ],
         ];
-  
-        foreach ($fabricField as $key => $value) {
+
+        /* foreach ($fabricField as $key => $value) {
             FabricField::create($value);
-        }
+        } */
+        FabricField::insert($fabricField);
     }
 }

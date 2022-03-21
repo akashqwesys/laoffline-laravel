@@ -6,7 +6,8 @@ import { createWebHistory, createRouter } from "vue-router";
 
 
 import DashboardComponent from './components/DashboardComponent.vue';
-// Databank
+
+// Databank Menu
 import UserGroupComponent from './components/databank/userGroupComponents/UserGroupComponent.vue';
 import CreateUserGroupComponent from './components/databank/userGroupComponents/CreateUserGroupComponent.vue';
 
@@ -14,7 +15,7 @@ import EmployeeComponent from './components/databank/employeeComponents/Employee
 import CreateEmployeeComponent from './components/databank/employeeComponents/CreateEmployeeComponent.vue';
 
 import ProductCategoryComponent from './components/databank/productCategoryComponents/ProductCategoryComponent.vue';
-import CreateProductCategoryComponent from './components/databank/productCategoryComponents/CreateProductCategoryComponent.vue';
+import CreateProductCategoryComponent from './components/databank/product`CategoryComponents/CreateProductCategoryComponent.vue';
 
 import ProductSubCategoryComponent from './components/databank/productSubCategoryComponents/ProductSubCategoryComponent.vue';
 import CreateProductSubCategoryComponent from './components/databank/productSubCategoryComponents/CreateProductSubCategoryComponent.vue';
@@ -28,9 +29,13 @@ import CreateCompanyComponent from './components/databank/companyComponents/Crea
 import CompanyCategoryComponent from './components/databank/companyCategoryComponents/CompanyCategoryComponent.vue';
 import CreateCompanyCategoryComponent from './components/databank/companyCategoryComponents/CreateCompanyCategoryComponent.vue';
 
+import LinkCompaniesComponent from './components/databank/linkCompaniesComponents/LinkCompaniesComponent.vue';
+import CreateLinkCompaniesComponent from './components/databank/linkCompaniesComponents/CreateLinkCompaniesComponent.vue';
+
 import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
 import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
 
+// Settings Menu
 import BankDetailsComponent from "./components/settings/bankDetailsComponents/BankDetailsComponent.vue";
 import CreateBankDetailsComponent from "./components/settings/bankDetailsComponents/CreateBankDetailsComponent.vue";
 
@@ -70,7 +75,6 @@ import CreateCompanyTypeComponent from './components/settings/companyTypeCompone
 
 import PermissionComponent from './components/settings/permissionsComponents/PermissionComponent.vue';
 import CreatePermissionComponent from './components/settings/permissionsComponents/CreatePermissionComponent.vue';
-
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -136,6 +140,14 @@ const routes = [
         children: [
             { path: 'create-company-category', component: CreateCompanyCategoryComponent },
             { path: 'edit-company-category/:id', component: CreateCompanyCategoryComponent },
+        ]
+    },
+    {
+        path: '/databank/link-company',
+        component: LinkCompaniesComponent,
+        children: [
+            { path: 'create-link-company', component: CreateLinkCompaniesComponent },
+            { path: 'edit-link-company/:id', component: CreateLinkCompaniesComponent },
         ]
     },
     {
@@ -274,33 +286,38 @@ createApp({
         CreateCompanyComponent,
         CompanyCategoryComponent,
         CreateCompanyCategoryComponent,
+        LinkCompaniesComponent,
+        CreateLinkCompaniesComponent,
+
+        FinancialYearComponent,
+        CreateFinancialYearComponent,
+
         BankDetailsComponent,
         CreateBankDetailsComponent,
         CreateDefaultSettingsComponent,
         CreateTypeOfAddressComponent,
         TypeOfAddressComponent,
-        FinancialYearComponent,
-        CreateFinancialYearComponent,
+
         CountriesComponent,
         CreateCountriesComponent,
         StatesComponent,
         CreateStatesComponent,
-        CreateCitiesComponent,
         CitiesComponent,
-        CreateTransportDetailsComponent,
+        CreateCitiesComponent,
         TransportDetailsComponent,
-        CreateDesignationComponent,
+        CreateTransportDetailsComponent,
         DesignationComponent,
+        CreateDesignationComponent,
         CreateSmsSettingsComponent,
         AgentComponent,
         CreateAgentComponent,
-        CreateSaleBillAgentComponent,
         SaleBillAgentComponent,
+        CreateSaleBillAgentComponent,
         FabricGroupComponent,
         CreateFabricGroupComponent,
         CompanyTypeComponent,
         CreateCompanyTypeComponent,
-        CreatePermissionComponent,
         PermissionComponent,
+        CreatePermissionComponent,
     }
 }).use(router).mount('#app');

@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -10,7 +10,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -27,7 +27,7 @@
                                                         <multiselect v-model="form.company_id" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @input="getCompanyDetails"></multiselect>
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-link_companies_id">Link Companies</label>
@@ -38,10 +38,10 @@
                                                         <span class="form-note" v-for="(linkCompany, index) in linkedCompaniesLists" :key="index">{{ linkCompany.linkedCompanies.company_name }}</span>
                                                     </div>
                                                 </div>
-                                            </div>                                            
+                                            </div>
                                         </div>
                                         <hr class="preview-hr">
-                                        <div class="row gy-4">                                        
+                                        <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
@@ -62,10 +62,11 @@
 
 <script>
     import Multiselect from 'vue-multiselect';
+    import Form from 'vform';
 
     export default {
         name: 'createUserGroup',
-        components: { 
+        components: {
             Multiselect
         },
         data() {
@@ -93,12 +94,12 @@
             getCompanyDetails: function(event) {
                 if(event != null) {
                     axios.get(`/databank/link-company/getComapnyById/${event.id}`)
-                    .then(response => { 
+                    .then(response => {
                         this.companyDetails = response.data;
                         if(this.companyDetails.length != 0) {
                             this.linkCompanies = 1;
                             axios.get(`/databank/link-company/getLinkedComapnyById/${event.id}`)
-                            .then(result => { 
+                            .then(result => {
                                 this.linkedCompaniesLists = result.data;
                                 console.log(this.linkedCompaniesLists);
                                 if(this.linkedCompaniesLists.length != 0) {
@@ -120,7 +121,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style>
     span.form-note {
         margin-top: 10px;
@@ -191,7 +192,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

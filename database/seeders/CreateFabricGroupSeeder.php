@@ -36,9 +36,10 @@ class CreateFabricGroupSeeder extends Seeder
                 'name' => 'Gown',
             ]
         ];
-  
-        foreach ($fabricGroup as $key => $value) {
+
+        /* foreach ($fabricGroup as $key => $value) {
             ProductFabricGroup::create($value);
-        }
+        } */
+        ProductFabricGroup::insert($fabricGroup);
     }
 }

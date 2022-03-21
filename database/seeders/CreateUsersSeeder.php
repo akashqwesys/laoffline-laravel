@@ -18,12 +18,12 @@ class CreateUsersSeeder extends Seeder
     {
         $user = User::create([
             'id' => '1',
-            'employee_id' => '2',
+            'employee_id' => '1',
             'username'=>'admin',
             'password'=> bcrypt('123456'),
             'is_active'=>'1',
         ]);
-  
+
         $role = Role::create(['name' => 'Admin']);
 
         $permissions = Permission::pluck('id','id')->all();

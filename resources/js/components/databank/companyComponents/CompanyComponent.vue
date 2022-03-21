@@ -82,7 +82,6 @@
         },
         methods: {
             showModal(id) {
-                console.log("MODAL-ID:- ", id);
                 $("#viewCompany1").modal('show');
                 $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
                 $('body').addClass('modal-open');
@@ -133,52 +132,89 @@
             },
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#companies').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./companies/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'varified' },
-                        { data: 'name' },
-                        { data: 'office_no' },
-                        { data: 'company_type' },
-                        { data: 'company_category' },
-                        { data: 'city' },
-                        { data: 'action' },
-                    ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#companies').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./companies/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'varified' },
-                        { data: 'name' },
-                        { data: 'office_no' },
-                        { data: 'company_type' },
-                        { data: 'company_category' },
-                        { data: 'city' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
-                });
+                buttons = ['excel', 'pdf', 'print'];
             }
+            function init_dt_table () {
+                dt_table = $('#companies').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    responsive: true,
+                    ajax: {
+                        url: "./companies/list",
+                        data: function (data) {
+                            if ($('#dt_name').val() == '') {
+                                data.columns[2].search.value = '';
+                            } else {
+                                data.columns[2].search.value = $('#dt_name').val();
+                            }
+                            if ($('#dt_email').val() == '') {
+                                data.columns[3].search.value = '';
+                            } else {
+                                data.columns[3].search.value = $('#dt_email').val();
+                            }
+                            if ($('#dt_mobile').val() == '') {
+                                data.columns[4].search.value = '';
+                            } else {
+                                data.columns[4].search.value = $('#dt_mobile').val();
+                            }
+                            if ($('#dt_user_group').val() == '') {
+                                data.columns[5].search.value = '';
+                            } else {
+                                data.columns[5].search.value = $('#dt_user_group').val();
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: 'Brtip',
+                    columns: [
+                        { data: 'id' },
+                        { data: 'flag' },
+                        { data: 'verified' },
+                        { data: 'name' },
+                        { data: 'office_no' },
+                        { data: 'company_type' },
+                        { data: 'company_category' },
+                        { data: 'city' },
+                        { data: 'action' },
+                    ],
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
+                })
+                .on( 'init.dt', function () {
+                    $('<div class="dataTables_filter" id="company_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_office_no" class="form-control form-control-sm" placeholder="Office Number"><input type="search" id="dt_company_type" class="form-control form-control-sm" placeholder="Company Type"><input type="search" id="dt_company_category" class="form-control form-control-sm" placeholder="Company Category"><input type="search" id="dt_city" class="form-control form-control-sm" placeholder="City"></div>').insertAfter('.dt-buttons.btn-group');
+                } );
+                dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
+                    var count = columns.reduce( function (a,b) {
+                        return b === false ? a+1 : a;
+                    }, 0 );
+                } );
+            }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#company_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    if (e.keyCode == 13) {
+                        dt_table.clear().draw();
+                    }
+                    draw = 0;
+                }
+            });
         },
     };
 
 function showModal(id) {
-    console.log("MODAL-ID:- ", id);
+    // console.log("MODAL-ID:- ", id);
 }
 </script>
 

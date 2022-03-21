@@ -524,6 +524,7 @@
     import AddCity from './modal/AddNewCityModelComponent';
     import AddTransport from './modal/AddNewTransportModelComponent';
     import AddTypeOfAddress from './modal/AddNewTypeOfAddressModelComponent';
+    import Form from 'vform';
 
     var companies = [];
     export default {

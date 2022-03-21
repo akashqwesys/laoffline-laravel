@@ -23,7 +23,7 @@ class CreateUserGroupSeeder extends Seeder
                 'roles_id' => '1',
             ]
         ];
-  
+
         foreach ($userGroup as $key => $value) {
             UserGroup::create($value);
         }

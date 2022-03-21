@@ -35,17 +35,18 @@ class CompanyController extends Controller
     }
 
     public function index() {
+        $page_title = 'Companies';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+
         $employees['excelAccess'] = $user->excel_access;
-                        
+
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -54,21 +55,22 @@ class CompanyController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('databank.companies.company',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companies.company',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function essentialCompany() {
+        $page_title = 'Essential Companies';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+
         $employees['excelAccess'] = $user->excel_access;
-                        
+
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -77,16 +79,17 @@ class CompanyController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('databank.companies.essentialCompany',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companies.essentialCompany',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function createCompany() {
+        $page_title = 'Add Company';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('databank.companies.createCompany',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companies.createCompany',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function listData(Request $request) {
@@ -123,7 +126,7 @@ class CompanyController extends Controller
                             skip($start)->
                             take($rowperpage)->
                             get();
-        
+
         $data_arr = array();
         $sno = $start+1;
 
@@ -143,7 +146,7 @@ class CompanyController extends Controller
                 if(is_array(json_decode($cmp->company_category))) {
                     $companyName = [];
                     $companyArr = json_decode($cmp->company_category);
-        
+
                     foreach($companyArr as $key => $c) {
                         $companyCat = CompanyCategory::where('id', $c)->first('category_name');
                         $companyName[$key] = $companyCat->category_name;
@@ -179,13 +182,13 @@ class CompanyController extends Controller
                     $cmp['company_mobile'] = implode(", ", $mobileNo);
                 } else {
                     $cmp['company_mobile'] = json_decode($cmp->company_mobile);
-                }                
+                }
             } else {
                 $cmp['company_mobile'] = '';
             }
 
             if(!is_numeric($cmp->company_city)) {
-                if($cmp->company_city == 0) {                    
+                if($cmp->company_city == 0) {
                     $city = '';
                 } else {
                     $city = $cmp->company_city;
@@ -201,7 +204,7 @@ class CompanyController extends Controller
             }
 
             $name = '<a href="./companies/view-company/'.$id.'">'.$cmp->company_name.'</a>';
-            
+
             $officeNo = '<ul>
                             <li><b>L: </b> '.$cmp->company_landline.' </li>
                             <li><b>M: </b> '.$cmp->company_mobile.' </li>
@@ -210,7 +213,7 @@ class CompanyController extends Controller
             $action = '<a href="#" class="btn btn-trigger btn-icon icon-verify" onclick="showModal('.$id.')" title="View Company"><em class="icon ni ni-eye"></em></a>
             <a href="./companies/edit-company/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./companies/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
-            
+
             // $action = "<a href='#' class='btn btn-trigger btn-icon icon-verify' data-toggle='modal' data-target='#viewCompany".$id."' @click='showModal(".$id.")' title='View Company'><em class='icon ni ni-eye'></em></a>
             // <a href='./users-group/edit-user-group/".$id."' class='btn btn-trigger btn-icon' data-toggle='tooltip' data-placement='top' title='Update'><em class='icon ni ni-edit-alt'></em></a>
             // <a href='./users-group/delete/".$id."' class='btn btn-trigger btn-icon' data-toggle='tooltip' data-placement='top' title='Remove'><em class='icon ni ni-trash'></em></a>";
@@ -240,7 +243,7 @@ class CompanyController extends Controller
                 "company_category" => $companyCategory,
                 "city" => $city,
                 "action" => $action
-            );  
+            );
         }
 
         $response = array(
@@ -248,7 +251,7 @@ class CompanyController extends Controller
             "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr
-        ); 
+        );
 
         echo json_encode($response);
         exit;
@@ -283,7 +286,7 @@ class CompanyController extends Controller
                             skip($start)->
                             take($rowperpage)->
                             get();
-        
+
         $data_arr = array();
         $sno = $start+1;
 
@@ -302,7 +305,7 @@ class CompanyController extends Controller
                 if(is_array(json_decode($cmp->company_category))) {
                     $companyName = [];
                     $companyArr = json_decode($cmp->company_category);
-        
+
                     foreach($companyArr as $key => $c) {
                         $companyCat = CompanyCategory::where('id', $c)->first('category_name');
                         $companyName[$key] = $companyCat->category_name;
@@ -338,13 +341,13 @@ class CompanyController extends Controller
                     $cmp['company_mobile'] = implode(", ", $mobileNo);
                 } else {
                     $cmp['company_mobile'] = json_decode($cmp->company_mobile);
-                }                
+                }
             } else {
                 $cmp['company_mobile'] = '';
             }
 
             if(!is_numeric($cmp->company_city)) {
-                if($cmp->company_city == 0) {                    
+                if($cmp->company_city == 0) {
                     $city = '';
                 } else {
                     $city = $cmp->company_city;
@@ -360,7 +363,7 @@ class CompanyController extends Controller
             }
 
             $name = '<a href="./companies/view-company/'.$id.'">'.$cmp->company_name.'</a>';
-            
+
             $officeNo = '<ul>
                             <li><b>L: </b> '.$cmp->company_landline.' </li>
                             <li><b>M: </b> '.$cmp->company_mobile.' </li>
@@ -395,7 +398,7 @@ class CompanyController extends Controller
                 "company_category" => $companyCategory,
                 "city" => $city,
                 "action" => $action
-            );  
+            );
         }
 
         $response = array(
@@ -403,7 +406,7 @@ class CompanyController extends Controller
             "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr
-        ); 
+        );
 
         echo json_encode($response);
         exit;
@@ -411,7 +414,7 @@ class CompanyController extends Controller
 
     public function isVerify($id) {
         $user = Session::get('user');
- 
+
         $company = Company::where('id', $id)->first();
         $company->is_verified = 1;
         $company->verified_by = $user->employee_id;
@@ -420,7 +423,7 @@ class CompanyController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -441,7 +444,7 @@ class CompanyController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -462,7 +465,7 @@ class CompanyController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -475,6 +478,7 @@ class CompanyController extends Controller
     }
 
     public function viewCompany($id) {
+        $page_title = 'Company Details';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -483,10 +487,11 @@ class CompanyController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('databank.companies.viewCompany',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companies.viewCompany',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function editCompany($id) {
+        $page_title = 'Companies';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -495,7 +500,7 @@ class CompanyController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('databank.companies.editCompany',compact('financialYear'))->with('employees', $employees);
+        return view('databank.companies.editCompany',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchCompany($id) {
@@ -535,13 +540,13 @@ class CompanyController extends Controller
 
         $companyContactDetails = CompanyContactDetails::where('company_id', $id)->get();
 
-        foreach($companyContactDetails as $contact) {            
+        foreach($companyContactDetails as $contact) {
             $contactDesignation = $contact->contact_person_designation;
             if (!empty($contactDesignation)) {
                 $contact->contact_person_designation = Designation::where('id', $contactDesignation)->where('is_delete', 0)->first();
             }
         }
-                                                
+
         $multipleAddresses = CompanyAddress::where('company_addresses.company_id', $id)->get();
 
         foreach($multipleAddresses as $multipleAddress) {
@@ -584,7 +589,7 @@ class CompanyController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -644,9 +649,9 @@ class CompanyController extends Controller
 
         if(is_array($contactDetailsProfilePic) && !empty($contactDetailsProfilePic)) {
             $length = count($contactDetailsProfilePic);
-            for ($i=0; $i<$length; $i++) {                
+            for ($i=0; $i<$length; $i++) {
                 if ($image = $contactDetailsProfilePic[$i]) {
-                    if(!is_string($image)) {                        
+                    if(!is_string($image)) {
                         $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
                         $contactDetails[$i]->contact_person_profile_pic = $profileImage;
                         $image->move(public_path('upload/company/profilePic'), $profileImage);
@@ -654,7 +659,7 @@ class CompanyController extends Controller
                         $contactDetails[$i]->contact_person_profile_pic = '';
                     }
                 }
-            }            
+            }
         }
 
         if(is_array($multipleAddressProfilePic) && !empty($multipleAddressProfilePic)) {
@@ -664,7 +669,7 @@ class CompanyController extends Controller
                 $ownerLength = count($ownerimage['ownerImage']);
                 for ($j=0; $j<$ownerLength; $j++) {
                     if ($image = $ownerimage['ownerImage'][$j]) {
-                        if(!is_string($image)) {                        
+                        if(!is_string($image)) {
                             $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
                             $multipleAddresses[$i]->multipleAddressesOwners[$j]->profile_pic = $profileImage;
                             $image->move(public_path('upload/company/multipleAddressProfilePic'), $profileImage);
@@ -680,7 +685,7 @@ class CompanyController extends Controller
             $landline = explode(',', trim($companyData->company_landline));
             $companyData->company_landline = json_encode($landline);
         }
-        
+
         if(!empty($companyData->company_mobile)) {
             $mobile = explode(',', trim($companyData->company_mobile));
             $companyData->company_mobile = json_encode($mobile);
@@ -716,7 +721,7 @@ class CompanyController extends Controller
         $company->is_active = 0;
         $company->verified_date = NULL;
         $company->save();
-        
+
         // Contact Details Data
         if(is_array($contactDetails) && !empty($contactDetails)) {
             foreach($contactDetails as $contactDetail) {
@@ -754,7 +759,7 @@ class CompanyController extends Controller
                     foreach($multipleAddress->multipleAddressesOwners as $owner) {
                         $companyAddressOwnerLastId = CompanyAddressOwner::orderBy('id', 'DESC')->first('id');
                         $companyAddressOwnerId = !empty($companyAddressOwnerLastId) ? $companyAddressOwnerLastId->id + 1 : 1;
-        
+
                         $companyAddressOwner = new CompanyAddressOwner;
                         $companyAddressOwner->id = $companyAddressOwnerId;
                         $companyAddressOwner->company_address_id = !empty($companyAddress) ? $companyAddress->id : 0;
@@ -846,7 +851,7 @@ class CompanyController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -894,9 +899,9 @@ class CompanyController extends Controller
 
         if(is_array($contactDetailsProfilePic) && !empty($contactDetailsProfilePic)) {
             $length = count($contactDetailsProfilePic);
-            for ($i=0; $i<$length; $i++) {                
+            for ($i=0; $i<$length; $i++) {
                 if ($image = $contactDetailsProfilePic[$i]) {
-                    if(!is_string($image)) {                        
+                    if(!is_string($image)) {
                         $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
                         $contactDetails[$i]->contact_person_profile_pic = $profileImage;
                         $image->move(public_path('upload/company/profilePic'), $profileImage);
@@ -904,7 +909,7 @@ class CompanyController extends Controller
                         $contactDetails[$i]->contact_person_profile_pic = $contactDetails[$i]->contact_person_profile_pic;
                     }
                 }
-            }            
+            }
         }
 
         if(is_array($multipleAddressProfilePic) && !empty($multipleAddressProfilePic)) {
@@ -914,7 +919,7 @@ class CompanyController extends Controller
                 $ownerLength = count($ownerimage['ownerImage']);
                 for ($j=0; $j<$ownerLength; $j++) {
                     if ($image = $ownerimage['ownerImage'][$j]) {
-                        if(!is_string($image)) {                        
+                        if(!is_string($image)) {
                             $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
                             $multipleAddresses[$i]->multipleAddressesOwners[$j]->profile_pic = $profileImage;
                             $image->move(public_path('upload/company/multipleAddressProfilePic'), $profileImage);
@@ -925,7 +930,7 @@ class CompanyController extends Controller
                 }
             }
         }
-        
+
         if(!empty($companyData->company_landline)) {
             if(is_array($companyData->company_landline)) {
                 $companyData->company_landline = json_encode($companyData->company_landline);
@@ -934,7 +939,7 @@ class CompanyController extends Controller
                 $companyData->company_landline = json_encode($landline);
             }
         }
-        
+
         if(!empty($companyData->company_mobile) ) {
             if(is_array($companyData->company_mobile) ) {
                 $companyData->company_mobile = json_encode($companyData->company_mobile);
@@ -971,7 +976,7 @@ class CompanyController extends Controller
         $company->company_opening_balance = $companyData->company_opening_balance;
         $company->updated_by = Session::get('user')->employee_id;
         $company->save();
-        
+
         // Contact Details Data
         if(is_array($contactDetails) && !empty($contactDetails)) {
             foreach($contactDetails as $contactDetail) {
@@ -1060,7 +1065,7 @@ class CompanyController extends Controller
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;

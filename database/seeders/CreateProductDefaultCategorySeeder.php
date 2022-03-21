@@ -24,9 +24,10 @@ class CreateProductDefaultCategorySeeder extends Seeder
                 'name' => 'Fabric',
             ]
         ];
-  
-        foreach ($productDefaultCategory as $key => $value) {
+
+        /* foreach ($productDefaultCategory as $key => $value) {
             ProductDefaultCategory::create($value);
-        }
+        } */
+        ProductDefaultCategory::insert($productDefaultCategory);
     }
 }

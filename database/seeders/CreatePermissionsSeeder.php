@@ -304,9 +304,10 @@ class CreatePermissionsSeeder extends Seeder
                 'guard_name' => 'web',
             ],
         ];
-  
-        foreach ($permission as $key => $value) {
+
+        /* foreach ($permission as $key => $value) {
             Permission::create($value);
-        }
+        } */
+        Permission::insert($permission);
     }
 }

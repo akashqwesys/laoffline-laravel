@@ -97,11 +97,11 @@ class ProductSubCategoryController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->join('product_fabric_groups as pfg', 'product_categories.product_fabric_id', '=', 'pfg.id')
             ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
-        // if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-        //         $q->orWhere('user_groups.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
-        //     });
-        // }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+                $q->whereRaw("");
+            });
+        }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         // Fetch records

@@ -1,10 +1,10 @@
 <template>
     <div id="overlay" class="loader-wrap">
-        <center>
+        <div>
             <div>
                 <img src="/assets/images/loader_3.gif" class=""  alt="">
             </div>
-        </center>
+        </div>
     </div>
 </template>
 

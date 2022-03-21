@@ -22,7 +22,7 @@ class CreateProductsTable extends Migration
             $table->date('launch_date')->nullable();
             $table->integer('company')->default('0');
             $table->integer('category')->default('0');
-            $table->json('sub_category')->nullable();
+            $table->jsonb('sub_category')->nullable();
             $table->string('main_image')->nullable();
             $table->string('price_list_image')->nullable();
             $table->text('description')->nullable();

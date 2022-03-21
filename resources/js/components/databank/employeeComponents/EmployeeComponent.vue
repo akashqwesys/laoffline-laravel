@@ -91,7 +91,7 @@
             var buttons = [];
             var dt_table = null;
             if(this.excelAccess == 1) {
-                buttons = ['copy', 'csv', 'excel', 'print'];
+                buttons = ['excel', 'pdf', 'print'];
             }
             function init_dt_table () {
                 dt_table = $('#employee').DataTable({
