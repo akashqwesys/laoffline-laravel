@@ -15,7 +15,7 @@ import EmployeeComponent from './components/databank/employeeComponents/Employee
 import CreateEmployeeComponent from './components/databank/employeeComponents/CreateEmployeeComponent.vue';
 
 import ProductCategoryComponent from './components/databank/productCategoryComponents/ProductCategoryComponent.vue';
-import CreateProductCategoryComponent from './components/databank/product`CategoryComponents/CreateProductCategoryComponent.vue';
+import CreateProductCategoryComponent from './components/databank/productCategoryComponents/CreateProductCategoryComponent.vue';
 
 import ProductSubCategoryComponent from './components/databank/productSubCategoryComponents/ProductSubCategoryComponent.vue';
 import CreateProductSubCategoryComponent from './components/databank/productSubCategoryComponents/CreateProductSubCategoryComponent.vue';
