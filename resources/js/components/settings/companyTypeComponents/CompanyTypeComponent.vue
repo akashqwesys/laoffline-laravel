@@ -46,14 +46,12 @@
 </template>
 
 <script>
-    import 'jquery/dist/jquery.min.js';
-    import "datatables.net-dt/js/dataTables.dataTables";
-    import "datatables.net-buttons/js/dataTables.buttons.js";
-    import "datatables.net-buttons/js/buttons.colVis.js";
-    import "datatables.net-buttons/js/buttons.flash.js";
-    import "datatables.net-buttons/js/buttons.html5.js";
-    import "datatables.net-buttons/js/buttons.print.js";
     import $ from 'jquery';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import 'pdfmake/build/pdfmake';
+    import "datatables.net-buttons/js/buttons.html5";
+    import "datatables.net-buttons/js/buttons.print";
 
     export default {
         name: 'comapnyType',
@@ -81,11 +79,24 @@
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#companyType').DataTable({
+                buttons = ['excel', 'pdf', 'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#companyType').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "./companyType/list",
+                    ajax: {
+                        url: "./companyType/list",
+                        data: function (data) {
+                            if ($('#companyType_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
                     pagingType: 'full_numbers',
                     dom: 'Bfrtip',
                     columns: [
@@ -93,23 +104,24 @@
                         { data: 'name' },
                         { data: 'action' },
                     ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#companyType').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./companyType/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
                 });
             }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#companyType_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
         },
     };
 </script>

@@ -75,11 +75,11 @@ class PermissionController extends Controller
         $totalRecords = Permission::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = Permission::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $Permission = Permission::orderBy('permissions.'.$columnName,$columnSortOrder)->
-                where('permissions.name', 'like', '%' .$searchValue . '%')->
+                where('permissions.name', 'ilike', '%' .$searchValue . '%')->
                 where('permissions.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

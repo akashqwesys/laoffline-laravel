@@ -73,6 +73,7 @@ class DefaultSettingsController extends Controller
         $id = Session::get('user')->employee_id;
 
         $defaultSettings = DefaultSettings::where('employee_id', $id)->first();
+        
         if ($defaultSettings) {
             $defaultSettings->cgst = $request->cgst;
             $defaultSettings->sgst = $request->sgst;
@@ -82,8 +83,11 @@ class DefaultSettingsController extends Controller
             $defaultSettings->save();
 
         } else {
+            $defalutSettingLastId = DefaultSettings::orderBy('id', 'DESC')->first('id');
+            $defalutSettingId = !empty($defalutSettingLastId) ? $defalutSettingLastId->id + 1 : 1;
             $defaultSettings = new DefaultSettings;
             $defaultSettings->employee_id = $id;
+            $defaultSettings->id = $defalutSettingId;
             $defaultSettings->cgst = $request->cgst;
             $defaultSettings->sgst = $request->sgst;
             $defaultSettings->igst = $request->igst;

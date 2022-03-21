@@ -75,11 +75,11 @@ class TypeOfAddressController extends Controller
         $totalRecords = TypeOfAddress::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = TypeOfAddress::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $TypeOfAddress = TypeOfAddress::orderBy($columnName,$columnSortOrder)->
-                where('name', 'like', '%' .$searchValue . '%')->
+                where('name', 'ilike', '%' .$searchValue . '%')->
                 where('is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

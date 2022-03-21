@@ -52,6 +52,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var companyType = [];
     export default {
         name: 'createCompanyType',

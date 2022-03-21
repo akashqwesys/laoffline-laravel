@@ -75,11 +75,11 @@ class AgentController extends Controller
         $totalRecords = Agent::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = Agent::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $Agent = Agent::orderBy('agents.'.$columnName,$columnSortOrder)->
-                        where('agents.name', 'like', '%' .$searchValue . '%')->
+                        where('agents.name', 'ilike', '%' .$searchValue . '%')->
                         where('agents.is_delete', '0')->
                         skip($start)->
                         take($rowperpage)->
@@ -92,7 +92,11 @@ class AgentController extends Controller
             $id = $record->id;
             $name = $record->name;
             $panNo = $record->pan_no;
-            $default = $record->default;
+            if ($record->default == '1') {
+                $default = '<span class="badge badge-dot badge-dot-xs badge-success">Yes</span>';
+            } else {
+                $default = '<span class="badge badge-dot badge-dot-xs badge-danger">No</span>';
+            }
             $action = '<a href="./agent/edit-agent/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./agent/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 

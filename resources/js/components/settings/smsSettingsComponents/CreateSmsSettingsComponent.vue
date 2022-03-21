@@ -528,6 +528,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     import Multiselect from 'vue-multiselect';
 
     var smsSettings = [];
@@ -666,7 +667,6 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
     .multiselect {
         height: calc(2.125rem + 2px);

@@ -75,11 +75,11 @@ class SaleBillAgentController extends Controller
         $totalRecords = SaleBillAgent::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = SaleBillAgent::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $SaleBillAgent = SaleBillAgent::orderBy('sale_bill_agents.'.$columnName,$columnSortOrder)->
-                where('sale_bill_agents.name', 'like', '%' .$searchValue . '%')->
+                where('sale_bill_agents.name', 'ilike', '%' .$searchValue . '%')->
                 where('sale_bill_agents.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->
@@ -91,7 +91,11 @@ class SaleBillAgentController extends Controller
         foreach($SaleBillAgent as $record){
             $id = $record->id;
             $name = $record->name;
-            $default = $record->default;
+            if ($record->default == '1') {
+                $default = '<span class="badge badge-dot badge-dot-xs badge-success">Yes</span>';
+            } else {
+                $default = '<span class="badge badge-dot badge-dot-xs badge-danger">No</span>';
+            }
             $action = '<a href="./sale-bill-agent/edit-sale-bill-agent/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./sale-bill-agent/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 

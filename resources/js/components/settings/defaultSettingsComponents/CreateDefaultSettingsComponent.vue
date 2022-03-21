@@ -82,6 +82,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var defaultSettings = [];
     export default {
         name: 'defaultSettings',

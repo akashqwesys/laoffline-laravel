@@ -75,11 +75,11 @@ class DesignationController extends Controller
         $totalRecords = Designation::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = Designation::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $Designation = Designation::orderBy('designations.'.$columnName,$columnSortOrder)->
-                where('designations.name', 'like', '%' .$searchValue . '%')->
+                where('designations.name', 'ilike', '%' .$searchValue . '%')->
                 where('designations.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

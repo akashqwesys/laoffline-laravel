@@ -86,6 +86,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var agents = [];
     export default {
         name: 'createAgent',

@@ -45,6 +45,33 @@ import CreateCitiesComponent from './components/settings/citiesComponents/Create
 
 import TransportDetailsComponent from './components/settings/transportDetailsComponents/TransportDetailsComponent.vue';
 import CreateTransportDetailsComponent from './components/settings/transportDetailsComponents/CreateTransportDetailsComponent.vue';
+
+import TypeOfAddressComponent from './components/settings/typeOfAddressComponents/TypeOfAddressComponent.vue';
+import CreateTypeOfAddressComponent from './components/settings/typeOfAddressComponents/CreateTypeOfAddressComponent.vue';
+
+import CreateDefaultSettingsComponent from './components/settings/defaultSettingsComponents/CreateDefaultSettingsComponent.vue';
+
+import CreateSmsSettingsComponent from './components/settings/smsSettingsComponents/CreateSmsSettingsComponent.vue';
+
+import DesignationComponent from './components/settings/designationComponents/DesignationComponent.vue';
+import CreateDesignationComponent from './components/settings/designationComponents/CreateDesignationComponent.vue';
+
+import AgentComponent from './components/settings/agentComponents/AgentComponent.vue';
+import CreateAgentComponent from './components/settings/agentComponents/CreateAgentComponent.vue';
+
+import SaleBillAgentComponent from './components/settings/saleBillAgentComponents/SaleBillAgentComponent.vue';
+import CreateSaleBillAgentComponent from './components/settings/saleBillAgentComponents/CreateSaleBillAgentComponent.vue';
+
+import FabricGroupComponent from './components/settings/fabricGroupComponents/FabricGroupComponent.vue';
+import CreateFabricGroupComponent from './components/settings/fabricGroupComponents/CreateFabricGroupComponent.vue';
+
+import CompanyTypeComponent from './components/settings/companyTypeComponents/CompanyTypeComponent.vue';
+import CreateCompanyTypeComponent from './components/settings/companyTypeComponents/CreateCompanyTypeComponent.vue';
+
+import PermissionComponent from './components/settings/permissionsComponents/PermissionComponent.vue';
+import CreatePermissionComponent from './components/settings/permissionsComponents/CreatePermissionComponent.vue';
+
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -159,6 +186,70 @@ const routes = [
             { path: 'edit-transport-details/:id', component: CreateTransportDetailsComponent },
         ]
     },
+    {
+        path: '/settings/type-of-address/',
+        component: TypeOfAddressComponent,
+        children: [
+            { path: 'create-type-of-address', component: CreateTypeOfAddressComponent },
+            { path: 'edit-type-of-address/:id', component: CreateTypeOfAddressComponent },
+        ]
+    },
+    {
+        path: '/settings/default-settings/',
+        component: CreateDefaultSettingsComponent,
+    },
+    {
+        path: '/settings/designation/',
+        component: DesignationComponent,
+        children: [
+            { path: 'create-designation', component: CreateDesignationComponent },
+            { path: 'edit-designation/:id', component: CreateDesignationComponent },
+        ]
+    },
+    {
+        path: '/settings/sms-settings/',
+        component: CreateSmsSettingsComponent,
+    },
+    {
+        path: '/settings/agent/',
+        component: AgentComponent,
+        children: [
+            { path: 'create-agent', component: CreateAgentComponent },
+            { path: 'edit-agent/:id', component: CreateAgentComponent },
+        ]
+    },
+    {
+        path: '/settings/sale-bill-agent/',
+        component: SaleBillAgentComponent,
+        children: [
+            { path: 'create-sale-bill-agent', component: CreateSaleBillAgentComponent },
+            { path: 'edit-sale-bill-agent/:id', component: CreateSaleBillAgentComponent },
+        ]
+    },
+    {
+        path: '/settings/fabricGroup/',
+        component: FabricGroupComponent,
+        children: [
+            { path: 'create-fabricGroup', component: CreateFabricGroupComponent },
+            { path: 'edit-fabricGroup/:id', component: CreateFabricGroupComponent },
+        ]
+    },
+    {
+        path: '/settings/companyType/',
+        component: CompanyTypeComponent,
+        children: [
+            { path: 'create-companyType', component: CreateCompanyTypeComponent },
+            { path: 'edit-companyType/:id', component: CreateCompanyTypeComponent },
+        ]
+    },
+    {
+        path: '/settings/permission/',
+        component: PermissionComponent,
+        children: [
+            { path: 'create-permission', component: CreatePermissionComponent },
+            { path: 'edit-permission/:id', component: CreatePermissionComponent },
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -185,8 +276,9 @@ createApp({
         CreateCompanyCategoryComponent,
         BankDetailsComponent,
         CreateBankDetailsComponent,
-
-
+        CreateDefaultSettingsComponent,
+        CreateTypeOfAddressComponent,
+        TypeOfAddressComponent,
         FinancialYearComponent,
         CreateFinancialYearComponent,
         CountriesComponent,
@@ -197,5 +289,18 @@ createApp({
         CitiesComponent,
         CreateTransportDetailsComponent,
         TransportDetailsComponent,
+        CreateDesignationComponent,
+        DesignationComponent,
+        CreateSmsSettingsComponent,
+        AgentComponent,
+        CreateAgentComponent,
+        CreateSaleBillAgentComponent,
+        SaleBillAgentComponent,
+        FabricGroupComponent,
+        CreateFabricGroupComponent,
+        CompanyTypeComponent,
+        CreateCompanyTypeComponent,
+        CreatePermissionComponent,
+        PermissionComponent,
     }
 }).use(router).mount('#app');

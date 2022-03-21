@@ -60,6 +60,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var companyCategories = [];
     export default {
         name: 'createTypeOfAddresses',

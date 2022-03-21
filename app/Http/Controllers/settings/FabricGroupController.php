@@ -78,11 +78,11 @@ class FabricGroupController extends Controller
         $totalRecords = ProductFabricGroup::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = ProductFabricGroup::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $ProductFabricGroup = ProductFabricGroup::orderBy('product_fabric_groups.'.$columnName,$columnSortOrder)->
-                where('product_fabric_groups.name', 'like', '%' .$searchValue . '%')->
+                where('product_fabric_groups.name', 'ilike', '%' .$searchValue . '%')->
                 where('product_fabric_groups.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

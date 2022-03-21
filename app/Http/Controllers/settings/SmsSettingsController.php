@@ -878,7 +878,10 @@ class SmsSettingsController extends Controller
 
         } else {
             $smsSettings = new SmsSettings;
+            $smsSettingLastId = SmsSettings::orderBy('id', 'DESC')->first('id');
+            $smsSettingId = !empty($smsSettingLastId) ? $smsSettingLastId->id + 1 : 1;
             $smsSettings->employee_id = $id;
+            $smsSettings->id = $smsSettingId;
             $smsSettings->enquiry_general = implode(',', $egeneral);
             $smsSettings->enquiry_supplier = implode(',', $esupplier);
             $smsSettings->enquiry_footer_message = !empty($request->enquiry_footer_message) ? $request->enquiry_footer_message : '';

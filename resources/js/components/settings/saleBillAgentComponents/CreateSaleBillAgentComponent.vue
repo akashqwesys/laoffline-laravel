@@ -71,6 +71,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var saleBillAgent = [];
     export default {
         name: 'createCompanyCategory',

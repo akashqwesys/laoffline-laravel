@@ -73,11 +73,11 @@ class CompanyTypeController extends Controller
         $totalRecords = CompanyType::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = CompanyType::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $CompanyType = CompanyType::orderBy('company_types.'.$columnName,$columnSortOrder)->
-                where('company_types.name', 'like', '%' .$searchValue . '%')->
+                where('company_types.name', 'ilike', '%' .$searchValue . '%')->
                 where('company_types.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->
