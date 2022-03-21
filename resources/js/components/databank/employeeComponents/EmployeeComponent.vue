@@ -95,7 +95,7 @@
             }
             function init_dt_table () {
                 dt_table = $('#employee').DataTable({
-                    responsive: true,
+                    // responsive: true,
                     processing: true,
                     serverSide: true,
                     ajax: {
@@ -143,6 +143,11 @@
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter" id="employee_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_email" class="form-control form-control-sm" placeholder="Email"><input type="search" id="dt_mobile" class="form-control form-control-sm" placeholder="Mobile"><input type="search" id="dt_user_group" class="form-control form-control-sm" placeholder="User Group"></div>').insertAfter('.dt-buttons.btn-group');
+                } );
+                dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
+                    var count = columns.reduce( function (a,b) {
+                        return b === false ? a+1 : a;
+                    }, 0 );
                 } );
             }
             init_dt_table();
