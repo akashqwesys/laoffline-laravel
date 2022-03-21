@@ -40,6 +40,8 @@ import CreateStatesComponent from './components/settings/statesComponents/Create
 import CitiesComponent from './components/settings/citiesComponents/CitiesComponent.vue';
 import CreateCitiesComponent from './components/settings/citiesComponents/CreateCitiesComponent.vue';
 
+import TransportDetailsComponent from './components/settings/transportDetailsComponents/TransportDetailsComponent.vue';
+import CreateTransportDetailsComponent from './components/settings/transportDetailsComponents/CreateTransportDetailsComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -138,6 +140,14 @@ const routes = [
             { path: 'edit-cities/:id', component: CreateCitiesComponent },
         ]
     },
+    {
+        path: '/settings/transport-details/',
+        component: TransportDetailsComponent,
+        children: [
+            { path: 'create-transport-details', component: CreateTransportDetailsComponent },
+            { path: 'edit-transport-details/:id', component: CreateTransportDetailsComponent },
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -172,5 +182,7 @@ createApp({
         CreateStatesComponent,
         CreateCitiesComponent,
         CitiesComponent,
+        CreateTransportDetailsComponent,
+        TransportDetailsComponent,
     }
 }).use(router).mount('#app');

@@ -80,7 +80,7 @@ class TransportDetailsController extends Controller
                                                    count();
 
         $TransportDetails = TransportDetails::orderBy('transport_details.'.$columnName,$columnSortOrder)->
-                where('transport_details.name', 'like', '%' .$searchValue . '%')->
+                where('transport_details.name', 'ilike', '%' .$searchValue . '%')->
                 where('transport_details.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->
@@ -160,7 +160,7 @@ class TransportDetailsController extends Controller
             'gstin' => 'required',
         ]);
 
-
+        
         $transportDetailsLastId = TransportDetails::orderBy('id', 'DESC')->first('id');
         $transportDetailsId = !empty($transportDetailsLastId) ? $transportDetailsLastId->id + 1 : 1;
 
@@ -169,7 +169,7 @@ class TransportDetailsController extends Controller
         $transportDetails->name = $request->name;
         $transportDetails->gstin = $request->gstin;
         $transportDetails->save();
-
+        
         if($request->multiple_address) {
             $multipleAddresses = $request->multiple_address;
             foreach($multipleAddresses as $multipleAddress) {
@@ -185,6 +185,8 @@ class TransportDetailsController extends Controller
                 $transportMultipleAddressDetails->contact_person_email = $multipleAddress['contact_person_email'];
                 $transportMultipleAddressDetails->save();
             }
+            exit;
+
         }
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
@@ -215,7 +217,11 @@ class TransportDetailsController extends Controller
 
         TransportMultipleAddressDetails::where('transport_details',$id)->delete();
         foreach($multipleAddresses as $multipleAddress) {
+            $transportMultipleAddressDetailsLastId = TransportMultipleAddressDetails::orderBy('id', 'DESC')->first('id');
+            $transportMultipleAddressDetailsId = !empty($transportMultipleAddressDetailsLastId) ? $transportMultipleAddressDetailsLastId->id + 1 : 1;
+
             $transportMultipleAddressDetails = new TransportMultipleAddressDetails;
+            $transportMultipleAddressDetails->id = $transportMultipleAddressDetailsId;
             $transportMultipleAddressDetails->transport_details = $transportDetails->id;
             $transportMultipleAddressDetails->contact_person_name = $multipleAddress['contact_person_name'];
             $transportMultipleAddressDetails->contact_person_address = $multipleAddress['contact_person_address'];

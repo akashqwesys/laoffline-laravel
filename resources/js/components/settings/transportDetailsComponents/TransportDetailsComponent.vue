@@ -48,9 +48,14 @@
 
 <script>
     import 'jquery/dist/jquery.min.js';
-    import "datatables.net-dt/js/dataTables.dataTables";
-    import "datatables.net-buttons/js/dataTables.buttons.js";
-    import "datatables.net-buttons/js/buttons.colVis.js";
+    // import 'datatables.net-bs5';
+    import 'datatables.net-bs5/js/dataTables.bootstrap5';
+    // import 'datatables.net-datetime/js/dataTables.dateTime';
+    // import 'datatables.net-searchbuilder-bs5/js/searchBuilder.bootstrap5';
+    // import 'datatables.net-select-bs5/js/select.bootstrap5';
+    // import 'datatables.net-searchpanes-bs5/js/searchPanes.bootstrap5';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
     import "datatables.net-buttons/js/buttons.flash.js";
     import "datatables.net-buttons/js/buttons.html5.js";
     import "datatables.net-buttons/js/buttons.print.js";
@@ -82,37 +87,52 @@
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#transportDetails').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./transport-details/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'gstin'},
-                        { data: 'action' },
-                    ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#transportDetails').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./transport-details/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'gstin'},
-                        { data: 'action' },
-                    ],
-                    buttons: []
-                });
+                buttons = ['excel', 'pdf', 'print'];
             }
+            
+            function init_dt_table () {
+            dt_table = $('#transportDetails').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "./transport-details/list",
+                        data: function (data) {
+                            if ($('#transportDetails_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: 'Bfrtip',
+                    columns: [
+                        { data: 'id' },
+                        { data: 'name' },
+                        { data: 'gstin'},
+                        { data: 'action' },
+                    ],
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
+                });
+            
+            }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#transportDetails_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
         },
     };
 </script>

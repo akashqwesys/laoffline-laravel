@@ -105,6 +105,7 @@
 </template>
 
 <script>
+    import Form from 'vform';
     var transportDetails = [];
     export default {
         name: 'createCompanyCategory',
@@ -151,7 +152,7 @@
                 } else {
                     this.form.post('/settings/transport-details/create')
                         .then(( response ) => {
-                            window.location.href = '/settings/transport-details';
+                            //window.location.href = '/settings/transport-details';
                     })
                 }
             },

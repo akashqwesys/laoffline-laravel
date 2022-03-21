@@ -101,11 +101,11 @@ class CitiesController extends Controller
         $totalRecords = Cities::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = Cities::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $Cities = Cities::orderBy('cities.'.$columnName,$columnSortOrder)->
-                where('cities.name', 'like', '%' .$searchValue . '%')->
+                where('cities.name', 'ilike', '%' .$searchValue . '%')->
                 where('cities.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

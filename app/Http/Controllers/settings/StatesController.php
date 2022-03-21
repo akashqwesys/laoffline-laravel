@@ -82,11 +82,11 @@ class StatesController extends Controller
         $totalRecords = State::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = State::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $State = State::orderBy('states.'.$columnName,$columnSortOrder)->
-                where('states.name', 'like', '%' .$searchValue . '%')->
+                where('states.name', 'ilike', '%' .$searchValue . '%')->
                 where('states.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

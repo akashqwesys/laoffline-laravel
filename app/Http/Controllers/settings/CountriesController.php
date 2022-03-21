@@ -75,11 +75,11 @@ class CountriesController extends Controller
         $totalRecords = Country::where('id', '!=', '0')->select('count(*) as allcount')->count();
         $totalRecordswithFilter = Country::select('count(*) as allcount')->
                                                    where('id', '!=', '0')->
-                                                   where('name', 'like', '%' .$searchValue . '%')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
                                                    count();
 
         $Country = Country::orderBy('countries.'.$columnName,$columnSortOrder)->
-                where('countries.name', 'like', '%' .$searchValue . '%')->
+                where('countries.name', 'ilike', '%' .$searchValue . '%')->
                 where('countries.is_delete', '0')->
                 skip($start)->
                 take($rowperpage)->

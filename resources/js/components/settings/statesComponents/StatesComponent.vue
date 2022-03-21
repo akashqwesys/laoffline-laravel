@@ -87,11 +87,24 @@
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#state').DataTable({
+                buttons = ['excel', 'pdf', 'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#state').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "./states/list",
+                    ajax: {
+                        url: "./states/list",
+                        data: function (data) {
+                            if ($('#state_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
                     pagingType: 'full_numbers',
                     dom: 'Bfrtip',
                     columns: [
@@ -100,24 +113,24 @@
                         { data: 'country'},
                         { data: 'action' },
                     ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#state').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./states/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'country'},
-                        { data: 'action' },
-                    ],
-                    buttons: []
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
                 });
             }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#state_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
         },
     };
 </script>

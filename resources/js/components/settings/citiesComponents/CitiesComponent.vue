@@ -87,37 +87,50 @@
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#cities').DataTable({
+                buttons = ['excel', 'pdf', 'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#cities').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "./cities/list",
+                    ajax: {
+                        url: "./cities/list",
+                        data: function (data) {
+                            if ($('#cities_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
                     pagingType: 'full_numbers',
                     dom: 'Bfrtip',
                     columns: [
-                        { data: 'id' },
+                       { data: 'id' },
                         { data: 'name' },
                         { data: 'state'},
                         { data: 'action' },
                     ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#cities').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./cities/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'state'},
-                        { data: 'action' },
-                    ],
-                    buttons: []
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
                 });
             }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#cities_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
         },
     };
 </script>

@@ -86,11 +86,24 @@
             }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#countries').DataTable({
+                buttons = ['excel', 'pdf', 'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#countries').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "./countries/list",
+                    ajax: {
+                        url: "./countries/list",
+                        data: function (data) {
+                            if ($('#countries_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
                     pagingType: 'full_numbers',
                     dom: 'Bfrtip',
                     columns: [
@@ -98,23 +111,24 @@
                         { data: 'name' },
                         { data: 'action' },
                     ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#countries').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./countries/list",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'name' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
                 });
             }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#countries_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
         },
     };
 </script>
