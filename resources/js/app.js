@@ -4,6 +4,7 @@ import { createApp } from "vue";
 import { createWebHistory, createRouter } from "vue-router";
 // import router from './router';
 
+import VueLoader from './VueLoader.vue';
 
 import DashboardComponent from './components/DashboardComponent.vue';
 
@@ -25,9 +26,12 @@ import CreateProductComponent from './components/databank/productsComponents/Cre
 
 import CompanyComponent from './components/databank/companyComponents/CompanyComponent.vue';
 import CreateCompanyComponent from './components/databank/companyComponents/CreateCompanyComponent.vue';
+import ViewCompanyComponent from './components/databank/companyComponents/ViewCompanyComponent.vue';
+import EssentialCompanyComponent from './components/databank/companyComponents/EssentialCompanyComponent.vue';
 
 import CompanyCategoryComponent from './components/databank/companyCategoryComponents/CompanyCategoryComponent.vue';
 import CreateCompanyCategoryComponent from './components/databank/companyCategoryComponents/CreateCompanyCategoryComponent.vue';
+// import ViewCompanyDetailsModelComponent from './components/databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
 
 import LinkCompaniesComponent from './components/databank/linkCompaniesComponents/LinkCompaniesComponent.vue';
 import CreateLinkCompaniesComponent from './components/databank/linkCompaniesComponents/CreateLinkCompaniesComponent.vue';
@@ -132,6 +136,8 @@ const routes = [
         children: [
             { path: 'create-company', component: CreateCompanyComponent },
             { path: 'edit-company/:id', component: CreateCompanyComponent },
+            { path: 'view-company/:id', component: ViewCompanyComponent },
+            { path: 'essential', component: EssentialCompanyComponent },
         ]
     },
     {
@@ -271,6 +277,7 @@ const router = createRouter({
 
 createApp({
     components: {
+        VueLoader,
         DashboardComponent,
         UserGroupComponent,
         CreateUserGroupComponent,
@@ -284,8 +291,11 @@ createApp({
         CreateProductComponent,
         CompanyComponent,
         CreateCompanyComponent,
+        ViewCompanyComponent,
+        EssentialCompanyComponent,
         CompanyCategoryComponent,
         CreateCompanyCategoryComponent,
+        // ViewCompanyDetailsModelComponent,
         LinkCompaniesComponent,
         CreateLinkCompaniesComponent,
 

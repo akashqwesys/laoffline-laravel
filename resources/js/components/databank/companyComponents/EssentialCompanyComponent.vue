@@ -53,14 +53,12 @@
 </template>
 
 <script>
-    import 'jquery/dist/jquery.min.js';
-    import "datatables.net-dt/js/dataTables.dataTables";
-    import "datatables.net-buttons/js/dataTables.buttons.js";
-    import "datatables.net-buttons/js/buttons.colVis.js";
-    import "datatables.net-buttons/js/buttons.flash.js";
-    import "datatables.net-buttons/js/buttons.html5.js";
-    import "datatables.net-buttons/js/buttons.print.js";
     import $ from 'jquery';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import 'pdfmake/build/pdfmake';
+    import "datatables.net-buttons/js/buttons.html5";
+    import "datatables.net-buttons/js/buttons.print";
 
     export default {
         name: 'essentialCompany',
@@ -76,20 +74,20 @@
         methods: {
             isFavorite: function(id) {
                 axios.post('./companies/favorite/'+id)
-                .then(response => {                    
+                .then(response => {
                     location.reload();
                 });
             },
             isUnFavorite: function(id) {
                 axios.post('./companies/unFavorite/'+id)
-                .then(response => {                    
+                .then(response => {
                     location.reload();
                 });
             },
             isVerified: function(id) {
                 axios.post('./companies/verify/'+id)
-                .then(response => {                    
-                    location.reload();  
+                .then(response => {
+                    location.reload();
                 });
             },
             view_data(id){
@@ -100,7 +98,7 @@
             },
             delete_data(id){
                 axios.delete('./companies/delete/'+id)
-                .then(response => {                    
+                .then(response => {
                     location.reload();
                 });
             }
@@ -169,10 +167,10 @@
         position: relative;
         display: inline-flex;
         vertical-align: middle;
-        flex-wrap: wrap;        
+        flex-wrap: wrap;
         float: right;
     }
-    .dt-buttons .dt-button {    
+    .dt-buttons .dt-button {
         position: relative;
         flex: 1 1 auto;
         display: inline-flex;

@@ -23,6 +23,7 @@ class FinancialYearController extends Controller
     }
 
     public function index(Request $request) {
+        $page_title = 'Financial Year';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
@@ -43,17 +44,18 @@ class FinancialYearController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('financialyear.financialyear',compact('financialYear'))->with('employees', $employees);
+        return view('financialyear.financialyear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
 
     public function createFinancialYear() {
+        $page_title = 'Add Financial Year';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('financialyear.createFinancialYear',compact('financialYear'))->with('employees', $employees);
+        return view('financialyear.createFinancialYear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function getPermissions() {
@@ -67,7 +69,7 @@ class FinancialYearController extends Controller
 
         return $financialyears;
     }
-    
+
     public function listFinancialYear(Request $request) {
         $user = Session::get('user');
 
@@ -131,10 +133,10 @@ class FinancialYearController extends Controller
             $data_arr[] = array(
                 "id" => $id,
                 "name" => $name,
-                "startdate" => $startdate,
-                "enddate" => $enddate,
-                "currentyear" => $active,
-                "envprefix" => $envprefix,
+                "start_date" => $startdate,
+                "end_date" => $enddate,
+                "current_year_flag" => $active,
+                "inv_prefix" => $envprefix,
                 "action" => $action
             );
         }
@@ -151,6 +153,7 @@ class FinancialYearController extends Controller
     }
 
     public function editFinancialYear($id) {
+        $page_title = 'Update Financial Year';
         $financialYear = FinancialYear::where('id',$id);
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -159,7 +162,7 @@ class FinancialYearController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('financialyear.editFinancialyear',compact('financialYear'))->with('employees', $employees);
+        return view('financialyear.editFinancialyear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchFinancialYear($id) {
@@ -169,7 +172,7 @@ class FinancialYearController extends Controller
     }
 
     public function insertFinancialYear(Request $request) {
-    
+
         $this->validate($request, [
             'name' => 'required',
             'startdate' => 'required',
@@ -191,7 +194,7 @@ class FinancialYearController extends Controller
         $financialYear->inv_prefix = $request->invprefix;
         $financialYear->save();
 
-        
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
 
@@ -205,7 +208,7 @@ class FinancialYearController extends Controller
     }
 
     public function updateFinancialYear(Request $request) {
-        
+
         $this->validate($request, [
             'name' => 'required',
             'startdate' => 'required',
@@ -231,7 +234,7 @@ class FinancialYearController extends Controller
         $financialYear->inv_prefix = $request->invprefix ? $request->invprefix : '';
         $financialYear->save();
 
-       
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
 

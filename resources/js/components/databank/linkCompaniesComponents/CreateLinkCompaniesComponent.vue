@@ -24,7 +24,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-company_id">Company</label>
                                                     <div>
-                                                        <multiselect v-model="form.company_id" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @input="getCompanyDetails"></multiselect>
+                                                        <multiselect v-model="form.company_id" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @select="getCompanyDetails"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -65,7 +65,7 @@
     import Form from 'vform';
 
     export default {
-        name: 'createUserGroup',
+        name: 'createLinkCompany',
         components: {
             Multiselect
         },
@@ -93,15 +93,14 @@
         methods: {
             getCompanyDetails: function(event) {
                 if(event != null) {
-                    axios.get(`/databank/link-company/getComapnyById/${event.id}`)
+                    axios.get(`/databank/link-company/getCompanyById/${event.id}`)
                     .then(response => {
                         this.companyDetails = response.data;
                         if(this.companyDetails.length != 0) {
                             this.linkCompanies = 1;
-                            axios.get(`/databank/link-company/getLinkedComapnyById/${event.id}`)
+                            axios.get(`/databank/link-company/getLinkedCompanyById/${event.id}`)
                             .then(result => {
                                 this.linkedCompaniesLists = result.data;
-                                console.log(this.linkedCompaniesLists);
                                 if(this.linkedCompaniesLists.length != 0) {
                                     this.linkedCompaniesList = 1;
                                 }
