@@ -136,15 +136,13 @@ class CompanyController extends Controller
             ->where('ct.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('company_categories')->select('id')->where('category_name', 'ilike', $columnName_arr[6]['search']['value'])->first();
+            $cc_id = DB::table('company_categories')->select('id')->where('category_name', 'ilike', '%'.$columnName_arr[6]['search']['value'] . '%')->first();
             // if ($cc_id) {
-                $totalRecordswithFilter = $totalRecordswithFilter
-                ->whereRaw("company_category @> '" . strval($cc_id->id ?? 0) . "'");
+                $totalRecordswithFilter = $totalRecordswithFilter->whereRaw("company_category @> '\"" . strval($cc_id->id ?? 0) . "\"'");
             // }
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->join('cities as cty', 'companies.company_city', '=', 'cty.id')
-            ->where('cty.name', 'ILIKE', '%' . $columnName_arr[7]['search']['value'] . '%');
+            $totalRecordswithFilter = $totalRecordswithFilter->where('companies.company_city', 'ILIKE', '%' . $columnName_arr[7]['search']['value'] . '%');
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
@@ -166,15 +164,13 @@ class CompanyController extends Controller
             ->where('ct.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('company_categories')->select('id')->where('category_name', 'ilike', $columnName_arr[6]['search']['value'])->first();
+            $cc_id = DB::table('company_categories')->select('id')->where('category_name', 'ilike', '%'.$columnName_arr[6]['search']['value'] . '%')->first();
             // if ($cc_id) {
-                $company = $company
-                ->whereRaw("company_category @> '" . strval($cc_id->id ?? 0) . "'");
+                $company = $company->whereRaw("company_category @> '\"" . strval($cc_id->id ?? 0) . "\"'");
             // }
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $company = $company->join('cities as cty', 'companies.company_city', '=', 'cty.id')
-            ->where('cty.name', 'ILIKE', '%' . $columnName_arr[7]['search']['value'] . '%');
+            $company = $company->where('companies.company_city', 'ILIKE', '%' . $columnName_arr[7]['search']['value'] . '%');
         }
         $company = $company->where('companies.is_delete', 0)
             ->orderBy($columnName == 'id' ? 'companies.id' : $columnName, $columnSortOrder)

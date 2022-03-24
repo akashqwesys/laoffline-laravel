@@ -198,7 +198,7 @@
                         { data: 'id' },
                         { data: 'company_id' },
                         { data: 'link_companies_id' },
-                        { data: 'action' },
+                        { data: 'action', orderable: false },
                     ],
                     search: {
                         return: true

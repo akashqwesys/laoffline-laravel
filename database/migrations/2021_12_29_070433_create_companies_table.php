@@ -19,7 +19,7 @@ class CreateCompaniesTable extends Migration
             $table->integer('company_type')->nullable();
             $table->integer('company_country')->nullable();
             $table->integer('company_state')->nullable();
-            $table->integer('company_city')->nullable();
+            $table->string('company_city')->nullable();
             $table->string('company_website')->nullable();
             $table->jsonb('company_landline')->nullable();
             $table->jsonb('company_mobile')->nullable();
