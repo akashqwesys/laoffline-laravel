@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             CreatePermissionsSeeder::class,
-            CreateEmployeesSeeder::class,
             // CreateUserGroupSeeder::class,
             // CreateUsersSeeder::class,
             CreateCountriesSeeder::class,
@@ -27,6 +26,13 @@ class DatabaseSeeder extends Seeder
             CreateFabricFieldSeeder::class,
             CreateFabricGroupSeeder::class,
             CreateProductDefaultCategorySeeder::class,
+            CreateAgentSeeder::class,
+            CreateBankSeeder::class,
+            CreateDesignationSeeder::class,
+            AllCompanyDetailsSeeder::class,
+            AllProductDetails::class,
+            AllUserDetails::class,
+            CitySeeder::class,
         ]);
     }
 }
