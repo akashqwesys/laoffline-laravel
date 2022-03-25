@@ -27,7 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [App\Http\Controllers\DashboardController::class, 'index'])->name('home');
 });
 
-Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:access-financialyear']], function () {
+Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:access-financial-year']], function () {
     Route::get('/', [App\Http\Controllers\FinancialYearController::class, 'index'])->name('financialyear');
     Route::get('/getPermission', [App\Http\Controllers\FinancialYearController::class, 'getPermissions'])->name('getPermissions');
     Route::get('/list', [App\Http\Controllers\FinancialYearController::class, 'listFinancialYear'])->name('list');
@@ -35,7 +35,7 @@ Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:
     Route::get('/fetch-year/{id}', [App\Http\Controllers\FinancialYearController::class, 'fetchFinancialYear']);
 });
 
-Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:modify-financialyear']], function () {
+Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:modify-financial-year']], function () {
     Route::get('/create-financialyear', [App\Http\Controllers\FinancialYearController::class, 'createFinancialYear']);
     Route::post('/create', [App\Http\Controllers\FinancialYearController::class, 'insertFinancialYear']);
     Route::post('/update', [App\Http\Controllers\FinancialYearController::class, 'updateFinancialYear']);
@@ -225,9 +225,10 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:acces
     Route::group(['prefix' => 'link-company'], function () {
         Route::get('/', [App\Http\Controllers\databank\LinkCompaniesController::class, 'index'])->name('link-company');
         Route::get('/list', [App\Http\Controllers\databank\LinkCompaniesController::class, 'listLinkCompanies'])->name('list');
+        Route::get('/list-js', [App\Http\Controllers\databank\LinkCompaniesController::class, 'listLinkCompanies_dt'])->name('list-js');
         Route::get('/listCompanies', [App\Http\Controllers\databank\LinkCompaniesController::class, 'listCompanies'])->name('listCompanies');
-        Route::get('/getComapnyById/{id}', [App\Http\Controllers\databank\LinkCompaniesController::class, 'getComapnyById'])->name('getComapnyById');
-        Route::get('/getLinkedComapnyById/{id}', [App\Http\Controllers\databank\LinkCompaniesController::class, 'getLinkedComapnyById'])->name('getLinkedComapnyById');
+        Route::get('/getCompanyById/{id}', [App\Http\Controllers\databank\LinkCompaniesController::class, 'getCompanyById'])->name('getCompanyById');
+        Route::get('/getLinkedCompanyById/{id}', [App\Http\Controllers\databank\LinkCompaniesController::class, 'getLinkedCompanyById'])->name('getLinkedCompanyById');
         Route::get('/fetch-link-company/{id}', [App\Http\Controllers\databank\LinkCompaniesController::class, 'fetchLinkCompanies']);
     });
 });

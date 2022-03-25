@@ -35,7 +35,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fw-company_type">Company Type</label>
                                                     <div>
-                                                        <multiselect v-model="company.company_type" :options="companyType" placeholder="Select one" label="name" track-by="name" @input="getStateList"></multiselect>
+                                                        <multiselect v-model="company.company_type" :options="companyType" placeholder="Select one" label="name" track-by="name" ></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -43,7 +43,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fw-company_country">Country</label>
                                                     <div>
-                                                        <multiselect v-model="company.company_country" :options="countryList" placeholder="Select one" label="name" track-by="name" @input="getStateList"></multiselect>
+                                                        <multiselect v-model="company.company_country" :options="countryList" placeholder="Select one" label="name" track-by="name" @select="getStateList"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -51,7 +51,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fw-company_state">State</label>
                                                     <div>
-                                                        <multiselect v-model="company.company_state" :options="stateList" placeholder="Select one" label="name" track-by="name" @input="getCityList"></multiselect>
+                                                        <multiselect v-model="company.company_state" :options="stateList" placeholder="Select one" label="name" track-by="name" @select="getCityList"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -177,7 +177,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-12 d-flex align-items-center">
                                                 <span class="preview-title-lg overline-title d-inline-block w-100">Contact Details</span>
-                                                <li class="dropdown-toggle btn btn-icon btn-primary" @click="addContactDetailsRow"><em class="icon ni ni-plus"></em></li>
+                                                <li class="dropdown-toggle btn btn-icon btn-primary" onclick="addContactDetailsRow();"><em class="icon ni ni-plus"></em></li>
                                             </div>
                                         </div>
                                         <div class="row gy-4" v-for="(contactDetail, index) in contactDetails" :key="index">
@@ -251,7 +251,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="fw-ma_mobile">Mobile</label>
                                                         <div class="form-control-wrap" style="position: relative; width: 100%;">
-                                                            <input v-model="multipleAddress.country_code" type="number" placeholder="+91" class="form-control" id="fv-company_country_code">
+                                                            <input v-model="multipleAddress.country_code" type="text" placeholder="+91" class="form-control" id="fv-company_country_code">
                                                             <input v-model="multipleAddress.mobile" type="number" class="form-control" id="fw-ma_mobile">
                                                         </div>
                                                     </div>
@@ -652,9 +652,8 @@
             });
         },
         methods: {
-            getStateList: function(event) {
+            getStateList: function (event) {
                 if(event != null) {
-                    console.log(event);
                     axios.get('/settings/cities/list-state-id/'+event.id)
                     .then(response => {
                         this.stateList = response.data;
@@ -663,7 +662,6 @@
             },
             getCityList: function(event) {
                 if(event != null) {
-                    console.log(event);
                     axios.get('/settings/cities/list-city-id/'+event.id)
                     .then(response => {
                         this.cityList = response.data;
@@ -732,7 +730,6 @@
 
             register () {
                 var formData = new FormData();
-
                 formData.append('company_data', JSON.stringify(this.company));
                 formData.append('contact_details', JSON.stringify(this.contactDetails));
                 formData.append('multiple_addresses', JSON.stringify(this.multipleAddresses));
@@ -780,8 +777,9 @@
                     .catch((error) => {
                         var validationError = error.response.data.errors;
 
-                        if(validationError.company_name) {
-                            this.errors.company_name = validationError.company_name[0];
+                        if(validationError) {
+                            $('#fw-company_name').focus();
+                            this.errors.company_name = validationError;
                         }
                     });
                 }

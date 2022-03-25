@@ -16,9 +16,9 @@ class CreateCompaniesTable extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->integer('id');
             $table->string('company_name')->nullable();
-            $table->string('company_type')->nullable();
-            $table->string('company_country')->nullable();
-            $table->string('company_state')->nullable();
+            $table->integer('company_type')->nullable();
+            $table->integer('company_country')->nullable();
+            $table->integer('company_state')->nullable();
             $table->string('company_city')->nullable();
             $table->string('company_website')->nullable();
             $table->jsonb('company_landline')->nullable();
@@ -28,9 +28,9 @@ class CreateCompaniesTable extends Migration
             $table->text('company_about')->nullable();
             $table->jsonb('company_category')->nullable();
             $table->integer('company_transport')->default('0');
-            $table->string('company_discount')->nullable();
+            $table->integer('company_discount')->nullable();
             $table->integer('company_payment_terms_in_days')->default('0');
-            $table->string('company_opening_balance')->nullable();
+            $table->integer('company_opening_balance')->nullable();
             $table->integer('favorite_flag')->default('0');
             $table->integer('is_verified')->default('0');
             $table->integer('verified_by')->default('0');

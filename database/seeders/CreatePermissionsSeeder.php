@@ -303,6 +303,14 @@ class CreatePermissionsSeeder extends Seeder
                 'name' => 'modify-permission',
                 'guard_name' => 'web',
             ],
+            [
+                'name' => 'access-financial-year',
+                'guard_name' => 'web',
+            ],
+            [
+                'name' => 'modify-financial-year',
+                'guard_name' => 'web',
+            ],
         ];
 
         /* foreach ($permission as $key => $value) {

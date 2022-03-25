@@ -9,7 +9,7 @@
                             <div class="nk-block-head-content">
                                 <h3 class="nk-block-title page-title">Link Companies Lists</h3>
                                 <div class="nk-block-des text-soft">
-                                    <p>You have total {{linkCompanies.length}} list of link companies.</p>
+                                    <p>You have total <span id="totalLinkCompanies"></span> list of link companies.</p>
                                 </div>
                             </div><!-- .nk-block-head-content -->
                             <div class="nk-block-head-content">
@@ -29,7 +29,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                                <table id="linkCompanies" :class="excelAccess == 1 ? 'datatable-init-export table' : 'datatable-init table'" :data-export-title="excelAccess == 1 ? 'Export' : ''">
+                                    <table id="linkCompanies" class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
                                             <th>No</th>
@@ -38,20 +38,6 @@
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr v-for="(linkCompany, index) in linkCompanies" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>
-                                                <a href="#" @click="view_data(linkCompany.company.id)">{{ linkCompany.company.company_name }}</a>
-                                            </td>
-                                            <td>
-                                                <a href="#" @click="view_data(linkCompany.company.id)">{{ linkCompany.link_company.company_name }}</a>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary" data-toggle="modal" :data-target="getDataTarget(linkCompany.linkId)" title="Merge company"  v-on:click="showModel(linkCompany.linkId, linkCompany.company.id)">Merge</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
                                 </table>
                             </div><!-- .card -->
                         </div>
@@ -109,6 +95,14 @@
 </template>
 
 <script>
+    import 'jquery/dist/jquery.min.js';
+    import 'datatables.net-bs5/js/dataTables.bootstrap5';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import "datatables.net-buttons/js/buttons.flash.js";
+    import "datatables.net-buttons/js/buttons.html5.js";
+    import "datatables.net-buttons/js/buttons.print.js";
+    import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
     import VueLoader from './../../../VueLoader';
@@ -136,14 +130,6 @@
                 })
             }
         },
-        created() {
-            this.showLoader = true;
-            axios.get('./link-company/list')
-            .then(response => {
-                this.linkCompanies = response.data;
-                this.showLoader = false;
-            });
-        },
         methods: {
             getDataTarget(id) {
                 return '#mergeCompany' + id;
@@ -151,15 +137,15 @@
             showModel(id, companyId) {
                 var mId = '#mergeCompany'+id;
                 this.modalId = 'mergeCompany'+id;
-
-                axios.get('./link-company/getComapnyById/'+companyId)
+                this.companies = [];
+                axios.get('./link-company/getCompanyById/'+companyId)
                 .then(response => {
                     this.companies.push({
                         id: response.data.id,
                         company_name: response.data.company_name
                     });
 
-                    axios.get('./link-company/getLinkedComapnyById/'+companyId)
+                    axios.get('./link-company/getLinkedCompanyById/'+companyId)
                     .then(result => {
                         var linkCompany = [];
                         result.data.forEach(element => {
@@ -168,7 +154,7 @@
                     });
                 });
 
-                $(mId).modal('show');
+                window.$(mId).modal('show');
             },
             edit_data(id){
                 window.location.href = './link-company/edit-link-company/'+id;
@@ -177,7 +163,6 @@
                 window.location.href = './companies/view-company/'+id;
             },
             register () {
-                console.log(this.form);
                 this.form.post('/databank/link-company/merge')
                     .then(( response ) => {
                         // window.location.href = '/databank/link-company';
@@ -185,6 +170,63 @@
             },
         },
         mounted() {
+            const self = this;
+            var buttons = [];
+            var dt_table = null;
+            if(this.excelAccess == 1) {
+                buttons = ['excel', 'pdf', 'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#linkCompanies').DataTable({
+                    // responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "./link-company/list-js",
+                        data: function (data) {
+                            if ($('#linkCompanies_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) {
+                            $('#totalLinkCompanies').text(data.responseJSON.iTotalRecords);
+                        }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: 'Bfrtip',
+                    columns: [
+                        { data: 'id' },
+                        { data: 'company_id' },
+                        { data: 'link_companies_id' },
+                        { data: 'action', orderable: false },
+                    ],
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
+                });
+                dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
+                    var count = columns.reduce( function (a,b) {
+                        return b === false ? a+1 : a;
+                    }, 0 );
+                } );
+            }
+            init_dt_table();
+            var draw = 1;
+            $(document).on('keyup', '#linkCompanies_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    draw = 0;
+                }
+            });
+
+            $(document).on('click', '.showModal', function(e) {
+                self.showModel($(this).attr('data-id'), $(this).attr('data-company'));
+            });
         },
     };
 </script>

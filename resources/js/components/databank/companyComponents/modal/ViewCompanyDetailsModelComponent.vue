@@ -1,10 +1,10 @@
-<template>    
+<template>
     <div class="modal fade viewCompany" id="viewCompany1">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Company Details</h5>
-                    <a href="#" class="close" data-dismiss="modal" aria-label="Close">
+                    <a href="#" class="close" data-dismiss="modal" aria-label="Close" @click="this.$parent.closeModal">
                         <em class="icon ni ni-cross"></em>
                     </a>
                 </div>
@@ -71,28 +71,28 @@
                                                                 <div class="data-col">
                                                                     <span class="data-label">Website</span>
                                                                     <span v-if="companyDetails.company_website != ''" class="data-value">{{ companyDetails.company_website }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Landline Number</span>
                                                                     <span v-if="companyDetails.company_landline != ''" class="data-value">{{ companyDetails.company_landline }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Mobile Number</span>
                                                                     <span v-if="companyDetails.company_mobile != ''" class="data-value">{{ companyDetails.company_mobile }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item" data-tab-target="#address">
                                                                 <div class="data-col">
                                                                     <span class="data-label">About Company</span>
                                                                     <span v-if="companyDetails.company_about != ''" class="data-value">{{ companyDetails.company_about }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
@@ -105,14 +105,14 @@
                                                                     <span class="data-label">Watchout</span>
                                                                     <span v-if="companyDetails.company_watchout == 1" class="data-value">Yes</span>
                                                                     <span v-else-if="companyDetails.company_watchout == 0" class="data-value">No</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Remark Watchout</span>
                                                                     <span v-if="companyDetails.company_remark_watchout != ''" class="data-value">{{ companyDetails.company_remark_watchout }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
@@ -121,7 +121,7 @@
                                                         <div id="accordion" class="accordion">
                                                             <div class="accordion-item" v-for="(address, index) in multipleAddress" :key="index">
                                                                 <a href="#" class="accordion-head" data-toggle="collapse" :data-target="'#accordion-item-'+index">
-                                                                    <h6 class="title">Address Type - "{{ address.address_type_name }}"</h6>
+                                                                    <h6 class="title" >Address Type - "{{ address.address_type_name }}"</h6>
                                                                     <span class="accordion-icon"></span>
                                                                 </a>
                                                                 <div v-bind:class="(index == 0)?'accordion-body collapse show':'accordion-body collapse'" :id="'accordion-item-'+index" data-parent="#accordion">
@@ -131,7 +131,8 @@
                                                                         </div>
                                                                         <div class="data-item">
                                                                             <div class="data-col">
-                                                                                <span class="data-value">{{ address.address }}</span>
+                                                                                <span class="data-value" v-if="address.address">{{ address.address }}</span>
+                                                                                <span class="data-value text-soft" v-else>N/A</span>
                                                                             </div>
                                                                         </div><!-- data-item -->
                                                                         <div class="data-head">
@@ -155,10 +156,10 @@
                                                                                             <td>
                                                                                                 <div class="user-card">
                                                                                                     <div class="user-avatar user-avatar-sm bg-warning">
-                                                                                                        <img v-if="owner.contact_profile_pic != ''" v-bind:src="getProfilePic(owner.contact_profile_pic)" alt="">
-                                                                                                        <span v-if="owner.contact_profile_pic == ''">{{ owner.name.charAt(0) }}</span>
+                                                                                                        <img v-if="owner.profile_pic != ''"  v-bind:src="this.$parent.getProfilePic(owner.profile_pic)" alt="">
+                                                                                                        <span v-if="owner.profile_pic == ''" >{{ owner.name.charAt(0).toUpperCase() }}</span>
                                                                                                     </div>
-                                                                                                    <div class="user-name"><span class="tb-lead">{{ owner.name }}</span></div>                                                    
+                                                                                                    <div class="user-name"><span class="tb-lead">{{ owner.name }}</span></div>
                                                                                                 </div>
                                                                                             </td>
                                                                                             <td>{{ owner.designation_name }}</td>
@@ -196,10 +197,10 @@
                                                                             <td>
                                                                                 <div class="user-card">
                                                                                     <div class="user-avatar user-avatar-sm bg-warning">
-                                                                                        <img v-if="contactDetail.contact_person_profile_pic != ''" v-bind:src="getProfilePic(contactDetail.contact_person_profile_pic)" alt="">
-                                                                                        <span v-if="contactDetail.contact_person_profile_pic == ''">{{ contactDetail.contact_person_name.charAt(0) }}</span>
+                                                                                        <img v-if="contactDetail.contact_person_profile_pic != ''" v-bind:src="this.$parent.getProfilePic(contactDetail.contact_person_profile_pic)" alt="">
+                                                                                        <span v-if="contactDetail.contact_person_profile_pic == ''">{{ contactDetail.contact_person_name.charAt(0).toUpperCase() }}</span>
                                                                                     </div>
-                                                                                    <div class="user-name"><span class="tb-lead">{{ contactDetail.contact_person_name }}</span></div>                                                    
+                                                                                    <div class="user-name"><span class="tb-lead">{{ contactDetail.contact_person_name }}</span></div>
                                                                                 </div>
                                                                             </td>
                                                                             <td>{{ contactDetail.contact_person_designation }}</td>
@@ -229,28 +230,28 @@
                                                                 <div class="data-col">
                                                                     <span class="data-label">Strength</span>
                                                                     <span v-if="swotDetail.strength != ''" class="data-value">{{ swotDetail.strength }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Weakness</span>
                                                                     <span v-if="swotDetail.weakness != ''" class="data-value">{{ swotDetail.weakness }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Opportunity</span>
                                                                     <span v-if="swotDetail.opportunity != ''" class="data-value">{{ swotDetail.opportunity }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Threat</span>
                                                                     <span v-if="swotDetail.threat != ''" class="data-value">{{ swotDetail.threat }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
@@ -261,28 +262,28 @@
                                                                 <div class="data-col">
                                                                     <span class="data-label">GST No.</span>
                                                                     <span v-if="packagingDetail.gst_no != ''" class="data-value">{{ packagingDetail.gst_no }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">CST No.</span>
                                                                     <span v-if="packagingDetail.cst_no != ''" class="data-value">{{ packagingDetail.cst_no }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">TIN No.</span>
                                                                     <span v-if="packagingDetail.tin_no != ''" class="data-value">{{ packagingDetail.tin_no }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">VAT No.</span>
                                                                     <span v-if="packagingDetail.vat_no != ''" class="data-value">{{ packagingDetail.vat_no }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
@@ -293,28 +294,28 @@
                                                                 <div class="data-col">
                                                                     <span class="data-label">Name</span>
                                                                     <span v-if="referenceDetail.ref_person_name != ''" class="data-value">{{ referenceDetail.ref_person_name }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Mobile No.</span>
                                                                     <span v-if="referenceDetail.ref_person_mobile != ''" class="data-value">{{ referenceDetail.ref_person_mobile }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Company Name</span>
                                                                     <span v-if="referenceDetail.ref_person_company != ''" class="data-value">{{ referenceDetail.ref_person_company }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Address</span>
                                                                     <span v-if="referenceDetail.ref_person_address != ''" class="data-value">{{ referenceDetail.ref_person_address }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
@@ -325,35 +326,35 @@
                                                                 <div class="data-col">
                                                                     <span class="data-label">Bank Name</span>
                                                                     <span v-if="bankDetail.bank_name != ''" class="data-value">{{ bankDetail.bank_name }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Account Holder Name</span>
                                                                     <span v-if="bankDetail.account_holder_name != ''" class="data-value">{{ bankDetail.account_holder_name }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Account No.</span>
                                                                     <span v-if="bankDetail.account_no != ''" class="data-value">{{ bankDetail.account_no }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">Branch Name</span>
                                                                     <span v-if="bankDetail.branch_name != ''" class="data-value">{{ bankDetail.branch_name }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
                                                                     <span class="data-label">IFSC Code</span>
                                                                     <span v-if="bankDetail.ifsc_code != ''" class="data-value">{{ bankDetail.ifsc_code }}</span>
-                                                                    <span v-else class="data-value text-soft">Not add yet</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
                                                                 </div>
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
@@ -387,19 +388,24 @@
                 referenceDetail : [],
             }
         },
+        methods: {
+            fetch_company(id) {
+                axios.get('/databank/companies/fetch-company/' + id)
+                .then(response => {
+                    this.companyDetails = response.data.company;
+                    this.companyDetails.company_type = response.data.company.company_type.name;
+                    this.contactDetails = response.data.contact_details;
+                    this.multipleAddress = response.data.multiple_address;
+                    this.multipleEmail = response.data.multiple_emails;
+                    this.swotDetail = response.data.swot_details;
+                    this.bankDetail = response.data.bank_details;
+                    this.packagingDetail = response.data.packaging_details;
+                    this.referenceDetail = response.data.references_details;
+                    window.$('#overlay').hide();
+                });
+            }
+        },
         mounted() {
-            axios.get(`/databank/companies/fetch-company/1`)
-            .then(response => {
-                this.companyDetails = response.data.company;
-                this.companyDetails.company_type = response.data.company.company_type.name;
-                this.contactDetails = response.data.contact_details;
-                this.multipleAddress = response.data.multiple_address;
-                this.multipleEmail = response.data.multiple_emails;
-                this.swotDetail = response.data.swot_details;
-                this.bankDetail = response.data.bank_details;
-                this.packagingDetail = response.data.packaging_details;
-                this.referenceDetail = response.data.references_details;
-            });
         },
     };
 </script>

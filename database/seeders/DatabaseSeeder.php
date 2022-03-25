@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CreatePermissionsSeeder::class,
             CreateEmployeesSeeder::class,
-            CreateUserGroupSeeder::class,
-            CreateUsersSeeder::class,
+            // CreateUserGroupSeeder::class,
+            // CreateUsersSeeder::class,
             CreateCountriesSeeder::class,
             CreateStatesSeeder::class,
             CreateCompanyType::class,

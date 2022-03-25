@@ -1,4 +1,5 @@
 <template>
+    <VueLoader></VueLoader>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -52,12 +53,13 @@
                 </div>
             </div>
         </div>
-        <ViewCompanyDetails></ViewCompanyDetails>
+        <ViewCompanyDetails ref="company"></ViewCompanyDetails>
     </div>
 </template>
 
 <script>
-    import ViewCompanyDetails from './modal/ViewCompanyDetailsModelComponent';
+    import ViewCompanyDetails from './modal/ViewCompanyDetailsModelComponent.vue';
+    import VueLoader from './../../../VueLoader.vue';
 
     import $ from 'jquery';
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
@@ -72,7 +74,8 @@
             excelAccess: Number,
         },
         components: {
-            ViewCompanyDetails
+            ViewCompanyDetails,
+            VueLoader
         },
         data() {
             return {
@@ -81,29 +84,18 @@
             }
         },
         methods: {
-            showModal(id) {
-                $("#viewCompany1").modal('show');
-                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
-                $('body').addClass('modal-open');
-                $('body').css('overflow', 'hidden');
-                $('body').css('padding-right', '17px');
-            },
-            closeModel() {
-                $('#viewCompany1').modal('hide');
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
-                $('body').removeAttr('style');
-            },
             getEssentialCompany() {
                 window.location.href = './companies/essential/';
             },
             isFavorite: function(id) {
+                window.$('#overlay').show();
                 axios.post('./companies/favorite/'+id)
                 .then(response => {
                     location.reload();
                 });
             },
             isUnFavorite: function(id) {
+                window.$('#overlay').show();
                 axios.post('./companies/unFavorite/'+id)
                 .then(response => {
                     location.reload();
@@ -130,8 +122,21 @@
             getProfilePic(name){
                 return '/upload/company/multipleAddressProfilePic/' + name;
             },
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
+            }
         },
         mounted() {
+            const self = this;
             var buttons = [];
             var dt_table = null;
             if(this.excelAccess == 1) {
@@ -146,24 +151,29 @@
                         url: "./companies/list",
                         data: function (data) {
                             if ($('#dt_name').val() == '') {
-                                data.columns[2].search.value = '';
-                            } else {
-                                data.columns[2].search.value = $('#dt_name').val();
-                            }
-                            if ($('#dt_email').val() == '') {
                                 data.columns[3].search.value = '';
                             } else {
-                                data.columns[3].search.value = $('#dt_email').val();
+                                data.columns[3].search.value = $('#dt_name').val();
                             }
-                            if ($('#dt_mobile').val() == '') {
+                            if ($('#dt_office_no').val() == '') {
                                 data.columns[4].search.value = '';
                             } else {
-                                data.columns[4].search.value = $('#dt_mobile').val();
+                                data.columns[4].search.value = $('#dt_office_no').val();
                             }
-                            if ($('#dt_user_group').val() == '') {
+                            if ($('#dt_company_type').val() == '') {
                                 data.columns[5].search.value = '';
                             } else {
-                                data.columns[5].search.value = $('#dt_user_group').val();
+                                data.columns[5].search.value = $('#dt_company_type').val();
+                            }
+                            if ($('#dt_company_category').val() == '') {
+                                data.columns[6].search.value = '';
+                            } else {
+                                data.columns[6].search.value = $('#dt_company_category').val();
+                            }
+                            if ($('#dt_city').val() == '') {
+                                data.columns[7].search.value = '';
+                            } else {
+                                data.columns[7].search.value = $('#dt_city').val();
                             }
                         },
                         complete: function (data) { }
@@ -172,14 +182,14 @@
                     dom: 'Brtip',
                     columns: [
                         { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'verified' },
-                        { data: 'name' },
-                        { data: 'office_no' },
+                        { data: 'flag', orderable: false },
+                        { data: 'verified', orderable: false },
+                        { data: 'company_name' },
+                        { data: 'office_no', orderable: false },
                         { data: 'company_type' },
                         { data: 'company_category' },
-                        { data: 'city' },
-                        { data: 'action' },
+                        { data: 'company_city' },
+                        { data: 'action', orderable: false },
                     ],
                     search: {
                         return: true
@@ -210,12 +220,23 @@
                     draw = 0;
                 }
             });
+
+            $(document).on('click', '.view-details', function(e) {
+                self.showModal($(this).attr('data-id'));
+            });
+
+            $(document).on('click', '.mark-favourite', function(e) {
+                self.isFavorite($(this).attr('data-id'));
+            });
+            $(document).on('click', '.remove-favourite', function(e) {
+                self.isUnFavorite($(this).attr('data-id'));
+            });
         },
     };
 
-function showModal(id) {
-    // console.log("MODAL-ID:- ", id);
-}
+// function showModal(id) {
+//     // console.log("MODAL-ID:- ", id);
+// }
 </script>
 
 <style>
