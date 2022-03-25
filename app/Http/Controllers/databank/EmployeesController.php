@@ -128,8 +128,8 @@ class EmployeesController extends Controller
         $records = Employee::join('users', 'employees.id', '=', 'users.employee_id')
             ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
             ->select('employees.firstname', 'employees.middlename', 'employees.lastname', 'users.employee_id', 'employees.profile_pic', 'employees.email_id', 'employees.mobile', 'employees.web_login', 'user_groups.name', 'users.is_active')
-            // ->where('employees.id', '!=', $user->employee_id)
-            // ->where('employees.user_group', '!=', 1)
+            ->where('employees.id', '!=', $user->employee_id)
+            ->where('employees.user_group', '!=', 1)
             ->where('employees.is_delete', '=', 0);
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $records = $records->where(function ($q) use ($columnName_arr) {
@@ -155,7 +155,7 @@ class EmployeesController extends Controller
         }
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
 
         $data_arr = array();
@@ -188,8 +188,8 @@ class EmployeesController extends Controller
 
             $data_arr[] = array(
                 "id" => $id,
-                "name" => $name,
-                "email" => $email,
+                "firstname" => $name,
+                "email_id" => $email,
                 "mobile" => $mobile,
                 "user_group" => $userGroup,
                 "web_login" => $webLogin,

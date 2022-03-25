@@ -86,6 +86,7 @@
                     processing: true,
                     serverSide: true,
                     responsive: true,
+                    lengthChange: true,
                     ajax: {
                         url: "./users-group/list",
                         data: function (data) {

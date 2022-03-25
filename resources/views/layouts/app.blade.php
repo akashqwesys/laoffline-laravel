@@ -12,6 +12,7 @@
         <!-- StyleSheets  -->
         <link rel="stylesheet" href="{{ asset('assets/css/dashlite.css') }}">
         <link id="skin-default" rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
+        <link rel="stylesheet" href="/assets/css/custom.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
         @yield('css')
     </head>

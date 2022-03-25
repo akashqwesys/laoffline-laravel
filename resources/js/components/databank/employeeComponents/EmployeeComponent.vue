@@ -91,13 +91,27 @@
             var buttons = [];
             var dt_table = null;
             if(this.excelAccess == 1) {
-                buttons = ['excel', 'pdf', 'print'];
+                buttons = [{
+                    extend: 'excelHtml5',
+                    action: exportAllRecords,
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                }, {
+                    extend: 'pdfHtml5',
+                    action: exportAllRecords,
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                },
+                'print'];
             }
             function init_dt_table () {
                 dt_table = $('#employee').DataTable({
                     // responsive: true,
                     processing: true,
                     serverSide: true,
+                    lengthChange: true,
                     ajax: {
                         url: "./employee/list",
                         data: function (data) {
@@ -125,16 +139,16 @@
                         complete: function (data) { }
                     },
                     pagingType: 'full_numbers',
-                    dom: 'Brtip',
+                    dom: 'Blrtip',
                     columns: [
                         { data: 'id' },
-                        { data: 'name' },
-                        { data: 'email' },
+                        { data: 'firstname' },
+                        { data: 'email_id' },
                         { data: 'mobile' },
                         { data: 'user_group' },
                         { data: 'web_login' },
                         { data: 'active' },
-                        { data: 'action' },
+                        { data: 'action', orderable: false },
                     ],
                     search: {
                         return: true
@@ -142,7 +156,7 @@
                     buttons: buttons
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter" id="employee_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_email" class="form-control form-control-sm" placeholder="Email"><input type="search" id="dt_mobile" class="form-control form-control-sm" placeholder="Mobile"><input type="search" id="dt_user_group" class="form-control form-control-sm" placeholder="User Group"></div>').insertAfter('.dt-buttons.btn-group');
+                    $('<div class="dataTables_filter" id="employee_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_email" class="form-control form-control-sm" placeholder="Email"><input type="search" id="dt_mobile" class="form-control form-control-sm" placeholder="Mobile"><input type="search" id="dt_user_group" class="form-control form-control-sm" placeholder="User Group"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -151,6 +165,39 @@
                 } );
             }
             init_dt_table();
+            function exportAllRecords(e, dt, button, config) {
+                var self = this;
+                var oldStart = dt.settings()[0]._iDisplayStart;
+                dt.one('preXhr', function (e, s, data) {
+                    // Just this once, load all data from the server...
+                    data.start = 0;
+                    data.length = 'all';
+                    dt.one('preDraw', function (e, settings) {
+                        // Call the original action function
+                        if (button[0].className.indexOf('buttons-excel') >= 0) {
+                            $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                                $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                        }
+                        dt.one('preXhr', function (e, s, data) {
+                            // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                            // Set the property to what it was before exporting.
+                            settings._iDisplayStart = oldStart;
+                            data.start = oldStart;
+                        });
+                        // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                        setTimeout(dt.ajax.reload, 10);
+                        // Prevent rendering of the full data to the DOM
+                        return false;
+                    });
+                });
+                // Requery the server with the new one-time export settings
+                dt.ajax.reload();
+            }
             var draw = 1;
             $(document).on('keyup', '#employee_filter input', function(e) {
                 if ($(this).val() == '') {
@@ -168,93 +215,10 @@
         },
     };
 </script>
-<style >
-    .user-avatar img{
-        width: 100%;
-    }
-    .dataTables_filter {
-        display: flex;
-        margin-bottom: 15px;
-    }
+<style scoped>
     .dataTables_filter input {
         padding: 17px;
         margin: 0 10px;
         width: 25%;
-    }
-    .dt-buttons {
-        position: relative;
-        display: inline-flex;
-        vertical-align: middle;
-        flex-wrap: wrap;
-        float: right;
-    }
-    .dt-buttons .dt-button {
-        position: relative;
-        flex: 1 1 auto;
-        display: inline-flex;
-        font-family: Nunito, sans-serif;
-        font-weight: 700;
-        color: #526484;
-        text-align: center;
-        vertical-align: middle;
-        user-select: none;
-        background-color: transparent;
-        border: 1px solid #dbdfea;
-        padding: 0.4375rem 0;
-        font-size: 0.8125rem;
-        line-height: 1.25rem;
-        border-radius: 4px;
-        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-    .dt-buttons .dt-button::before {
-        font-size: 1.125rem;
-        font-weight: normal;
-        font-style: normal;
-        width: 2.125rem;
-        font-family: "Nioicon";
-    }
-    /* .dt-buttons .dt-button span {
-        display: none;
-    } */
-    .dataTables_paginate {
-        display: flex;
-        padding-left: 0;
-        list-style: none;
-        border-radius: 4px;
-        margin: 2px 0;
-        justify-content: flex-end;
-    }
-    .dataTables_paginate .paginate_button.disabled,
-    .dataTables_paginate .paginate_button.disabled {
-        color: #dbdfea;
-        pointer-events: none;
-        background-color: #fff;
-        border-color: #e5e9f2;
-    }
-    .dataTables_paginate .paginate_button.first,
-    .dataTables_paginate .paginate_button.previous,
-    .dataTables_paginate .paginate_button.next,
-    .dataTables_paginate .paginate_button.last {
-        margin-left: 0;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
-    .dataTables_paginate .paginate_button {
-        font-size: 0.8125rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: calc(1rem + 1.125rem + 2px);
-        position: relative;
-        padding: 0.5625rem 0.625rem;
-        line-height: 1rem;
-        border: 1px solid #e5e9f2;
-        cursor: pointer;
-    }
-    .dataTables_paginate .paginate_button.current {
-        z-index: 3;
-        color: #fff;
-        background-color: #6576ff;
-        border-color: #6576ff;
     }
 </style>
