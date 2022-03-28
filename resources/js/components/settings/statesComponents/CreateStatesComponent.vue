@@ -1,5 +1,5 @@
 <template>
-    
+
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -12,7 +12,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -40,7 +40,7 @@
                                             </div>
                                         </div>
                                         <hr class="preview-hr">
-                                        <div class="row gy-4">                                        
+                                        <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
@@ -110,7 +110,7 @@
                 case 'edit' :
                     axios.get(`/settings/states/fetch-states/${this.id}`)
                     .then(response => {
-                        
+
                         states = response.data;
                         this.form.id = states.id;
                         this.form.country_id = states.country;
@@ -124,7 +124,7 @@
     };
 </script>
 
-<style>
+<style scoped>
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;
@@ -191,7 +191,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

@@ -1,4 +1,5 @@
 <template>
+    <VueLoader></VueLoader>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -50,9 +51,13 @@
             </div>
         </div>
     </div>
+    <ViewCompanyDetails ref="company"></ViewCompanyDetails>
 </template>
 
 <script>
+    import ViewCompanyDetails from './modal/ViewCompanyDetailsModelComponent.vue';
+    import VueLoader from './../../../VueLoader.vue';
+
     import $ from 'jquery';
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
     import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
@@ -65,6 +70,10 @@
         props: {
             excelAccess: Number,
         },
+        components: {
+            ViewCompanyDetails,
+            VueLoader
+        },
         data() {
             return {
                 go_back: '/databank/companies',
@@ -72,83 +81,173 @@
             }
         },
         methods: {
-            isFavorite: function(id) {
-                axios.post('./companies/favorite/'+id)
-                .then(response => {
-                    location.reload();
-                });
-            },
-            isUnFavorite: function(id) {
-                axios.post('./companies/unFavorite/'+id)
-                .then(response => {
-                    location.reload();
-                });
-            },
-            isVerified: function(id) {
-                axios.post('./companies/verify/'+id)
-                .then(response => {
-                    location.reload();
-                });
-            },
             view_data(id){
-                window.location.href = './companies/view-company/'+id;
+                window.location.href = './view-company/'+id;
             },
             edit_data(id){
-                window.location.href = './companies/edit-company/'+id;
+                window.location.href = './edit-company/'+id;
             },
             delete_data(id){
-                axios.delete('./companies/delete/'+id)
+                axios.delete('./delete/'+id)
                 .then(response => {
                     location.reload();
                 });
+            },
+            getProfilePic(name){
+                return '/upload/company/multipleAddressProfilePic/' + name;
+            },
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
             }
         },
         mounted() {
+            const self = this;
+            var buttons = [];
+            var dt_table = null;
             if(this.excelAccess == 1) {
-                $('#essentialsCompanies').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./list-essential",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'varified' },
-                        { data: 'name' },
-                        { data: 'office_no' },
-                        { data: 'company_type' },
-                        { data: 'company_category' },
-                        { data: 'city' },
-                        { data: 'action' },
-                    ],
-                    buttons: ['copy', 'csv', 'excel', 'print']
-                });
-            } else {
-                $('#essentialsCompanies').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "./list-essential",
-                    pagingType: 'full_numbers',
-                    dom: 'Bfrtip',
-                    columns: [
-                        { data: 'id' },
-                        { data: 'flag' },
-                        { data: 'varified' },
-                        { data: 'name' },
-                        { data: 'office_no' },
-                        { data: 'company_type' },
-                        { data: 'company_category' },
-                        { data: 'city' },
-                        { data: 'action' },
-                    ],
-                    buttons: []
-                });
+                buttons = [{
+                    extend: 'excelHtml5',
+                    action: exportAllRecords,
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                }, {
+                    extend: 'pdfHtml5',
+                    action: exportAllRecords,
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                },
+                'print'];
             }
+            function init_dt_table () {
+                dt_table = $('#essentialsCompanies').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    responsive: true,
+                    ajax: {
+                        url: "./list-essential",
+                        data: function (data) {
+                            if ($('#dt_name').val() == '') {
+                                data.columns[3].search.value = '';
+                            } else {
+                                data.columns[3].search.value = $('#dt_name').val();
+                            }
+                            if ($('#dt_office_no').val() == '') {
+                                data.columns[4].search.value = '';
+                            } else {
+                                data.columns[4].search.value = $('#dt_office_no').val();
+                            }
+                            if ($('#dt_company_type').val() == '') {
+                                data.columns[5].search.value = '';
+                            } else {
+                                data.columns[5].search.value = $('#dt_company_type').val();
+                            }
+                            if ($('#dt_company_category').val() == '') {
+                                data.columns[6].search.value = '';
+                            } else {
+                                data.columns[6].search.value = $('#dt_company_category').val();
+                            }
+                            if ($('#dt_city').val() == '') {
+                                data.columns[7].search.value = '';
+                            } else {
+                                data.columns[7].search.value = $('#dt_city').val();
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: 'Blrtip',
+                    columns: [
+                        { data: 'id' },
+                        { data: 'flag', orderable: false },
+                        { data: 'verified', orderable: false },
+                        { data: 'company_name' },
+                        { data: 'office_no', orderable: false },
+                        { data: 'company_type' },
+                        { data: 'company_category' },
+                        { data: 'company_city' },
+                        { data: 'action', orderable: false },
+                    ],
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
+                })
+                .on( 'init.dt', function () {
+                    $('<div class="dataTables_filter" id="essentialsCompanies_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_office_no" class="form-control form-control-sm" placeholder="Office Number"><input type="search" id="dt_company_type" class="form-control form-control-sm" placeholder="Company Type"><input type="search" id="dt_company_category" class="form-control form-control-sm" placeholder="Company Category"><input type="search" id="dt_city" class="form-control form-control-sm" placeholder="City"></div>').insertAfter('.dataTables_length');
+                } );
+                dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
+                    var count = columns.reduce( function (a,b) {
+                        return b === false ? a+1 : a;
+                    }, 0 );
+                } );
+            }
+            init_dt_table();
+            function exportAllRecords(e, dt, button, config) {
+                var self = this;
+                var oldStart = dt.settings()[0]._iDisplayStart;
+                dt.one('preXhr', function (e, s, data) {
+                    // Just this once, load all data from the server...
+                    data.start = 0;
+                    data.length = 'all';
+                    dt.one('preDraw', function (e, settings) {
+                        // Call the original action function
+                        if (button[0].className.indexOf('buttons-excel') >= 0) {
+                            $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                                $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                        }
+                        dt.one('preXhr', function (e, s, data) {
+                            // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                            // Set the property to what it was before exporting.
+                            settings._iDisplayStart = oldStart;
+                            data.start = oldStart;
+                        });
+                        // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                        setTimeout(dt.ajax.reload, 10);
+                        // Prevent rendering of the full data to the DOM
+                        return false;
+                    });
+                });
+                // Requery the server with the new one-time export settings
+                dt.ajax.reload();
+            }
+            var draw = 1;
+            $(document).on('keyup', '#essentialsCompanies_filter input', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    if (e.keyCode == 13) {
+                        dt_table.clear().draw();
+                    }
+                    draw = 0;
+                }
+            });
+
+            $(document).on('click', '.view-details', function(e) {
+                self.showModal($(this).attr('data-id'));
+            });
         },
     };
 </script>
-<style>
+<style scoped>
     .icon.ni.ni-star, .icon.ni.ni-star-fill,
     .icon.ni.ni-alert-fill, .icon.ni.ni-check-thick {
         font-size: 20px;
@@ -156,87 +255,5 @@
     }
     .icon.ni.ni-star, .icon.ni.ni-star-fill {
         cursor: pointer;
-    }
-    .dataTables_filter {
-        padding: 10px;
-    }
-    .dataTables_filter input {
-        margin-left: 10px;
-    }
-    .dt-buttons {
-        position: relative;
-        display: inline-flex;
-        vertical-align: middle;
-        flex-wrap: wrap;
-        float: right;
-    }
-    .dt-buttons .dt-button {
-        position: relative;
-        flex: 1 1 auto;
-        display: inline-flex;
-        font-family: Nunito, sans-serif;
-        font-weight: 700;
-        color: #526484;
-        text-align: center;
-        vertical-align: middle;
-        user-select: none;
-        background-color: transparent;
-        border: 1px solid #dbdfea;
-        padding: 0.4375rem 0;
-        font-size: 0.8125rem;
-        line-height: 1.25rem;
-        border-radius: 4px;
-        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-    .dt-buttons .dt-button::before {
-        font-size: 1.125rem;
-        font-weight: normal;
-        font-style: normal;
-        width: 2.125rem;
-        font-family: "Nioicon";
-    }
-    .dt-buttons .dt-button span {
-        display: none;
-    }
-    .dataTables_paginate {
-        display: flex;
-        padding-left: 0;
-        list-style: none;
-        border-radius: 4px;
-        margin: 2px 0;
-        justify-content: flex-end;
-    }
-    .dataTables_paginate .paginate_button.disabled,
-    .dataTables_paginate .paginate_button.disabled {
-        color: #dbdfea;
-        pointer-events: none;
-        background-color: #fff;
-        border-color: #e5e9f2;
-    }
-    .dataTables_paginate .paginate_button.first,
-    .dataTables_paginate .paginate_button.previous,
-    .dataTables_paginate .paginate_button.next,
-    .dataTables_paginate .paginate_button.last {
-        margin-left: 0;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
-    .dataTables_paginate .paginate_button {
-        font-size: 0.8125rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: calc(1rem + 1.125rem + 2px);
-        position: relative;
-        padding: 0.5625rem 0.625rem;
-        line-height: 1rem;
-        border: 1px solid #e5e9f2;
-        cursor: pointer;
-    }
-    .dataTables_paginate .paginate_button.current {
-        z-index: 3;
-        color: #fff;
-        background-color: #6576ff;
-        border-color: #6576ff;
     }
 </style>

@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -10,7 +10,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -50,7 +50,7 @@
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <div>
-                                                        <multiselect v-model="form.enquiry_general" tag-placeholder="Select Designation" placeholder="Search Designation" label="name" track-by="name" :options="designationList" :multiple="true" :taggable="true"></multiselect>                                                        
+                                                        <multiselect v-model="form.enquiry_general" tag-placeholder="Select Designation" placeholder="Search Designation" label="name" track-by="name" :options="designationList" :multiple="true" :taggable="true"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -538,7 +538,7 @@
             scope: String,
             id: Number,
         },
-        components: { 
+        components: {
             Multiselect
         },
         data() {
@@ -667,7 +667,7 @@
         },
     };
 </script>
-<style>
+<style scoped>
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;
@@ -734,7 +734,7 @@
     .multiselect__option--highlight {
         background: #ebeef2;
         border-radius: 4px;
-        color: #526484;        
+        color: #526484;
     }
     .multiselect__element {
         margin-bottom: 0.125rem;

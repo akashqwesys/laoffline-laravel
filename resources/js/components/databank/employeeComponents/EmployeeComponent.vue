@@ -156,7 +156,7 @@
                     buttons: buttons
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter" id="employee_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_email" class="form-control form-control-sm" placeholder="Email"><input type="search" id="dt_mobile" class="form-control form-control-sm" placeholder="Mobile"><input type="search" id="dt_user_group" class="form-control form-control-sm" placeholder="User Group"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="employee_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_email" class="form-control form-control-sm" placeholder="Email"><input type="search" id="dt_mobile" class="form-control form-control-sm" placeholder="Mobile"><input type="search" id="dt_user_group" class="form-control form-control-sm" placeholder="User Group"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {

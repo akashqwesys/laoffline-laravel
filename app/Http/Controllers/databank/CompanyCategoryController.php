@@ -90,11 +90,10 @@ class CompanyCategoryController extends Controller
         if (!empty(trim($searchValue))) {
             $companyCategory = $companyCategory->where('category_name', 'ILIKE', '%' .$searchValue . '%');
         }
-        $companyCategory = $companyCategory->where('category_name', 'ILIKE', '%' .$searchValue . '%')
-            ->where('is_delete', 0)
+        $companyCategory = $companyCategory->where('is_delete', 0)
             ->orderBy($columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
 
         $data_arr = array();
@@ -109,7 +108,7 @@ class CompanyCategoryController extends Controller
 
             $data_arr[] = array(
                 "id" => $id,
-                "name" => $name,
+                "category_name" => $name,
                 "action" => $action
             );
         }

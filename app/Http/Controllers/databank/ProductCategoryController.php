@@ -119,10 +119,15 @@ class ProductCategoryController extends Controller
                 $q->orWhere('product_categories.name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
             });
         }
+        if ($columnName == 'default_category') {
+            $columnName = 'product_default_categories.name';
+        } else {
+            $columnName = 'product_categories.' . $columnName;
+        }
         $productCategory = $productCategory->where('product_categories.is_delete', '0')
-            ->orderBy('product_categories.'.$columnName,$columnSortOrder)
+            ->orderBy($columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get(['product_default_categories.name as default_category', 'product_categories.name as category_name', 'product_categories.id as category_id']);
 
         $data_arr = array();

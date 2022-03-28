@@ -201,7 +201,8 @@
                                                 <div class="form-group">
                                                     <label class="form-label" :for="'fw-contact_person_profile_pic'+index">Photo</label>
                                                     <div class="form-control-wrap">
-                                                        <img v-if="scope == 'edit'" :src="getContactProfilePic(contactDetail.contact_person_profile_pic)">
+                                                        <img v-if="scope == 'edit' && getContactProfilePic(contactDetail.contact_person_profile_pic)" :src="getContactProfilePic(contactDetail.contact_person_profile_pic)">
+                                                        <span v-else>N/A</span>
                                                         <div :class="scope == 'edit' ? 'custom-file profilePic' : 'custom-file'">
                                                             <input type="file" class="custom-file-input" :id="'fv-contact_person_profile_pic'+index" @change="uploadContactPersonProfilePic(index, $event)">
                                                             <label class="custom-file-label" :for="'fv-contact_person_profile_pic'+index">Choose photo</label>
@@ -295,7 +296,8 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="fw-mao_profile_pic">Photo</label>
                                                         <div class="form-control-wrap">
-                                                        <img v-if="scope == 'edit'" :src="getOwnerProfilePic(multipleAddressesOwner.profile_pic)">
+                                                        <img v-if="scope == 'edit' && getOwnerProfilePic(multipleAddressesOwner.profile_pic)" :src="getOwnerProfilePic(multipleAddressesOwner.profile_pic)">
+                                                        <span v-else>N/A</span>
                                                         <div :class="scope == 'edit' ? 'custom-file profilePic' : 'custom-file'">
                                                                 <input type="file" class="custom-file-input" :id="'fv-mao_profile_pic'+index" @change="uploadMultipleAddressOwnerPic(index, key, $event)">
                                                                 <label class="custom-file-label" :for="'fv-mao_profile_pic'+index">Choose photo</label>
@@ -785,14 +787,12 @@
                 }
             },
             getContactProfilePic(name){
-                var profile = '/upload/company/profilePic/' + name;
-
-                return profile;
+                // var profile = '/upload/company/profilePic/' + name;
+                return name ? '/upload/company/profilePic/' + name : '';
             },
             getOwnerProfilePic(name){
-                var profile = '/upload/company/multipleAddressProfilePic/' + name;
-
-                return profile;
+                // var profile = '/upload/company/multipleAddressProfilePic/' + name;
+                return name ? '/upload/company/multipleAddressProfilePic/' + name : '';
             }
         },
         mounted() {
@@ -804,6 +804,7 @@
 
                         // company Data
                         this.company = companies.company;
+                        this.company.company_landline = companies.company.company_landline.toString();
 
                         // Contacts Data
                         this.contactDetails = companies.contact_details;
@@ -815,16 +816,16 @@
                         this.multipleEmails = companies.multiple_emails;
 
                         // SWOT
-                        this.swot = companies.swot_details;
+                        this.swot = companies.swot_details ?? {};
 
                         // Packaging
                         this.packaging = companies.packaging_details;
 
                         // References
-                        this.references = companies.references_details;
+                        this.references = companies.references_details ?? {};
 
                         // Bank
-                        this.bank = companies.bank_details;
+                        this.bank = companies.bank_details ?? {};
                     });
                     break;
                 default:

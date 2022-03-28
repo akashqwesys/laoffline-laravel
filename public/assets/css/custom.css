@@ -3,7 +3,7 @@
 }
 .dataTables_filter {
     display: flex;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 .dataTables_filter input {
     padding: 17px;
@@ -85,4 +85,8 @@
     color: #fff;
     background-color: #6576ff;
     border-color: #6576ff;
+}
+#viewCompany1 .modal-dialog {
+    width: 90%;
+    max-width: 100%;
 }

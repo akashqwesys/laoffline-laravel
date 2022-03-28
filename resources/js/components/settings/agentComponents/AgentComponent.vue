@@ -178,7 +178,7 @@
         },
     };
 </script>
-<style>
+<style scoped>
     .dataTables_filter input {
         margin-left: 10px;
     }

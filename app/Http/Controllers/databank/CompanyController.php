@@ -175,7 +175,7 @@ class CompanyController extends Controller
         $company = $company->where('companies.is_delete', 0)
             ->orderBy($columnName == 'id' ? 'companies.id' : $columnName, $columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
 
         $data_arr = array();
@@ -205,7 +205,6 @@ class CompanyController extends Controller
 
                 } else {
                     $companyCatId = json_decode($cmp->company_category);
-
                     $companyCat = CompanyCategory::where('id', $companyCatId)->first('category_name');
                     $companyName = $companyCat->category_name;
                 }
@@ -217,7 +216,6 @@ class CompanyController extends Controller
             if(!empty($cmp->company_landline)){
                 if(is_array(json_decode($cmp->company_landline))) {
                     $landlineNo = json_decode($cmp->company_landline);
-
                     $cmp['company_landline'] = implode(", ", $landlineNo);
                 } else {
                     $cmp['company_landline'] = json_decode($cmp->company_landline);
@@ -229,7 +227,6 @@ class CompanyController extends Controller
             if(!empty($cmp->company_mobile)){
                 if(is_array(json_decode($cmp->company_mobile))) {
                     $mobileNo = json_decode($cmp->company_mobile);
-
                     $cmp['company_mobile'] = implode(", ", $mobileNo);
                 } else {
                     $cmp['company_mobile'] = json_decode($cmp->company_mobile);
@@ -249,7 +246,6 @@ class CompanyController extends Controller
                     $city = '';
                 } else {
                     $cityname = Cities::where('id', $cmp->company_city)->first('name');
-
                     $city = $cityname->name;
                 }
             }
@@ -321,22 +317,69 @@ class CompanyController extends Controller
 
         // Total records
         $totalRecords = Company::select('count(*) as allcount')->count();
-        $totalRecordswithFilter = Company::select('count(*) as allcount')->
-                                           where('company_name', 'like', '%' .$searchValue . '%')->
-                                           count();
+        $totalRecordswithFilter = Company::select('count(*) as allcount')
+            ->where('companies.is_delete', 0)
+            ->where('favorite_flag', '1');
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('company_name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
+            });
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+                $q->whereRaw("company_landline @> '\"" . strval($columnName_arr[4]['search']['value']) . "\"'")
+                ->orWhereRaw("company_mobile @> '\"" . strval($columnName_arr[4]['search']['value']) . "\"'");
+            });
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->join('company_types as ct', 'companies.company_type', '=', 'ct.id')
+            ->where('ct.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            $cc_id = DB::table('company_categories')->select('id')->where('category_name', 'ilike', '%'.$columnName_arr[6]['search']['value'] . '%')->first();
+            // if ($cc_id) {
+                $totalRecordswithFilter = $totalRecordswithFilter->whereRaw("company_category @> '\"" . strval($cc_id->id ?? 0) . "\"'");
+            // }
+        }
+        if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('companies.company_city', 'ILIKE', '%' . $columnName_arr[7]['search']['value'] . '%');
+        }
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         // Fetch records
-        $company = Company::orderBy($columnName,$columnSortOrder)->
-                            where('company_name', 'like', '%' .$searchValue . '%')->
-                            where('favorite_flag', '1')->
-                            where('is_delete', 0)->
-                            skip($start)->
-                            take($rowperpage)->
-                            get();
+        $company = Company::select('*')
+            ->where('favorite_flag', '1');
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $company = $company->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('company_name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
+            });
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $company = $company->where(function ($q) use ($columnName_arr) {
+                $q->whereRaw("company_landline @> '\"" . strval($columnName_arr[4]['search']['value']) . "\"'")
+                ->orWhereRaw("company_mobile @> '\"" . strval($columnName_arr[4]['search']['value']) . "\"'");
+            });
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $company = $company->join('company_types as ct', 'companies.company_type', '=', 'ct.id')
+            ->where('ct.name', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            $cc_id = DB::table('company_categories')->select('id')->where('category_name', 'ilike', '%'.$columnName_arr[6]['search']['value'] . '%')->first();
+            // if ($cc_id) {
+                $company = $company->whereRaw("company_category @> '\"" . strval($cc_id->id ?? 0) . "\"'");
+            // }
+        }
+        if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
+            $company = $company->where('companies.company_city', 'ILIKE', '%' . $columnName_arr[7]['search']['value'] . '%');
+        }
+        $company = $company->where('companies.is_delete', 0)
+            ->orderBy($columnName == 'id' ? 'companies.id' : $columnName, $columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
+            ->get();
 
         $data_arr = array();
-        $sno = $start+1;
-
         foreach($company as $cmp) {
             $id = $cmp->id;
 
@@ -360,7 +403,6 @@ class CompanyController extends Controller
 
                 } else {
                     $companyCatId = json_decode($cmp->company_category);
-
                     $companyCat = CompanyCategory::where('id', $companyCatId)->first('category_name');
                     $companyName = $companyCat->category_name;
                 }
@@ -372,7 +414,6 @@ class CompanyController extends Controller
             if(!empty($cmp->company_landline)){
                 if(is_array(json_decode($cmp->company_landline))) {
                     $landlineNo = json_decode($cmp->company_landline);
-
                     $cmp['company_landline'] = implode(", ", $landlineNo);
                 } else {
                     $cmp['company_landline'] = json_decode($cmp->company_landline);
@@ -384,7 +425,6 @@ class CompanyController extends Controller
             if(!empty($cmp->company_mobile)){
                 if(is_array(json_decode($cmp->company_mobile))) {
                     $mobileNo = json_decode($cmp->company_mobile);
-
                     $cmp['company_mobile'] = implode(", ", $mobileNo);
                 } else {
                     $cmp['company_mobile'] = json_decode($cmp->company_mobile);
@@ -409,28 +449,25 @@ class CompanyController extends Controller
                 }
             }
 
-            $name = '<a href="./companies/view-company/'.$id.'">'.$cmp->company_name.'</a>';
+            $name = '<a href="../../companies/view-company/'.$id.'">'.$cmp->company_name.'</a>';
 
             $officeNo = '<ul>
                             <li><b>L: </b> '.$cmp->company_landline.' </li>
                             <li><b>M: </b> '.$cmp->company_mobile.' </li>
                         </ul>';
 
-            $action = '<a href="./companies/view-company/'.$id.'" onclick="showModal('.$id.')" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a>
-            <a href="./users-group/edit-user-group/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="./users-group/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+            $action = '<a href="#" class="btn btn-trigger btn-icon icon-verify view-details" data-id="' . $id . '" title="View Company"><em class="icon ni ni-eye"></em></a>
+            <a href="../../companies/edit-company/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
+            <a href="../../companies/delete/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             if($cmp->favorite_flag == 0) {
                 $flag = '<em class="icon ni ni-star"></em>';
-                // $action .= '<a href="./companies/favorite/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Add into Favorite"><em class="icon ni ni-star"></em></a>';
             } else {
                 $flag = '<em class="icon ni ni-star-fill"></em>';
-                // $action .= '<a href="./companies/favorite/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove from Favorite"><em class="icon ni ni-star-fill"></em></a>';
             }
 
             if($cmp->is_verified == 0) {
                 $isvarified = '<em class="icon ni ni-alert-fill"></em>';
-                // $action .= '<a href="./companies/verify/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Verify"><em class="icon ni ni-check-thick"></em></a>';
             } else {
                 $isvarified = '<em class="icon ni ni-check-thick"></em>';
             }
@@ -438,12 +475,12 @@ class CompanyController extends Controller
             $data_arr[] = array(
                 "id" => $id,
                 "flag" => $flag,
-                "varified" => $isvarified,
-                "name" => $name,
+                "verified" => $isvarified,
+                "company_name" => $name,
                 "office_no" => $officeNo,
                 "company_type" => $companyType,
                 "company_category" => $companyCategory,
-                "city" => $city,
+                "company_city" => $city,
                 "action" => $action
             );
         }
@@ -564,7 +601,7 @@ class CompanyController extends Controller
             $company->company_state = State::where('id', $company->company_state)->first();
         }
         if($company->company_city != 0) {
-            $company->company_city = Cities::where('id', $company->company_city)->first();
+            $company->company_city = Cities::where('name', $company->company_city)->first();
         }
         if($company->company_category != 0) {
             $companyCat = json_decode($company->company_category);

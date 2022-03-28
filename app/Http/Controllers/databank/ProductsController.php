@@ -117,12 +117,12 @@ class ProductsController extends Controller
                 ->orWhere('products.model', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
             });
         }
-        // if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-        //         $q->orWhere('employees.mobile', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
-        //     });
-        // }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('companies.company_name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
+            });
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('product_categories.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
         $totalRecordswithFilter = $totalRecordswithFilter->where('products.is_delete', 0)
@@ -140,18 +140,27 @@ class ProductsController extends Controller
                 ->orWhere('products.model', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
             });
         }
-        // if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-        //     $products = $products->where(function ($q) use ($columnName_arr) {
-        //         $q->orWhere('employees.mobile', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
-        //     });
-        // }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $products = $products->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('companies.company_name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
+            });
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $products = $products->where('product_categories.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
+        if ( in_array($columnName, ['id', 'product_name', 'catalogue_name', 'brand_name', 'model'])) {
+            $columnName = 'products.' . $columnName;
+        } else if ($columnName == 'company_name') {
+            $columnName = 'companies.' . $columnName;
+        } else if ($columnName == 'category_name') {
+            $columnName = 'product_categories.name';
+        } else {
+            $columnName = 'product_details.' . $columnName;
+        }
         $products = $products->where('products.is_delete', 0)
-            ->orderBy('products.'.$columnName,$columnSortOrder)
+            ->orderBy($columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get(['products.*','products.id as product_id','companies.company_name','product_categories.name as category_name','product_details.catalogue_price']);
 
         $data_arr = array();
@@ -188,7 +197,7 @@ class ProductsController extends Controller
                 "id" => $id,
                 "flag" => $flag,
                 "image" => $mainImage,
-                "name" => $name,
+                "product_name" => $name,
                 "catalogue_name" => $catalogue_name,
                 "brand_name" => $brand_name,
                 "model" => $model,

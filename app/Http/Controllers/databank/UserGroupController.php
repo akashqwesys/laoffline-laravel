@@ -102,7 +102,7 @@ class UserGroupController extends Controller
         }
         $records = $records->orderBy($columnName, $columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
 
         $data_arr = array();

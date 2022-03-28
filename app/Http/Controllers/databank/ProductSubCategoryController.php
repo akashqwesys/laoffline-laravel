@@ -98,9 +98,8 @@ class ProductSubCategoryController extends Controller
             ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->whereRaw("");
-            });
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->first();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) . "\"'");
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
@@ -123,9 +122,17 @@ class ProductSubCategoryController extends Controller
             $records = $records->join('product_fabric_groups as pfg', 'product_categories.product_fabric_id', '=', 'pfg.id')
                 ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
-        $records = $records->orderBy('product_categories.'.$columnName,$columnSortOrder)
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $records = $records->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) . "\"'");
+        }
+        if ($columnName == 'main_category') {
+            $columnName = 'product_categories.name';
+        } else {
+            $columnName = 'product_categories.' . $columnName;
+        }
+        $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
         /* $main_category = collect($records)->where('product_default_category_id', '<>', 0)->pluck('name', 'id');
         $select_ = '<select id="dt_category" class="form-control form-control-sm">';
