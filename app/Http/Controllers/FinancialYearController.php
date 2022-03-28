@@ -97,21 +97,21 @@ class FinancialYearController extends Controller
         $totalRecordswithFilter = FinancialYear::select('count(*) as allcount');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('financial_year.name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
+                $q->orWhere('financial_year.name', 'ILIKE', '%' . $searchValue . '%');
             });
         }
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
+        $totalRecordswithFilter = FinancialYear::select('count(*) as allcount')->
+                                                   where('name', 'ilike', '%' .$searchValue . '%')->
+                                                   count();
+
 
         // Fetch records
-        $records = FinancialYear::select('id','name', 'start_date', 'end_date', 'current_year_flag', 'inv_prefix');
-        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $records = $records->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
-            });
-        }
+        $records = FinancialYear::select('id','name', 'start_date', 'end_date', 'current_year_flag', 'inv_prefix')->
+                                where('name', 'ilike', '%' .$searchValue . '%');
+
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
 
         $data_arr = array();

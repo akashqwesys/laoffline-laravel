@@ -112,7 +112,9 @@
                         complete: function (data) { }
                     },
                     pagingType: 'full_numbers',
-                    dom: 'Blfrtip',
+                    dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-4'B>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                     columns: [
                         { data: 'id' },
                         { data: 'name' },
