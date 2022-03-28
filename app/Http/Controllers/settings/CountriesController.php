@@ -82,7 +82,7 @@ class CountriesController extends Controller
                 where('countries.name', 'ilike', '%' .$searchValue . '%')->
                 where('countries.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

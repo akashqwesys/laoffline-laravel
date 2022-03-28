@@ -82,7 +82,7 @@ class TypeOfAddressController extends Controller
                 where('name', 'ilike', '%' .$searchValue . '%')->
                 where('is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

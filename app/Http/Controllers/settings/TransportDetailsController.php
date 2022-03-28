@@ -83,7 +83,7 @@ class TransportDetailsController extends Controller
                 where('transport_details.name', 'ilike', '%' .$searchValue . '%')->
                 where('transport_details.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

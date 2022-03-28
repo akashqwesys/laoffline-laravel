@@ -82,7 +82,7 @@ class AgentController extends Controller
                         where('agents.name', 'ilike', '%' .$searchValue . '%')->
                         where('agents.is_delete', '0')->
                         skip($start)->
-                        take($rowperpage)->
+                        take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                         get();
 
         $data_arr = array();

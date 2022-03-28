@@ -89,7 +89,7 @@ class BankDetailsController extends Controller
         $BankDetails = $BankDetails->where('bank_details.is_delete', '0')
             ->orderBy('bank_details.'.$columnName,$columnSortOrder)
             ->skip($start)
-            ->take($rowperpage)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
 
         $data_arr = array();

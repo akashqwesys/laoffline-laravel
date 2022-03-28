@@ -80,7 +80,7 @@ class CompanyTypeController extends Controller
                 where('company_types.name', 'ilike', '%' .$searchValue . '%')->
                 where('company_types.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

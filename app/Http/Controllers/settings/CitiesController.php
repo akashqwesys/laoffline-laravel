@@ -108,7 +108,7 @@ class CitiesController extends Controller
                 where('cities.name', 'ilike', '%' .$searchValue . '%')->
                 where('cities.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

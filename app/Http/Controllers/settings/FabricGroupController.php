@@ -85,7 +85,7 @@ class FabricGroupController extends Controller
                 where('product_fabric_groups.name', 'ilike', '%' .$searchValue . '%')->
                 where('product_fabric_groups.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

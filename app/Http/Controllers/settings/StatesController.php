@@ -89,7 +89,7 @@ class StatesController extends Controller
                 where('states.name', 'ilike', '%' .$searchValue . '%')->
                 where('states.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

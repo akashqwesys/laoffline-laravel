@@ -82,7 +82,7 @@ class PermissionController extends Controller
                 where('permissions.name', 'ilike', '%' .$searchValue . '%')->
                 where('permissions.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

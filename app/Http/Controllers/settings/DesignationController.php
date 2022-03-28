@@ -82,7 +82,7 @@ class DesignationController extends Controller
                 where('designations.name', 'ilike', '%' .$searchValue . '%')->
                 where('designations.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();

@@ -82,7 +82,7 @@ class SaleBillAgentController extends Controller
                 where('sale_bill_agents.name', 'ilike', '%' .$searchValue . '%')->
                 where('sale_bill_agents.is_delete', '0')->
                 skip($start)->
-                take($rowperpage)->
+                take($rowperpage == 'all' ? $totalRecords : $rowperpage)->
                 get();
 
         $data_arr = array();
