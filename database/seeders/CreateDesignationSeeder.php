@@ -40,9 +40,9 @@ class CreateDesignationSeeder extends Seeder
             ['id'=>'23','name'=>'CEO'],
             ['id'=>'24','name'=>'DISPATCH EXECUTIVE']
         ];
-  
-        foreach ($designation as $key => $value) {
-            Designation::create($value);
-        }
+
+        // foreach ($designation as $key => $value) {
+        // }
+        Designation::insert($designation);
     }
 }

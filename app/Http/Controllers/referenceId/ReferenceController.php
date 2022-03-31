@@ -21,6 +21,7 @@ use App\Models\settings\TransportDetails;
 use App\Models\Company\CompanyAddressOwner;
 use App\Models\Company\CompanyContactDetails;
 use App\Models\Company\CompanyPackagingDetails;
+use Symfony\Component\Mailer\Transport;
 
 class ReferenceController extends Controller
 {
@@ -29,7 +30,9 @@ class ReferenceController extends Controller
         $this->middleware('auth');
     }
 
-    public function index() {
+    public function index()
+    {
+        $page_title = 'Reference';
         $financialYear = $this->financialYear();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
@@ -46,10 +49,11 @@ class ReferenceController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('referenceId.referenceId',compact('financialYear'))->with('employees', $employees);
+        return view('referenceId.referenceId',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    public function listReference(Request $request){
+    public function listReference(Request $request)
+    {
         $draw = $request->get('draw');
         $start = $request->get("start");
         $rowperpage = $request->get("length"); // Rows display per page
@@ -64,23 +68,115 @@ class ReferenceController extends Controller
         $columnSortOrder = $order_arr[0]['dir']; // asc or desc
         $searchValue = $search_arr['value']; // Search value
 
-        $totalRecords = ReferenceId::where('id', '!=', '0')->select('count(*) as allcount')->count();
-        $totalRecordswithFilter = ReferenceId::select('count(*) as allcount')->
-                                                   where('id', '!=', '0')->
-                                                   where('reference_id', 'like', '%' .$searchValue . '%')->
-                                                   count();
+        $user = Session::get('user');
+
+        $employees = Employee::select('user_group', 'id')
+            ->where('id', $user->employee_id)
+            ->first();
+
+        $totalRecords = ReferenceId::select('id')
+            ->where('id', '!=', '0')
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('reference_id', '!=', '0')
+            ->count();
+        $totalRecordswithFilter = ReferenceId::selectRaw('count(id) as allcount')
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('reference_id', '!=', '0')
+            ->where('id', '!=', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('reference_ids.created_at', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('selection_date', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('type_of_inward', 'ilike', '%'.$columnName_arr[3]['search']['value'].'%');
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $emp_id = DB::table('employees')
+                ->select('id')
+                ->where('firstname', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%')
+                ->orWhere('middlename', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%')
+                ->orWhere('lastname', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%')
+                ->first();
+            $totalRecordswithFilter = $totalRecordswithFilter->where('employee_id', $emp_id->id ?? 0);
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            if (in_array($columnName_arr[6]['search']['value'], ['inward', 'Inward'])) {
+                $totalRecordswithFilter = $totalRecordswithFilter->where('inward_or_outward', 1);
+            } else {
+                $totalRecordswithFilter = $totalRecordswithFilter->where('inward_or_outward', 0);
+            }
+        }
+        if ($employees->user_group == 21) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('employee_id', '=', $employees->id);
+        } else if (!in_array($employees->user_group, [21, 1])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('employee_id', '=', $employees->id)
+                ->orWhere('employee_id', '=', 15);
+        }
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         $ReferenceId = ReferenceId::join('companies','company_id','=','companies.id')
-                        ->join('employees','employee_id','=','employees.id')
-                        ->orderBy('reference_ids.'.$columnName,$columnSortOrder)->
-                        where('reference_ids.reference_id', 'like', '%' .$searchValue . '%')->
-                        where('reference_ids.is_deleted', '0')->
-                        skip($start)->
-                        take($rowperpage)->
-                        get();
+            ->join('employees','employee_id','=','employees.id')
+            ->select('reference_ids.id', 'reference_ids.reference_id', 'reference_ids.created_at', 'reference_ids.selection_date', 'reference_ids.type_of_inward', 'reference_ids.inward_or_outward', 'companies.company_name', 'employees.firstname', 'employees.lastname')
+            ->where('reference_ids.financial_year_id', $user->financial_year_id)
+            ->where('reference_ids.reference_id', '!=', '0')
+            ->where('reference_ids.is_deleted', '0');
+            if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $ReferenceId = $ReferenceId->where('reference_id', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $ReferenceId = $ReferenceId->whereDate('reference_ids.created_at', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $ReferenceId = $ReferenceId->where('selection_date', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $ReferenceId = $ReferenceId->where('type_of_inward', 'ilike', '%'.$columnName_arr[3]['search']['value'].'%');
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $ReferenceId = $ReferenceId->where('companies.company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%');
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $ReferenceId = $ReferenceId->where(function ($q) use($columnName_arr) {
+                $q->orWhere('employees.firstname', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%')
+                ->orWhere('employees.middlename', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%')
+                ->orWhere('employees.lastname', 'ILIKE', '%' . $columnName_arr[5]['search']['value'] . '%');
+            });
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            if (in_array($columnName_arr[6]['search']['value'], ['inward', 'Inward'])) {
+                $ReferenceId = $ReferenceId->where('inward_or_outward', 1);
+            } else {
+                $ReferenceId = $ReferenceId->where('inward_or_outward', 0);
+            }
+        }
+        if ($employees->user_group == 21) {
+            $ReferenceId = $ReferenceId->where('employee_id', '=', $employees->id);
+        } else if ($employees->user_group != 21 && $employees->user_group != 1) {
+            $ReferenceId = $ReferenceId->where('employee_id', '=', $employees->id)
+                ->orWhere('employee_id', '=', 15);
+        }
+        if ($columnName == 'firstname') {
+            $columnName = 'employees.firstname';
+        } else if ($columnName == 'company_name') {
+            $columnName = 'companies.company_name';
+        } else {
+            $columnName = 'reference_ids.' . $columnName;
+        }
+        $ReferenceId = $ReferenceId->orderBy($columnName, $columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage)
+            ->get();
 
         $data_arr = array();
-        $sno = $start+1;
 
         foreach($ReferenceId as $record){
             $reference_id = $record->reference_id;
@@ -96,26 +192,23 @@ class ReferenceController extends Controller
             elseif ($type_of_inward == 'Message') {
                 $type_of_inward = '<em class="icon ni ni-emails" title="Message"></em>';
             }
-            elseif ($type_of_inward == 'Whatsapp')
-            {
+            elseif ($type_of_inward == 'Whatsapp') {
                 $type_of_inward = '<em class="icon ni ni-whatsapp" title="Whatsapp"></em>';
             }
-            elseif ($type_of_inward == 'Email')
-            {
+            elseif ($type_of_inward == 'Email') {
                 $type_of_inward = '<em class="icon ni ni-mail" title="Email"></em>';
             }
-            elseif ($type_of_inward == 'Courier')
-            {
+            elseif ($type_of_inward == 'Letter') {
+                $type_of_inward = '<em class="icon ni ni-cards" title="Letter"></em>';
+            }
+            elseif ($type_of_inward == 'Courier') {
                 $type_of_inward = '<em class="icon ni ni-emails-fill" title="Courier"></em>';
             }
             $company_name = '<a href="#'.$record->company_name.'" data-toggle="modal">'.$record->company_name.'</a>';
-            $firstname = $record->firstname;
-            if($record->inward_or_outward == '1')
-            {
+            $firstname = $record->firstname . ' - ' . $record->lastname;
+            if($record->inward_or_outward == '1') {
                 $inward_or_outward = 'Inward';
-            }
-            else
-            {
+            } else {
                 $inward_or_outward = 'Outward';
             }
             $action = '<a href="./reference/view-reference/'.$reference_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a>
@@ -124,7 +217,7 @@ class ReferenceController extends Controller
 
             $data_arr[] = array(
                 "reference_id" => $reference_id,
-                "date_added" => $date_added,
+                "created_at" => $date_added,
                 "selection_date" => $selection_date,
                 "type_of_inward" => $type_of_inward,
                 "company_name" => $company_name,
@@ -187,45 +280,41 @@ class ReferenceController extends Controller
         return $countries;
     }
 
-    // public function fetchCities($id) {
-    //     $statesData = Cities::where('id', $id)->first();
-
-    //     return $statesData;
-    // }
-
     public function listTransport(){
         $Transport = TransportDetails::get(['transport_details.id','transport_details.name']);
 
         return $Transport;
     }
 
-
     public function createReferenceId(){
+        $page_title = 'Add Reference';
         $financialYear = $this->financialYear();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        return view('referenceId.createReferenceId',compact('financialYear'))->with('employees', $employees);
+        return view('referenceId.createReferenceId',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function referenceView($id)
     {
+        $page_title = 'Reference';
         $financialYear = $this->financialYear();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
         $employees['id'] = $id;
-        return view('referenceId.viewReferenceId',compact('financialYear'))->with('employees', $employees);
+        return view('referenceId.viewReferenceId',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function editReferenceId($id){
+        $page_title = 'Update Reference';
         $financialYear = $this->financialYear();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
         $employees['id'] =$id;
 
-        return view('referenceId.updateReferenceId',compact('financialYear'))->with('employees', $employees);
+        return view('referenceId.updateReferenceId',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function deleteReferenceId($id){
@@ -254,7 +343,9 @@ class ReferenceController extends Controller
 
         $User = Session::get('user');
 
-        $Company = Company::where('id',$Reference->company_id)->first();
+        $Company = Company::select('id', 'company_name')->where('id', $Reference->company_id)->first();
+
+        $Courier = TransportDetails::select('id', 'name')->where('id', $Reference->courier_name)->first();
 
         if ($Reference->inward_or_outward == '1') {
             $inward_outward = comboids::join('reference_ids','comboids.general_ref_id','=','reference_ids.id')
@@ -276,28 +367,35 @@ class ReferenceController extends Controller
         $ReferenceData['User'] = $User;
         $ReferenceData['Company'] = $Company;
         $ReferenceData['inward_outward'] = $inward_outward;
+        $ReferenceData['Courier'] = $Courier;
         return $ReferenceData;
     }
-
 
     public function fetchcompany(){
 
         $companyData = [];
-        $companyList = Company::get();
+        // $companyList = Company::get();
         $companyCity = Cities::get();
         $companyAddress = CompanyAddress::join('type_of_addresses', 'company_addresses.address_type', '=', 'type_of_addresses.id')->get();
         $companyContactDetails = CompanyContactDetails::join('designations', 'company_contact_details.contact_person_designation', '=', 'designations.id')->get();
         $multipleEmails = CompanyEmails::get();
         $packagingDetails = CompanyPackagingDetails::get();
-        $multipleAddress = CompanyAddressOwner::join('designations', 'company_address_owners.designation', '=', 'designations.id')->
-        get(['company_address_owners.*', 'designations.name as designation_name']);
+        // select company_address_owners.*, designations.name as designation_name from "company_address_owners" inner join "designations" on "company_address_owners"."designation" ? "designations"."id"::text
+        // $multipleAddress = DB::table('company_address_owners')
+        //     ->join('designations', function($j) {
+        //         $j->on('company_address_owners.designation', DB::raw("?"), DB::raw('designations.id'));
+        //     })
+        // ->select('company_address_owners.*', 'designations.name as designation_name')
+        // ->get();
+        // $multipleAddress = DB::connection('pgsql')->getPdo()->prepare('select company_address_owners.*, designations.name as designation_name from "company_address_owners" inner join "designations" on "company_address_owners"."designation" ?? "designations"."id"::text')->fetchAll();
+        // dd($multipleAddress);
 
-        $companyData['companyList'] = $companyList;
+        // $companyData['companyList'] = $companyList;
         $companyData['companyCity'] = $companyCity;
         $companyData['companyAddress'] = $companyAddress;
         $companyData['companyContactDetails'] = $companyContactDetails;
         $companyData['multipleEmails'] = $multipleEmails;
-        $companyData['multipleAddress'] = $multipleAddress;
+        $companyData['multipleAddress'] = $multipleAddress ?? [];
         $companyData['packagingDetails'] = $packagingDetails;
 
         return $companyData;

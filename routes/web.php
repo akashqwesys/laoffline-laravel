@@ -244,32 +244,6 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:modif
     });
 });
 
-// // Routes for Reference ID
-// Route::group(['prefix' => 'reference', 'middleware' => ['auth','permission:access-reference-id']], function(){
-//     Route::get('/',[App\Http\Controllers\referenceId\ReferenceController::class,'index'])->name('reference');
-//     Route::get('/companysearch',[App\Http\Controllers\referenceId\ReferenceController::class,'getCompany']);
-//     Route::get('/list',[App\Http\Controllers\referenceId\ReferenceController::class,'listReference'])->name('list');
-//     Route::get('/receiverDetails',[App\Http\Controllers\referenceId\ReferenceController::class,'receiverDetails']);
-//     Route::get('/transport-details/list',[App\Http\Controllers\referenceId\ReferenceController::class,'listTransportDetails'])->name('list');
-//     Route::get('/designation/list',[App\Http\Controllers\referenceId\ReferenceController::class,'listDesignations'])->name('list');
-//     Route::get('/fetch-reference/{id}',[App\Http\Controllers\referenceId\ReferenceController::class,'fetchreference'])->name('referenceView');
-//     Route::get('/companylist',[App\Http\Controllers\referenceId\ReferenceController::class,'fetchcompany']);
-// });
-
-// Route::group(['prefix' => 'reference', 'middleware' => ['auth','permission:modify-reference-id']], function(){
-//     Route::group(['prefix' => 'create-reference'], function(){
-//         Route::get('/',[App\Http\Controllers\referenceId\ReferenceController::class,'createReferenceId']);
-//         Route::post('/create',[App\Http\Controllers\referenceId\ReferenceController::class,'AddReferenceId']);
-//         Route::post('/createCompany',[App\Http\Controllers\referenceId\ReferenceController::class,'AddCompany']);
-//         Route::post('/createPerson',[App\Http\Controllers\referenceId\ReferenceController::class,'AddPerson']);
-//     });
-//     Route::get('/edit-reference/{id}',[App\Http\Controllers\referenceId\ReferenceController::class,'editReferenceId']);
-//     Route::get('/view-reference/{id}',[App\Http\Controllers\referenceId\ReferenceController::class,'referenceView']);
-//     Route::get('/referenceId/delete/{id}', [App\Http\Controllers\referenceId\ReferenceController::class, 'deleteReferenceId'])->name('delete');
-//     Route::post('/update',[App\Http\Controllers\referenceId\ReferenceController::class, 'updateReference']);
-// });
-
-
 // Routes for Reference ID
 Route::group(['middleware' => ['auth', 'permission:access-reference-id']], function () {
     Route::get('/reference', [App\Http\Controllers\referenceId\ReferenceController::class, 'index'])->name('reference');

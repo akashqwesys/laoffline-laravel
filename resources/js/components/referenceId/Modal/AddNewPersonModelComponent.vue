@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import Form from 'vform';
 import Multiselect from 'vue-multiselect';
     export default {
         name: 'Country',

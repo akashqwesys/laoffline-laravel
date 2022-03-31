@@ -1,3 +1,42 @@
+.btn-icon .icon, .dt-buttons .btn-secondary .icon {
+    width: 1.75rem;
+}
+td .ni-check-thick {
+    color: #00c100;
+    /* font-size: 18px; */
+}
+td .ni-alert-fill {
+    color: orange;
+    /* font-size: 18px; */
+}
+td .ni-eye {
+    color: blue;
+}
+td .ni-edit-alt {
+    color: lightskyblue;
+}
+td .ni-trash {
+    color: red;
+}
+td .ni-sign-inr {
+    color: #ffe000;
+}
+#referenceTable .ni-emails-fill,
+#referenceTable .ni-call,
+#referenceTable .ni-emails,
+#referenceTable .ni-whatsapp,
+#referenceTable .ni-mail,
+#referenceTable .ni-cards,
+#referenceTable .ni-thumbs-up {
+    font-size: 20px;
+}
+.table-bordered td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+.table td:last-child {
+    padding-right: 0.75rem;
+}
 .user-avatar img{
     width: 100%;
 }

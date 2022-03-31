@@ -75,10 +75,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            <!-- <div class="col-md-4">
-                                                            <input type="checkbox" id="checkbox" v-model="form.markssample" />
-                                                            <label for="checkbox">Mark As Sample</label>
-                                            </div> -->
                                         </div>
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
@@ -401,7 +397,7 @@
                                                     <div>
                                                         <label class="form-label" for="fv-Courier-name">Courier Name</label>
                                                         <div>
-                                                            <multiselect v-model="form.courier_company" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                                            <multiselect v-model="form.courier_company" :options="courier" placeholder="Select one" label="name" track-by="id"></multiselect>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -444,7 +440,7 @@
                                                     <div>
                                                         <label class="form-label" for="fv-Courier-name">Courier Name</label>
                                                         <div>
-                                                            <multiselect v-model="form.courier_company" :options="courier" placeholder="Select one" label="name" track-by="name" disabled></multiselect>
+                                                            <multiselect v-model="form.courier_company" :options="courier" placeholder="Select one" label="name" track-by="id" disabled></multiselect>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -505,9 +501,10 @@
 </template>
 <script>
 import Multiselect from 'vue-multiselect';
+import Form from 'vform';
 var references = [];
-export default {
-        name: 'updateCompany',
+    export default {
+        name: 'updateReferenceId',
         components: {
             Multiselect,
         },
@@ -523,8 +520,8 @@ export default {
                 user: [],
                 companies: [],
                 cancel_url: '/reference',
-            referenceSelected: true,
-            InwardOrOutward: true,
+                referenceSelected: true,
+                InwardOrOutward: true,
                 form: new Form({
                     id: '',
                     inward_outward: '',
@@ -546,56 +543,54 @@ export default {
             }
         },
         created(){
-        axios.get('/reference/companysearch')
+            axios.get('/reference/companysearch')
             .then(response => {
                 this.company = response.data;
             });
-        axios.get('/settings/transport-details/list')
+            axios.get('/settings/transport-details/list-data')
             .then(response => {
                 this.courier   = response.data;
             });
-    },
+        },
         methods: {
             getProfilePic(name){
                 return '/upload/company/multipleAddressProfilePic/' + name;
             },
             register() {
-                    this.form.post('/reference/update')
-                        .then(( response ) => {
-                            window.location.href = '/reference';
-                    });
-                }
+                this.form.post('/reference/update')
+                .then(( response ) => {
+                    window.location.href = '/reference';
+                });
+            }
         },
         mounted() {
-            // console.log(this.id);
             axios.get(`/reference/fetch-reference/${this.id}`)
             .then(response => {
                 references = response.data;
 
-                    this.form.id = references.Reference.reference_id;
-                    this.form.inward_outward = references.Reference.inward_or_outward;
-                    this.form.Reference_via = references.Reference.type_of_inward;
-                    this.form.Date_Time = references.Reference.selection_date;
-                    this.form.companyName = references.Reference.company_id;
-                    this.form.markssample = references.Reference.mark_as_sample;
-                    this.form.from_number = references.Reference.from_number;
-                    this.form.receiver_number = references.Reference.receiver_number;
-                    this.form.from_email = references.Reference.from_email_id;
-                    this.form.receiver_email = references.Reference.receiver_email_id;
-                    this.form.parcel_weight = references.Reference.weight_of_parcel;
-                    this.form.received_date_time = references.Reference.courier_received_time;
-                    this.form.delivery_by = references.Reference.delivery_by;
-                    this.form.courier_company = references.Reference.courier_name;
-                    this.form.courier_recepit_no = references.Reference.courier_receipt_no;
-                    this.form.from_name = references.Reference.from_name;
+                this.form.id = references.Reference.reference_id;
+                this.form.inward_outward = references.Reference.inward_or_outward;
+                this.form.Reference_via = references.Reference.type_of_inward;
+                this.form.Date_Time = references.Reference.selection_date;
+                this.form.companyName = references.Company;
+                this.form.markssample = references.Reference.mark_as_sample;
+                this.form.from_number = references.Reference.from_number;
+                this.form.receiver_number = references.Reference.receiver_number;
+                this.form.from_email = references.Reference.from_email_id;
+                this.form.receiver_email = references.Reference.receiver_email_id;
+                this.form.parcel_weight = references.Reference.weight_of_parcel;
+                this.form.received_date_time = references.Reference.courier_received_time;
+                this.form.delivery_by = references.Reference.delivery_by;
+                this.form.courier_company = references.Courier;
+                this.form.courier_recepit_no = references.Reference.courier_receipt_no;
+                this.form.from_name = references.Reference.from_name;
             });
-            console.log("This is about component");
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-<style>
-.form-group.code-block {
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<style >
+    .form-group.code-block {
         border: none;
         padding: 0;
     }
@@ -606,8 +601,6 @@ export default {
     .form-group.code-block .clipboard-init:hover {
         border-color: #6576ff;
     }
-
-
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;

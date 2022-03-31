@@ -235,8 +235,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-
                                         <hr class="preview-hr">
                                         <div class="row gy-4">
                                             <div class="col-md-12">
@@ -260,12 +258,13 @@
 </template>
 
 <script>
+import Form from 'vform';
 import Multiselect from 'vue-multiselect';
 import AddCompany from './modal/AddNewCompanyModelComponent';
 import AddPerson from './modal/AddNewPersonModelComponent';
 var Receiver = [];
 var fromName = [];
-export default{
+export default {
     name: 'createReferenceId',
     components: {
             AddCompany,
@@ -283,34 +282,35 @@ export default{
             courier:[],
             fromNames:[],
             options:[
-            { name: 'Hand'},
-            { name: 'Email'},
-            { name: 'Whatsapp'},
-            { name: 'Message'},
-            { name: 'Call'},
-            { name: 'Courier'}
+                { name: 'Call'},
+                { name: 'Whatsapp'},
+                { name: 'Message'},
+                { name: 'Email'},
+                { name: 'Letter'},
+                { name: 'Courier'},
+                { name: 'Hand'}
             ],
             received_date_time:'',
             cancel_url: '/reference',
             referenceSelected: true,
             InwardOrOutward: true,
             form: new Form({
-                    inward_outward: 1,
-                    Reference_via: '',
-                    Date_Time:'',
-                    companyName:'',
-                    markssample:'',
-                    from_name: '',
-                    from_number:'',
-                    receiver_number:'',
-                    from_email:'',
-                    receiver_email:'',
-                    parcel_weight:'',
-                    received_date_time:'',
-                    delivery_by:'',
-                    courier_company:'',
-                    courier_recepit_no:'',
-                })
+                inward_outward: 1,
+                Reference_via: '',
+                Date_Time:'',
+                companyName:'',
+                markssample:'',
+                from_name: '',
+                from_number:'',
+                receiver_number:'',
+                from_email:'',
+                receiver_email:'',
+                parcel_weight:'',
+                received_date_time:'',
+                delivery_by:'',
+                courier_company:'',
+                courier_recepit_no:'',
+            })
         }
     },
     watch:{
@@ -333,7 +333,6 @@ export default{
         axios.get('/reference/list-transport')
             .then(response => {
                 this.courier   = response.data;
-                console.log(this.courier   = response.data);
             });
         axios.get('/reference/receiverDetails')
         .then(response=>{
@@ -344,34 +343,31 @@ export default{
     },
     methods:{
         getFromName: function(event) {
-                if(event != null) {
-                    console.log(event);
-                    axios.get('/reference/from-name/'+event.id)
-                    .then(response => {
-                        fromName = response.data;
-                        console.log(fromName.contact_person_name);
-                        this.form.from_name = fromName.contact_person_name;
-                        this.fromNames = fromName;
-                    });
-                }
-            },
-        register() {
-                    this.form.post('/reference/create-reference/create')
-                        .then(( response ) => {
-                            window.location.href = '/reference/create-reference';
-                    });
-                },
+            if(event != null) {
+                axios.get('/reference/from-name/'+event.id)
+                .then(response => {
+                    fromName = response.data;
+                    this.form.from_name = fromName.contact_person_name;
+                    this.fromNames = fromName;
+                });
+            }
         },
+        register() {
+            this.form.post('/reference/create-reference/create')
+                .then(( response ) => {
+                    window.location.href = '/reference/create-reference';
+            });
+        },
+    },
     mounted(){
-        console.log("This is about Component");
+        console.log("This is create Component");
     },
 }
-
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-<style>
-.form-group.code-block {
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<style scoped>
+    .form-group.code-block {
         border: none;
         padding: 0;
     }
@@ -382,8 +378,6 @@ export default{
     .form-group.code-block .clipboard-init:hover {
         border-color: #6576ff;
     }
-
-
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;

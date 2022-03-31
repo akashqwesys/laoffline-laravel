@@ -397,10 +397,10 @@
                     this.contactDetails = response.data.contact_details;
                     this.multipleAddress = response.data.multiple_address;
                     this.multipleEmail = response.data.multiple_emails;
-                    this.swotDetail = response.data.swot_details;
-                    this.bankDetail = response.data.bank_details;
+                    this.swotDetail = response.data.swot_details ?? {};
+                    this.bankDetail = response.data.bank_details ?? {};
                     this.packagingDetail = response.data.packaging_details;
-                    this.referenceDetail = response.data.references_details;
+                    this.referenceDetail = response.data.references_details ?? {};
                     window.$('#overlay').hide();
                 });
             }

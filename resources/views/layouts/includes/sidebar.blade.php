@@ -1,8 +1,8 @@
-<div class="nk-sidebar nk-sidebar-fixed is-dark " data-content="sidebarMenu">
+<div class="nk-sidebar nk-sidebar-fixed is-dark is-compact" data-content="sidebarMenu">
     <div class="nk-sidebar-element nk-sidebar-head">
         <div class="nk-menu-trigger">
             <a href="#" class="nk-nav-toggle nk-quick-nav-icon d-xl-none" data-target="sidebarMenu"><em class="icon ni ni-arrow-left"></em></a>
-            <a href="#" class="nk-nav-compact nk-quick-nav-icon d-none d-xl-inline-flex" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
+            <a href="#" class="nk-nav-compact nk-quick-nav-icon d-none d-xl-inline-flex compact-active" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
         </div>
         <div class="nk-sidebar-brand">
             <a href="{{ route('home') }}" class="logo-link nk-sidebar-logo">
