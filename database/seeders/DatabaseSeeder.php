@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             AllProductDetails::class,
             AllUserDetails::class,
             LinkCompanySeeder::class,
+            TransportDetailsSeeder::class
         ]);
     }
 }

@@ -10,7 +10,7 @@
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
-                    <div class="nk-block">
+                    <div class="nk-block mb-3">
                         <div class="card card-bordered">
                             <div class="card-inner">
                                     <div class="preview-block">
@@ -290,7 +290,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                <table class=" nowrap table">
                                     <thead>
                                         <tr>
                                             <th>IUID</th>
@@ -298,7 +298,7 @@
                                             <th>Date / Time</th>
                                             <th>Type</th>
                                             <th>Ref. Via</th>
-                                            <th>Followup Via</th>
+                                            <!-- <th>Followup Via</th> -->
                                             <th>Subject</th>
                                             <th>Company</th>
                                             <th>Genrated by</th>
@@ -306,41 +306,31 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="inward_outward.inward_or_outward == '1'">
-                                            <td>{{inward_outward.iuid}}</td>
-                                            <td>-</td>
-                                            <td>{{ inward_outward.selection_date }}</td>
-                                            <td v-if="inward_outward.system_module_id == '1'">Enquiry</td>
-                                            <td v-else-if="inward_outward.system_module_id == '2'">Order</td>
-                                            <td v-else-if="inward_outward.system_module_id == '3'">Complain</td>
-                                            <td v-else-if="inward_outward.system_module_id == '4'">General</td>
-                                            <td v-else-if="inward_outward.system_module_id == '5'">Sale Bill</td>
-                                            <td v-else-if="inward_outward.system_module_id == '6'">Payment</td>
-                                            <td v-else-if="inward_outward.system_module_id == '7'">Commission</td>
-                                            <td v-else-if="inward_outward.system_module_id == '8'">Enquiry</td>
-                                            <td v-else-if="inward_outward.system_module_id == '9'">Order</td>
-                                            <td v-else-if="inward_outward.system_module_id == '10'">Complain</td>
-                                            <td v-else-if="inward_outward.system_module_id == '11'">General</td>
-                                            <td v-else>-</td>
-                                            <td>{{ inward_outward.type_of_inward }}</td>
-                                            <td>{{ inward_outward.followup_via }}</td>
-                                            <td>{{inward_outward.subject}}</td>
-                                            <td>{{ inward_outward.company_name }}</td>
-                                            <td>{{ inward_outward.username }}</td>
-                                            <td>{{ inward_outward.assigned_to }}</td>
-                                        </tr>
-                                        <tr v-else>
-                                            <td>-</td>
-                                            <td>{{inward_outward.ouid}}</td>
-                                            <td>{{ inward_outward.selection_date }}</td>
-                                            <td>-</td>
-                                            <td>{{ inward_outward.type_of_outward }}</td>
-                                            <td>{{ inward_outward.followup_via }}</td>
-                                            <td>{{inward_outward.subject}}</td>
-                                            <td>{{ inward_outward.company_name }}</td>
-                                            <td>{{ inward_outward.username }}</td>
-                                            <td>{{ inward_outward.assigned_to }}</td>
-                                        </tr>
+                                        <template v-for="io in inward_outward" :key="io.comboid">
+                                            <tr>
+                                                <td>{{ io.iuid ?? '-' }}</td>
+                                                <td>{{ io.ouid ?? '-' }}</td>
+                                                <td>{{ io.created_at }}</td>
+                                                <td v-if="io.system_module_id == '1'">Enquiry</td>
+                                                <td v-else-if="io.system_module_id == '2'">Order</td>
+                                                <td v-else-if="io.system_module_id == '3'">Complain</td>
+                                                <td v-else-if="io.system_module_id == '4'">General</td>
+                                                <td v-else-if="io.system_module_id == '5'">Sale Bill</td>
+                                                <td v-else-if="io.system_module_id == '6'">Payment</td>
+                                                <td v-else-if="io.system_module_id == '7'">Commission</td>
+                                                <td v-else-if="io.system_module_id == '8'">Enquiry</td>
+                                                <td v-else-if="io.system_module_id == '9'">Order</td>
+                                                <td v-else-if="io.system_module_id == '10'">Complain</td>
+                                                <td v-else-if="io.system_module_id == '11'">General</td>
+                                                <td v-else>-</td>
+                                                <td>{{ io.inward_or_outward_via }}</td>
+                                                <!-- <td>{{ io.followup_via }}</td> -->
+                                                <td>{{ io.subject }}</td>
+                                                <td>{{ io.company_name ?? '-' }}</td>
+                                                <td>{{ io.generated_by }}</td>
+                                                <td>{{ io.assigned_to }}</td>
+                                            </tr>
+                                        </template>
                                     </tbody>
                                 </table>
                             </div><!-- .card -->
@@ -350,14 +340,12 @@
             </div>
         </div>
     </div>
-
-
 </template>
 
 <script>
 var references = [];
     export default {
-        name: 'createCompany',
+        name: 'ViewReferenceId',
         props: {
             id: Number,
         },
@@ -386,7 +374,6 @@ var references = [];
                 this.company = references.Company;
                 this.inward_outward = references.inward_outward;
             });
-            console.log("This is about component");
         },
     };
 

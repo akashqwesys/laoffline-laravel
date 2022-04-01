@@ -297,7 +297,6 @@ export default {
     methods: {
     },
     mounted() {
-        console.log("This is about Component");
     },
 }
 </script>

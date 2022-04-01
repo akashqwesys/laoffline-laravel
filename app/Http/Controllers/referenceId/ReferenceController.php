@@ -125,7 +125,7 @@ class ReferenceController extends Controller
 
         $ReferenceId = ReferenceId::join('companies','company_id','=','companies.id')
             ->join('employees','employee_id','=','employees.id')
-            ->select('reference_ids.id', 'reference_ids.reference_id', 'reference_ids.created_at', 'reference_ids.selection_date', 'reference_ids.type_of_inward', 'reference_ids.inward_or_outward', 'companies.company_name', 'employees.firstname', 'employees.lastname')
+            ->select('reference_ids.id', 'reference_ids.reference_id', 'reference_ids.created_at', 'reference_ids.selection_date', 'reference_ids.type_of_inward', 'reference_ids.inward_or_outward', 'reference_ids.company_id', 'companies.company_name', 'employees.firstname', 'employees.lastname')
             ->where('reference_ids.financial_year_id', $user->financial_year_id)
             ->where('reference_ids.reference_id', '!=', '0')
             ->where('reference_ids.is_deleted', '0');
@@ -152,7 +152,7 @@ class ReferenceController extends Controller
             });
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            if (in_array($columnName_arr[6]['search']['value'], ['inward', 'Inward'])) {
+            if (in_array($columnName_arr[6]['search']['value'], ['in', 'In', 'inward', 'Inward'])) {
                 $ReferenceId = $ReferenceId->where('inward_or_outward', 1);
             } else {
                 $ReferenceId = $ReferenceId->where('inward_or_outward', 0);
@@ -204,7 +204,7 @@ class ReferenceController extends Controller
             elseif ($type_of_inward == 'Courier') {
                 $type_of_inward = '<em class="icon ni ni-emails-fill" title="Courier"></em>';
             }
-            $company_name = '<a href="#'.$record->company_name.'" data-toggle="modal">'.$record->company_name.'</a>';
+            $company_name = '<a href="#" class="view-details" data-id="'.$record->company_id.'">'.$record->company_name.'</a>';
             $firstname = $record->firstname . ' - ' . $record->lastname;
             if($record->inward_or_outward == '1') {
                 $inward_or_outward = 'Inward';
@@ -297,13 +297,30 @@ class ReferenceController extends Controller
 
     public function referenceView($id)
     {
-        $page_title = 'Reference';
+        $page_title = 'View Reference';
         $financialYear = $this->financialYear();
         $user = Session::get('user');
-        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
-                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+        /* $reference_data = DB::table('reference_ids as r')
+            ->join('employees as e', 'r.employee_id', '=', 'e.id')
+            ->join('companies as c', 'r.company_id', '=', 'c.id')
+            ->select('r.*', 'e.firstname', 'c.company_name')
+            ->where('r.reference_id', $id)
+            ->where('r.financial_year_id', $user->financial_year_id)
+            ->first();
+        $comboId = DB::table('comboids')
+            // ->select()
+            ->where('general_ref_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->orderBy('comboid', 'desc')
+            ->get(); */
+
         $employees['id'] = $id;
-        return view('referenceId.viewReferenceId',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('referenceId.viewReferenceId', compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function editReferenceId($id){
@@ -338,30 +355,41 @@ class ReferenceController extends Controller
 
     public function fetchreference($id){
         $ReferenceData = [];
-
-        $Reference = ReferenceId::where('reference_id', $id)->first();
-
         $User = Session::get('user');
+
+        $Reference = ReferenceId::where('reference_id', $id)->where('financial_year_id', $User->financial_year_id)->first();
 
         $Company = Company::select('id', 'company_name')->where('id', $Reference->company_id)->first();
 
-        $Courier = TransportDetails::select('id', 'name')->where('id', $Reference->courier_name)->first();
+        $Courier = TransportDetails::select('id', 'name')->where('id', $Reference->courier_name ?: 0)->first();
 
-        if ($Reference->inward_or_outward == '1') {
+        /* if ($Reference->inward_or_outward == '1') {
             $inward_outward = comboids::join('reference_ids','comboids.general_ref_id','=','reference_ids.id')
-                                        ->join('inwards','comboids.iuid','=','inwards.iuid')
-                                        ->join('users','comboids.outward_employe_id','=','users.employee_id')
-                                        ->join('companies','comboids.company_id','=','companies.id')
-                                        ->where('comboids.company_id',$Reference->company_id)->get();
+                ->join('inwards','comboids.iuid','=','inwards.iuid')
+                ->join('users','comboids.outward_employe_id','=','users.employee_id')
+                ->join('companies','comboids.company_id','=','companies.id')
+                ->where('reference_ids.financial_year_id', $User->financial_year_id)
+                ->where('comboids.company_id', $Reference->company_id)
+                ->get();
         }
         else{
             $inward_outward = comboids::join('reference_ids','comboids.general_ref_id','=','reference_ids.id')
-                                        ->join('outwards','comboids.ouid','=','outwards.ouid')
-                                        ->join('users','comboids.outward_employe_id','=','users.employee_id')
-                                        ->join('companies','comboids.company_id','=','companies.id')
-                                        ->where('comboids.company_id',$Reference->company_id)->get();
-        }
-
+                ->join('outwards','comboids.ouid','=','outwards.ouid')
+                ->join('users','comboids.outward_employe_id','=','users.employee_id')
+                ->join('companies','comboids.company_id','=','companies.id')
+                ->where('reference_ids.financial_year_id', $User->financial_year_id)
+                ->where('comboids.company_id',$Reference->company_id)
+                ->get();
+        } */
+        $inward_outward = DB::table('comboids as cb')
+            ->leftJoin('companies as cp', 'cb.company_id', '=', 'cp.id')
+            ->join('employees as e1', 'cb.generated_by', '=', 'e1.id')
+            ->join('employees as e2', 'cb.assigned_to', '=', 'e2.id')
+            ->select('cb.comboid', 'cb.iuid', 'cb.ouid', 'cb.general_ref_id', 'cb.system_module_id', 'cb.main_or_followup', 'cb.selection_date', 'cb.inward_or_outward_via', 'cb.followup_via', 'cb.subject', 'cb.created_at', 'cp.company_name', 'e1.firstname as generated_by', 'e2.firstname as assigned_to')
+            ->where('cb.general_ref_id', $id)
+            ->where('cb.financial_year_id', $User->financial_year_id)
+            ->orderBy('cb.comboid', 'desc')
+            ->get();
 
         $ReferenceData['Reference'] = $Reference;
         $ReferenceData['User'] = $User;

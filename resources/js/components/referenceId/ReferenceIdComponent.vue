@@ -1,4 +1,5 @@
 <template>
+    <VueLoader></VueLoader>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -47,12 +48,14 @@
                 </div>
             </div>
         </div>
-        <ViewCompany></ViewCompany>
+        <ViewCompanyDetails ref="company"></ViewCompanyDetails>
     </div>
 </template>
 
 <script>
-    import ViewCompany from './modal/viewCompanyComponent';
+    import ViewCompanyDetails from '../databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
+    import VueLoader from './../../VueLoader.vue';
+
     import $ from 'jquery';
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
     import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
@@ -63,8 +66,8 @@
     export default {
         name: 'referenceId',
         components: {
-            ViewCompany,
-            // CompanyDetail,
+            ViewCompanyDetails,
+            VueLoader
         },
         props: {
             employeeId: Number,
@@ -98,6 +101,18 @@
             companydetails(id){
                 window.location.href = '/reference/companydata/'+ id;
             },
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
+            }
         },
         mounted() {
             const self = this;
@@ -150,6 +165,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
+                    order: [[ 0, "desc" ]],
                     columns: [
                         { data: 'reference_id' },
                         { data: 'created_at' },
@@ -234,6 +250,13 @@
                     }
                     draw = 0;
                 }
+            });
+
+            $(document).on('click', '.view-details', function(e) {
+                self.showModal($(this).attr('data-id'));
+            });
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
             });
         },
     };

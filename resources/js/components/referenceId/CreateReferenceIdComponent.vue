@@ -360,7 +360,6 @@ export default {
         },
     },
     mounted(){
-        console.log("This is create Component");
     },
 }
 </script>

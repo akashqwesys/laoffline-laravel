@@ -91,7 +91,7 @@
                         </a>
                         <ul class="nk-menu-sub">
                             <li class="nk-menu-item">
-                                <a href="html/user-list-regular.html" class="nk-menu-link"><span class="nk-menu-text">Sale Bill</span></a>
+                                <a href="{{ route('sale-bill') }}" class="nk-menu-link"><span class="nk-menu-text">Sale Bill</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="html/user-list-compact.html" class="nk-menu-link"><span class="nk-menu-text">Payment</span></a>

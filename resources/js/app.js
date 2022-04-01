@@ -39,6 +39,7 @@ import CreateLinkCompaniesComponent from './components/databank/linkCompaniesCom
 import ReferenceIdComponent from './components/referenceId/ReferenceIdComponent.vue';
 import CreateReferenceIdComponent from './components/referenceId/CreateReferenceIdComponent.vue';
 import UpdateReferenceIdComponent from './components/referenceId/UpdateReferenceIdComponent.vue';
+import ViewReferenceIdComponent from './components/referenceId/ViewReferenceIdComponent.vue';
 
 import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
 import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
@@ -166,6 +167,7 @@ const routes = [
         children: [
             { path: 'create-reference', component: CreateReferenceIdComponent },
             { path: 'edit-reference/:id', component: UpdateReferenceIdComponent },
+            { path: 'view-reference/:id', component: ViewReferenceIdComponent },
         ]
     },
     {
@@ -314,6 +316,7 @@ createApp({
         ReferenceIdComponent,
         CreateReferenceIdComponent,
         UpdateReferenceIdComponent,
+        ViewReferenceIdComponent,
 
         FinancialYearComponent,
         CreateFinancialYearComponent,
