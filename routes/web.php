@@ -580,6 +580,8 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:acces
     });
 });
 
+
+
 Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modify-companytype']], function () {
     Route::group(['prefix' => 'companyType'], function () {
         Route::get('/create-companyType', [App\Http\Controllers\settings\CompanyTypeController::class, 'createCompanyType']);
@@ -609,6 +611,29 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modif
         Route::get('/edit-permission/{id}', [App\Http\Controllers\settings\PermissionController::class, 'editPermission']);
         Route::get('/delete/{id}', [App\Http\Controllers\settings\PermissionController::class, 'deletePermission'])->name('delete');
     });
+});
+
+Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:access-payment']], function () {
+        Route::get('/list-seller', [App\Http\Controllers\PaymentsController::class, 'listSeller'])->name('list-seller');
+        Route::get('/list-customer', [App\Http\Controllers\PaymentsController::class, 'listCustomer'])->name('list-customer');
+        Route::get('/list-bank', [App\Http\Controllers\PaymentsController::class, 'listbank'])->name('list-bank');
+        Route::post('/searchsalebill', [App\Http\Controllers\PaymentsController::class, 'searchSaleBill']);
+        Route::get('/', [App\Http\Controllers\PaymentsController::class, 'index'])->name('payments');
+        Route::get('/list', [App\Http\Controllers\PaymentsController::class, 'listpayment'])->name('list');
+        Route::get('/list-data', [App\Http\Controllers\PaymentsController::class, 'listData'])->name('list-data');
+        Route::get('/fetch-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchPayment']);
+        Route::get('/getbasicdata', [App\Http\Controllers\PaymentsController::class, 'getBasicData']);
+});
+
+Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modify-payment']], function () {
+        Route::get('/create-payment', [App\Http\Controllers\PaymentsController::class, 'createPayment']);
+        Route::post('/create', [App\Http\Controllers\PaymentsController::class, 'insertPaymentData']);
+        Route::post('/generatepayment', [App\Http\Controllers\PaymentsController::class, 'generatePaymentData']);
+        Route::post('/selectsalebills', [App\Http\Controllers\PaymentsController::class, 'selectSaleBills']);
+        Route::get('/addpayment', [App\Http\Controllers\PaymentsController::class, 'addPayment'])->name('addpayment');
+        Route::post('/update', [App\Http\Controllers\PaymentsController::class, 'updatePaymentData']);
+        Route::get('/edit-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'editPayment']);
+        Route::get('/delete/{id}', [App\Http\Controllers\PaymentsController::class, 'deletePayment'])->name('delete');
 });
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

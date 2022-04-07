@@ -80,6 +80,9 @@ import CreateCompanyTypeComponent from './components/settings/companyTypeCompone
 import PermissionComponent from './components/settings/permissionsComponents/PermissionComponent.vue';
 import CreatePermissionComponent from './components/settings/permissionsComponents/CreatePermissionComponent.vue';
 
+import PaymentComponent from './components/payment/PaymentComponent.vue';
+import CreatePaymentComponent from './components/payment/CreatePaymentComponent.vue'
+import AddPaymentComponent from './components/payment/AddPaymentComponent.vue'
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -268,6 +271,15 @@ const routes = [
             { path: 'edit-permission/:id', component: CreatePermissionComponent },
         ]
     },
+    {
+        path: '/payments/',
+        component: PaymentComponent,
+        children: [
+            { path: 'create-payments', component: CreatePaymentComponent },
+            { path: 'edit-payments/:id', component: AddPaymentComponent },
+            { path: 'addpayment', component: AddPaymentComponent },
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -329,5 +341,8 @@ createApp({
         CreateCompanyTypeComponent,
         PermissionComponent,
         CreatePermissionComponent,
+        PaymentComponent,
+        CreatePaymentComponent,
+        AddPaymentComponent,
     }
 }).use(router).mount('#app');

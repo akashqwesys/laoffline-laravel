@@ -79,6 +79,12 @@
                         </a>
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
+                        <a href="{{ route('payments') }}" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
+                            <span class="nk-menu-text">Payment</span>
+                        </a>
+                    </li><!-- .nk-menu-item -->
+                    <li class="nk-menu-item">
                         <a href="{{ route('register') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
                             <span class="nk-menu-text">Register</span>

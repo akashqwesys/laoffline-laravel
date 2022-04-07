@@ -2,7 +2,7 @@
 @section('title', $page_title)
 @section('content')
     <div id="app">
-        <create-financial-year-component scope="{{ $employees['scope'] }}" :id="{{ $employees['editedId'] ?? 0 }}"></create-financial-year-component>
+        <create-payment-component></create-payment-component>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
 @endsection
