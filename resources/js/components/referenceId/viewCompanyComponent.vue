@@ -372,7 +372,7 @@
 <script>
     var companies = [];
     export default {
-        name: 'createCompany',
+        name: 'viewCompany',
         props: {
             id: Number,
         },

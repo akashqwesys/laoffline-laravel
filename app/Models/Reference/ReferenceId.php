@@ -32,7 +32,6 @@ class ReferenceId extends Model
         'gmail_mail_id',
         'gmail_folder_name',
         'is_deleted',
-        'date_added',
         'created_at',
         'updated_at'
     ];

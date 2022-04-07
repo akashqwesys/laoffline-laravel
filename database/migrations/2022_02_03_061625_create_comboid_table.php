@@ -56,7 +56,7 @@ class CreateComboidTable extends Migration
             $table->integer('default_category_id');
             $table->integer('main_category_id');
             $table->integer('agent_id');
-            $table->string('supplier_invoice_no',32);
+            $table->string('supplier_invoice_no',32)->nullable();
             $table->integer('total');
             $table->integer('sale_bill_flag');
             $table->string('receipt_mode',32)->nullable();
@@ -83,7 +83,6 @@ class CreateComboidTable extends Migration
             $table->integer('sample_return_qty');
             $table->tinyInteger('mobile_flag');
             $table->integer('is_deleted');
-            $table->dateTime('date_added');
             $table->timestamps();
         });
     }

@@ -102,6 +102,7 @@
                 });
             },
             isVerified: function(id) {
+                window.$('#overlay').show();
                 axios.post('./companies/verify/'+id)
                 .then(response => {
                     location.reload();
@@ -276,6 +277,12 @@
             });
             $(document).on('click', '.remove-favourite', function(e) {
                 self.isUnFavorite($(this).attr('data-id'));
+            });
+            $(document).on('click', '.verify-company', function(e) {
+                self.isVerified($(this).attr('data-id'));
+            });
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
             });
         },
     };

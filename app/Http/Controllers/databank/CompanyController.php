@@ -259,19 +259,18 @@ class CompanyController extends Controller
 
             $action = '<a href="#" class="btn btn-trigger btn-icon icon-verify view-details" data-id="'.$id.'" title="View Company"><em class="icon ni ni-eye"></em></a>
             <a href="./companies/edit-company/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="./companies/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+            <a href="./companies/delete/'.$id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>
+            <a href="#" class="btn btn-trigger btn-icon commission" data-id="' . $id . '" title="Commission"><em class="icon ni ni-sign-inr"></em></a>';
 
             if($cmp->favorite_flag == 0) {
                 $flag = '<em class="icon ni ni-star text-primary mark-favourite" data-id="'.$id.'"></em>';
-                // $action .= '<a href="./companies/favorite/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Add into Favorite"><em class="icon ni ni-star"></em></a>';
             } else {
                 $flag = '<em class="icon ni ni-star-fill text-primary remove-favourite" data-id="'.$id.'"></em>';
-                // $action .= '<a href="./companies/favorite/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove from Favorite"><em class="icon ni ni-star-fill"></em></a>';
             }
 
             if($cmp->is_verified == 0) {
                 $isvarified = '<em class="icon ni ni-alert-fill"></em>';
-                // $action .= '<a href="./companies/verify/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Verify"><em class="icon ni ni-check-thick"></em></a>';
+                $action .= '<a href="#" class="btn btn-trigger btn-icon verify-company" data-id="' . $id . '" title="Verify Company"><em class="icon ni ni-check-thick"></em></a>';
             } else {
                 $isvarified = '<em class="icon ni ni-check-thick"></em>';
             }
@@ -382,6 +381,7 @@ class CompanyController extends Controller
         $data_arr = array();
         foreach($company as $cmp) {
             $id = $cmp->id;
+            $companyType = '';
 
             if($cmp->company_type == 1) {
                 $companyType = 'General';
@@ -458,23 +458,19 @@ class CompanyController extends Controller
 
             $action = '<a href="#" class="btn btn-trigger btn-icon icon-verify view-details" data-id="' . $id . '" title="View Company"><em class="icon ni ni-eye"></em></a>
             <a href="../../companies/edit-company/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="../../companies/delete/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
-
-            if($cmp->favorite_flag == 0) {
-                $flag = '<em class="icon ni ni-star"></em>';
-            } else {
-                $flag = '<em class="icon ni ni-star-fill"></em>';
-            }
+            <a href="../../companies/delete/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>
+            <a href="#" class="btn btn-trigger btn-icon commission" data-id="' . $id . '" title="Commission"><em class="icon ni ni-sign-inr"></em></a>';
 
             if($cmp->is_verified == 0) {
                 $isvarified = '<em class="icon ni ni-alert-fill"></em>';
+                $action .= '<a href="#" class="btn btn-trigger btn-icon verify-company" data-id="' . $id . '" title="Verify Company"><em class="icon ni ni-check-thick"></em></a>';
             } else {
                 $isvarified = '<em class="icon ni ni-check-thick"></em>';
             }
 
             $data_arr[] = array(
                 "id" => $id,
-                "flag" => $flag,
+                "flag" => '<em class="icon ni ni-star-fill remove-favourite text-primary" data-id="'. $id .'"></em>',
                 "verified" => $isvarified,
                 "company_name" => $name,
                 "office_no" => $officeNo,

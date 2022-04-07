@@ -81,6 +81,20 @@
             }
         },
         methods: {
+            isUnFavorite: function(id) {
+                window.$('#overlay').show();
+                axios.post('../unFavorite/'+id)
+                .then(response => {
+                    location.reload();
+                });
+            },
+            isVerified: function(id) {
+                window.$('#overlay').show();
+                axios.post('../verify/'+id)
+                .then(response => {
+                    location.reload();
+                });
+            },
             view_data(id){
                 window.location.href = './view-company/'+id;
             },
@@ -244,6 +258,17 @@
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });
+
+            $(document).on('click', '.remove-favourite', function(e) {
+                self.isUnFavorite($(this).attr('data-id'));
+            });
+            $(document).on('click', '.verify-company', function(e) {
+                self.isVerified($(this).attr('data-id'));
+            });
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
+            });
+
         },
     };
 </script>

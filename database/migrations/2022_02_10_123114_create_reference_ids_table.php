@@ -32,13 +32,12 @@ class CreateReferenceIdsTable extends Migration
             $table->string('courier_name')->nullable();
             $table->string('weight_of_parcel')->nullable();
             $table->string('courier_receipt_no')->nullable();
-            $table->date('courier_received_time')->nullable();
+            $table->dateTime('courier_received_time')->nullable();
             $table->string('delivery_by')->nullable();
             $table->integer('mark_as_sample')->default('0');
             $table->integer('gmail_mail_id')->nullable()->default('0');
             $table->string('gmail_folder_name',100)->nullable();
             $table->integer('is_deleted')->default('0');
-            $table->dateTime('date_added')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamps();
         });
     }

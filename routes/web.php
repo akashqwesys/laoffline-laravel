@@ -219,7 +219,6 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:modif
 });
 
 
-
 // Routes for Databank / Link Companies
 Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:access-link-companies']], function () {
     Route::group(['prefix' => 'link-company'], function () {
@@ -243,31 +242,6 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:modif
         Route::get('/delete/{id}', [App\Http\Controllers\databank\LinkCompaniesController::class, 'deleteLinkCompanies'])->name('delete');
     });
 });
-
-// // Routes for Reference ID
-// Route::group(['prefix' => 'reference', 'middleware' => ['auth','permission:access-reference-id']], function(){
-//     Route::get('/',[App\Http\Controllers\referenceId\ReferenceController::class,'index'])->name('reference');
-//     Route::get('/companysearch',[App\Http\Controllers\referenceId\ReferenceController::class,'getCompany']);
-//     Route::get('/list',[App\Http\Controllers\referenceId\ReferenceController::class,'listReference'])->name('list');
-//     Route::get('/receiverDetails',[App\Http\Controllers\referenceId\ReferenceController::class,'receiverDetails']);
-//     Route::get('/transport-details/list',[App\Http\Controllers\referenceId\ReferenceController::class,'listTransportDetails'])->name('list');
-//     Route::get('/designation/list',[App\Http\Controllers\referenceId\ReferenceController::class,'listDesignations'])->name('list');
-//     Route::get('/fetch-reference/{id}',[App\Http\Controllers\referenceId\ReferenceController::class,'fetchreference'])->name('referenceView');
-//     Route::get('/companylist',[App\Http\Controllers\referenceId\ReferenceController::class,'fetchcompany']);
-// });
-
-// Route::group(['prefix' => 'reference', 'middleware' => ['auth','permission:modify-reference-id']], function(){
-//     Route::group(['prefix' => 'create-reference'], function(){
-//         Route::get('/',[App\Http\Controllers\referenceId\ReferenceController::class,'createReferenceId']);
-//         Route::post('/create',[App\Http\Controllers\referenceId\ReferenceController::class,'AddReferenceId']);
-//         Route::post('/createCompany',[App\Http\Controllers\referenceId\ReferenceController::class,'AddCompany']);
-//         Route::post('/createPerson',[App\Http\Controllers\referenceId\ReferenceController::class,'AddPerson']);
-//     });
-//     Route::get('/edit-reference/{id}',[App\Http\Controllers\referenceId\ReferenceController::class,'editReferenceId']);
-//     Route::get('/view-reference/{id}',[App\Http\Controllers\referenceId\ReferenceController::class,'referenceView']);
-//     Route::get('/referenceId/delete/{id}', [App\Http\Controllers\referenceId\ReferenceController::class, 'deleteReferenceId'])->name('delete');
-//     Route::post('/update',[App\Http\Controllers\referenceId\ReferenceController::class, 'updateReference']);
-// });
 
 
 // Routes for Reference ID
@@ -293,6 +267,35 @@ Route::group(['middleware' => ['auth', 'permission:modify-reference-id']], funct
     Route::get('/reference/view-reference/{id}', [App\Http\Controllers\referenceId\ReferenceController::class, 'referenceView']);
     Route::get('/reference/referenceId/delete/{id}', [App\Http\Controllers\referenceId\ReferenceController::class, 'deleteReferenceId'])->name('delete');
     Route::post('/reference/update', [App\Http\Controllers\referenceId\ReferenceController::class, 'updateReference']);
+});
+
+// Routes for Account / Sale Bill
+Route::group(['middleware' => ['auth', 'permission:access-sale-bill']], function () {
+    Route::group(['prefix' => 'sale-bill'], function () {
+        Route::get('/', [App\Http\Controllers\Account\SaleBillController::class, 'index'])->name('sale-bill');
+        Route::get('/receiverDetails', [App\Http\Controllers\Account\SaleBillController::class, 'receiverDetails']);
+        Route::get('/companysearch', [App\Http\Controllers\Account\SaleBillController::class, 'getCompany']);
+        Route::get('/list', [App\Http\Controllers\Account\SaleBillController::class, 'listReference'])->name('list');
+        Route::get('/fetch-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchreference'])->name('referenceView');
+        Route::get('/companylist', [App\Http\Controllers\Account\SaleBillController::class, 'fetchcompany']);
+        Route::get('/designation', [App\Http\Controllers\Account\SaleBillController::class, 'designation']);
+        Route::get('/list-country', [App\Http\Controllers\Account\SaleBillController::class, 'listCountries']);
+        Route::get('/list-transport', [App\Http\Controllers\Account\SaleBillController::class, 'listTransport']);
+        Route::get('/from-name/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fromName']);
+    });
+});
+
+Route::group(['middleware' => ['auth', 'permission:modify-sale-bill']], function () {
+    Route::group(['prefix' => 'sale-bill'], function () {
+        Route::get('/reference/create-reference', [App\Http\Controllers\Account\SaleBillController::class, 'createReferenceId']);
+        Route::post('/reference/create-reference/create', [App\Http\Controllers\Account\SaleBillController::class, 'AddReferenceId']);
+        Route::post('/reference/create-reference/createCompany', [App\Http\Controllers\Account\SaleBillController::class, 'AddCompany']);
+        Route::post('/reference/create-reference/createPerson', [App\Http\Controllers\Account\SaleBillController::class, 'AddPerson']);
+        Route::get('/reference/edit-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'editReferenceId']);
+        Route::get('/reference/view-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'referenceView']);
+        Route::get('/reference/referenceId/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteReferenceId'])->name('delete');
+        Route::post('/reference/update', [App\Http\Controllers\Account\SaleBillController::class, 'updateReference']);
+    });
 });
 
 

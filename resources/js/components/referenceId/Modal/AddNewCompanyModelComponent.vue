@@ -138,6 +138,7 @@
 </template>
 
 <script>
+import Form from 'vform';
 import Multiselect from 'vue-multiselect';
     export default {
         name: 'country',
@@ -195,12 +196,10 @@ import Multiselect from 'vue-multiselect';
         },
     };
 </script>
-<style>
+<style scoped>
     #addCompany .modal-dialog {
         max-width: 1000px;
     }
-</style>
-<style>
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;
