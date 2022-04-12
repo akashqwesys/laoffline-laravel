@@ -16,7 +16,7 @@
                                     <div class="form-group">
                                         <label class="form-label" for="fv-company-type">Company Type</label>
                                         <div>
-                                            <multiselect v-model="form.company_type" :options="companyTypes" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                            <multiselect v-model="form.company_type" :options="companyTypes" placeholder="Select one" label="name" track-by="id" :disabled="isDisabled"></multiselect>
                                         </div>
                                     </div>
                                 </div>
@@ -63,7 +63,7 @@
                                     <div class="form-group">
                                         <label class="form-label" for="fv-country">Country</label>
                                         <div>
-                                            <multiselect v-model="form.country" :options="countries" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                            <multiselect v-model="form.country" :options="countries" placeholder="Select one" label="name" track-by="id" @select="getCityList"></multiselect>
                                         </div>
                                     </div>
                                 </div>
@@ -71,7 +71,7 @@
                                     <div class="form-group">
                                         <label class="form-label" for="fv-city">City</label>
                                         <div>
-                                            <multiselect v-model="form.city" :options="cities" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                            <multiselect v-model="form.city" :options="cities" placeholder="Select one" label="name" track-by="id"></multiselect>
                                         </div>
                                     </div>
                                 </div>
@@ -119,6 +119,7 @@
                 countries: [],
                 cities: [],
                 companyTypes: [],
+                isDisabled: false,
                 form: new Form({
                     name: '',
                     company_type: '',
@@ -134,40 +135,55 @@
         created() {
             axios.get('/settings/companyType/list-data')
             .then(response => {
-                console.log(this.ctype);
-                var comType = [];
-                response.data.forEach(element => {
-                    if(this.ctype == '1-2') {
-                        if (element.id != 3) {
-                            comType.push(element);
-                        }
-                    } else if(this.ctype == '3') {
-                        if (element.id == 3) {
-                            comType.push(element);
-                        }
-                    } else if(this.ctype == '') {
-                        comType.push(element);
-                    }
-                });
-                this.companyTypes = comType;
+                // var comType = [];
+                // response.data.forEach(element => {
+                //     if(this.ctype == '1-2') {
+                //         if (element.id != 3) {
+                //             comType.push(element);
+                //         }
+                //     } else if(this.ctype == '3') {
+                //         if (element.id == 3) {
+                //             comType.push(element);
+                //         }
+                //     } else if(this.ctype == '') {
+                //         comType.push(element);
+                //     }
+                // });
+                this.companyTypes = response.data;
             });
             axios.get('/databank/catalog/list-country')
             .then(response => {
                 this.countries = response.data;
             });
-            axios.get('/databank/catalog/list-cities')
-            .then(response => {
-                this.cities = response.data;
-            });
-            axios.get('/databank/catalog/list-state')
-            .then(response => {
-                this.states = response.data;
-            });
+            // axios.get('/databank/catalog/list-cities')
+            // .then(response => {
+            //     this.cities = response.data;
+            // });
+            // axios.get('/databank/catalog/list-state')
+            // .then(response => {
+            //     this.states = response.data;
+            // });
         },
         methods: {
+            getCityList: function(event) {
+                if(event != null) {
+                    axios.get('/settings/cities/list-city-by-country/'+event.id)
+                    .then(response => {
+                        this.cities = response.data;
+                    });
+                }
+            },
             register () {
                 this.form.post('/databank/catalog/create-company')
                     .then(( response ) => {
+                        url = location.href.split('/');
+                        if (url[url.length - 1] == 'create-sale-bill') {
+                            if (this.company_type.id == 2) {
+                                this.$parent.customer = {id: response.data[0], name: response.data[1] };
+                            } else {
+                                this.$parent.supplier = {id: response.data[0], name: response.data[1] };
+                            }
+                        }
                         $('#addCompany').hide();
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open');
@@ -176,12 +192,11 @@
             },
         },
         mounted() {
-
         },
     };
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
-<style>
+<style scoped>
     #addCompany .modal-dialog{
         max-width: 920px;
     }

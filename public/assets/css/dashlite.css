@@ -10604,7 +10604,7 @@ body.nav-shown { overflow: hidden; }
 
 .nk-content-fs { min-height: calc(100vh - (65px + 65px)); display: flex; align-items: center; }
 
-@media (min-width: 576px) { .nk-content { padding: 32px 22px; }
+@media (min-width: 576px) { .nk-content { padding: 15px 6px; }
   .nk-content-fluid { padding-left: 22px; padding-right: 22px; } }
 
 @media (min-width: 992px) { .nk-content-lg { padding-top: 36px; padding-bottom: 36px; }

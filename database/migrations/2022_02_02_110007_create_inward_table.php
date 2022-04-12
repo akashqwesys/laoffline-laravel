@@ -15,47 +15,48 @@ class CreateInwardTable extends Migration
     {
         Schema::create('inwards', function (Blueprint $table) {
             $table->id('inward_id');
-            $table->integer('iuid');
+            $table->integer('iuid')->default(0);
             $table->string('call_by', 100)->nullable();
-            $table->integer('inward_ref_via');
-            $table->integer('general_input_ref_id');
-            $table->integer('new_or_old_inward');
-            $table->integer('financial_year_id');
-            $table->integer('connected_inward');
+            $table->integer('inward_ref_via')->default(0);
+            $table->integer('general_input_ref_id')->default(0);
+            $table->integer('new_or_old_inward')->default(0);
+            $table->integer('financial_year_id')->default(0);
+            $table->integer('connected_inward')->default(0);
             $table->date('inward_date')->nullable();
             $table->text('subject')->nullable();
-            $table->integer('employe_id');
+            $table->integer('employee_id')->default(0);
             $table->string('type_of_inward')->nullable();
             $table->string('receiver_number')->nullable();
-            $table->integer('company_id');
-            $table->integer('supplier_id');
+            $table->string('from_number')->nullable();
+            $table->integer('company_id')->default(0);
+            $table->integer('supplier_id')->default(0);
             $table->string('courier_name')->nullable();
             $table->string('weight_of_parcel')->nullable();
             $table->string('courier_receipt_no')->nullable();
             $table->dateTime('courier_received_time')->nullable();
             $table->string('from_name')->nullable();
-            $table->text('attachments')->nullable();
+            $table->jsonb('attachments')->nullable();
             $table->text('remarks')->nullable();
-            $table->integer('latter_by_id');
+            $table->integer('latter_by_id')->default(0);
             $table->string('delivery_by')->nullable();
             $table->string('receiver_email_id')->nullable();
             $table->string('from_email_id')->nullable();
-            $table->integer('product_main_id');
-            $table->text('product_image_id')->nullable();
-            $table->integer('inward_link_with_id');
-            $table->integer('enquiry_complain_for');
+            $table->integer('product_main_id')->default(0);
+            $table->jsonb('product_image_id')->nullable();
+            $table->integer('inward_link_with_id')->default(0);
+            $table->integer('enquiry_complain_for')->default(0);
             $table->text('client_remark')->nullable();
-            $table->integer('notify_client');
-            $table->integer('notify_md');
-            $table->integer('required_followup');
+            $table->integer('notify_client')->default(0);
+            $table->integer('notify_md')->default(0);
+            $table->integer('required_followup')->default(0);
             $table->string('delivery_period')->nullable();
             $table->string('to_name')->nullable();
-            $table->integer('mark_as_draft');
+            $table->integer('mark_as_draft')->default(0);
             $table->string('sample_via',32)->nullable();
-            $table->integer('sample_for');
+            $table->integer('sample_for')->default(0);
             $table->text('sample_prod_or_fabric')->nullable();
-            $table->integer('product_qty');
-            $table->integer('fabric_meters');
+            $table->integer('product_qty')->default(0);
+            $table->integer('fabric_meters')->default(0);
             $table->tinyInteger('is_deleted');
             $table->timestamps();
         });
@@ -68,6 +69,6 @@ class CreateInwardTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('inward');
+        Schema::dropIfExists('inwards');
     }
 }

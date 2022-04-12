@@ -31,35 +31,38 @@
                                             <div class="col-md-4">
                                                 <div class="preview-block">
                                                     <label class="form-label">Reference</label>
-                                                    <ul class="custom-control-group g-3 align-center">
+                                                    <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
                                                         <li class="w-25">
                                                             <div class="custom-control custom-radio">
-                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_new" value="1" @click="reference_new = true">
+                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_new" value="1" @click="reference_new = true" @change="resetSupplier">
                                                                 <label class="custom-control-label" for="fv-reference_new">NEW</label>
                                                             </div>
                                                         </li>
                                                         <li>
                                                             <div class="custom-control custom-radio">
-                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false">
+                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false" @change="getOldReferences">
                                                                 <label class="custom-control-label" for="fv-reference_old">OLD</label>
                                                             </div>
                                                         </li>
                                                     </ul>
+                                                    <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 hidden" id="from_email_section">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="from_email">From Email ID</label>
-                                                    <div class="form-control-wrap">
-                                                        <input type="email" v-model="from_email" id="from_email" class="form-control">
+                                            <div id="new_reference_details_div" class="col-md-4">
+                                                <div class="hidden" id="from_email_section">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="from_email">From Email ID</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="email" v-model="from_email" id="from_email" class="form-control">
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-4" id="delivery_by_section">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="delivery_by">Delivery By</label>
-                                                    <div class="form-control-wrap">
-                                                        <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
+                                                <div class="" id="delivery_by_section">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="delivery_by">Delivery By</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -71,6 +74,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-md-12 text-center hidden" id="show-references"></div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="product_category">Product Main Category</label>
@@ -107,9 +111,9 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="supplier">Supplier</label>
-                                                    <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Supplier" @click="setSupplier"><span class="clipboard-text">Add New</span></button>
+                                                    <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Supplier" @click="setSupplier" :disabled="isSupplierDisabled"><span class="clipboard-text">Add New</span></button>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="supplier" :options="supplier_options" placeholder="Select One" label="name" track-by="id" id="supplier" @close="getProductSubCategory(), checkSupplierInvoiceNo()" ></multiselect>
+                                                        <multiselect v-model="supplier" :options="supplier_options" placeholder="Select One" label="name" track-by="id" id="supplier" @close="getProductSubCategory(), checkSupplierInvoiceNo()" :disabled="isSupplierDisabled"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -126,6 +130,7 @@
                                                     <label class="form-label" for="supplier_invoice_no">Supplier Invoice No.</label>
                                                     <div class="form-control-wrap">
                                                         <input type="text" v-model="supplier_invoice_no" id="supplier_invoice_no" class="form-control" @change="checkSupplierInvoiceNo">
+                                                        <div id="check-supplier-no-div"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -219,11 +224,12 @@
                 supplier_options: [],
                 supplier_options: [],
                 agent_options: [],
-                reference_via: '',
+                reference_via: null,
                 new_old_sale_bill: 1,
                 from_email: '',
                 delivery_by: '',
                 reference_new: true,
+                isSupplierDisabled: false,
                 sale_bill_for: '',
                 product_category: '',
                 product_sub_category: [],
@@ -267,6 +273,34 @@
             // });
         },
         methods: {
+            resetSupplier: function (event) {
+                $('#new_reference_details_div').show();
+                $('#show-references').hide();
+                this.isSupplierDisabled = false;
+                this.supplier = '';
+            },
+            getOldReferences: function (event) {
+                if (this.reference_via == null) {
+                    setTimeout(() => {
+                        this.new_old_sale_bill = 1;
+                        $('#error-validate-reference-div').text('Please select Reference Via');
+                    }, 500);
+                    this.isSupplierDisabled = false;
+                } else {
+                    // $('#overlay').show();
+                    $('#new_reference_details_div').hide();
+                    this.isSupplierDisabled = true;
+                    axios.get('/account/sale-bill/getReferenceForSaleBill?ref_via='+this.reference_via.name)
+                    .then(response => {
+
+                        $('#overlay').hide();
+                    })
+                    .catch(function (error) {
+                        $('#overlay').hide();
+                    });
+                    $('#show-references').show();
+                }
+            },
             getProductMainCategory: function(event) {
                 if (event != null) {
                     axios.get('/account/sale-bill/list-product-main-category/'+event.id)
@@ -320,6 +354,7 @@
                 }
             },
             showHideName: function (event) {
+                $('#error-validate-reference-div').text('');
                 if (event.name == 'Email') {
                     $('#delivery_by_section').hide();
                     $('#from_email_section').show();
@@ -347,14 +382,14 @@
                         type: 'insert'
                     })
                     .then (response => {
-
+                        $('#check-supplier-no-div').html(response);
                     });
                 }
             },
 
 
 
-            addContactDetailsRow: function() {
+            /* addContactDetailsRow: function() {
                 this.contactDetails.push({
                     contact_person_name: '',
                     contact_person_designation: '',
@@ -365,27 +400,7 @@
             },
             deleteContactDetailsRow: function(row) {
                 this.contactDetails.pop(row);
-            },
-
-            addMultipleAddressesRow: function() {
-                this.multipleAddresses.push({
-                    address_type : '',
-                    mobile : '',
-                    address : '',
-                    multipleAddressesOwners : [{
-                        name : '',
-                        designation : '',
-                        mobile : '',
-                        email : '',
-                        profile_pic : '',
-                    }],
-                });
-            },
-            deleteMultipleAddressesRow: function(row) {
-                this.multipleAddresses.pop(row);
-            },
-
-
+            }, */
 
             register () {
                 var formData = new FormData();
@@ -444,8 +459,6 @@
                 this.supplier_options = response.data[1];
             });
             document.getElementById('addCompany').addEventListener('shown.bs.modal', function (event) {
-                console.log(event);
-                console.log(123);
             });
         },
     };
@@ -454,6 +467,10 @@
 <style scoped>
     .hidden {
         display: none;
+    }
+    #show-references {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
 </style>
 

@@ -10,11 +10,11 @@ class inwardActions extends Model
     use HasFactory;
 
     protected $fillable = [
-            'inward_action_id',
-            'iward_id',
-            'action_date',
-            'employe_id',
-            'instruction',
-            'status',
+        'inward_action_id',
+        'inward_id',
+        'action_date',
+        'employee_id',
+        'instruction',
+        'status',
     ];
 }

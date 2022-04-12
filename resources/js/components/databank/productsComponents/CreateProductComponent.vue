@@ -68,7 +68,7 @@
                                                     <label class="form-label" for="fw-company">Company</label>
                                                     <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add new company"><span class="clipboard-text">Add New</span></button>
                                                     <div>
-                                                        <multiselect v-model="productData.company" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @input="getProductCategory"></multiselect>
+                                                        <multiselect v-model="productData.company" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @select="getProductCategory"></multiselect>
                                                         <span v-if="errors.company" class="invalid">{{errors.company}}</span>
                                                     </div>
                                                 </div>
@@ -77,7 +77,7 @@
                                                 <div class="form-group code-block-">
                                                     <label class="form-label" for="fw-company">Category</label>
                                                     <div>
-                                                        <multiselect v-model="productData.category" :options="productCategories" placeholder="Select one" label="name" track-by="name" @input="getProductSubCategory"></multiselect>
+                                                        <multiselect v-model="productData.category" :options="productCategories" placeholder="Select one" label="name" track-by="name" @select="getProductSubCategory"></multiselect>
                                                         <span v-if="errors.category" class="invalid">{{errors.category}}</span>
                                                     </div>
                                                 </div>
@@ -86,7 +86,7 @@
                                                 <div class="form-group code-block-">
                                                     <label class="form-label" for="fw-company">Sub Category</label>
                                                     <div>
-                                                        <multiselect v-model="productData.sub_category" :options="productSubCategories" placeholder="Select one" label="name" track-by="name" :multiple="true" :taggable="true" @input="getFabricField"></multiselect>
+                                                        <multiselect v-model="productData.sub_category" :options="productSubCategories" placeholder="Select one" label="name" track-by="name" :multiple="true" :taggable="true" @select="getFabricField"></multiselect>
                                                         <span v-if="errors.sub_category" class="invalid">{{errors.sub_category}}</span>
                                                     </div>
                                                 </div>
@@ -595,11 +595,17 @@
             getFabricField: function(event) {
                 if(event.length != 0) {
                     var fabricId = [];
-                    event.forEach(function(e, index){
-                        if(e.fabric_id != 0) {
-                            fabricId.push(e.fabric_id);
+                    if (typeof(event) == 'object') {
+                        if(event.fabric_id != 0) {
+                            fabricId.push(event.fabric_id);
                         }
-                    });
+                    } else {
+                        event.forEach(function(e, index){
+                            if(e.fabric_id != 0) {
+                                fabricId.push(e.fabric_id);
+                            }
+                        });
+                    }
 
                     axios.get(`/databank/catalog/fabric-field/${JSON.stringify(fabricId)}`)
                     .then(response => {
@@ -720,7 +726,7 @@
     };
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
-<style>
+<style scoped>
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;

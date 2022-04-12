@@ -36,13 +36,21 @@ import CreateCompanyCategoryComponent from './components/databank/companyCategor
 import LinkCompaniesComponent from './components/databank/linkCompaniesComponents/LinkCompaniesComponent.vue';
 import CreateLinkCompaniesComponent from './components/databank/linkCompaniesComponents/CreateLinkCompaniesComponent.vue';
 
+
 import ReferenceIdComponent from './components/referenceId/ReferenceIdComponent.vue';
 import CreateReferenceIdComponent from './components/referenceId/CreateReferenceIdComponent.vue';
 import UpdateReferenceIdComponent from './components/referenceId/UpdateReferenceIdComponent.vue';
 import ViewReferenceIdComponent from './components/referenceId/ViewReferenceIdComponent.vue';
 
+
 import FinancialYearComponent from './components/financialyear/FinancialYearComponent.vue';
 import CreateFinancialYearComponent from './components/financialyear/CreateFinancialYearComponent.vue';
+
+
+// Account Menu
+import SaleBillComponent from './components/account/saleBillComponents/SaleBillComponent.vue';
+import CreateSaleBillComponent from './components/account/saleBillComponents/CreateSaleBillComponent.vue';
+
 
 // Settings Menu
 import BankDetailsComponent from "./components/settings/bankDetailsComponents/BankDetailsComponent.vue";
@@ -181,6 +189,16 @@ const routes = [
             { path: 'edit-financialyear/:id', component: CreateFinancialYearComponent },
         ]
     },
+    // Account Menu
+    {
+        path: '/account/sale-bill/',
+        component: SaleBillComponent,
+        children: [
+            { path: 'create-sale-bill', component: CreateSaleBillComponent },
+            { path: 'edit-sale-bill/:id', component: CreateSaleBillComponent },
+        ]
+    },
+    // Settings Menu
     {
         path: '/settings/bank-details/',
         component: BankDetailsComponent,
@@ -332,6 +350,9 @@ createApp({
 
         FinancialYearComponent,
         CreateFinancialYearComponent,
+
+        SaleBillComponent,
+        CreateSaleBillComponent,
 
         BankDetailsComponent,
         CreateBankDetailsComponent,
