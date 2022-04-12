@@ -88,7 +88,7 @@
                                         <label class="form-label" for="fv-recivedate">Received Date Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                        <input type="date" class="form-control" id="fv-recivedate" v-model="form.recivedate" >
+                                        <input type="time" class="form-control" id="fv-recivedate" v-model="form.recivedate" >
                                         <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
                                     </div>
                                 </div>
@@ -142,7 +142,7 @@
                                                 <tbody>
                                                     <tr v-for="itm in items" :key="itm.id" class="text-center">
                                                         <td><div class="custom-control custom-radio">
-                                                                <input type="radio" class="custom-control-input" name="refrence_type" v-model="form.refrence_type" :id="itm.id" :value="itm.id" >
+                                                                <input type="radio" class="custom-control-input" name="refrence_type" v-model="form.refrence_type" :id="itm.id">
                                                                 <label class="custom-control-label" :for="itm.id"></label>
                                                             </div></td>
                                                         <td>{{itm.refno}}</td>
@@ -204,8 +204,8 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-recive-date">Recive Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-recive-date" v-model="form.recivedate">
-                                                        <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
+                                                        <input type="date" class="form-control" id="fv-recive-date" v-model="form.reciptdate">
+                                                        <span v-if="errors.reciptdate" class="invalid">{{errors.reciptdate}}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -232,7 +232,7 @@
                                                     <label class="form-label" for="fv-end-date">Cheque Attachment</label>
                                                     <div class="form-control-wrap">
                                                        <div class="custom-file">
-                                                            <input type="file" :name="chequeattechment" :disabled="isSaving" accept="image/*" class="custom-file-input">
+                                                            <input type="file" name="chequeattechment" accept="image/*" class="custom-file-input" @change="uploadChequeImage">
                                                             <label class="custom-file-label" for="fv-chequeattechment">Choose photo</label>
                                                             <span v-if="errors.chequeattechment" class="invalid">{{errors.chequeattechment}}</span>
                                                         </div>
@@ -300,7 +300,7 @@
                                                     <label class="form-label" for="fv-end-date">Letter Attachment</label>
                                                     <div class="form-control-wrap">
                                                         <div class="custom-file">
-                                                            <input type="file" :name="letterattechment" :disabled="isSaving" accept="image/*" class="custom-file-input">
+                                                            <input type="file" name="letterattechment"  accept="image/*" class="custom-file-input" @change="uploadLetterImage">
                                                             <label class="custom-file-label" for="fv-letterattechment">Choose photo</label>
                                                             <span v-if="errors.letterattechment" class="invalid">{{errors.letterattechment}}</span>
                                                         </div>
@@ -439,6 +439,7 @@
                         id: '',
                         sup_inv: '',
                         amount: '',
+                        adjustamount: '',
                         status: '',
                         discount: '',
                         discountamount: '',
@@ -452,6 +453,8 @@
                         interest: '',
                         remark: '',
                 }],
+                chequeimage: [],
+                letterimage: [], 
                 form: new Form({
                     id: '',
                     refrencevia: '',
@@ -465,7 +468,7 @@
                     emailfrom: '',
                     refrence_type: '',
                     recipt_mode: '',
-                    recivedate: '',
+                    reciptdate: '',
                     reciptfrom: '',
                     supplier: '',
                     depositebank: '',
@@ -494,6 +497,13 @@
             this.form.recipt_mode = 'cheque';
         },
         methods: {
+            uploadChequeImage (event) {
+                this.chequeimage = event.target.files[0];
+               // console.log(this.chequeimage);
+            },
+            uploadLetterImage (event) {
+                this.letterimage = event.target.files[0];
+            },
             onRefrenceChange(event) {
                 let ref = event.target.value;
                 if (ref == 'old'){
@@ -546,12 +556,12 @@
                         var validationError = error.response.data.errors;
                     })
                 } else {
-                    let billdata = this.salebills;
-                    let formdata = this.form;
-                    axios.post('/payments/create',{
-                        billdata : billdata,
-                        formdata : formdata
-                    })
+                    var paymentdata = new FormData();
+                    paymentdata.append('billdata', JSON.stringify(this.salebills));
+                    paymentdata.append('formdata', JSON.stringify(this.form));
+                    paymentdata.append('chequeimage', this.chequeimage);
+                    paymentdata.append('letterimage', this.letterimage);
+                    axios.post('/payments/create', paymentdata)
                         .then(() => {
                     })
                     .catch((error) => {

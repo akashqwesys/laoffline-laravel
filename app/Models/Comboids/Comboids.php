@@ -5,7 +5,7 @@ namespace App\Models\comboids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class comboids extends Model
+class Comboids extends Model
 {
     use HasFactory;
 
