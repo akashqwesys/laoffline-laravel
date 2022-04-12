@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('references', function (Blueprint $table) {
             $table->id();
             $table->integer('reference_id');
-            $table->integer('employe_id');
+            $table->integer('employee_id');
             $table->integer('financial_year_id');
             $table->integer('inward_or_outward');
             $table->string('type_of_inward');

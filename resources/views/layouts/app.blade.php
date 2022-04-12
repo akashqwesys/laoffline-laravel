@@ -20,6 +20,13 @@
 <body class="nk-body bg-lighter npc-general has-sidebar ">
     <div class="nk-app-root">
         <!-- main @s -->
+        <div id="overlay" class="loader-wrap">
+            <div>
+                <div>
+                    <img src="/assets/images/loader_3.gif" class=""  alt="">
+                </div>
+            </div>
+        </div>
         <div class="nk-main ">
             <!-- sidebar @s -->
             @include('layouts.includes.sidebar')
@@ -30,13 +37,6 @@
                 @include('layouts.includes.header')
                 <!-- main header @e -->
                 <!-- content @s -->
-                <div id="overlay" class="loader-wrap">
-                    <div>
-                        <div>
-                            <img src="/assets/images/loader_3.gif" class=""  alt="">
-                        </div>
-                    </div>
-                </div>
                 <div class="nk-content ">
                     @yield('content')
                 </div>
