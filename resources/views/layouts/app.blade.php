@@ -30,6 +30,13 @@
                 @include('layouts.includes.header')
                 <!-- main header @e -->
                 <!-- content @s -->
+                <div id="overlay" class="loader-wrap">
+                    <div>
+                        <div>
+                            <img src="/assets/images/loader_3.gif" class=""  alt="">
+                        </div>
+                    </div>
+                </div>
                 <div class="nk-content ">
                     @yield('content')
                 </div>

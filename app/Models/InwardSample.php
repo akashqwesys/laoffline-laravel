@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Models\inwardOutward;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class inwardActions extends Model
+class InwardSample extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'inward_action_id',
         'inward_id',
-        'action_date',
-        'employee_id',
-        'instruction',
-        'status',
+        'name',
+        'image',
+        'price',
+        'qty',
+        'meters',
+        'is_deleted',
     ];
 }

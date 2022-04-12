@@ -53,7 +53,7 @@ class ProductSubCategoryController extends Controller
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('databank.productSubCategories.createProductSubCategory',compact('financialYear'))->with('employees', $employees);
+        return view('databank.productSubCategories.createProductSubCategory',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function listData(Request $request) {

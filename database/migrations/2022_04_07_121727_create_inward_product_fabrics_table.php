@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInwardActionTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateInwardActionTable extends Migration
      */
     public function up()
     {
-        Schema::create('inward_actions', function (Blueprint $table) {
-            $table->id('inward_action_id');
+        Schema::create('inward_product_fabrics', function (Blueprint $table) {
+            $table->id();
             $table->integer('inward_id')->default(0);
-            $table->date('action_date')->nullable();
-            $table->integer('employee_id')->default(0);
-            $table->text('instruction')->nullable();
-            $table->integer('status')->default(0);
+            $table->integer('product_or_fabric_id')->default(0);
+            $table->tinyInteger('product_or_fabric_flag')->default(0);
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreateInwardActionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('inward_action');
+        Schema::dropIfExists('inward_product_fabrics');
     }
-}
+};

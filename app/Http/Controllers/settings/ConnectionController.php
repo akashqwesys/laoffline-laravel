@@ -56,7 +56,7 @@ class ConnectionController extends Controller
         $servername = "localhost";
         $username = "root";
         $password = "";
-        $database = "laoffline-original";
+        $database = "laoffline";
         // $username = "akashs_laoffline123";
         // $password = "laoffline123";
         // $database = "akashs_laoffline";
@@ -70,11 +70,11 @@ class ConnectionController extends Controller
             die("Connection failed: " . $conn->connect_error);
         } else {
             echo "Connected successfully";
-
+            die;
             echo "<br><pre>";
             // $emp = "SELECT * FROM employe";
             // $equery = mysqli_query($conn, $emp);
-       
+
             // if(mysqli_num_rows($equery) != 0) {
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($equery)) {
@@ -104,7 +104,7 @@ class ConnectionController extends Controller
             // $pcat = "SELECT * FROM product_category";
             // $pquery = mysqli_query($conn, $pcat);
 
-            // if(mysqli_num_rows($pquery) != 0) { 
+            // if(mysqli_num_rows($pquery) != 0) {
             //     $i = 0;
             //     $companyId = [];
             //     while($result = mysqli_fetch_assoc($pquery)) {
@@ -118,7 +118,7 @@ class ConnectionController extends Controller
             //                     $result['company_id'] = json_encode($companyId);
             //                 }
             //             } else {
-            //                 $result['company_id'] = 0;                            
+            //                 $result['company_id'] = 0;
             //             }
             //         }
 
@@ -135,14 +135,14 @@ class ConnectionController extends Controller
             //     }
             // }
 
-                         
+
             // $prod = "SELECT * FROM product_main";
             // $pdquery = mysqli_query($conn, $prod);
 
             // if(mysqli_num_rows($pdquery) != 0) {
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($pdquery)) {
-                    
+
             //         if(!empty($result['sub_category_id'])) {
             //             $subCatId = unserialize($result['sub_category_id']);
             //             if($subCatId) {
@@ -153,7 +153,7 @@ class ConnectionController extends Controller
             //                     $result['sub_category_id'] = json_encode($subCatId);
             //                 }
             //             } else {
-            //                 $result['sub_category_id'] = 0;                            
+            //                 $result['sub_category_id'] = 0;
             //             }
             //         }
 
@@ -171,7 +171,7 @@ class ConnectionController extends Controller
             //         $products[$i]['productData']['launch_date'] = $result['launch_date'];
             //         $products[$i]['productData']['company'] = $result['company_id'];
             //         $products[$i]['productData']['category'] = $result['category_id'];
-            //         $products[$i]['productData']['sub_category'] = $result['sub_category_id'];                    
+            //         $products[$i]['productData']['sub_category'] = $result['sub_category_id'];
             //         $products[$i]['productData']['main_image'] = $result['main_image'];
             //         $products[$i]['productData']['price_list_image'] = $result['price_list_image'];
             //         $products[$i]['productData']['description'] = $result['description'];
@@ -213,8 +213,8 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-                         
+
+
             // $csql = "SELECT * FROM cities";
             // $cquery = mysqli_query($conn, $csql);
 
@@ -227,14 +227,14 @@ class ConnectionController extends Controller
             //         $cityList[$i]['country'] = $result['country_id'];
             //         if($result['city_state'] == NULL) {
             //             $cityList[$i]['state'] = 0;
-            //         } else {                        
+            //         } else {
             //             $cityList[$i]['state'] = $result['city_state'];
             //         }
             //         $i++;
             //     }
             // }
-            
-                                     
+
+
             // $tsql = "SELECT * FROM transport";
             // $tquery = mysqli_query($conn, $tsql);
 
@@ -247,9 +247,9 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-            
-                                     
+
+
+
             // $pisql = "SELECT * FROM product_image";
             // $piquery = mysqli_query($conn, $pisql);
 
@@ -266,9 +266,9 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-                        
-                                     
+
+
+
             // $comsql = "SELECT * FROM company";
             // $comquery = mysqli_query($conn, $comsql);
 
@@ -285,12 +285,12 @@ class ConnectionController extends Controller
             //                     $result['company_category_id'] = json_encode($subCatId['company_category']);
             //                 }
             //             } else {
-            //                 $result['company_category_id'] = 0;                            
+            //                 $result['company_category_id'] = 0;
             //             }
             //         } else {
             //             $result['company_category_id'] = 0;
             //         }
-                    
+
             //         if(!empty($result['landline_no'])) {
             //             $lno = @unserialize($result['landline_no']);
             //             if($lno) {
@@ -306,7 +306,7 @@ class ConnectionController extends Controller
             //         } else {
             //             $result['landline_no'] = 0;
             //         }
-                    
+
             //         if(!empty($result['mobile_no'])) {
             //             $lno = @unserialize($result['mobile_no']);
             //             if($lno) {
@@ -382,8 +382,8 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-                                     
+
+
             // $casql = "SELECT * FROM company_address";
             // $caquery = mysqli_query($conn, $casql);
 
@@ -399,8 +399,8 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-            
+
+
 
             // $caosql = "SELECT * FROM company_address_owner";
             // $caoquery = mysqli_query($conn, $caosql);
@@ -419,20 +419,20 @@ class ConnectionController extends Controller
             //                 if($desg) {
             //                     $result['designation'] = json_encode($desg);
             //                 } else {
-            //                     $result['designation'] = 0;                            
+            //                     $result['designation'] = 0;
             //                 }
             //             } else {
             //                 $designation = "SELECT * FROM designation WHERE designation_name = '$des'";
             //                 $designationData = mysqli_query($conn, $designation);
-                            
+
             //                 $dResult = mysqli_fetch_row($designationData);
-                            
+
             //                 if ($dResult != NULL) {
             //                     $result['designation'] = json_encode($dResult[0]);
             //                 } else {
             //                     $result['designation'] = 0;
             //                 }
-            //             }                        
+            //             }
             //         }
 
             //         $companyAddressOwnerData[$i]['id'] = $result['company_address_owner_id'];
@@ -444,8 +444,8 @@ class ConnectionController extends Controller
             //         $companyAddressOwnerData[$i]['email'] = $result['email'];
             //         $i++;
             //     }
-            // }          
-                                     
+            // }
+
             // $ccsql = "SELECT * FROM company_category";
             // $ccquery = mysqli_query($conn, $ccsql);
 
@@ -455,13 +455,13 @@ class ConnectionController extends Controller
             //         $companyCategoryData[$i]['id'] = $result['company_category_id'];
             //         $companyCategoryData[$i]['category_name'] = $result['name'];
             //         $companyCategoryData[$i]['sort_order'] = $result['sort_order'];
-            //         $i++;                        
+            //         $i++;
             //     }
             // }
-            
-            
-                        
-                                     
+
+
+
+
             // $cesql = "SELECT * FROM company_email";
             // $cequery = mysqli_query($conn, $cesql);
 
@@ -474,12 +474,12 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-            
-                             
+
+
+
             $cosql = "SELECT * FROM company_owner";
             $coquery = mysqli_query($conn, $cosql);
-            
+
             if(mysqli_num_rows($coquery) != 0) {
                 $i = 0;
                 while($result = mysqli_fetch_assoc($coquery)) {
@@ -493,22 +493,22 @@ class ConnectionController extends Controller
                             if($desg) {
                                 $result['designation'] = json_encode($desg);
                             } else {
-                                $result['designation'] = 0;                            
+                                $result['designation'] = 0;
                             }
                         } else {
                             $designation = "SELECT * FROM designation WHERE designation_name = '$des'";
                             $designationData = mysqli_query($conn, $designation);
-                            
+
                             $dResult = mysqli_fetch_row($designationData);
-                            
+
                             if ($dResult != NULL) {
                                 $result['designation'] = json_encode($dResult[0]);
                             } else {
                                 $result['designation'] = 0;
                             }
-                        }                        
+                        }
                     }
-                    
+
                     $companyOwnerData[$i]['id'] = $result['company_owner_id'];
                     $companyOwnerData[$i]['company_id'] = $result['company_id'];
                     $companyOwnerData[$i]['contact_person_name'] = $result['name'];
@@ -536,9 +536,9 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-            
-                        
+
+
+
             // $dsql = "SELECT * FROM designation";
             // $dquery = mysqli_query($conn, $dsql);
 
@@ -550,10 +550,10 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-            
-            
-                        
+
+
+
+
             // $bdsql = "SELECT * FROM bank_details";
             // $bdquery = mysqli_query($conn, $bdsql);
 
@@ -566,11 +566,11 @@ class ConnectionController extends Controller
             //         $i++;
             //     }
             // }
-            
-            
-            
-            
-                        
+
+
+
+
+
             $toasql = "SELECT * FROM type_of_address";
             $toaquery = mysqli_query($conn, $toasql);
 
@@ -583,7 +583,7 @@ class ConnectionController extends Controller
                     $i++;
                 }
             }
-            
+
         }
 
         // if(!empty($employeeData)) {
@@ -619,7 +619,7 @@ class ConnectionController extends Controller
         //         $user->save();
 
         //         $userGroupData = UserGroup::where('id', $employees['user_group'])->first();
-                
+
         //         $role = Role::where('id', $userGroupData['roles_id'])->first();
 
         //         $user->assignRole($role);
@@ -653,7 +653,7 @@ class ConnectionController extends Controller
         //         $productsData->launch_date = $product['productData']['launch_date'];
         //         $productsData->company = $product['productData']['company'];
         //         $productsData->category = $product['productData']['category'];
-        //         $productsData->sub_category = $product['productData']['sub_category'];        
+        //         $productsData->sub_category = $product['productData']['sub_category'];
         //         $productsData->main_image = $product['productData']['main_image'];
         //         $productsData->price_list_image = $product['productData']['price_list_image'];
         //         $productsData->description = $product['productData']['description'];
@@ -664,7 +664,7 @@ class ConnectionController extends Controller
 
         //         $pdId = ProductDetails::orderBy('id', 'DESC')->first('id');
         //         $podId = !empty($pdId) ? $pdId->id + 1 : 1;
-                
+
         //         $productsDetail = new ProductDetails;
         //         $productsDetail->id = $podId;
         //         $productsDetail->product_id = $product['productDetails']['product_id'];
@@ -678,7 +678,7 @@ class ConnectionController extends Controller
 
         //         $pfdId = ProductFabricDetails::orderBy('id', 'DESC')->first('id');
         //         $fdId = !empty($pfdId) ? $pfdId->id + 1 : 1;
-                
+
         //         $productFabrics = new ProductFabricDetails;
         //         $productFabrics->id = $fdId;
         //         $productFabrics->product_id = $product['fabrics']['product_id'];
@@ -707,9 +707,9 @@ class ConnectionController extends Controller
         //         $productFabrics->save();
         //     }
         // }
-            
+
         // if(!empty($cityList)) {
-        //     foreach($cityList as $city) {                
+        //     foreach($cityList as $city) {
         //         $cities = new Cities;
         //         $cities->id = $city['id'];
         //         $cities->name = $city['name'];
@@ -719,9 +719,9 @@ class ConnectionController extends Controller
         //         $cities->save();
         //     }
         // }
-            
+
         // if(!empty($transports)) {
-        //     foreach($transports as $transport) {                
+        //     foreach($transports as $transport) {
         //         $transportDetails = new TransportDetails;
         //         $transportDetails->id = $transport['id'];
         //         $transportDetails->name = $transport['name'];
@@ -740,7 +740,7 @@ class ConnectionController extends Controller
 
         // if(!empty($productImages)) {
         //     foreach($productImages as $productImage) {
-        //         $pImages = new ProductsImages;                
+        //         $pImages = new ProductsImages;
         //         $pImages->id = $productImage['id'];
         //         $pImages->product_id = $productImage['product_id'];
         //         $pImages->supplier_code = $productImage['supplier_code'];
@@ -784,7 +784,7 @@ class ConnectionController extends Controller
 
         //         $csdId = CompanySwotDetails::orderBy('id', 'DESC')->first('id');
         //         $sdId = !empty($csdId) ? $csdId->id + 1 : 1;
-                
+
         //         $swotData = new CompanySwotDetails;
         //         $swotData->id = $sdId;
         //         $swotData->company_id = $cData['swotData']['company_id'];
@@ -796,7 +796,7 @@ class ConnectionController extends Controller
 
         //         $cbdId = CompanyBankDetails::orderBy('id', 'DESC')->first('id');
         //         $bdId = !empty($cbdId) ? $cbdId->id + 1 : 1;
-                
+
         //         $bankDetail = new CompanyBankDetails;
         //         $bankDetail->id = $bdId;
         //         $bankDetail->company_id = $cData['bankData']['company_id'];
@@ -809,7 +809,7 @@ class ConnectionController extends Controller
 
         //         $cpdId = CompanyPackagingDetails::orderBy('id', 'DESC')->first('id');
         //         $pdId = !empty($cpdId) ? $cpdId->id + 1 : 1;
-                
+
         //         $package = new CompanyPackagingDetails;
         //         $package->id = $pdId;
         //         $package->company_id = $cData['packagingData']['company_id'];
@@ -821,7 +821,7 @@ class ConnectionController extends Controller
 
         //         $crId = CompanyReferences::orderBy('id', 'DESC')->first('id');
         //         $crefId = !empty($crId) ? $crId->id + 1 : 1;
-                
+
         //         $reference = new CompanyReferences;
         //         $reference->id = $crefId;
         //         $reference->company_id = $cData['referencesData']['company_id'];

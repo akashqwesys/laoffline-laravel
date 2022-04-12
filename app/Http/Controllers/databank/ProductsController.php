@@ -382,6 +382,7 @@ class ProductsController extends Controller
     }
 
     public function insertCompaniesData(Request $request) {
+
         $comapnyLastId = Company::orderBy('id', 'DESC')->first('id');
         $companyId = !empty($comapnyLastId) ? $comapnyLastId->id + 1 : 1;
 
@@ -437,7 +438,7 @@ class ProductsController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return true;
+        return response()->json([$company->id, $company->company_name]);
     }
 
     public function insertProductsData(Request $request) {

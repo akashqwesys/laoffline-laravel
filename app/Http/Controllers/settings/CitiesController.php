@@ -77,6 +77,12 @@ class CitiesController extends Controller
         return $city;
     }
 
+    public function listCityByCountryId($id) {
+        $city = Cities::select('id', 'name', 'state')->where('country', $id)->get();
+
+        return $city;
+    }
+
     public function listData(Request $request) {
         $cities = Cities::where('is_delete', '0')->get();
 

@@ -270,13 +270,17 @@ Route::group(['middleware' => ['auth', 'permission:modify-reference-id']], funct
 });
 
 // Routes for Account / Sale Bill
-Route::group(['middleware' => ['auth', 'permission:access-sale-bill']], function () {
+Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access-sale-bill']], function () {
     Route::group(['prefix' => 'sale-bill'], function () {
         Route::get('/', [App\Http\Controllers\Account\SaleBillController::class, 'index'])->name('sale-bill');
-        Route::get('/receiverDetails', [App\Http\Controllers\Account\SaleBillController::class, 'receiverDetails']);
-        Route::get('/companysearch', [App\Http\Controllers\Account\SaleBillController::class, 'getCompany']);
-        Route::get('/list', [App\Http\Controllers\Account\SaleBillController::class, 'listReference'])->name('list');
-        Route::get('/fetch-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchreference'])->name('referenceView');
+        Route::get('/list-product-main-category/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'listProductMainCategory']);
+        Route::get('/list-product-sub-category/{product_id}/{supplier_id}', [App\Http\Controllers\Account\SaleBillController::class, 'listProductSubCategory']);
+        Route::get('/list-inward-customers/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCompanyFromInward']);
+        Route::get('/list-customers-and-suppliers', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomersAndSuppliers']);
+        Route::get('/list-customer-address/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomerAddress']);
+        Route::post('/check-supplier-invoice', [App\Http\Controllers\Account\SaleBillController::class, 'checkSupplierInvoiceNo']);
+        Route::get('/getReferenceForSaleBill', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBill']);
+        Route::get('/fetch-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchreference']);
         Route::get('/companylist', [App\Http\Controllers\Account\SaleBillController::class, 'fetchcompany']);
         Route::get('/designation', [App\Http\Controllers\Account\SaleBillController::class, 'designation']);
         Route::get('/list-country', [App\Http\Controllers\Account\SaleBillController::class, 'listCountries']);
@@ -285,16 +289,14 @@ Route::group(['middleware' => ['auth', 'permission:access-sale-bill']], function
     });
 });
 
-Route::group(['middleware' => ['auth', 'permission:modify-sale-bill']], function () {
+Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify-sale-bill']], function () {
     Route::group(['prefix' => 'sale-bill'], function () {
-        Route::get('/reference/create-reference', [App\Http\Controllers\Account\SaleBillController::class, 'createReferenceId']);
-        Route::post('/reference/create-reference/create', [App\Http\Controllers\Account\SaleBillController::class, 'AddReferenceId']);
-        Route::post('/reference/create-reference/createCompany', [App\Http\Controllers\Account\SaleBillController::class, 'AddCompany']);
-        Route::post('/reference/create-reference/createPerson', [App\Http\Controllers\Account\SaleBillController::class, 'AddPerson']);
-        Route::get('/reference/edit-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'editReferenceId']);
-        Route::get('/reference/view-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'referenceView']);
-        Route::get('/reference/referenceId/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteReferenceId'])->name('delete');
-        Route::post('/reference/update', [App\Http\Controllers\Account\SaleBillController::class, 'updateReference']);
+        Route::get('/create-sale-bill', [App\Http\Controllers\Account\SaleBillController::class, 'createSaleBill']);
+        Route::post('/create-sale-bill/create', [App\Http\Controllers\Account\SaleBillController::class, 'AddSaleBill']);
+        Route::get('/edit-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'editReferenceId']);
+        Route::get('/view-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'referenceView']);
+        Route::get('/referenceId/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteReferenceId'])->name('delete');
+        Route::post('/update', [App\Http\Controllers\Account\SaleBillController::class, 'updateReference']);
     });
 });
 
@@ -399,6 +401,7 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:acces
         Route::get('/list-state', [App\Http\Controllers\settings\CitiesController::class, 'listState'])->name('list-state');
         Route::get('/list-state-id/{id}', [App\Http\Controllers\settings\CitiesController::class, 'listStateByCountryId'])->name('list-state-id');
         Route::get('/list-city-id/{id}', [App\Http\Controllers\settings\CitiesController::class, 'listCityByStateId'])->name('list-city-id');
+        Route::get('/list-city-by-country/{id}', [App\Http\Controllers\settings\CitiesController::class, 'listCityByCountryId'])->name('list-city-by-country');
         Route::get('/fetch-cities/{id}', [App\Http\Controllers\settings\CitiesController::class, 'fetchCities']);
     });
 });
