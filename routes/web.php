@@ -280,6 +280,7 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/list-customer-address/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomerAddress']);
         Route::post('/check-supplier-invoice', [App\Http\Controllers\Account\SaleBillController::class, 'checkSupplierInvoiceNo']);
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBill']);
+        Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getOldReferenceForSaleBill']);
         Route::get('/fetch-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchreference']);
         Route::get('/companylist', [App\Http\Controllers\Account\SaleBillController::class, 'fetchcompany']);
         Route::get('/designation', [App\Http\Controllers\Account\SaleBillController::class, 'designation']);
