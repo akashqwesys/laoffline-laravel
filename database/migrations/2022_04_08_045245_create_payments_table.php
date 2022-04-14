@@ -34,6 +34,7 @@ return new class extends Migration
             $table->integer('customer_id')->default('0');
             $table->integer('receipt_amount')->default('0');
             $table->integer('total_amount')->default('0');
+            $table->integer('tot_adjust_amount')->default('0');
             $table->integer('tot_discount')->default('0');
             $table->integer('tot_vatav')->default('0');
             $table->integer('tot_agent_commission')->default('0');

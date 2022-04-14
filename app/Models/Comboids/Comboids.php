@@ -79,6 +79,5 @@ class Comboids extends Model
             'sample_return_qty',
             'mobile_flag',
             'is_deleted',
-            'date_added',
     ];
 }

@@ -28,6 +28,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
+                                
                                 <table id="financialyear" class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
@@ -41,6 +42,7 @@
                                         </tr>
                                     </thead>
                                 </table>
+                                
                             </div><!-- .card -->
                         </div>
                     </div><!-- .nk-block -->

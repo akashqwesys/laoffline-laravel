@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\FinancialYear;
 use App\Models\Employee;
-use App\Models\Reference;
+use App\Models\Reference\ReferenceId;
 use App\Models\Logs;
+use App\Models\Iuid;
 use App\Models\Payment;
+use App\Models\CompanyType;
 use App\Models\PaymentDetail;
 use App\Models\IncrementId;
 use App\Models\settings\BankDetails;
@@ -56,6 +58,97 @@ class PaymentsController extends Controller
         return view('payment.payment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
+    public function listpayment(Request $request) {
+        $user = Session::get('user');
+
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+        if($columnName == 'active') {
+            $columnName = 'users.is_active';
+        } else {
+            $columnName = 'payments.'.$columnName;
+        }
+        // Total records
+        $totalRecords = Payment::select('count(*) as allcount')->count();
+
+        $totalRecordswithFilter = Payment::select('count(*) as allcount');
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+                $q->orWhere('reference_id', 'ILIKE', '%' . $searchValue . '%');
+            });
+        }
+        $totalRecordswithFilter = Payment::select('count(*) as allcount')->
+                                                   where('reference_id', 'ilike', '%' .$searchValue . '%')->
+                                                   count();
+
+
+        // Fetch records
+        $records = Payment::select('payment_id','iuid', 'reference_id', 'created_at', 'date', 'customer_id', 'supplier_id', 'payment_id', 'receipt_amount', 'customer_commission_status', 'done_outward')->
+                                where('reference_id', 'ilike', '%' .$searchValue . '%');
+
+        $records = $records->orderBy($columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
+            ->get();
+
+        $data_arr = array();
+
+        foreach($records as $record){
+            $id = $record->payment_id;
+            $iuid = $record->iuid;
+            $ouid = '';
+            $ref_id = $record->reference_id;
+            $date_add = $record->created_at;
+            $payment_date = $record->date;
+            $customer = Company::where('id', $record->customer_id)->first()->company_name;
+            $seller = Company::where('id', $record->supplier_id)->first()->company_name;
+            $voucher = $record->payment_id;
+            $paid_amount = $record->receipt_amount;
+            $scs = 0;
+            $ccs = $record->customer_commission_status;
+            $outward = $record->done_outward;
+            $action = '<a href="./payments/edit-payments/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
+            <a href="./payments/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+
+            $data_arr[] = array(
+                "id" => $id,
+                "iuid" => $iuid,
+                "ouid" => $ouid,
+                "refeenceid" => $ref_id,
+                "dateadd" => $date_add,
+                "paymentdate" => $payment_date,
+                "customer" => $customer,
+                "supplier" => $seller,
+                "voucherno" => $voucher,
+                "paidamount" => $paid_amount,
+                "suppiler_commission_status" => $scs,
+                "customer_commission_status" => $ccs,
+                "outward_status" => $outward,
+                "action" => $action
+            );
+        }
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "aaData" => $data_arr
+        );
+
+        echo json_encode($response);
+        exit;
+    }
     public function createPayment() {
         $page_title = 'Add Payments step - 1';
         $financialYear = FinancialYear::get();
@@ -92,19 +185,19 @@ class PaymentsController extends Controller
         $request->session()->put('customer', $request->customer);
         $request->session()->put('seller', $request->seller);
         $request->session()->put('saleBill', $request->salebill);
+        $request->session()->put('finacial_year_id', 1);
         return true;
     }
     public function selectSaleBills(Request $request){
         print_r($request->input());
         exit;
     }
-    public function insertPaymentData(Request $request){
-        $request->session()->put('finacial_year_id', '1');
+    public function insertPaymentData(Request $request) {
         $user = Session::get('user');
         $paymentData = json_decode($request->formdata);
         $paymentSalebill = json_decode($request->billdata);
+        $financialid = 1;
         $attachments = array();
-        //print_r($paymentData->refrencevia->name);exit;
 
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
@@ -120,82 +213,84 @@ class PaymentsController extends Controller
             $paymentData->letterImage = $LetterImage;
             $image->move(public_path('upload/payments/'), $LetterImage);
             array_push($attachments, $LetterImage);
-
         }
         
-        $increment_id_details = IncrementId::where('financial_year_id', $request->session->get('finacial_year_id'));
-        
+        $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+        $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
+        $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
         
         //reference_id
         if ($increment_id_details) {
             $ref_id = $increment_id_details->reference_id + 1;
-            $increment_id = IncrementId::where('financial_year_id', $request->session->get('finacial_year_id'))->first();
-            $increment_id->reference_id = $ref_id;
-            $increment_id->save();
-        } else {
-            $ref_id = '1';
-            $increment_id = new IncrementId();
-            $increment_id->reference_id = $ref_id;
-            $increment_id->financial_year_id = $request->session->get('finacial_year_id');
-            $increment_id->save();
-        }
-
-        //payment_id 
-        if ($increment_id_details) {
             $payment_id = $increment_id_details->payment_id + 1;
-            $increment_id = IncrementId::where('financial_year_id', $request->session->get('finacial_year_id'))->first();
-            $increment_id->payment_id = $payment_id;
-            $increment_id->save();
-        } else {
-            $payment_id = '1';
-            $increment_id = new IncrementId();
-            $increment_id->payment_id = $payment_id;
-            $increment_id->financial_year_id = $request->session->get('finacial_year_id');
-            $increment_id->save();
-        }
-
-        //iuid
-        if ($increment_id_details) {
             $iuid = $increment_id_details->iuid + 1;
-            $increment_id = IncrementId::where('financial_year_id', $request->session->get('finacial_year_id'))->first();
+            $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+            $increment_id->reference_id = $ref_id;
+            $increment_id->payment_id = $payment_id;
             $increment_id->iuid = $iuid;
             $increment_id->save();
         } else {
+            $ref_id = '1';
+            $payment_id = '1';
             $iuid = '1';
             $increment_id = new IncrementId();
-            $increment_id->reference_id = $iuid;
-            $increment_id->financial_year_id = $request->session->get('finacial_year_id');
+            $increment_id->reference_id = $ref_id;
+            $increment_id->payment_id = $payment_id;
+            $increment_id->id = $Incrementids;
+            $increment_id->iuid = $iuid;
+            $increment_id->financial_year_id = $financialid;
             $increment_id->save();
         }
 
+        
+        if ($paymentData->refrence == 'new') {
+            if ($paymentData->refrencevia->name == 'Email') {
+                $courier_name = '';
+                $courier_receipt_no = '';
+                $courier_received_time = '';
+            } else if ($paymentData->refrencevia->name == 'Email') {
+                $courier_name = '';
+                $courier_receipt_no = '';
+                $courier_received_time = $paymentData->recivedate;
+            } else {
+                $courier_name = $paymentData->courrier->name;
+                $courier_receipt_no = $paymentData->reciptno;
+                $courier_received_time = $paymentData->recivedate;
+            }
 
-        $user = Session::get('user');
-        $refence = new Reference();
-        $refence->reference_id = $ref_id;
-        $refence->financial_year_id = $this->session->get('finacial_year_id');
-        $refence->employe_id = $user->employee_id;
-        $refence->inward_or_outward = '1';
-        $refence->type_of_inward = $paymentData->refrencevia->name;
-        $refence->company_id = $this->session->get('customer');
-        $refence->selection_date = date('dd-mm-yyyy');
-        $refence->from_name = $paymentData->from_name;
-        $refence->from_email_id = $paymentData->emailfrom;
-        $refence->courier_name = $paymentData->courrier->name;
-        $refence->weight_of_parcel = $paymentData->weight;
-        $refence->courier_receipt_no = $paymentData->reciptno;
-        $refence->courier_received_time = $paymentData->recivedate;
-        $refence->delivery_by = $paymentData->delivery;
-        $refence->save();
+            $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
+            $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
 
+            $user = Session::get('user');
+            $refence = new ReferenceId();
+            $refence->id = $refrenceid;
+            $refence->reference_id = $ref_id;
+            $refence->financial_year_id = $financialid;
+            $refence->employee_id = $user->employee_id;
+            $refence->inward_or_outward = '1';
+            $refence->type_of_inward = $paymentData->refrencevia->name;
+            $refence->company_id = $request->session()->get('customer');
+            $refence->selection_date = Carbon::now()->format('d-m-Y');
+            $refence->from_name = $paymentData->fromname;
+            $refence->from_email_id = $paymentData->emailfrom;
+            $refence->courier_name = $courier_name;
+            $refence->weight_of_parcel = $paymentData->weight;
+            $refence->courier_receipt_no = $courier_receipt_no;
+            $refence->courier_received_time = $courier_received_time;
+            $refence->delivery_by = $paymentData->delivery;
+            $refence->save();
+        } else {
+            $ref_id = $paymentData->refrence_type;
+        }
         $payment_date = $paymentData->reciptdate;
-        $iuid = Iuid::orderBy('id', 'DESC')->first('id');
-        $nextAutoID = $iuid->id + 1;
+        $iuids = Iuid::orderBy('id', 'DESC')->first('id');
+        $nextAutoID = !empty($iuids) ? $iuids->ids + 1 : 1;
 
-        $companyName = Company::where('id', $request->session->get('seller'))->first();
-        $cmpTypeName = Company::where('id', $request->session->get('customer'))->first();
+        $companyName = Company::where('id', $request->session()->get('seller'))->first();
+        $cmpTypeName = Company::where('id', $request->session()->get('customer'))->first();
 
         if ($cmpTypeName && $cmpTypeName->company_type != 0) {
-            $companyTypeName = CompanyType::where('id', $company_type)->first();
+            $companyTypeName = CompanyType::where('id', $cmpTypeName->company_type)->first();
             $typeName = $companyTypeName->name;
         } else {
             $typeName = '';
@@ -211,14 +306,19 @@ class PaymentsController extends Controller
         $personName = '';
 
         $iuid_ids = new Iuid();
+        $iuid_ids->id = $nextAutoID;
         $iuid_ids->iuid = $iuid;
-        $iuid_ids->financial_year_id = $request->session->get('finacial_year_id');
+        $iuid_ids->financial_year_id = $financialid;
         $iuid_ids->save();
 
         $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
         $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
 
+        $comboLastids = Comboids::orderBy('id', 'DESC')->first('id');
+        $combo_ids = !empty($comboLastids) ? $comboLastids->id + 1 : 1;
+
         $comboids = new Comboids();
+        $comboids->id = $combo_ids;
         $comboids->comboid = $combo_id;
         $comboids->payment_id = $payment_id;
         $comboids->iuid = $iuid;
@@ -227,8 +327,8 @@ class PaymentsController extends Controller
         $comboids->main_or_followup = '0';
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
-        $comboids->company_id = $request->session->get('customer');
-        $comboids->supplier_id = $request->session->get('seller');
+        $comboids->company_id = $request->session()->get('customer');
+        $comboids->supplier_id = $request->session()->get('seller');
         $comboids->company_type = $typeName;
         $comboids->followup_via = 'Payment';
         $comboids->inward_or_outward_via = $paymentData->refrencevia->name;
@@ -238,27 +338,26 @@ class PaymentsController extends Controller
         $comboids->receipt_amount = (int)$paymentData->reciptamount;
         $comboids->total = $paymentData->totalamount;
         $comboids->subject = 'For'. $companyName->name .' RS '.$paymentData->totalamount .'/-';
-        $comboids->financial_year_id = $request->session->get('finacial_year_id');
-        $comboids->attechment = serialize($attachments);
-        $comboids->date_added = Carbon::now();
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = serialize($attachments);
+        //$comboids->date_added = Carbon::now();
         $comboids->save();
 
-        $cheque_date = "0000-00-00";
-		$cheque_dd_no = "0";
-		$cheque_dd_bank = "0";
-		$trns = "0";
-		$receipt_amt = "0";
-
+        
         if ($paymentData->recipt_mode == 'cheque') {
             $cheque_date = $paymentData->reciptdate;
             $cheque_dd_no = $paymentData->chequeno;
             $cheque_dd_bank = $paymentData->chequebank;
+        } else {
+            $cheque_date = null;
+            $cheque_dd_no = '';
+            $cheque_dd_bank = 0;
         }
 
         if ($paymentData->recipt_mode == 'partreturn') {
             $payment_tot_adjust_amount = 0;
         } else {
-            $payment_tot_adjust_amount= $payment->tot_adjust_amount;
+            $payment_tot_adjust_amount= $paymentData->totaladjustamount;
         }
 
         $paymentLastid = Payment::orderBy('id', 'DESC')->first('id');
@@ -272,21 +371,21 @@ class PaymentsController extends Controller
         $payment->reference_id = $ref_id;
         $payment->attachments = $ChequeImage;
         $payment->letter_attachment = $LetterImage;
-        $payment->financial_year_id = $request->session->get('financial_year_id');
+        $payment->financial_year_id = $financialid;
         $payment->date = $payment_date;
         $payment->deposite_bank = '4';
         $payment->cheque_date = $cheque_date;
         $payment->cheque_dd_no = $cheque_dd_no;
         $payment->cheque_dd_bank = (int)$cheque_dd_bank;
-        $payment->receipt_from = $request->session->get('customer');
+        $payment->receipt_from = $request->session()->get('customer');
         $payment->trns = $paymentData->term;
-        $payment->supplier_id = $request->session->get('seller');
-        $payment->customer_id = $request->session->get('customer');
+        $payment->supplier_id = $request->session()->get('seller');
+        $payment->customer_id = $request->session()->get('customer');
         $payment->receipt_amount = $paymentData->reciptamount;
-        $payment->total_amount = $paymentData->totalAmount;
+        $payment->total_amount = $paymentData->totalamount;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount;
 
-        $Payment->save();
+        $payment->save();
         $p_increment_id = $paymentId;
 
         if ($paymentSalebill) {
@@ -303,11 +402,14 @@ class PaymentsController extends Controller
 		    $tot_adjust_amount = 0;
 
             foreach($paymentSalebill as $salebill) {
+                $paymentDetailLastid = PaymentDetail::orderBy('payment_details_id', 'DESC')->first('payment_details_id');
+                $paymentDetailId = !empty($paymentDetailLastid) ? $paymentDetailLastid->payment_details_id + 1 : 1;
                 if ($paymentData->recipt_mode == 'partreturn') {
                     $paymentDetail = new PaymentDetail();
                     $paymentDetail->payment_id = $payment_id;
+                    $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $request->session->get('financial_year_id');
+                    $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->status = '1';
@@ -321,8 +423,9 @@ class PaymentsController extends Controller
                 } else if ($paymentData->recipt_mode == 'fullreturn') {
                     $paymentDetail = new PaymentDetail();
                     $paymentDetail->payment_id = $payment_id;
+                    $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $request->session->get('financial_year_id');
+                    $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->status = '0';
                     $paymentDetail->flag_sale_bill_sr_no = '1';
@@ -343,9 +446,10 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += 0;
                 } else {
                     $paymentDetail = new PaymentDetail();
+                    $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $request->session->get('financial_year_id');
+                    $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->status = '1';
@@ -353,7 +457,7 @@ class PaymentsController extends Controller
                     $paymentDetail->discount = $salebill->discount;
                     $paymentDetail->discount_amount = $salebill->discountamount;
                     $paymentDetail->vatav = $salebill->vatav;
-                    $paymentDetail->agentcommission = $salebill->agentcommission;
+                    $paymentDetail->agent_commission = $salebill->agentcommission;
                     $paymentDetail->claim = $salebill->claim;
                     $paymentDetail->bank_commission = $salebill->bankcommission;
                     $paymentDetail->short = $salebill->short;
@@ -439,8 +543,14 @@ class PaymentsController extends Controller
         $salebill_ids = $request->session()->get('saleBill');
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
-        $salebill = [array('id' => '101', 'sup_inv' => '1025', 'amount' => '5000'),
-        array('id' => '103', 'sup_inv' => '1028', 'amount' => '15000')];
+        $salebill = [array('id' => '101', 'sup_inv' => '1025', 'amount' => '5000', 'adjustamount' => '5000'),
+        array('id' => '103', 'sup_inv' => '1028', 'amount' => '15000', 'adjustamount' => '15000')];
+        $reference = ReferenceId::where('company_id', $customer_id)->get();
+        $item = array();
+        foreach ($reference as $ref) {
+            array_push($item, array('reference_id' => $ref->reference_id, 'generateby' => $ref->employee_id, 'date' => $ref->selection_date));
+        }
+        $data['reference'] = $item;
         $data['customer'] = $customer;
         $data['seller'] = $seller;
         $data['salebill'] = $salebill;

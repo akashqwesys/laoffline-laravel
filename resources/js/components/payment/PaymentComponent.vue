@@ -28,7 +28,8 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                                <table id="payment" class="table table-hover table-responsive">
+                                <div class="table-responsive">
+                                <table id="payment" class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th>No</th>
@@ -48,6 +49,7 @@
                                         </tr>
                                     </thead>
                                 </table>
+                                </div>
                             </div><!-- .card -->
                         </div>
                     </div><!-- .nk-block -->
@@ -108,42 +110,44 @@
                 'print'];
             }
             function init_dt_table () {
-                // dt_table = $('#payment').DataTable({
-                //     processing: true,
-                //     serverSide: true,
-                //     lengthChange: true,
-                //     ajax: {
-                //         url: "./payment/list",
-                //         data: function (data) {
-                //             if ($('#payment_filter input').val() == '') {
-                //                 data.search.value = '';
-                //             }
-                //         },
-                //         complete: function (data) { }
-                //     },
-                //     pagingType: 'full_numbers',
-                //     dom: Blfrtip,
-                //     columns: [
-                //         { data: 'id' },
-                //         { data: 'iuid' },
-                //         { data: 'ouid' },
-                //         { data: 'refeenceid' },
-                //         { data: 'dateadd' },
-                //         { data: 'paymentdate' },
-                //         { data: 'customer' },
-                //         { data: 'supplier' },
-                //         { data: 'voucherno' },
-                //         { data: 'paidamount' },
-                //         { data: 'suppiler_commission_status' },
-                //         { data: 'customer_commission_status' },
-                //         { data: 'outward_status' },
-                //         { data: 'action', orderable: false },
-                //     ],
-                //     search: {
-                //         return: true
-                //     },
-                //     buttons: buttons
-                // });
+                dt_table = $('#payment').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    lengthChange: true,
+                    ajax: {
+                        url: "./payments/list",
+                        data: function (data) {
+                            if ($('#payment_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-4'B>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                    columns: [
+                        { data: 'id' },
+                        { data: 'iuid' },
+                        { data: 'ouid' },
+                        { data: 'refeenceid' },
+                        { data: 'dateadd' },
+                        { data: 'paymentdate' },
+                        { data: 'customer' },
+                        { data: 'supplier' },
+                        { data: 'voucherno' },
+                        { data: 'paidamount' },
+                        { data: 'suppiler_commission_status' },
+                        { data: 'customer_commission_status' },
+                        { data: 'outward_status' },
+                        { data: 'action', orderable: false },
+                    ],
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons
+                });
             }
             init_dt_table();
             function exportAllRecords(e, dt, button, config) {
@@ -180,7 +184,7 @@
                 dt.ajax.reload();
             }
             var draw = 1;
-            $(document).on('keyup', '#financialyear_filter input', function(e) {
+            $(document).on('keyup', '#payment_filter input', function(e) {
                 if ($(this).val() == '') {
                     if (draw == 0) {
                         dt_table.clear().draw();
