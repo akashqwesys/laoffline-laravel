@@ -17,6 +17,7 @@
                         <div class="card card-bordered">
                             <div class="card-inner">
                                 <form action="#" class="form-validate" @submit.prevent="register()">
+                                    <div id="allhiddenfield_div"></div>
                                     <div class="preview-block">
                                         <span class="preview-title-lg overline-title">Reference Details</span>
                                         <div class="row gy-4">
@@ -74,7 +75,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-12 text-center hidden" id="show-references"></div>
+                                            <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="product_category">Product Main Category</label>
@@ -159,10 +160,138 @@
                                         </div>
                                         <div class="form-group hidden" id="product_sub_category_section">
                                             <div class="form-control-wrap">
-                                                <multiselect v-model="product_sub_category" :options="product_sub_category_options" :multiple="true" placeholder="Select One" label="name" track-by="id" id="product_sub_category" @select=""></multiselect>
+                                                <multiselect v-model="product_sub_category" :options="product_sub_category_options" :multiple="true" placeholder="Select One" label="name" track-by="id" id="product_sub_category" @close="showItemSection(), getProducts()"></multiselect>
                                             </div>
                                         </div>
+                                        <hr>
+                                        <div id="item_details_div" class="hidden">
+                                            <div class="form-group row">
+                                                <label class="col-sm-10"><b>Item Details</b></label>
+                                                <div class="col-sm-2 text-right">
+                                                    <button type="button" class="btn btn-sm btn-primary hidden" data-toggle="modal" data-target="#myModalFabric" id="add_new_fabric" > <em class="icon ni ni-plus"></em> &nbsp;Add New Fabric</button>
+                                                    <div class="modal fade" id="myModalFabric" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                    <h4 class="modal-title" id="myModalLabel">Fabric Insert</h4>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="row">
+                                                                        <label class="col-sm-2">Name</label>
+                                                                        <div class="col-sm-10">
+                                                                            <input type="text" value="" name="add_fabric_name" id="add_fabric_name" class="form-control">
+                                                                        </div>
+                                                                    </div>
+                                                                    <br>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                                    <button type="button" id="save_modal_data_fabric" class="btn btn-primary">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>&nbsp;
+                                                    <button class="btn btn-sm btn-primary" type="button" id="add_product_details" @click="addProductDetailsRow"><em class="icon ni ni-plus"></em></button>
+                                                    <button class="btn btn-sm btn-primary hidden" type="button" id="add_fabric_details" @click="addFabricDetailsRow"><em class="icon ni ni-plus"></em></button>
+                                                </div>
+                                            </div>
 
+                                            <div class="dynamic_items hidden">
+                                                <div class="form-group row gy-4" v-for="(k, i) in productDetails" :key="i">
+                                                    <div class="col-sm-2">
+                                                        <label for="">Product</label>
+                                                        <multiselect v-model="k.product_name" :options="product_options" placeholder="Select One" label="name" track-by="id" @close="getSubProducts(i)"></multiselect>
+                                                        <input type="text" class="form-control mt-2" v-model="k.hsn_code" placeholder="HSN Code">
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label for="">Sub Product</label>
+                                                        <multiselect v-model="k.sub_product_name" :options="sub_product_options" placeholder="Select One" label="name" track-by="id" @close="getSubProductRate(i)"></multiselect>
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">Pieces</label>
+                                                        <input type="text" class="form-control" v-model="k.pieces" @change="calculateTotalItems(i)">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">Rate</label>
+                                                        <input type="text" class="form-control" v-model="k.rate" @change="updateRate(i)">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">Discount</label>
+                                                        <input type="text" class="form-control" v-model="k.discount" @change="updateDiscount(i)">
+                                                        <input type="text" class="form-control" v-model="k.discount_amount">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">CGST</label>
+                                                        <input type="text" class="form-control" v-model="k.cgst" @change="updateCGST(i)">
+                                                        <input type="text" class="form-control" v-model="k.cgst_amount">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">SGST</label>
+                                                        <input type="text" class="form-control" v-model="k.sgst" @change="updateSGST(i)">
+                                                        <input type="text" class="form-control" v-model="k.sgst_amount">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">IGST</label>
+                                                        <input type="text" class="form-control" v-model="k.igst" @change="updateIGST(i)">
+                                                        <input type="text" class="form-control" v-model="k.igst_amount">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <label for="">Amount</label>
+                                                        <input type="text" class="form-control" v-model="k.amount" disabled="true">
+                                                    </div>
+                                                    <div class="col-sm-1 text-right">
+                                                        <button class="btn btn-sm btn-primary" type="button" id="add_product_details" @click="deleteProductDetailsRow"><em class="icon ni ni-cross"></em></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="dynamic_items_fabrics hidden">
+                                                <div class="form-group">
+                                                    <div class="col-sm-1"> </div>
+                                                    <div class="col-sm-2"> </div>
+                                                    <div class="col-sm-2"> </div>
+                                                    <div class="col-sm-2"> </div>
+                                                    <div class="col-sm-2">
+                                                        <input type="hidden" id="hidden_amount" value="">
+                                                    </div>
+                                                    <div class="col-sm-1 text-right"> </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div id="itemTotal_Div">
+                                                <div class="line line-dashed b-b line-lg pull-in"></div>
+                                                <div class="form-group row">
+                                                    <label class="col-sm-10"><b>Item Total</b></label>
+                                                    <div class="col-sm-2 text-right"> </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-2" id="total_peices_div">
+                                                        <label class="control-label">Total Pieces: </label>
+                                                        <strong id="total_peices"></strong>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label class="control-label">Discount: </label>
+                                                        <strong id="total_discount"></strong>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label class="control-label">CGST: </label>
+                                                        <strong id="total_cgst"></strong>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label class="control-label">SGST: </label>
+                                                        <strong id="total_sgst"></strong>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label class="control-label">IGST: </label>
+                                                        <strong id="total_igst"></strong>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label class="control-label">Amount: </label>
+                                                        <strong id="total_amount"></strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
 
                                         <hr class="preview-hr">
@@ -187,6 +316,7 @@
 </template>
 
 <script>
+    import $ from "jquery";
     import Multiselect from 'vue-multiselect';
     import AddCompany from '../../databank/productsComponents/modal/AddNewCompanyModelComponent.vue';
 
@@ -196,11 +326,10 @@
             Multiselect,
             AddCompany
         },
-        props: {
-        },
         data() {
             return {
                 cancel_url: '/account/sale-bill',
+                old_reference_data: '',
                 reference_options:[
                     // { name: 'Call'},
                     // { name: 'Whatsapp'},
@@ -216,12 +345,13 @@
                 ],
                 product_category_options: [],
                 product_sub_category_options: [],
+                product_options: [],
+                sub_product_options: [],
                 reference_inward_options: [
                     { id: 0, name: 'Direct'}
                 ],
                 customer_options: [],
                 customer_address_options: [],
-                supplier_options: [],
                 supplier_options: [],
                 agent_options: [],
                 reference_via: null,
@@ -241,43 +371,66 @@
                 supplier_invoice_no: '',
                 bill_date: '',
                 extra_attachment: '',
-
-
-
-                contactDetails : [{
-                    contact_person_name: '',
-                    contact_person_designation: '',
-                    contact_person_mobile: '',
-                    contact_person_email: '',
-                    contact_person_profile_pic: '',
+                productDetails : [{
+                    product_name: '',
+                    sub_product_name: '',
+                    hsn_code: '',
+                    pieces: 1,
+                    rate: 0,
+                    discount: 0,
+                    discount_amount: 0,
+                    cgst: 0,
+                    cgst_amount: 0,
+                    sgst: 0,
+                    sgst_amount: 0,
+                    igst: 0,
+                    igst_amount: 0,
+                    amount: 0
                 }],
-                multipleAddresses : [{
-                    address_type : '',
-                    mobile : '',
-                    address : '',
-                    country_code: '+91',
-                    multipleAddressesOwners : [{
-                        name : '',
-                        designation : '',
-                        mobile : '',
-                        email : '',
-                        profile_pic : '',
-                    }],
+                fabricDetails : [{
+                    product_name: '',
+                    sub_product_name: '',
+                    pieces: 1,
+                    rate: 0,
+                    discount: 0,
+                    discount_amount: 0,
+                    cgst: 0,
+                    cgst_amount: 0,
+                    sgst: 0,
+                    sgst_amount: 0,
+                    igst: 0,
+                    igst_amount: 0,
+                    amount: 0
                 }],
+                totals: {
+                    pieces: 0,
+                    discount: 0,
+                    cgst: 0,
+                    sgst: 0,
+                    igst: 0,
+                    amount: 0
+                },
             }
-        },
-        created() {
-            // axios.get('/settings/companyType/list-data')
-            // .then(response => {
-            //     this.companyType = response.data;
-            // });
         },
         methods: {
             resetSupplier: function (event) {
                 $('#new_reference_details_div').show();
-                $('#show-references').hide();
-                this.isSupplierDisabled = false;
+                $('#show-references').slideUp();
+                this.old_reference_data = '';
+                if(this.reference_via == "Email") {
+                    $('#from_email').attr('required', true);
+                }
+                if(this.reference_via == "Courier" || this.reference_via == "Hand") {
+                    $('#delivery_by').attr('required', true);
+                }
+                // $('#reference_via').attr('required', true);
+                this.bill_date = '';
+                $('#bill_date').attr('disabled', false);
+                this.customer = '';
+                $('#customer').attr('readonly', false);
                 this.supplier = '';
+                this.isSupplierDisabled = false;
+                // $('#datepicker_transport').val('').attr('readonly',false);
             },
             getOldReferences: function (event) {
                 if (this.reference_via == null) {
@@ -287,19 +440,40 @@
                     }, 500);
                     this.isSupplierDisabled = false;
                 } else {
-                    // $('#overlay').show();
+                    $('#overlay').show();
                     $('#new_reference_details_div').hide();
                     this.isSupplierDisabled = true;
-                    axios.get('/account/sale-bill/getReferenceForSaleBill?ref_via='+this.reference_via.name)
+                    axios.get('/account/sale-bill/getReferenceForSaleBill?sale_bill_via=3&ref_via='+this.reference_via.name)
                     .then(response => {
-
+                        this.old_reference_data = response.data;
+                        $('#show-references').slideDown();
+                        setTimeout(() => {
+                            $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                            this.getUpdatedOldReferences();
+                        }, 500);
                         $('#overlay').hide();
                     })
                     .catch(function (error) {
                         $('#overlay').hide();
                     });
-                    $('#show-references').show();
                 }
+            },
+            getUpdatedOldReferences: function (event) {
+                axios.get('/account/sale-bill/getOldReferenceForSaleBill/'+$('input[name="reference_id_sale_bill"]:checked').val()+'?sale_bill_via=3')
+                .then(response2 => {
+                    if (response2.data != '') {
+                        $('#allhiddenfield_div').html(response2.data);
+                        if($('#hidden_sale_bill_date').val() != '') {
+                            this.bill_date = $('#hidden_sale_bill_date').val();
+                            $('#bill_date').attr('disabled', true);
+                        }
+                        this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
+                        this.isSupplierDisabled = true;
+                        // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
+                    } else {
+                        this.new_old_sale_bill = 1;
+                    }
+                });
             },
             getProductMainCategory: function(event) {
                 if (event != null) {
@@ -382,25 +556,90 @@
                         type: 'insert'
                     })
                     .then (response => {
-                        $('#check-supplier-no-div').html(response);
+                        $('#check-supplier-no-div').html(response.data);
                     });
                 }
             },
-
-
-
-            /* addContactDetailsRow: function() {
-                this.contactDetails.push({
-                    contact_person_name: '',
-                    contact_person_designation: '',
-                    contact_person_mobile: '',
-                    contact_person_email: '',
-                    contact_person_profile_pic: '',
+            showItemSection: function (e) {
+                if (e != '') {
+                    if (this.sale_bill_for.id == 1) {
+                        $('#add_product_details, .dynamic_items').show();
+                        $('#add_fabric_details, .dynamic_items_fabrics').hide();
+                    } else {
+                        $('#add_product_details, .dynamic_items').hide();
+                        $('#add_fabric_details, .dynamic_items_fabrics').show();
+                    }
+                    $('#item_details_div').slideDown();
+                }
+            },
+            addProductDetailsRow: function() {
+                this.productDetails.push({
+                    product_name: '',
+                    sub_product_name: '',
+                    pieces: 1,
+                    rate: 0,
+                    discount: 0,
+                    discount_amount: 0,
+                    cgst: 0,
+                    cgst_amount: 0,
+                    sgst: 0,
+                    sgst_amount: 0,
+                    igst: 0,
+                    igst_amount: 0,
+                    amount: 0
                 });
             },
-            deleteContactDetailsRow: function(row) {
-                this.contactDetails.pop(row);
-            }, */
+            deleteProductDetailsRow: function(row) {
+                this.productDetails.pop(row);
+            },
+            addFabricDetailsRow: function() {
+                this.fabricDetails.push({
+                    product_name: '',
+                    sub_product_name: '',
+                    pieces: 1,
+                    rate: 0,
+                    discount: 0,
+                    discount_amount: 0,
+                    cgst: 0,
+                    cgst_amount: 0,
+                    sgst: 0,
+                    sgst_amount: 0,
+                    igst: 0,
+                    igst_amount: 0,
+                    amount: 0
+                });
+            },
+            deleteFabricDetailsRow: function(row) {
+                this.fabricDetails.pop(row);
+            },
+            getProducts: function (e) {
+                var subcategory = '';
+                this.product_sub_category.forEach((k, i) => {
+                    subcategory += k.id + ',';
+                })
+                subcategory = subcategory.slice(0, -1);
+                axios.get('/account/sale-bill/getProductsFromSubCategory?subcategory='+subcategory+'&maincategory='+this.product_category.id+'&supplier_id='+this.supplier.id)
+                .then(response => {
+                    this.product = '';
+                    if (response.data.length > 0) {
+                        this.product_options = response.data;
+                    } else {
+                        this.product_options = [];
+                    }
+                });
+            },
+            getSubProducts: function (i) {
+                axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
+                .then(response => {
+                    this.sub_product_options = response.data;
+                });
+            },
+            getSubProductRate: function (i) {
+                this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+            },
+            calculateTotalItems: function (i) {
+                console.log(i);
+            },
 
             register () {
                 var formData = new FormData();
@@ -448,17 +687,39 @@
             getContactProfilePic(name){
                 return name ? '/upload/company/profilePic/' + name : '';
             },
-            getOwnerProfilePic(name){
-                return name ? '/upload/company/multipleAddressProfilePic/' + name : '';
-            }
         },
         mounted() {
+            const self = this;
             axios.get('/account/sale-bill/list-customers-and-suppliers')
             .then(response => {
                 this.customer_options = response.data[0];
                 this.supplier_options = response.data[1];
             });
-            document.getElementById('addCompany').addEventListener('shown.bs.modal', function (event) {
+
+            $(document).on('change', 'input[name=reference_id_sale_bill]', function () {
+                self.getUpdatedOldReferences();
+            });
+
+            $(document).on('click', '#sale_bill_ref_search_btn', function() {
+                axios.get('/account/sale-bill/getOldReferenceForSaleBill/'+$('#sale_bill_ref_search').val()+'?sale_bill_via=3')
+                .then(response2 => {
+                    if (response2.data != '') {
+                        $('#allhiddenfield_div').html(response2.data);
+                        if($('#hidden_sale_bill_date').val() != '') {
+                            this.bill_date = $('#hidden_sale_bill_date').val();
+                            $('#bill_date').attr('disabled', true);
+                        }
+                        $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="r-'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
+                        this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
+                        this.isSupplierDisabled = true;
+                        $('#show-references tr input[type="radio"]').last().prop('checked', true);
+                        // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
+                    } else {
+                        this.new_old_sale_bill = 1;
+                        $('#sale_bill_ref_msg').html('<td colspan="5">This Reference Id is not generated by Email, Courier OR Hand.</td>');
+                    }
+                });
+
             });
         },
     };
@@ -471,6 +732,15 @@
     #show-references {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
+    }
+    .item_details_div label {
+        margin-bottom: 5px;
+    }
+    .dynamic_items .col-sm-1, .dynamic_items_fabrics .col-sm-1 {
+        text-align: center;
+    }
+    .dynamic_items .form-control, .dynamic_items_fabrics .form-control {
+        padding: 0.4375rem 0.6rem;
     }
 </style>
 

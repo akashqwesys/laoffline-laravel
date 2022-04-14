@@ -275,17 +275,14 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/', [App\Http\Controllers\Account\SaleBillController::class, 'index'])->name('sale-bill');
         Route::get('/list-product-main-category/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'listProductMainCategory']);
         Route::get('/list-product-sub-category/{product_id}/{supplier_id}', [App\Http\Controllers\Account\SaleBillController::class, 'listProductSubCategory']);
+        Route::get('/getProductsFromSubCategory', [App\Http\Controllers\Account\SaleBillController::class, 'getProductsFromSubCategory']);
         Route::get('/list-inward-customers/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCompanyFromInward']);
         Route::get('/list-customers-and-suppliers', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomersAndSuppliers']);
         Route::get('/list-customer-address/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomerAddress']);
         Route::post('/check-supplier-invoice', [App\Http\Controllers\Account\SaleBillController::class, 'checkSupplierInvoiceNo']);
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBill']);
-        Route::get('/fetch-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchreference']);
-        Route::get('/companylist', [App\Http\Controllers\Account\SaleBillController::class, 'fetchcompany']);
-        Route::get('/designation', [App\Http\Controllers\Account\SaleBillController::class, 'designation']);
-        Route::get('/list-country', [App\Http\Controllers\Account\SaleBillController::class, 'listCountries']);
-        Route::get('/list-transport', [App\Http\Controllers\Account\SaleBillController::class, 'listTransport']);
-        Route::get('/from-name/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fromName']);
+        Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getOldReferenceForSaleBill']);
+        Route::get('/getSubProductFromProduct', [App\Http\Controllers\Account\SaleBillController::class, 'getSubProductFromProduct']);
     });
 });
 
