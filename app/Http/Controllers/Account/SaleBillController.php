@@ -364,8 +364,35 @@ class SaleBillController extends Controller
         $main_cmp_id = $company_details->id;
         array_push($link_companies, $main_cmp_id);
         $subCategory = $this->getProductSubCategoriesForUpdate($link_companies, $product_id);
+        // array_push($subCategory, ['id' => 12, 'name' => 'Hi']);
         if (count($subCategory) > 0) {
             return response()->json($subCategory);
+        } else {
+            return null;
+        }
+    }
+
+    public function getProductsFromSubCategory(Request $request)
+    {
+        $company_details = $this->getCompanyDetailsForLinkCompanies($request->supplier_id);
+        $link_companies = $this->getLinkCompaniesDetails($request->supplier_id);
+        if (empty($link_companies)) {
+            $is_linked = $this->isCompanyLinkedWithOtherMainCompany($request->supplier_id);
+            if (!empty($is_linked)) {
+                $company_details = $this->getCompanyDetailsForLinkCompanies($is_linked->company_id);
+                $link_companies = $this->getLinkCompaniesDetails($is_linked->company_id);
+            }
+        }
+        $main_cmp_id = $company_details->id;
+
+        $subCategory = explode(',', $request->subcategory);
+
+        array_push($link_companies, $main_cmp_id);
+
+        $productSubCategory = $this->getProductFromSubCategoriesForUpdate($subCategory, $link_companies, $request->maincategory);
+
+        if (count($productSubCategory) > 0) {
+            return response()->json($productSubCategory);
         } else {
             return null;
         }
@@ -397,7 +424,24 @@ class SaleBillController extends Controller
             ->where('main_category_id', $id)
             ->whereRaw('(' . rtrim($where, 'or ') . ')')
             ->orderBy('product_default_category_id', 'desc')
-            ->get();
+            ->get()
+            ->toArray();
+    }
+
+    public function getProductFromSubCategoriesForUpdate($subCategory, $link_companies, $category_id)
+    {
+        $where = null;
+        foreach ($subCategory as $v) {
+            $where .= "sub_category @> '\"" . strval($v) . "\"' or ";
+        }
+        return DB::table('products')
+            ->select('id', 'product_name as name')
+            ->where('category', $category_id)
+            ->whereIn('company', $link_companies)
+            ->whereRaw('(' . rtrim($where, 'or ') . ')')
+            ->orderBy('product_name', 'asc')
+            ->get()
+            ->toArray();
     }
 
     public function getCompanyFromInward($id = 0)
@@ -526,6 +570,21 @@ class SaleBillController extends Controller
             }
         }
         return $html;
+    }
+
+    public function getSubProductFromProduct(Request $request)
+    {
+        $subProducts = DB::table('products_images')
+            ->select('id', 'supplier_code as name', 'price')
+            ->where('product_id', $request->product_id)
+            ->get()
+            ->toArray();
+        $productRate = DB::table('product_details')
+            ->select('catalogue_price')
+            ->where('product_id', $request->product_id)
+            ->first();
+        $subProducts[] = ['id' => 'full', 'name' => 'Full Catalogue', 'price' => $productRate->catalogue_price];
+        return response()->json($subProducts);
     }
 
 }
