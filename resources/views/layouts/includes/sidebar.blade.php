@@ -79,12 +79,6 @@
                         </a>
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
-                        <a href="{{ route('payments') }}" class="nk-menu-link">
-                            <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
-                            <span class="nk-menu-text">Payment</span>
-                        </a>
-                    </li><!-- .nk-menu-item -->
-                    <li class="nk-menu-item">
                         <a href="{{ route('register') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
                             <span class="nk-menu-text">Register</span>
@@ -100,7 +94,7 @@
                                 <a href="{{ route('sale-bill') }}" class="nk-menu-link"><span class="nk-menu-text">Sale Bill</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="html/user-list-compact.html" class="nk-menu-link"><span class="nk-menu-text">Payment</span></a>
+                                <a href="{{ route('payments') }}" class="nk-menu-link"><span class="nk-menu-text">Payment</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="html/user-details-regular.html" class="nk-menu-link"><span class="nk-menu-text">Ledger</span></a>

@@ -84,7 +84,7 @@ class PaymentsController extends Controller
 
         $totalRecordswithFilter = Payment::select('count(*) as allcount');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr, $searchValue) {
                 $q->orWhere('reference_id', 'ILIKE', '%' . $searchValue . '%');
             });
         }
@@ -175,7 +175,7 @@ class PaymentsController extends Controller
     }
 
     public function searchSaleBill(Request $request) {
-        
+
     }
 
     public function generatePaymentData(Request $request){
@@ -196,12 +196,13 @@ class PaymentsController extends Controller
         $user = Session::get('user');
         $paymentData = json_decode($request->formdata);
         $paymentSalebill = json_decode($request->billdata);
-        $financialid = 1;
+        $financialid = Session::get('user')->financial_year_id;
         $attachments = array();
 
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
+        $ChequeImage = $LetterImage = null;
         if ($image = $request->chequeimage) {
             $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
             $paymentData->chequeImage = $ChequeImage;
@@ -214,11 +215,11 @@ class PaymentsController extends Controller
             $image->move(public_path('upload/payments/'), $LetterImage);
             array_push($attachments, $LetterImage);
         }
-        
+
         $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
         $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
         $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-        
+
         //reference_id
         if ($increment_id_details) {
             $ref_id = $increment_id_details->reference_id + 1;
@@ -242,7 +243,6 @@ class PaymentsController extends Controller
             $increment_id->save();
         }
 
-        
         if ($paymentData->refrence == 'new') {
             if ($paymentData->refrencevia->name == 'Email') {
                 $courier_name = '';
@@ -284,7 +284,7 @@ class PaymentsController extends Controller
         }
         $payment_date = $paymentData->reciptdate;
         $iuids = Iuid::orderBy('id', 'DESC')->first('id');
-        $nextAutoID = !empty($iuids) ? $iuids->ids + 1 : 1;
+        $nextAutoID = !empty($iuids) ? $iuids->id + 1 : 1;
 
         $companyName = Company::where('id', $request->session()->get('seller'))->first();
         $cmpTypeName = Company::where('id', $request->session()->get('customer'))->first();
@@ -314,14 +314,11 @@ class PaymentsController extends Controller
         $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
         $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
 
-        $comboLastids = Comboids::orderBy('id', 'DESC')->first('id');
-        $combo_ids = !empty($comboLastids) ? $comboLastids->id + 1 : 1;
-
         $comboids = new Comboids();
-        $comboids->id = $combo_ids;
         $comboids->comboid = $combo_id;
         $comboids->payment_id = $payment_id;
         $comboids->iuid = $iuid;
+        $comboids->ouid = 0;
         $comboids->system_module_id = '6';
         $comboids->general_ref_id = $ref_id;
         $comboids->main_or_followup = '0';
@@ -337,17 +334,46 @@ class PaymentsController extends Controller
         $comboids->receipt_mode = $paymentData->recipt_mode;
         $comboids->receipt_amount = (int)$paymentData->reciptamount;
         $comboids->total = $paymentData->totalamount;
-        $comboids->subject = 'For'. $companyName->name .' RS '.$paymentData->totalamount .'/-';
+        $comboids->subject = 'For '. $companyName->name .' RS '.$paymentData->totalamount .'/-';
         $comboids->financial_year_id = $financialid;
         $comboids->attachments = serialize($attachments);
-        //$comboids->date_added = Carbon::now();
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 0;
+        $comboids->inward_or_outward_id = 0;
+        $comboids->sale_bill_id = 0;
+        $comboids->payment_followup_id = 0;
+        $comboids->goods_return_id = 0;
+        $comboids->good_return_followup_id = 0;
+        $comboids->commission_id = 0;
+        $comboids->commission_followup_id = 0;
+        $comboids->commission_invoice_id = 0;
+        $comboids->is_invoice = 0;
+        $comboids->sample_id = 0;
+        $comboids->inward_ref_via = 0;
+        $comboids->new_or_old_inward_or_outward = 0;
+        $comboids->outward_employe_id = 0;
+        $comboids->default_category_id = 0;
+        $comboids->main_category_id = 0;
+        $comboids->agent_id = 0;
+        $comboids->sale_bill_flag = 0;
+        $comboids->tds = 0;
+        $comboids->net_received_amount = 0;
+        $comboids->received_commission_amount = 0;
+        $comboids->required_followup = 0;
+        $comboids->is_completed = 0;
+        $comboids->mark_as_draft = 0;
+        $comboids->color_flag_id = 0;
+        $comboids->product_qty = 0;
+        $comboids->fabric_meters = 0;
+        $comboids->sample_return_qty = 0;
+        $comboids->mobile_flag = 0;
+        $comboids->is_deleted = 0;
         $comboids->save();
 
-        
         if ($paymentData->recipt_mode == 'cheque') {
             $cheque_date = $paymentData->reciptdate;
             $cheque_dd_no = $paymentData->chequeno;
-            $cheque_dd_bank = $paymentData->chequebank;
+            $cheque_dd_bank = $paymentData->chequebank->id;
         } else {
             $cheque_date = null;
             $cheque_dd_no = '';
@@ -479,8 +505,8 @@ class PaymentsController extends Controller
 					$tot_interest += $salebill->interest;
 					$tot_rate_difference += $salebill->ratedifference;
 					$tot_adjust_amount += $salebill->adjustamount;
-                } 
-            }   
+                }
+            }
         }
         if ($paymentData->recipt_mode == 'fullreturn') {
             $tot_receipt_adjust_amt = (int)$paymentData->reciptamount - $tot_adjust_amount;
@@ -489,7 +515,7 @@ class PaymentsController extends Controller
             } else {
                 $payment_ok_or_not = 1;
             }
-        } else if($paymentData->recipt_mode == 'partreturn') { 
+        } else if($paymentData->recipt_mode == 'partreturn') {
             $payment_ok_or_not = 0;
         } else {
             $payment_ok_or_not = 1;
@@ -514,7 +540,7 @@ class PaymentsController extends Controller
             } else {
                 $color_flag_id = 1;
             }
-        } else if($paymentData->recipt_mode == 'partreturn') { 
+        } else if($paymentData->recipt_mode == 'partreturn') {
             $color_flag_id = 1;
         } else {
             $color_flag_id = 3;
@@ -537,7 +563,7 @@ class PaymentsController extends Controller
 
     }
     public function getBasicData(Request $request) {
-        
+
         $customer_id = $request->session()->get('customer');
         $seller_id = $request->session()->get('seller');
         $salebill_ids = $request->session()->get('saleBill');

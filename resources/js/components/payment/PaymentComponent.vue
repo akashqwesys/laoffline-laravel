@@ -115,7 +115,7 @@
                     serverSide: true,
                     lengthChange: true,
                     ajax: {
-                        url: "./payments/list",
+                        url: "/payments/list",
                         data: function (data) {
                             if ($('#payment_filter input').val() == '') {
                                 data.search.value = '';

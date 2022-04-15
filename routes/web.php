@@ -283,6 +283,8 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBill']);
         Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getOldReferenceForSaleBill']);
         Route::get('/getSubProductFromProduct', [App\Http\Controllers\Account\SaleBillController::class, 'getSubProductFromProduct']);
+        Route::get('/list-transport', [App\Http\Controllers\Account\SaleBillController::class, 'listTransports']);
+        Route::get('/list-stations/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getStations']);
     });
 });
 

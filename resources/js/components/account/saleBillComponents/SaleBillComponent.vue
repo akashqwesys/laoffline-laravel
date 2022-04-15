@@ -28,17 +28,20 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                                <table id="companies" class="table table-hover table-bordered">
+                                <table id="saleBill" class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
                                             <th>No</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th>Name</th>
-                                            <th>Office No.</th>
-                                            <th>Company Type</th>
-                                            <th>Company Category</th>
-                                            <th>City</th>
+                                            <th>IUID</th>
+                                            <th>Ref. ID</th>
+                                            <th>Updated At</th>
+                                            <th>Bill Date</th>
+                                            <th>Customer</th>
+                                            <th>Supplier</th>
+                                            <th>Supplier Inv. No.</th>
+                                            <th>Amount</th>
+                                            <th>Payment Status</th>
+                                            <th>Outward Status</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -81,7 +84,7 @@
             const self = this;
             var buttons = [];
             var dt_table = null;
-            function init_dt_table () {
+            /* function init_dt_table () {
                 dt_table = $('#companies').DataTable({
                     processing: true,
                     serverSide: true,
@@ -190,7 +193,7 @@
                 });
                 // Requery the server with the new one-time export settings
                 dt.ajax.reload();
-            }
+            } */
             var draw = 1;
             $(document).on('keyup', '#company_filter input', function(e) {
                 if ($(this).val() == '') {
@@ -210,9 +213,9 @@
                 self.showModal($(this).attr('data-id'));
             });
 
-            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+            /* document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
-            });
+            }); */
         },
     };
 </script>
@@ -221,7 +224,6 @@
     .icon.ni.ni-star, .icon.ni.ni-star-fill,
     .icon.ni.ni-alert-fill, .icon.ni.ni-check-thick {
         font-size: 20px;
-
     }
     .icon.ni.ni-star, .icon.ni.ni-star-fill {
         cursor: pointer;

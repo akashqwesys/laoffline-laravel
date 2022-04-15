@@ -75,269 +75,7 @@ class SaleBillController extends Controller
 
     public function AddSaleBill(Request $request)
     {
-        $company_name = json_decode($request->company_data)->company_name;
-        if (empty(trim($company_name))) {
-            return response()->json(['errors' => 'Company name is required'], 422);
-        }
-        /* $this->validate($request, [
-            'company_name' => 'required',
-        ]); */
-
-        $companyData = json_decode($request->company_data);
-        $contactDetails = json_decode($request->contact_details);
-        $multipleAddresses = json_decode($request->multiple_addresses);
-        $multipleEmails = json_decode($request->multiple_emails);
-        $swotDetails = json_decode($request->swot_details);
-        $referencesDetails = json_decode($request->references_details);
-        $packagingDetails = json_decode($request->packaging_details);
-        $bankDetails = json_decode($request->bank_details);
-        $contactDetailsProfilePic = $request->contact_details_profile_pic;
-        $multipleAddressProfilePic = $request->multiple_address_profile_pic;
-
-        if (is_array($multipleAddresses) && !empty($multipleAddresses)) {
-            foreach ($multipleAddresses as $multipleAddress) {
-                if (is_array($multipleAddress->multipleAddressesOwners) && !empty($multipleAddress->multipleAddressesOwners)) {
-                    foreach ($multipleAddress->multipleAddressesOwners as $owner) {
-                        $multipleAddressOwnerDesignation = [];
-                        if (!empty($owner->designation)) {
-                            foreach ($owner->designation as $key => $des) {
-                                $multipleAddressOwnerDesignation[$key] = $des->id;
-                            }
-                            $owner->designation = json_encode($multipleAddressOwnerDesignation);
-                        } else {
-                            $owner->designation = 0;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!file_exists(public_path('upload/company'))) {
-            mkdir(public_path('upload/company'), 0777, true);
-        }
-
-        if (!file_exists(public_path('upload/company/profilePic'))) {
-            mkdir(public_path('upload/company/profilePic'), 0777, true);
-        }
-
-        if (!file_exists(public_path('upload/company/multipleAddressProfilePic'))) {
-            mkdir(public_path('upload/company/multipleAddressProfilePic'), 0777, true);
-        }
-
-        if (is_array($contactDetailsProfilePic) && !empty($contactDetailsProfilePic)) {
-            $length = count($contactDetailsProfilePic);
-            for ($i = 0; $i < $length; $i++) {
-                if ($image = $contactDetailsProfilePic[$i]) {
-                    if (!is_string($image)) {
-                        $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
-                        $contactDetails[$i]->contact_person_profile_pic = $profileImage;
-                        $image->move(public_path('upload/company/profilePic'), $profileImage);
-                    } else {
-                        $contactDetails[$i]->contact_person_profile_pic = '';
-                    }
-                }
-            }
-        }
-
-        if (is_array($multipleAddressProfilePic) && !empty($multipleAddressProfilePic)) {
-            $length = count($multipleAddressProfilePic);
-            for ($i = 0; $i < $length; $i++) {
-                $ownerimage = $multipleAddressProfilePic[$i];
-                $ownerLength = count($ownerimage['ownerImage']);
-                for ($j = 0; $j < $ownerLength; $j++) {
-                    if ($image = $ownerimage['ownerImage'][$j]) {
-                        if (!is_string($image)) {
-                            $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
-                            $multipleAddresses[$i]->multipleAddressesOwners[$j]->profile_pic = $profileImage;
-                            $image->move(public_path('upload/company/multipleAddressProfilePic'), $profileImage);
-                        } else {
-                            $multipleAddresses[$i]->multipleAddressesOwners[$j]->profile_pic = '';
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!empty($companyData->company_landline)) {
-            $landline = explode(',', trim($companyData->company_landline));
-            $companyData->company_landline = json_encode($landline);
-        }
-
-        if (!empty($companyData->company_mobile)) {
-            $mobile = explode(',', trim($companyData->company_mobile));
-            $companyData->company_mobile = json_encode($mobile);
-        }
-
-        $comapnyLastId = Company::orderBy('id', 'DESC')->first('id');
-        $companyId = !empty($comapnyLastId) ? $comapnyLastId->id + 1 : 1;
-
-        $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
-
-        $company = new Company;
-        $company->id = $companyId;
-        $company->company_name = $companyData->company_name;
-        $company->company_type = !empty($companyData->company_type) ? $companyData->company_type->id : 0;
-        $company->company_country = !empty($companyData->company_country) ? $companyData->company_country->id : 0;
-        $company->company_state = !empty($companyData->company_state) ? $companyData->company_state->id : 0;
-        $company->company_city = !empty($companyData->company_city) ? $companyData->company_city->id : 0;
-        $company->company_website = $companyData->company_website;
-        $company->company_landline = $companyData->company_landline ?? '[]';
-        $company->company_mobile = $companyData->company_mobile ?? '[]';
-        $company->company_watchout = $companyData->company_watchout;
-        $company->company_remark_watchout = $companyData->company_remark_watchout;
-        $company->company_about = $companyData->company_about;
-        $company->company_category = json_encode($company_category);
-        $company->company_transport = !empty($companyData->company_transport) ? $companyData->company_transport->id : 0;
-        $company->company_discount = $companyData->company_discount;
-        $company->company_payment_terms_in_days = $companyData->company_payment_terms_in_days;
-        $company->company_opening_balance = $companyData->company_opening_balance;
-        $company->favorite_flag = 0;
-        $company->is_verified = 0;
-        $company->verified_by = 0;
-        $company->generated_by = Session::get('user')->employee_id;
-        $company->updated_by = 0;
-        $company->is_linked = 0;
-        $company->is_active = 0;
-        $company->verified_date = NULL;
-        $company->save();
-
-        // Contact Details Data
-        if (is_array($contactDetails) && !empty($contactDetails)) {
-            foreach ($contactDetails as $contactDetail) {
-                $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
-                $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
-
-                $companyContactDetails = new CompanyContactDetails;
-                $companyContactDetails->id = $companyContactId;
-                $companyContactDetails->company_id = $companyId;
-                $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
-                $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
-                $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
-                $companyContactDetails->contact_person_mobile = $contactDetail->contact_person_mobile;
-                $companyContactDetails->contact_person_email = $contactDetail->contact_person_email;
-                $companyContactDetails->save();
-            }
-        }
-
-        // Multiple Address Data
-        if (is_array($multipleAddresses) && !empty($multipleAddresses)) {
-            foreach ($multipleAddresses as $multipleAddress) {
-                $companyAddressLastId = CompanyAddress::orderBy('id', 'DESC')->first('id');
-                $companyAddressId = !empty($companyAddressLastId) ? $companyAddressLastId->id + 1 : 1;
-
-                $companyAddress = new CompanyAddress;
-                $companyAddress->id = $companyAddressId;
-                $companyAddress->company_id = $companyId;
-                $companyAddress->address_type = !empty($multipleAddress->address_type) ? $multipleAddress->address_type->id : 0;
-                $companyAddress->address = $multipleAddress->address;
-                $companyAddress->country_code = $multipleAddress->country_code;
-                $companyAddress->mobile = $multipleAddress->mobile;
-                $companyAddress->save();
-
-                if (is_array($multipleAddress->multipleAddressesOwners) && !empty($multipleAddress->multipleAddressesOwners)) {
-                    foreach ($multipleAddress->multipleAddressesOwners as $owner) {
-                        $companyAddressOwnerLastId = CompanyAddressOwner::orderBy('id', 'DESC')->first('id');
-                        $companyAddressOwnerId = !empty($companyAddressOwnerLastId) ? $companyAddressOwnerLastId->id + 1 : 1;
-
-                        $companyAddressOwner = new CompanyAddressOwner;
-                        $companyAddressOwner->id = $companyAddressOwnerId;
-                        $companyAddressOwner->company_address_id = !empty($companyAddress) ? $companyAddress->id : 0;
-                        $companyAddressOwner->name = $owner->name;
-                        $companyAddressOwner->designation = $owner->designation;
-                        $companyAddressOwner->profile_pic = $owner->profile_pic;
-                        $companyAddressOwner->mobile = $owner->mobile;
-                        $companyAddressOwner->email = $owner->email;
-                        $companyAddressOwner->save();
-                    }
-                }
-            }
-        }
-
-        // Multiple Emails Data
-        if (is_array($multipleEmails) && !empty($multipleEmails)) {
-            foreach ($multipleEmails as $multipleEmail) {
-                $companyEmailsLastId = CompanyEmails::orderBy('id', 'DESC')->first('id');
-                $companyEmailsId = !empty($companyEmailsLastId) ? $companyEmailsLastId->id + 1 : 1;
-
-                $companyEmail = new CompanyEmails;
-                $companyEmail->id = $companyEmailsId;
-                $companyEmail->company_id = $companyId;
-                $companyEmail->email_id = $multipleEmail->email_id;
-                $companyEmail->save();
-            }
-        }
-
-        // SWOT Data
-        if (!empty($swotDetails)) {
-            $swotDetailsLastId = CompanySwotDetails::orderBy('id', 'DESC')->first('id');
-            $swotDetailsId = !empty($swotDetailsLastId) ? $swotDetailsLastId->id + 1 : 1;
-
-            $swotData = new CompanySwotDetails;
-            $swotData->id = $swotDetailsId;
-            $swotData->company_id = $companyId;
-            $swotData->strength = $swotDetails->strength;
-            $swotData->weakness = $swotDetails->weakness;
-            $swotData->opportunity = $swotDetails->opportunity;
-            $swotData->threat = $swotDetails->threat;
-            $swotData->save();
-        }
-
-        // Bank Data
-        if (!empty($bankDetails)) {
-            $bankDetailsLastId = CompanyBankDetails::orderBy('id', 'DESC')->first('id');
-            $bankDetailsId = !empty($bankDetailsLastId) ? $bankDetailsLastId->id + 1 : 1;
-
-            $bankDetail = new CompanyBankDetails;
-            $bankDetail->id = $bankDetailsId;
-            $bankDetail->company_id = $companyId;
-            $bankDetail->bank_name = $bankDetails->bank_name;
-            $bankDetail->account_holder_name = $bankDetails->account_holder_name;
-            $bankDetail->account_no = $bankDetails->account_no;
-            $bankDetail->branch_name = $bankDetails->branch_name;
-            $bankDetail->ifsc_code = $bankDetails->ifsc_code;
-            $bankDetail->save();
-        }
-
-        // Packaging Data
-        if (!empty($packagingDetails)) {
-            $packagingDetailsLastId = CompanyPackagingDetails::orderBy('id', 'DESC')->first('id');
-            $packagingDetailsId = !empty($packagingDetailsLastId) ? $packagingDetailsLastId->id + 1 : 1;
-
-            $package = new CompanyPackagingDetails;
-            $package->id = $packagingDetailsId;
-            $package->company_id = $companyId;
-            $package->gst_no = $packagingDetails->gst_no;
-            $package->cst_no = $packagingDetails->cst_no;
-            $package->tin_no = $packagingDetails->tin_no;
-            $package->vat_no = $packagingDetails->vat_no;
-            $package->save();
-        }
-
-        // Reference Data
-        if (!empty($referencesDetails)) {
-            $companyReferencesLastId = CompanyReferences::orderBy('id', 'DESC')->first('id');
-            $companyReferencesId = !empty($companyReferencesLastId) ? $companyReferencesLastId->id + 1 : 1;
-
-            $reference = new CompanyReferences;
-            $reference->id = $companyReferencesId;
-            $reference->company_id = $companyId;
-            $reference->ref_person_name = $referencesDetails->ref_person_name;
-            $reference->ref_person_mobile = $referencesDetails->ref_person_mobile;
-            $reference->ref_person_company = $referencesDetails->ref_person_company;
-            $reference->ref_person_address = $referencesDetails->ref_person_address;
-            $reference->save();
-        }
-
-        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
-        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-
-        $logs = new Logs;
-        $logs->id = $logsId;
-        $logs->employee_id = Session::get('user')->employee_id;
-        $logs->log_path = 'Company / Add';
-        $logs->log_subject = 'Company - "' . $company->company_name . '" was inserted from ' . Session::get('user')->username . '.';
-        $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $logs->save();
+        return true;
     }
 
     public function listProductMainCategory($id)
@@ -585,6 +323,26 @@ class SaleBillController extends Controller
             ->first();
         $subProducts[] = ['id' => 'full', 'name' => 'Full Catalogue', 'price' => $productRate->catalogue_price];
         return response()->json($subProducts);
+    }
+
+    public function listTransports(Request $request)
+    {
+        $transportDetails = TransportDetails::select('id', 'name')->where('is_delete', '0')->get();
+        return response()->json($transportDetails);
+    }
+
+    public function getStations($id)
+    {
+        $cities = DB::table('cities')
+            ->select('id', 'name')
+            ->get();
+
+        $city_s = DB::table('companies')
+            ->select('id', 'company_city as name')
+            ->where('id', $id)
+            ->first();
+
+        return response()->json([$cities, $city_s]);
     }
 
 }

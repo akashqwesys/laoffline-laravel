@@ -9,6 +9,8 @@ class Comboids extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'comboid';
+
     protected $fillable = [
             'comboid',
             'iuid',

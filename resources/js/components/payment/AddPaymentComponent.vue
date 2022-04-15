@@ -61,7 +61,7 @@
                                     </div>
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-fromname" v-model="form.fromname" >
-                                        <span v-if="errors.fromname" class="invalid">{{errors.fromname}}</span> 
+                                        <span v-if="errors.fromname" class="invalid">{{errors.fromname}}</span>
                                     </div>
                                 </div>
                                 <div class="courier_hand">
@@ -153,7 +153,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                         <div class="card card-bordered">
                             <div class="card-header">
@@ -365,7 +365,7 @@
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.interest" @change="changeInterest"></td>
                                                         <td><input type="text" class="form-control" v-model="salebill.remark" ></td>
                                                         <td><button class="btn btn-primary">x</button></td>
-                                                    </tr>                                                
+                                                    </tr>
                                                 </tbody>
                                                 <tfoot class="total">
                                                     <tr>
@@ -398,7 +398,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
                             </div>
                         </div><!-- .card -->
                     </div><!-- .nk-block -->
@@ -446,7 +446,7 @@
                 // ],
 
                 referncevia :[{name: 'Courier', code: '1'},{name: 'Hand', code: '2'},{name: 'Email', code: '3'}],
-                
+
                 courier:[{name: "KOMAL ROADWAYS"},{name: "DELHI RAJASTHAN TRANSPORT"}, {name: "Dart Air"}],
                 errors: {
                     name: ''
@@ -470,7 +470,7 @@
                         remark: '',
                 }],
                 chequeimage: [],
-                letterimage: [], 
+                letterimage: [],
                 form: new Form({
                     id: '',
                     refrencevia: '',
@@ -579,11 +579,11 @@
                         rate = 0;
                     }
                     if (!interest) {
-                        interest = 0; 
+                        interest = 0;
                     }
                     totalRateDifference += rate;
                     totalInterst += parseInt(interest);
-                    
+
                 });
                 setTimeout(() => {
                     this.form.interest = totalInterst;
@@ -637,11 +637,11 @@
                         rate = 0;
                     }
                     if (!short) {
-                        short = 0; 
+                        short = 0;
                     }
                     totalRateDifference += rate;
                     totalShort += parseInt(short);
-                    
+
                 });
                 setTimeout(() => {
                     this.form.short = totalShort;
@@ -695,11 +695,11 @@
                         rate = 0;
                     }
                     if (!claim) {
-                        claim = 0; 
+                        claim = 0;
                     }
                     totalRateDifference += rate;
                     totalClaim += parseInt(claim);
-                    
+
                 });
                 setTimeout(() => {
                     this.form.claim = totalClaim;
@@ -753,11 +753,11 @@
                         rate = 0;
                     }
                     if (!agentcomm) {
-                        agentcomm = 0; 
+                        agentcomm = 0;
                     }
                     totalRateDifference += rate;
                     totalAgentComm += parseInt(agentcomm);
-                    
+
                 });
                 setTimeout(() => {
                     this.form.agentcommission = totalAgentComm;
@@ -804,7 +804,7 @@
                 let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
                 let rateDiff = rateDifference - diff;
                 this.salebills[index-1].ratedifference = rateDiff;
-                
+
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
                     let vatav = value.vatav;
@@ -812,11 +812,11 @@
                         rate = 0;
                     }
                     if (!vatav) {
-                        vatav = 0; 
+                        vatav = 0;
                     }
                     totalRateDifference += rate;
                     totalVatav += parseInt(vatav);
-                    
+
                 });
                 setTimeout(() => {
                     this.form.vatav = totalVatav;
@@ -871,14 +871,14 @@
                         rate = 0;
                     }
                     if (!goodreturn) {
-                        goodreturn = 0; 
+                        goodreturn = 0;
                     }
                     totalRateDifference += rate;
                     totalGoodReturn += parseInt(goodreturn);
                 });
                 setTimeout(() => {
                     this.form.goodreturn = totalGoodReturn;
-                    this.form.ratedifference = totalRateDifference; 
+                    this.form.ratedifference = totalRateDifference;
                 }, 500);
             },
             changeBankComm (event){
@@ -928,16 +928,16 @@
                         rate = 0;
                     }
                     if (!bankcomm) {
-                        bankcomm = 0; 
+                        bankcomm = 0;
                     }
                     totalRateDifference += rate;
-                    totalBankCommission += parseInt(bankcomm); 
+                    totalBankCommission += parseInt(bankcomm);
                 });
                 setTimeout(() => {
                     this.form.bankcommission = totalBankCommission;
                     this.form.ratedifference = totalRateDifference;
                 },500);
-                
+
             },
             changeDiscountAmount (event) {
                 let discount,amount,disAmount,adjamount;
@@ -948,7 +948,7 @@
                 if (!discountamount){
                     discountamount = 0;
                 }
-                
+
                 discount = parseInt(discountamount) / parseInt(amount) * 100 ;
                 this.salebills[index-1].discount = discount;
 
@@ -957,7 +957,7 @@
                     if (!disAmount){
                         disAmount = 0;
                     }
-                    totalamount +=parseInt(disAmount);  
+                    totalamount +=parseInt(disAmount);
                 });
                 this.form.discountamount = totalamount;
             },
@@ -970,7 +970,7 @@
                 if (!discount){
                     discount = 0;
                 }
-                
+
                 let discountamount = parseInt(discount) * parseInt(amount) / 100 ;
                 this.salebills[index-1].discountamount = discountamount;
 
@@ -979,7 +979,7 @@
                     if (!disAmount){
                         disAmount = 0;
                     }
-                    totalamount +=parseInt(disAmount);  
+                    totalamount +=parseInt(disAmount);
                 });
                 this.form.discountamount = totalamount;
             },
@@ -992,10 +992,10 @@
                     if (amount > adjamount) {
                         diff = amount - adjamount;
                         discount = diff / amount * 100;
-                        
+
                             this.salebills[index-1].discountamount = diff;
                             this.salebills[index-1].discount = discount;
-                          
+
                     } else if (amount == adjamount) {
                         setTimeout(() => {
                             this.salebills[index].discount = 0;
@@ -1008,7 +1008,7 @@
                     if(!discountamount){
                         discountamount = 0;
                     }
-                    
+
                     totalAdjustamount += parseInt(value.adjustamount);
                     totaldiscount += parseInt(discountamount);
                 });
@@ -1016,9 +1016,9 @@
                      this.form.totaladjustamount = totalAdjustamount;
                      this.form.discountamount = totaldiscount;
                 }, 1000);
-               
+
             },
-            
+
             uploadChequeImage (event) {
                 this.chequeimage = event.target.files[0];
                // console.log(this.chequeimage);
@@ -1040,16 +1040,16 @@
                 let paymentType = event.target.value;
                 let goodreturn = 0;
                 if (paymentType == 'cash') {
-                    
+
                     $(".cash").removeClass("d-none");
                     $(".cheque").addClass("d-none");
                     $(".table-responsive").addClass("salebilltable");
                     this.salebills.forEach((value,index) => {
                         this.salebills[index].goodreturn = goodreturn;
                     });
-                    
+
                 } else if(paymentType == 'cheque') {
-                    
+
                     $(".cash").removeClass("d-none");
                     $(".cheque").removeClass("d-none");
                     $(".table-responsive").addClass("salebilltable");
@@ -1058,7 +1058,7 @@
                     });
 
                 } else if (paymentType == 'fullreturn' || paymentType == 'partreturn') {
-                    
+
                     $(".cheque").addClass("d-none");
                     $(".cash").addClass("d-none");
                     $(".table-responsive").removeClass("salebilltable");
@@ -1086,8 +1086,8 @@
             register () {
                 if (this.scope == 'edit') {
                     this.form.post('/payments/update')
-                        .then(() => {
-                            window.location.href = '/payments/';
+                    .then(() => {
+                        window.location.href = '/payments';
                     })
                     .catch((error) => {
                         var validationError = error.response.data.errors;
@@ -1099,7 +1099,8 @@
                     paymentdata.append('chequeimage', this.chequeimage);
                     paymentdata.append('letterimage', this.letterimage);
                     axios.post('/payments/create', paymentdata)
-                        .then(() => {
+                    .then(() => {
+                        window.location.href = '/payments';
                     })
                     .catch((error) => {
                         var validationError = error.response.data.errors;
@@ -1118,7 +1119,7 @@
             this.form.claim = 0;
             this.form.short = 0;
             this.form.interest = 0;
-            
+
             switch (this.scope) {
                 case 'edit' :
                     axios.get(`/payments/fetch-payment/${this.id}`)

@@ -131,7 +131,7 @@
                                                     <label class="form-label" for="supplier_invoice_no">Supplier Invoice No.</label>
                                                     <div class="form-control-wrap">
                                                         <input type="text" v-model="supplier_invoice_no" id="supplier_invoice_no" class="form-control" @change="checkSupplierInvoiceNo">
-                                                        <div id="check-supplier-no-div"></div>
+                                                        <div id="check-supplier-no-div" class="mt-2"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -201,7 +201,7 @@
                                                 <div class="form-group row gy-4" v-for="(k, i) in productDetails" :key="i">
                                                     <div class="col-sm-2">
                                                         <label for="">Product</label>
-                                                        <multiselect v-model="k.product_name" :options="product_options" placeholder="Select One" label="name" track-by="id" @close="getSubProducts(i)"></multiselect>
+                                                        <multiselect v-model="k.product_name" :options="product_options" placeholder="Select One" label="name" track-by="id" @close="getSubProducts(i, $event)"></multiselect>
                                                         <input type="text" class="form-control mt-2" v-model="k.hsn_code" placeholder="HSN Code">
                                                     </div>
                                                     <div class="col-sm-2">
@@ -210,31 +210,31 @@
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Pieces</label>
-                                                        <input type="text" class="form-control" v-model="k.pieces" @change="calculateTotalItems(i)">
+                                                        <input type="text" class="form-control" v-model="k.pieces" @change="calculateTotalProducts(i)">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Rate</label>
-                                                        <input type="text" class="form-control" v-model="k.rate" @change="updateRate(i)">
+                                                        <input type="text" class="form-control" v-model="k.rate" @change="calculateTotalProducts(i)">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Discount</label>
-                                                        <input type="text" class="form-control" v-model="k.discount" @change="updateDiscount(i)">
-                                                        <input type="text" class="form-control" v-model="k.discount_amount">
+                                                        <input type="text" class="form-control" v-model="k.discount" @change="calculateTotalProducts(i)">
+                                                        <input type="text" class="form-control" v-model="k.discount_amount" disabled="true">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">CGST</label>
-                                                        <input type="text" class="form-control" v-model="k.cgst" @change="updateCGST(i)">
-                                                        <input type="text" class="form-control" v-model="k.cgst_amount">
+                                                        <input type="text" class="form-control" v-model="k.cgst" @change="calculateTotalProducts(i)">
+                                                        <input type="text" class="form-control" v-model="k.cgst_amount" disabled="true">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">SGST</label>
-                                                        <input type="text" class="form-control" v-model="k.sgst" @change="updateSGST(i)">
-                                                        <input type="text" class="form-control" v-model="k.sgst_amount">
+                                                        <input type="text" class="form-control" v-model="k.sgst" @change="calculateTotalProducts(i)">
+                                                        <input type="text" class="form-control" v-model="k.sgst_amount" disabled="true">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">IGST</label>
-                                                        <input type="text" class="form-control" v-model="k.igst" @change="updateIGST(i)">
-                                                        <input type="text" class="form-control" v-model="k.igst_amount">
+                                                        <input type="text" class="form-control" v-model="k.igst" @change="calculateTotalProducts(i)">
+                                                        <input type="text" class="form-control" v-model="k.igst_amount" disabled="true">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Amount</label>
@@ -267,33 +267,136 @@
                                                 <div class="form-group row">
                                                     <div class="col-sm-2" id="total_peices_div">
                                                         <label class="control-label">Total Pieces: </label>
-                                                        <strong id="total_peices"></strong>
+                                                        <strong id="total_peices">&nbsp;{{ totals.pieces }}</strong>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label class="control-label">Discount: </label>
-                                                        <strong id="total_discount"></strong>
+                                                        <strong id="total_discount">&nbsp;{{ totals.discount }}</strong>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label class="control-label">CGST: </label>
-                                                        <strong id="total_cgst"></strong>
+                                                        <strong id="total_cgst">&nbsp;{{ totals.cgst }}</strong>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label class="control-label">SGST: </label>
-                                                        <strong id="total_sgst"></strong>
+                                                        <strong id="total_sgst">&nbsp;{{ totals.sgst }}</strong>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label class="control-label">IGST: </label>
-                                                        <strong id="total_igst"></strong>
+                                                        <strong id="total_igst">&nbsp;{{ totals.igst }}</strong>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label class="control-label">Amount: </label>
-                                                        <strong id="total_amount"></strong>
+                                                        <strong id="total_amount">&nbsp;{{ totals.amount }}</strong>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-
-
+                                        <hr>
+                                        <div class="transport_details">
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                        <h4 class="modal-title" id="myModalLabel">Transport Insert</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <label class="col-sm-2">Name</label>
+                                                                <div class="col-sm-10">
+                                                                    <input type="text" value="" name="add_transport_name" id="add_transport_name" class="form-control">
+                                                                </div>
+                                                            </div><br>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                            <button type="button" id="save_modal_data_transport" class="btn btn-primary" data-dismiss="modal">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <label class=""><b>Transport Details</b></label>
+                                            <div class="row gy-4">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="transport">Transport</label>
+                                                        <multiselect v-model="transport" :options="transport_options" placeholder="Select One" label="name" track-by="id" id="transport"></multiselect>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="station">Station / To</label>
+                                                        <multiselect v-model="station" :options="station_options" placeholder="Select One" label="name" track-by="id" id="station"></multiselect>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="lr_mr_no">LR / MR No</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" v-model="lr_mr_no" id="lr_mr_no" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="transport_date">LR / MR Date</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="transport_cases">Cases</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" v-model="transport_cases" id="transport_cases" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="courier_weight">Weight</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" v-model="courier_weight" id="courier_weight" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="courier_freight">Freight</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" v-model="courier_freight" id="courier_freight" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="change_in">
+                                            <label for="" class="form-label">Change In Amount</label>
+                                            <div class="row gy-4">
+                                                <div class="col-md-1">
+                                                    <div class="form-group">
+                                                        <select v-model="change_in_sign" id="change_in_sign" class="form-control">
+                                                            <option value="+" selected>+</option>
+                                                            <option value="+">-</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <input v-model="change_in_amount" id="change_in_amount" class="form-control" type="text" placeholder="Amount">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <input v-model="transport_remark" id="transport_remark" class="form-control" type="text" placeholder="Remarks">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <hr class="preview-hr">
                                         <div class="row gy-4">
                                             <div class="col-md-12 text-center">
@@ -354,6 +457,8 @@
                 customer_address_options: [],
                 supplier_options: [],
                 agent_options: [],
+                transport_options: [],
+                station_options: [],
                 reference_via: null,
                 new_old_sale_bill: 1,
                 from_email: '',
@@ -375,7 +480,7 @@
                     product_name: '',
                     sub_product_name: '',
                     hsn_code: '',
-                    pieces: 1,
+                    pieces: 0,
                     rate: 0,
                     discount: 0,
                     discount_amount: 0,
@@ -410,6 +515,16 @@
                     igst: 0,
                     amount: 0
                 },
+                transport: '',
+                station: '',
+                lr_mr_no: '',
+                transport_date: '',
+                transport_cases: '',
+                courier_weight: '',
+                courier_freight: '',
+                change_in_sign: '',
+                change_in_amount: '',
+                transport_remark: '',
             }
         },
         methods: {
@@ -513,8 +628,15 @@
                 if (event != null) {
                     axios.get('/account/sale-bill/list-customer-address/'+event.id)
                     .then(response => {
-                        this.customer_address = '';
                         this.customer_address_options = response.data;
+                        this.customer_address = response.data[0];
+
+                        axios.get('/account/sale-bill/list-stations/'+this.customer.id)
+                        .then(response => {
+                            this.stations_options = response.data[0];
+                            this.station = response.data[1];
+
+                        });
                     });
                 }
             },
@@ -637,42 +759,42 @@
             getSubProductRate: function (i) {
                 this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
             },
-            calculateTotalItems: function (i) {
-                console.log(i);
+            calculateTotalProducts (i) {
+                var pd = this.productDetails[i];
+                pd.amount = parseFloat(pd.pieces * pd.rate);
+                pd.discount_amount = parseFloat((pd.discount > 0 ? (pd.amount * pd.discount / 100) : 0).toFixed(2));
+                pd.amount = parseFloat(pd.amount - pd.discount_amount);
+                pd.cgst_amount = parseFloat((pd.cgst > 0 ? (pd.amount * pd.cgst / 100) : 0).toFixed(2));
+                pd.sgst_amount = parseFloat((pd.sgst > 0 ? (pd.amount * pd.sgst / 100) : 0).toFixed(2));
+                pd.igst_amount = parseFloat((pd.igst > 0 ? (pd.amount * pd.igst / 100) : 0).toFixed(2));
+                pd.amount = Math.round(parseFloat(pd.amount + pd.cgst_amount + pd.sgst_amount + pd.igst_amount));
+                this.totals.pieces = this.totals.discount = this.totals.cgst = this.totals.sgst = this.totals.igst = this.totals.amount = 0;
+                this.productDetails.forEach((k, i) => {
+                    this.totals.pieces = parseInt(this.totals.pieces) + parseInt(k.pieces);
+                    this.totals.discount = parseFloat(this.totals.discount) + parseFloat(k.discount_amount.toFixed(2));
+                    this.totals.cgst = parseFloat(this.totals.cgst) + parseFloat(k.cgst_amount);
+                    this.totals.sgst = parseFloat(this.totals.sgst) + parseFloat(k.sgst_amount);
+                    this.totals.igst = parseFloat(this.totals.igst) + parseFloat(k.igst_amount);
+                    this.totals.amount = parseInt(this.totals.amount) + parseInt(k.amount);
+                });
             },
 
             register () {
                 var formData = new FormData();
-                formData.append('company_data', JSON.stringify(this.company));
-                formData.append('contact_details', JSON.stringify(this.contactDetails));
-                formData.append('multiple_addresses', JSON.stringify(this.multipleAddresses));
-                formData.append('multiple_emails', JSON.stringify(this.multipleEmails));
-                formData.append('swot_details', JSON.stringify(this.swot));
-                formData.append('references_details', JSON.stringify(this.references));
-                formData.append('packaging_details', JSON.stringify(this.packaging));
-                formData.append('bank_details', JSON.stringify(this.bank));
+                // formData.append('company_data', JSON.stringify(this.company));
+                // formData.append('contact_details', JSON.stringify(this.contactDetails));
 
-                this.contactDetails.forEach((contact,index)=>{
+                /* this.contactDetails.forEach((contact,index)=>{
                     if(contact.contact_person_profile_pic){
                         formData.append(`contact_details_profile_pic[${index}]`, contact.contact_person_profile_pic);
                     }else{
                         formData.append(`contact_details_profile_pic[${index}]`, null);
                     }
-                })
+                }) */
 
-                this.multipleAddresses.forEach((multipleAdd,key)=>{
-                    multipleAdd.multipleAddressesOwners.forEach((contact,index)=>{
-                        if(contact.profile_pic){
-                            formData.append(`multiple_address_profile_pic[${key}][ownerImage][${index}]`, contact.profile_pic);
-                        }else{
-                            formData.append(`multiple_address_profile_pic[${key}][ownerImage][${index}]`, null);
-                        }
-                    })
-                })
-
-                axios.post('/databank/companies/create', formData)
+                axios.post('/account/sale-bill/create-sale-bill/create', formData)
                 .then(response => {
-                    window.location.href = '/databank/companies';
+                    window.location.href = '/account/sale-bill';
                 })
                 .catch((error) => {
                     var validationError = error.response.data.errors;
@@ -694,6 +816,10 @@
             .then(response => {
                 this.customer_options = response.data[0];
                 this.supplier_options = response.data[1];
+            });
+            axios.get('/account/sale-bill/list-transport')
+            .then(response => {
+                this.transport_options = response.data;
             });
 
             $(document).on('change', 'input[name=reference_id_sale_bill]', function () {
