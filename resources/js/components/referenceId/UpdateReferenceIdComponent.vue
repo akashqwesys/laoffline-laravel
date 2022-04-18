@@ -588,8 +588,8 @@ var references = [];
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
-<style >
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
+<style scoped>
     .form-group.code-block {
         border: none;
         padding: 0;

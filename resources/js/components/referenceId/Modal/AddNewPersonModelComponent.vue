@@ -120,7 +120,7 @@ import Multiselect from 'vue-multiselect';
         max-width: 1000px;
     }
 </style>
-<style>
+<style scoped>
     .multiselect {
         height: calc(2.125rem + 2px);
         font-family: Roboto,sans-serif;

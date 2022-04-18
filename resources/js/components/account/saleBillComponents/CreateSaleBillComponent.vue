@@ -16,7 +16,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered">
                             <div class="card-inner">
-                                <form action="#" class="form-validate" @submit.prevent="register()">
+                                <form action="#" class="form-validate" @submit.prevent="submitForm()">
                                     <div id="allhiddenfield_div"></div>
                                     <div class="preview-block">
                                         <span class="preview-title-lg overline-title">Reference Details</span>
@@ -81,6 +81,7 @@
                                                     <label class="form-label" for="product_category">Product Main Category</label>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="product_category" :options="product_category_options" placeholder="Select One" label="name" track-by="id" id="product_category" @close="getProductSubCategory"></multiselect>
+                                                        <div v-if="v$.product_category.$error" class="invalid mt-1">Select Product Category</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -115,6 +116,7 @@
                                                     <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Supplier" @click="setSupplier" :disabled="isSupplierDisabled"><span class="clipboard-text">Add New</span></button>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="supplier" :options="supplier_options" placeholder="Select One" label="name" track-by="id" id="supplier" @close="getProductSubCategory(), checkSupplierInvoiceNo()" :disabled="isSupplierDisabled"></multiselect>
+                                                        <div v-if="v$.supplier.$error" class="invalid mt-1">Select Supplier</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -123,6 +125,7 @@
                                                     <label class="form-label" for="agent">Agent</label>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="agent" :options="agent_options" placeholder="Select One" label="name" track-by="id" id="agent" ></multiselect>
+                                                        <div v-if="v$.agent.$error" class="invalid mt-1">Select Agent</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -131,6 +134,7 @@
                                                     <label class="form-label" for="supplier_invoice_no">Supplier Invoice No.</label>
                                                     <div class="form-control-wrap">
                                                         <input type="text" v-model="supplier_invoice_no" id="supplier_invoice_no" class="form-control" @change="checkSupplierInvoiceNo">
+                                                        <div v-if="v$.supplier_invoice_no.$error" class="invalid mt-1">Enter Supplier Invoice Number</div>
                                                         <div id="check-supplier-no-div" class="mt-2"></div>
                                                     </div>
                                                 </div>
@@ -140,6 +144,7 @@
                                                     <label class="form-label" for="bill_date">Bill Date</label>
                                                     <div class="form-control-wrap">
                                                         <input type="date" v-model="bill_date" id="bill_date" class="form-control">
+                                                        <div v-if="v$.bill_date.$error" class="invalid mt-1">Select Bill Date</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -329,6 +334,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="station">Station / To</label>
                                                         <multiselect v-model="station" :options="station_options" placeholder="Select One" label="name" track-by="id" id="station"></multiselect>
+                                                        <div v-if="v$.station.$error" class="invalid mt-1">Select Station</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4" >
@@ -344,6 +350,7 @@
                                                         <label class="form-label" for="transport_date">LR / MR Date</label>
                                                         <div class="form-control-wrap">
                                                             <input type="date" v-model="transport_date" id="transport_date" class="form-control">
+                                                            <div v-if="v$.transport_date.$error" class="invalid mt-1">Select Transport Date</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -379,24 +386,23 @@
                                             <div class="row gy-4">
                                                 <div class="col-md-1">
                                                     <div class="form-group">
-                                                        <select v-model="change_in_sign" id="change_in_sign" class="form-control">
-                                                            <option value="+" selected>+</option>
-                                                            <option value="+">-</option>
-                                                        </select>
+                                                        <multiselect v-model="change_in_sign" :options="change_in_sign_options" placeholder="Select One" label="name" track-by="name" id="change_in_sign" @close="getChangeAmount"></multiselect>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <div class="form-group">
-                                                        <input v-model="change_in_amount" id="change_in_amount" class="form-control" type="text" placeholder="Amount">
+                                                        <input v-model="change_in_amount" id="change_in_amount" class="form-control" type="text" placeholder="Amount" @change="getChangeAmount">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-8">
+                                                <div class="col-md-9">
                                                     <div class="form-group">
                                                         <input v-model="transport_remark" id="transport_remark" class="form-control" type="text" placeholder="Remarks">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <hr>
+                                        <div class="text-right"><b>Total: <span id="final_total">{{ final_total }}</span></b></div>
                                         <hr class="preview-hr">
                                         <div class="row gy-4">
                                             <div class="col-md-12 text-center">
@@ -422,8 +428,13 @@
     import $ from "jquery";
     import Multiselect from 'vue-multiselect';
     import AddCompany from '../../databank/productsComponents/modal/AddNewCompanyModelComponent.vue';
+    import useVuelidate from '@vuelidate/core';
+    import { required, email } from '@vuelidate/validators';
 
     export default {
+        setup () {
+            return { v$: useVuelidate() }
+        },
         name: 'createCompany',
         components: {
             Multiselect,
@@ -432,6 +443,10 @@
         data() {
             return {
                 cancel_url: '/account/sale-bill',
+                errors: {
+                    product_category: '',
+                    supplier: ''
+                },
                 old_reference_data: '',
                 reference_options:[
                     // { name: 'Call'},
@@ -459,11 +474,13 @@
                 agent_options: [],
                 transport_options: [],
                 station_options: [],
+                change_in_sign_options: [{ name: '+' }, { name: '-' }],
                 reference_via: null,
                 new_old_sale_bill: 1,
                 from_email: '',
                 delivery_by: '',
                 reference_new: true,
+                reference_id: '',
                 isSupplierDisabled: false,
                 sale_bill_for: '',
                 product_category: '',
@@ -515,6 +532,7 @@
                     igst: 0,
                     amount: 0
                 },
+                final_total: 0,
                 transport: '',
                 station: '',
                 lr_mr_no: '',
@@ -522,13 +540,24 @@
                 transport_cases: '',
                 courier_weight: '',
                 courier_freight: '',
-                change_in_sign: '',
-                change_in_amount: '',
+                change_in_sign: { name: '+' },
+                change_in_amount: 0,
                 transport_remark: '',
             }
         },
+        validations () {
+            return {
+                supplier: { required },
+                product_category: { required },
+                agent: { /* required */ },
+                supplier_invoice_no: { /* required */ },
+                bill_date: { /* required */ },
+                station: { /* required */ },
+                transport_date: { /* required */ }
+            }
+        },
         methods: {
-            resetSupplier: function (event) {
+            resetSupplier (event) {
                 $('#new_reference_details_div').show();
                 $('#show-references').slideUp();
                 this.old_reference_data = '';
@@ -545,9 +574,10 @@
                 $('#customer').attr('readonly', false);
                 this.supplier = '';
                 this.isSupplierDisabled = false;
-                // $('#datepicker_transport').val('').attr('readonly',false);
+                $('#transport_date').attr('readonly', false);
+                this.transport_date = '';
             },
-            getOldReferences: function (event) {
+            getOldReferences (event) {
                 if (this.reference_via == null) {
                     setTimeout(() => {
                         this.new_old_sale_bill = 1;
@@ -573,7 +603,7 @@
                     });
                 }
             },
-            getUpdatedOldReferences: function (event) {
+            getUpdatedOldReferences (event) {
                 axios.get('/account/sale-bill/getOldReferenceForSaleBill/'+$('input[name="reference_id_sale_bill"]:checked').val()+'?sale_bill_via=3')
                 .then(response2 => {
                     if (response2.data != '') {
@@ -582,15 +612,17 @@
                             this.bill_date = $('#hidden_sale_bill_date').val();
                             $('#bill_date').attr('disabled', true);
                         }
+                        this.reference_id = $('input[name="reference_id_sale_bill"]:checked').val();
                         this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
                         this.isSupplierDisabled = true;
-                        // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
+                        $('#transport_date').attr('readonly', true);
+                        this.transport_date = $('#hidden_courier_received_time').val();
                     } else {
                         this.new_old_sale_bill = 1;
                     }
                 });
             },
-            getProductMainCategory: function(event) {
+            getProductMainCategory (event) {
                 if (event != null) {
                     axios.get('/account/sale-bill/list-product-main-category/'+event.id)
                     .then(response => {
@@ -599,7 +631,7 @@
                     });
                 }
             },
-            getProductSubCategory: function(event) {
+            getProductSubCategory (event) {
                 if (this.product_category != '' && this.supplier != '') {
                     axios.get('/account/sale-bill/list-product-sub-category/'+this.product_category.id+'/'+this.supplier.id)
                     .then(response => {
@@ -615,7 +647,7 @@
                     });
                 }
             },
-            getInwardCustomers: function(event) {
+            getInwardCustomers (event) {
                 if (event != null) {
                     axios.get('/account/sale-bill/list-inward-customers/'+event.id)
                     .then(response => {
@@ -624,7 +656,7 @@
                     });
                 }
             },
-            getCustomerAddress: function(event) {
+            getCustomerAddress (event) {
                 if (event != null) {
                     axios.get('/account/sale-bill/list-customer-address/'+event.id)
                     .then(response => {
@@ -640,7 +672,7 @@
                     });
                 }
             },
-            getAgents: function(event) {
+            getAgents (event) {
                 if (event != null) {
                     axios.get('/account/sale-bill/list-customer-address/'+event.id)
                     .then(response => {
@@ -649,7 +681,7 @@
                     });
                 }
             },
-            showHideName: function (event) {
+            showHideName (event) {
                 $('#error-validate-reference-div').text('');
                 if (event.name == 'Email') {
                     $('#delivery_by_section').hide();
@@ -659,18 +691,18 @@
                     $('#from_email_section').hide();
                 }
             },
-            setCustomer: function (e) {
+            setCustomer (e) {
                 this.$refs.company.isDisabled = true;
                 this.$refs.company.form.company_type = {id: 2, name: 'Customer'};
             },
-            setSupplier: function (e) {
+            setSupplier (e) {
                 this.$refs.company.isDisabled = true;
                 this.$refs.company.form.company_type = {id: 3, name: 'Supplier'};
             },
-            uploadAttachment: function (e) {
+            uploadAttachment (e) {
                 this.extra_attachment = e.target.files[0];
             },
-            checkSupplierInvoiceNo: function (e) {
+            checkSupplierInvoiceNo (e) {
                 if (this.supplier_invoice_no != '' && this.invoice_no != '') {
                     axios.post('/account/sale-bill/check-supplier-invoice', {
                         supplier_id: this.supplier,
@@ -682,7 +714,7 @@
                     });
                 }
             },
-            showItemSection: function (e) {
+            showItemSection (e) {
                 if (e != '') {
                     if (this.sale_bill_for.id == 1) {
                         $('#add_product_details, .dynamic_items').show();
@@ -694,7 +726,7 @@
                     $('#item_details_div').slideDown();
                 }
             },
-            addProductDetailsRow: function() {
+            addProductDetailsRow () {
                 this.productDetails.push({
                     product_name: '',
                     sub_product_name: '',
@@ -711,10 +743,10 @@
                     amount: 0
                 });
             },
-            deleteProductDetailsRow: function(row) {
+            deleteProductDetailsRow (row) {
                 this.productDetails.pop(row);
             },
-            addFabricDetailsRow: function() {
+            addFabricDetailsRow () {
                 this.fabricDetails.push({
                     product_name: '',
                     sub_product_name: '',
@@ -731,10 +763,10 @@
                     amount: 0
                 });
             },
-            deleteFabricDetailsRow: function(row) {
+            deleteFabricDetailsRow (row) {
                 this.fabricDetails.pop(row);
             },
-            getProducts: function (e) {
+            getProducts (e) {
                 var subcategory = '';
                 this.product_sub_category.forEach((k, i) => {
                     subcategory += k.id + ',';
@@ -750,13 +782,13 @@
                     }
                 });
             },
-            getSubProducts: function (i) {
+            getSubProducts (i) {
                 axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
                 .then(response => {
                     this.sub_product_options = response.data;
                 });
             },
-            getSubProductRate: function (i) {
+            getSubProductRate (i) {
                 this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
             },
             calculateTotalProducts (i) {
@@ -777,38 +809,77 @@
                     this.totals.igst = parseFloat(this.totals.igst) + parseFloat(k.igst_amount);
                     this.totals.amount = parseInt(this.totals.amount) + parseInt(k.amount);
                 });
+                this.getChangeAmount();
+            },
+            getChangeAmount (e) {
+                if (this.change_in_sign.name == '+') {
+                    this.final_total = parseInt(this.totals.amount) + parseInt(this.change_in_amount);
+                } else {
+                    this.final_total = parseInt(this.totals.amount) - parseInt(this.change_in_amount);
+                }
             },
 
             register () {
                 var formData = new FormData();
-                // formData.append('company_data', JSON.stringify(this.company));
-                // formData.append('contact_details', JSON.stringify(this.contactDetails));
-
-                /* this.contactDetails.forEach((contact,index)=>{
-                    if(contact.contact_person_profile_pic){
-                        formData.append(`contact_details_profile_pic[${index}]`, contact.contact_person_profile_pic);
-                    }else{
-                        formData.append(`contact_details_profile_pic[${index}]`, null);
-                    }
-                }) */
+                var transportDetails = {
+                    transport: this.transport,
+                    station: this.station,
+                    lr_mr_no: this.lr_mr_no,
+                    transport_date: this.transport_date,
+                    transport_cases: this.transport_cases,
+                    courier_weight: this.courier_weight,
+                    courier_freight: this.courier_freight,
+                };
+                var referenceDetails = {
+                    reference_via: this.reference_via,
+                    new_old_sale_bill: this.new_old_sale_bill,
+                    from_email: this.from_email,
+                    delivery_by: this.delivery_by,
+                    reference_new: this.reference_new,
+                    reference_id: this.reference_id,
+                    sale_bill_for: this.sale_bill_for,
+                    product_category: this.product_category,
+                    product_sub_category: this.product_sub_category,
+                    reference_inward: this.reference_inward,
+                    customer: this.customer,
+                    customer_address: this.customer_address,
+                    supplier: this.supplier,
+                    agent: this.agent,
+                    supplier_invoice_no: this.supplier_invoice_no,
+                    bill_date: this.bill_date,
+                };
+                var changeAmount = {
+                    change_in_sign: this.change_in_sign,
+                    change_in_amount: this.change_in_amount,
+                    transport_remark: this.transport_remark
+                };
+                formData.append('referenceDetails', JSON.stringify(referenceDetails));
+                formData.append('productDetails', JSON.stringify(this.productDetails));
+                formData.append('productTotals', JSON.stringify(this.totals));
+                formData.append('transportDetails', JSON.stringify(transportDetails));
+                formData.append('changeAmount', JSON.stringify(changeAmount));
+                formData.append('final_total', this.final_total);
+                formData.append('extra_attachment', this.extra_attachment);
 
                 axios.post('/account/sale-bill/create-sale-bill/create', formData)
                 .then(response => {
                     window.location.href = '/account/sale-bill';
                 })
                 .catch((error) => {
-                    var validationError = error.response.data.errors;
-
+                    /* var validationError = error.response.data.errors;
                     if(validationError) {
-                        $('#fw-company_name').focus();
-                        this.errors.company_name = validationError;
-                    }
+                        $('#supplier').focus();
+                        this.errors.supplier = validationError;
+                    } */
                 });
-
             },
-            getContactProfilePic(name){
-                return name ? '/upload/company/profilePic/' + name : '';
-            },
+            async submitForm () {
+                const isFormCorrect = await this.v$.$validate();
+                // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
+                if (!isFormCorrect) return;
+                // actually submit form
+                this.register();
+            }
         },
         mounted() {
             const self = this;
@@ -835,11 +906,13 @@
                             this.bill_date = $('#hidden_sale_bill_date').val();
                             $('#bill_date').attr('disabled', true);
                         }
-                        $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="r-'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
+                        $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
                         this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
                         this.isSupplierDisabled = true;
                         $('#show-references tr input[type="radio"]').last().prop('checked', true);
-                        // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
+                        $('#transport_date').attr('readonly', true);
+                        this.transport_date = $('#hidden_courier_received_time').val();
+                        this.reference_id = $('input[name="reference_id_sale_bill"]:checked').val();
                     } else {
                         this.new_old_sale_bill = 1;
                         $('#sale_bill_ref_msg').html('<td colspan="5">This Reference Id is not generated by Email, Courier OR Hand.</td>');
@@ -850,7 +923,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
 <style scoped>
     .hidden {
         display: none;
@@ -868,5 +941,6 @@
     .dynamic_items .form-control, .dynamic_items_fabrics .form-control {
         padding: 0.4375rem 0.6rem;
     }
+
 </style>
 

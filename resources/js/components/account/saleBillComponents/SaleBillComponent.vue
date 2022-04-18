@@ -84,13 +84,13 @@
             const self = this;
             var buttons = [];
             var dt_table = null;
-            /* function init_dt_table () {
-                dt_table = $('#companies').DataTable({
+            function init_dt_table () {
+                dt_table = $('#saleBill').DataTable({
                     processing: true,
                     serverSide: true,
                     responsive: true,
                     ajax: {
-                        url: "./companies/list",
+                        url: "./sale-bill/list-data",
                         data: function (data) {
                             if ($('#dt_name').val() == '') {
                                 data.columns[3].search.value = '';
@@ -123,14 +123,16 @@
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
                     columns: [
-                        { data: 'id' },
-                        { data: 'flag', orderable: false },
-                        { data: 'verified', orderable: false },
-                        { data: 'company_name' },
-                        { data: 'office_no', orderable: false },
-                        { data: 'company_type' },
-                        { data: 'company_category' },
-                        { data: 'company_city' },
+                        { data: 'sale_bill_id' },
+                        { data: 'iuid' },
+                        { data: 'general_ref_id' },
+                        { data: 'updated_at' },
+                        { data: 'select_date' },
+                        { data: 'customer', orderable: false },
+                        { data: 'supplier', orderable: false },
+                        { data: 'total' },
+                        { data: 'payment_status', orderable: false },
+                        { data: 'outward_status', orderable: false },
                         { data: 'action', orderable: false },
                     ],
                     search: {
@@ -193,7 +195,7 @@
                 });
                 // Requery the server with the new one-time export settings
                 dt.ajax.reload();
-            } */
+            }
             var draw = 1;
             $(document).on('keyup', '#company_filter input', function(e) {
                 if ($(this).val() == '') {

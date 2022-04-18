@@ -158,8 +158,8 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
-<style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
+<style scoped>
     .invalid {
         color: #e85347;
         font-size: 11px;

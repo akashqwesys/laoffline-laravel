@@ -120,8 +120,8 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
-<style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
+<style scoped>
     span.form-note {
         margin-top: 10px;
     }

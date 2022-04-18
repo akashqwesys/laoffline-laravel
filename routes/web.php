@@ -273,6 +273,7 @@ Route::group(['middleware' => ['auth', 'permission:modify-reference-id']], funct
 Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access-sale-bill']], function () {
     Route::group(['prefix' => 'sale-bill'], function () {
         Route::get('/', [App\Http\Controllers\Account\SaleBillController::class, 'index'])->name('sale-bill');
+        Route::get('/list-data', [App\Http\Controllers\Account\SaleBillController::class, 'listSaleBill']);
         Route::get('/list-product-main-category/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'listProductMainCategory']);
         Route::get('/list-product-sub-category/{product_id}/{supplier_id}', [App\Http\Controllers\Account\SaleBillController::class, 'listProductSubCategory']);
         Route::get('/getProductsFromSubCategory', [App\Http\Controllers\Account\SaleBillController::class, 'getProductsFromSubCategory']);
