@@ -50,6 +50,7 @@ import CreateFinancialYearComponent from './components/financialyear/CreateFinan
 // Account Menu
 import SaleBillComponent from './components/account/saleBillComponents/SaleBillComponent.vue';
 import CreateSaleBillComponent from './components/account/saleBillComponents/CreateSaleBillComponent.vue';
+import EditSaleBillComponent from './components/account/saleBillComponents/EditSaleBillComponent.vue';
 
 
 // Settings Menu
@@ -195,7 +196,7 @@ const routes = [
         component: SaleBillComponent,
         children: [
             { path: 'create-sale-bill', component: CreateSaleBillComponent },
-            { path: 'edit-sale-bill/:id', component: CreateSaleBillComponent },
+            { path: 'edit-sale-bill/:id', component: EditSaleBillComponent },
         ]
     },
     // Settings Menu
@@ -353,6 +354,7 @@ createApp({
 
         SaleBillComponent,
         CreateSaleBillComponent,
+        EditSaleBillComponent,
 
         BankDetailsComponent,
         CreateBankDetailsComponent,

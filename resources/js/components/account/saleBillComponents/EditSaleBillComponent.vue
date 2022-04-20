@@ -6,10 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Create Sale Bill</h3>
-                                <div class="nk-block-des text-soft">
-                                    <p>Please fill the details.</p>
-                                </div>
+                                <h3 class="nk-block-title page-title">Update Sale Bill</h3>
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
@@ -17,56 +14,101 @@
                         <div class="card card-bordered">
                             <div class="card-inner">
                                 <form action="#" class="form-validate" @submit.prevent="submitForm()">
+                                    <div ><h5>This Sale Bill's Current Reference ID is {{ reference_id }}</h5></div>
+                                    <hr>
+                                    <div class="preview-block">
+                                        <div class="row gy-4">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Do You Want to Change?</label>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <ul class="custom-control-group g-3 align-center" >
+                                                    <li class="w-25">
+                                                        <div class="custom-control custom-radio">
+                                                            <input v-model="change_reference" type="radio" class="custom-control-input" id="fv-change_reference_yes" value="1" @click="change_reference_new = true" @change="showAllReferenceDetails">
+                                                            <label class="custom-control-label" for="fv-change_reference_yes">Yes</label>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="custom-control custom-radio">
+                                                            <input v-model="change_reference" type="radio" class="custom-control-input" id="fv-change_reference_no" value="0" @click="change_reference_new = false" @change="showAllReferenceDetails">
+                                                            <label class="custom-control-label" for="fv-change_reference_no">No</label>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="hidden" id="show-all-reference-details">
+                                            <div class="row gy-4" >
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="fw-reference_via">Reference Via</label>
+                                                        <div class="form-control-wrap">
+                                                            <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @close="showHideName($event), getReferenceForSaleBillUpdate($event)"></multiselect>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="preview-block">
+                                                        <label class="form-label">Reference</label>
+                                                        <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
+                                                            <li class="w-25">
+                                                                <div class="custom-control custom-radio">
+                                                                    <input v-model="new_old_sale_bill" type="radio" class="custom-control-input" id="fv-reference_new" value="1" @click="reference_new = true" @change="resetSupplier($event), getReferenceForSaleBillUpdate($event)">
+                                                                    <label class="custom-control-label" for="fv-reference_new">NEW</label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="custom-control custom-radio">
+                                                                    <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false" @change="getOldReferences($event), getReferenceForSaleBillUpdate($event)">
+                                                                    <label class="custom-control-label" for="fv-reference_old">OLD</label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                        <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
+                                                <div id="new_reference_details_div" class="col-md-12">
+                                                    <div class="row">
+                                                        <div class="col-md-6" >
+                                                            <div class="form-group">
+                                                                <label class="form-label" for="from_name">From Name</label>
+                                                                <div class="form-control-wrap">
+                                                                    <input type="text" v-model="from_name" id="from_name" class="form-control" >
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="hidden" id="from_email_section">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="from_email">From Email ID</label>
+                                                                    <div class="form-control-wrap">
+                                                                        <input type="email" v-model="from_email" id="from_email" class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="" id="delivery_by_section">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="delivery_by">Delivery By</label>
+                                                                    <div class="form-control-wrap">
+                                                                        <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="pt-5 mt-5"></div>
                                     <div id="allhiddenfield_div"></div>
                                     <div class="preview-block">
-                                        <span class="preview-title-lg overline-title">Reference Details</span>
+                                        <h5 class="">Update Sale Bill Details</h5>
+                                        <hr>
                                         <div class="row gy-4">
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="fw-reference_via">Reference Via</label>
-                                                    <div class="form-control-wrap">
-                                                        <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @close="showHideName"></multiselect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="preview-block">
-                                                    <label class="form-label">Reference</label>
-                                                    <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
-                                                        <li class="w-25">
-                                                            <div class="custom-control custom-radio">
-                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_new" value="1" @click="reference_new = true" @change="resetSupplier">
-                                                                <label class="custom-control-label" for="fv-reference_new">NEW</label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <div class="custom-control custom-radio">
-                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false" @change="getOldReferences">
-                                                                <label class="custom-control-label" for="fv-reference_old">OLD</label>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                    <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
-                                                </div>
-                                            </div>
-                                            <div id="new_reference_details_div" class="col-md-4">
-                                                <div class="hidden" id="from_email_section">
-                                                    <div class="form-group">
-                                                        <label class="form-label" for="from_email">From Email ID</label>
-                                                        <div class="form-control-wrap">
-                                                            <input type="email" v-model="from_email" id="from_email" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="" id="delivery_by_section">
-                                                    <div class="form-group">
-                                                        <label class="form-label" for="delivery_by">Delivery By</label>
-                                                        <div class="form-control-wrap">
-                                                            <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="sale_bill_for">Sale Bill For</label>
@@ -75,7 +117,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
+
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="product_category">Product Main Category</label>
@@ -471,7 +513,7 @@
     import Multiselect from 'vue-multiselect';
     import AddCompany from '../../databank/productsComponents/modal/AddNewCompanyModelComponent.vue';
     import useVuelidate from '@vuelidate/core';
-    import { required, email } from '@vuelidate/validators';
+    import { required, email, requiredIf } from '@vuelidate/validators';
 
     export default {
         setup () {
@@ -524,10 +566,13 @@
                 fabric_options: [],
                 pieces_meters_options: [{ id: 1, name: 'Meters' }, { id: 2, name: 'Pieces' }],
                 sale_bill_is_moved: 0,
+                change_reference: 0,
+                change_reference_new: false,
                 reference_via: { name: '' },
                 new_old_sale_bill: 1,
                 from_email: '',
                 delivery_by: '',
+                from_name: '',
                 reference_new: true,
                 reference_id: '',
                 isSupplierDisabled: false,
@@ -595,6 +640,10 @@
                 change_in_sign: { name: '+' },
                 change_in_amount: 0,
                 transport_remark: '',
+                is_from_name_required: false,
+                is_from_email_required: false,
+                is_delivery_by_required: false,
+                is_reference_via_required: false,
             }
         },
         validations () {
@@ -602,6 +651,10 @@
                 supplier: { required },
                 product_category: { required },
                 agent: { /* required */ },
+                reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
+                from_name: { requiredIf: requiredIf(this.is_from_name_required) },
+                from_email: { requiredIf: requiredIf(this.is_from_email_required) },
+                delivery_by: { requiredIf: requiredIf(this.is_delivery_by_required) },
                 supplier_invoice_no: { /* required */ },
                 bill_date: { /* required */ },
                 station: { /* required */ },
@@ -615,11 +668,52 @@
             return localRules;
         },
         methods: {
+            showAllReferenceDetails (e) {
+                if (this.change_reference == 1) {
+                    $('#show-all-reference-details').slideDown();
+                } else {
+                    $('#show-all-reference-details').slideUp();
+                }
+            },
+            getReferenceForSaleBillUpdate (e) {
+                if(this.new_old_sale_bill == 0) {
+                    $('#show-references').slideDown();
+                    $('#new_reference_details_div').slideUp();
+                    this.is_reference_via_required = this.is_from_name_required = this.is_from_email_required = this.is_delivery_by_required = false;
+                    axios.get('/account/sale_bill/getReferenceForSaleBillUpdate?ref_via='+this.reference_via.name+'&supplier_id='+this.supplier.id)
+                    .then(response => {
+                        this.old_reference_data = response.data;
+                        $('#show-references tbody tr input[type="radio"]').first().prop('checked', true);
+                        this.getUpdatedOldReferences();
+                    });
+                } else {
+                    if (this.reference_via.name == 'Email') {
+                        $('#from_email_section').show();
+                        $('#delivery_by_section').hide();
+                        this.is_delivery_by_required = false;
+                        this.is_from_email_required = true;
+                    } else if (this.reference_via.name == 'Courier' || this.reference_via.name == 'Hand') {
+                        $('#from_email_section').hide();
+                        $('#delivery_by_section').show();
+                        this.is_delivery_by_required = true;
+                        this.is_from_email_required = false;
+                    } else {
+                        $('#from_email_section').show();
+                        $('#delivery_by_section').show();
+                        this.is_delivery_by_required = true;
+                        this.is_from_email_required = true;
+                    }
+                    $('#new_reference_details_div').slideDown();
+                    $('#show-references').slideUp();
+                    this.bill_date = '';
+                    $('#bill_date').attr('disabled', false);
+                }
+            },
             resetSupplier (event) {
                 $('#new_reference_details_div').show();
                 $('#show-references').slideUp();
                 this.old_reference_data = '';
-                // $('#reference_via').attr('required', true);
+                this.is_from_name_required = this.is_reference_via_required = true;
                 this.bill_date = '';
                 $('#bill_date').attr('disabled', false);
                 this.customer = '';
@@ -660,7 +754,7 @@
                 .then(response2 => {
                     if (response2.data != '') {
                         $('#allhiddenfield_div').html(response2.data);
-                        if($('#hidden_sale_bill_date').val() != '') {
+                        if ($('#hidden_sale_bill_date').val() != '') {
                             this.bill_date = $('#hidden_sale_bill_date').val();
                             $('#bill_date').attr('disabled', true);
                         }
@@ -1087,4 +1181,3 @@
     }
 
 </style>
-

@@ -284,8 +284,10 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBill']);
         Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getOldReferenceForSaleBill']);
         Route::get('/getSubProductFromProduct', [App\Http\Controllers\Account\SaleBillController::class, 'getSubProductFromProduct']);
+        Route::get('/getReferenceForSaleBillUpdate', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBillUpdate']);
         Route::get('/list-transport', [App\Http\Controllers\Account\SaleBillController::class, 'listTransports']);
         Route::get('/list-stations/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getStations']);
+        Route::get('/fetch-sale-bill/{id}', [App\Http\Controllers\databank\SaleBillController::class, 'fetchSaleBill']);
     });
 });
 
@@ -293,10 +295,10 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
     Route::group(['prefix' => 'sale-bill'], function () {
         Route::get('/create-sale-bill', [App\Http\Controllers\Account\SaleBillController::class, 'createSaleBill']);
         Route::post('/create-sale-bill/create', [App\Http\Controllers\Account\SaleBillController::class, 'AddSaleBill']);
-        Route::get('/edit-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'editReferenceId']);
-        Route::get('/view-reference/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'referenceView']);
-        Route::get('/referenceId/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteReferenceId'])->name('delete');
-        Route::post('/update', [App\Http\Controllers\Account\SaleBillController::class, 'updateReference']);
+        Route::get('/edit-sale-bill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'editSaleBill']);
+        Route::get('/copy/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'copySaleBill']);
+        Route::get('/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteSaleBill']);
+        Route::post('/update', [App\Http\Controllers\Account\SaleBillController::class, 'updateSaleBill']);
     });
 });
 

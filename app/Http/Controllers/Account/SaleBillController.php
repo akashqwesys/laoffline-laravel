@@ -65,10 +65,6 @@ class SaleBillController extends Controller
 
         $user = Session::get('user');
 
-        $employees = Employee::select('user_group', 'id')
-            ->where('id', $user->employee_id)
-            ->first();
-
         $totalRecords = SaleBill::select('id')
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
@@ -105,32 +101,32 @@ class SaleBillController extends Controller
             ->leftJoin('companies as cs', 's.company_id', '=', 'cs.id')
             ->leftJoin('payment_details as pd', 's.sale_bill_id', '=', 'pd.sr_no')
             ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
-            ->leftJoin('outward_sale_bills as o', 's.sale_bill_id', '=', 'o.sale_bill_id')
-            ->leftJoin('comboids as cid', 's.sale_bill_id', '=', 'cid.sale_bill_id')
-            ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'p.payment_id', 'pd.sr_no', 'o.outward_id', 'cid.is_completed', 'cid.color_flag_id')
+            // ->leftJoin('outward_sale_bills as o', 's.sale_bill_id', '=', 'o.sale_bill_id')
+            // ->leftJoin('comboids as cid', 's.sale_bill_id', '=', 'cid.sale_bill_id')
+            ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'p.payment_id', 'pd.sr_no'/* , 'o.outward_id', 'cid.is_completed', 'cid.color_flag_id' */)
             ->where('s.financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('sale_bill_id', $columnName_arr[0]['search']['value']);
+            $SaleBill = $SaleBill->where('s.sale_bill_id', $columnName_arr[0]['search']['value']);
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('general_ref_id', '=', $columnName_arr[2]['search']['value']);
+            $SaleBill = $SaleBill->where('s.general_ref_id', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('updated_at', '=', $columnName_arr[1]['search']['value']);
+            $SaleBill = $SaleBill->whereDate('s.updated_at', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('select_date', '=', $columnName_arr[4]['search']['value']);
+            $SaleBill = $SaleBill->where('s.select_date', '=', $columnName_arr[4]['search']['value']);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->where('company_type', 2)->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
+            $SaleBill = $SaleBill->whereIn('s.company_id', $cc_id);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             $ss_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->where('company_type', 3)->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $ss_id);
+            $SaleBill = $SaleBill->whereIn('s.supplier_id', $ss_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('supplier_invoice_no', '=', $columnName_arr[7]['search']['value']);
+            $SaleBill = $SaleBill->where('s.supplier_invoice_no', '=', $columnName_arr[7]['search']['value']);
         }
 
         $SaleBill = $SaleBill->orderBy($columnName, $columnSortOrder)
@@ -141,14 +137,14 @@ class SaleBillController extends Controller
         $data_arr = array();
 
         foreach ($SaleBill as $s) {
-            $updated_at = date('Y-m-d H:i:s', strtotime($s->updated_at));
+            $updated_at = date('d-m-Y H:i A', strtotime($s->updated_at));
             $select_date = date('d-m-Y', strtotime($s->select_date));
             if ($s->done_outward == 0) {
                 $outward_status = '<em class="icon ni ni-cross" title="No"></em>';
             } else {
-                $outward_status = '<a href="' . $s->outward_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
+                $outward_status = '<a href="' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             }
-            $ref_id = '<a href="/reference/view-reference/'.$s->general_ref_id.'" class="" >' . $s->general_ref_id . '</a>';
+            $ref_id = '<a href="/reference/view-reference/'.$s->general_ref_id.'" class="" target="_blank">' . $s->general_ref_id . '</a>';
             if ($s->payment_id) {
                 $payment_status = '<a href="' . $s->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             } else {
@@ -158,8 +154,8 @@ class SaleBillController extends Controller
             if ($s->sale_bill_flag == 0) {
                 $action .= '<a href="/account/sale-bill/view-bill/' . $s->sale_bill_id . '/'. $user->financial_year_id .'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> ';
             }
-            if ($s->is_completed == 0 && empty($s->payment_id)) {
-                $action .= '<a href="/account/sale-bill/update/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a> ';
+            if (/* $s->is_completed == 0 && */ empty($s->payment_id)) {
+                $action .= '<a href="/account/sale-bill/edit-sale-bill/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a> ';
             }
             if ($s->sale_bill_id != $s->sr_no) {
                 $action .= '<a href="/account/sale-bill/delete/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a> ';
@@ -174,6 +170,7 @@ class SaleBillController extends Controller
                 "select_date" => $select_date,
                 "customer" => $s->customer_name,
                 "supplier" => $s->supplier_name,
+                "supplier_invoice_no" => $s->supplier_invoice_no,
                 "total" => $s->total,
                 "payment_status" => $payment_status,
                 "outward_status" => $outward_status,
@@ -209,7 +206,8 @@ class SaleBillController extends Controller
         $referenceDetails = json_decode($request->referenceDetails);
         $referenceDetails->sale_bill_via = 3;
         $productDetails = json_decode($request->productDetails);
-        $productTotals = json_decode($request->productTotals);
+        $fabricDetails = json_decode($request->fabricDetails);
+        $totals = json_decode($request->totals);
         $transportDetails = json_decode($request->transportDetails);
         $changeAmount = json_decode($request->changeAmount);
 
@@ -249,7 +247,7 @@ class SaleBillController extends Controller
         $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
         $receiver_details = $user->user_email;
         $general_ref = $this->getReferenceDetails($referenceDetails->sale_bill_via, $referenceDetails->reference_via);
-        if ($referenceDetails->new_old_sale_bill == "1" || count($general_ref) < 1) {
+        if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
             $ref_via = $referenceDetails->reference_via->name;
             if ($referenceDetails->reference_via->name == "Email") {
                 $from_name = null;
@@ -368,8 +366,6 @@ class SaleBillController extends Controller
         $combo_id->required_followup            = 0;
         $combo_id->color_flag_id                = 0;
         $combo_id->attachments                  = $extra_attachment;
-        $combo_id->created_at                   = $dateAdded;
-        $combo_id->updated_at                   = $dateAdded;
         $combo_id->ouid = 0;
         $combo_id->follow_as_inward_or_outward = 0;
         $combo_id->inward_or_outward_flag = 0;
@@ -446,8 +442,8 @@ class SaleBillController extends Controller
         $sale_bill->general_ref_id           = $general_ref_no;
         $sale_bill->sale_bill_via            = $referenceDetails->sale_bill_via;
         $sale_bill->new_or_old_reference     = $referenceDetails->new_old_sale_bill;
-        $sale_bill->product_main_category_id = $referenceDetails->product_category->id;
-        $sale_bill->product_sub_category_id  = json_encode($subCategory);
+        $sale_bill->product_default_category_id = $referenceDetails->product_category->id;
+        $sale_bill->product_category_id      = json_encode($subCategory);
         $sale_bill->inward_id                = $referenceDetails->reference_inward;
         $sale_bill->company_id               = $customer_id;
         $sale_bill->address                  = $referenceDetails->customer_address->id;
@@ -465,7 +461,7 @@ class SaleBillController extends Controller
         $sale_bill->iuid                     = $iuid;
         $sale_bill->save();
 
-        $dataentry_update = array('sale_bill_id' => $sale_bill_id);
+        $dataentry_update = array('sale_bill_id' => $sale_bill_id, 'updated_at' => $dateAdded);
         $this->updateComboId($dataentry_update, $comboid);
         $total_peices = 0;
         $total_meters = 0;
@@ -494,16 +490,16 @@ class SaleBillController extends Controller
                 $total_peices += intval($row->pieces);
             }
         }
-        if (count($request->fabric_sub_category)) {
-            foreach ($request->fabric_sub_category as $row) {
+        if (count($fabricDetails)) {
+            foreach ($fabricDetails as $row) {
                 $dataentry_item[] = array(
                     'sale_bill_id'         => $sale_bill_id,
-                    'product_or_fabric_id' => intval($row->product_name->id),
+                    'product_or_fabric_id' => intval($row->fabric_name->id),
                     'financial_year_id'    => $user->financial_year_id,
                     'pieces'               => intval($row->pieces),
                     'meters'               => floatval($row->meters),
                     'pieces_meters'        => intval($row->pieces_or_meters),
-                    'rate'                 => floatval($row->fabric_rate),
+                    'rate'                 => floatval($row->rate),
                     'hsn_code'             => $row->hsn_code,
                     'discount'             => floatval($row->discount),
                     'cgst'                 => floatval($row->cgst),
@@ -513,7 +509,7 @@ class SaleBillController extends Controller
                     'cgst_amount'          => floatval($row->cgst_amount),
                     'sgst_amount'          => floatval($row->sgst_amount),
                     'igst_amount'          => floatval($row->igst_amount),
-                    'amount'               => floatval($row->fabric_amount),
+                    'amount'               => floatval($row->amount),
                     'created_at'           => $dateAdded,
                     'updated_at'           => $dateAdded
                 );
@@ -555,6 +551,246 @@ class SaleBillController extends Controller
         return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);
     }
 
+    public function copySaleBill($id)
+    {
+        $user = Session::get('user');
+        $getsalebill = DB::table('sale_bills')
+            ->where('sale_bill_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        $getsalebillcombo = DB::table('comboids')
+            ->select('inward_or_outward_via')
+            ->where('sale_bill_id', $id)
+            ->where('sale_bill_flag', 0)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        $getsalebillTransport = DB::table('sale_bill_transports')
+            ->where('sale_bill_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+
+        $dateAdded = date('Y-m-d H:i:s');
+
+        $companyName = $this->getCompanyNameWithId($getsalebill->company_id);
+
+        if ($companyName->company_type_id != 0) {
+            $companyTypeName = $this->getCompanyTypeName($companyName->company_type_id);
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+        $companyPerson = $this->getCompanyDetails($getsalebill->company_id);
+        if ($companyPerson) {
+            $personName = $companyPerson->name;
+        } else {
+            $personName = '';
+        }
+
+        $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
+        if ($increment_id_details) {
+            $iuid = $increment_id_details->iuid + 1;
+            $data_iuid = array('iuid' => $iuid);
+            $this->updateIncrementIds($data_iuid, $user->financial_year_id);
+        } else {
+            $iuid = 1;
+            $data_iuid = array(
+                'iuid' => $iuid,
+                'financial_year_id' => $user->financial_year_id,
+                'created_at' => $dateAdded,
+                'updated_at' => $dateAdded
+            );
+            $this->insertIncrementIds($data_iuid);
+        }
+        $dataentry_iuid = array(
+            'iuid' => $iuid,
+            'financial_year_id' => $user->financial_year_id,
+            'created_at' => $dateAdded,
+            'updated_at' => $dateAdded
+        );
+        DB::table('iuids')->insert($dataentry_iuid);
+
+        $combo_id = new Comboids;
+        $combo_id->iuid                         = $iuid;
+        $combo_id->general_ref_id               = $getsalebill->general_ref_id;
+        $combo_id->inward_ref_via               = 0;
+        $combo_id->new_or_old_inward_or_outward = 0;
+        $combo_id->system_module_id             = 5;
+        $combo_id->main_or_followup             = 0;
+        $combo_id->generated_by                 = $user->employee_id;
+        $combo_id->assigned_to                  = $user->employee_id;
+        $combo_id->updated_by                   = $user->employee_id;
+        $combo_id->company_id                   = $getsalebill->company_id;
+        $combo_id->supplier_id                  = $getsalebill->supplier_id;
+        $combo_id->company_type                 = $typeName;
+        $combo_id->followup_via                 = 'Sale Bill';
+        $combo_id->inward_or_outward_via        = $getsalebillcombo->inward_or_outward_via;
+        $combo_id->selection_date               = null;
+        $combo_id->from_name                    = $personName;
+        $combo_id->subject                      = 'For ' . $companyName->name . ' Of Rs._____/-';
+        $combo_id->default_category_id          = $getsalebill->sale_bill_for->id;
+        $combo_id->main_category_id             = $getsalebill->product_main_category_id->id;
+        $combo_id->agent_id                     = $getsalebill->agent_id;
+        $combo_id->supplier_invoice_no          = null;
+        $combo_id->total                        = 0;
+        $combo_id->sale_bill_flag               = 1;
+        $combo_id->financial_year_id            = $user->financial_year_id;
+        $combo_id->required_followup            = 0;
+        $combo_id->color_flag_id                = 2;
+        $combo_id->attachments                  = null;
+        $combo_id->ouid = 0;
+        $combo_id->follow_as_inward_or_outward = 0;
+        $combo_id->inward_or_outward_flag = 0;
+        $combo_id->inward_or_outward_id = 0;
+        $combo_id->sale_bill_id = 0;
+        $combo_id->payment_id = 0;
+        $combo_id->payment_followup_id = 0;
+        $combo_id->goods_return_id = 0;
+        $combo_id->good_return_followup_id = 0;
+        $combo_id->commission_id = 0;
+        $combo_id->commission_followup_id = 0;
+        $combo_id->commission_invoice_id = 0;
+        $combo_id->is_invoice = 0;
+        $combo_id->sample_id = 0;
+        $combo_id->inform_md = 0;
+        $combo_id->from_number = 0;
+        $combo_id->receiver_number = 0;
+        $combo_id->from_email_id = 0;
+        $combo_id->receiver_email_id = 0;
+        $combo_id->outward_attachments = 0;
+        $combo_id->outward_employe_id = 0;
+        $combo_id->receipt_mode = 0;
+        $combo_id->receipt_amount = 0;
+        $combo_id->tds = 0;
+        $combo_id->net_received_amount = 0;
+        $combo_id->received_commission_amount = 0;
+        $combo_id->action_date = 0;
+        $combo_id->action_instruction = 0;
+        $combo_id->next_follow_up_date = 0;
+        $combo_id->next_follow_up_time = 0;
+        $combo_id->being_late = 0;
+        $combo_id->system_url = 0;
+        $combo_id->enjay_uniqueid = 0;
+        $combo_id->is_completed = 0;
+        $combo_id->mark_as_draft = 0;
+        $combo_id->product_qty = 0;
+        $combo_id->fabric_meters = 0;
+        $combo_id->sample_return_qty = 0;
+        $combo_id->mobile_flag = 0;
+        $combo_id->is_deleted = 0;
+        $combo_id->save();
+
+        $comboid = $combo_id->comboid;
+
+        if ($increment_id_details) {
+            $sale_bill_id = $increment_id_details->sale_bill_id + 1;
+            $data_sale_bill_id = array('sale_bill_id' => $sale_bill_id, 'updated_at' => $dateAdded);
+            $this->updateIncrementIds($data_sale_bill_id, $user->financial_year_id);
+        } else {
+            $sale_bill_id = 1;
+            $data_sale_bill_id = array(
+                'sale_bill_id' => $sale_bill_id,
+                'financial_year_id' => $user->financial_year_id,
+                'created_at' => $dateAdded,
+                'updated_at' => $dateAdded
+            );
+            $this->insertIncrementIds($data_sale_bill_id);
+        }
+        $sale_bill = new SaleBill;
+        $sale_bill->sale_bill_id             = $sale_bill_id;
+        $sale_bill->sale_bill_for            = $getsalebill->sale_bill_for;
+        $sale_bill->general_ref_id           = $getsalebill->general_ref_id;
+        $sale_bill->sale_bill_via            = $getsalebill->sale_bill_via;
+        $sale_bill->new_or_old_reference     = 0;
+        $sale_bill->product_default_category_id = $getsalebill->product_main_category_id;
+        $sale_bill->product_category_id      = '[]';
+        $sale_bill->inward_id                = $getsalebill->inward_id;
+        $sale_bill->company_id               = $getsalebill->company_id;
+        $sale_bill->address                  = $getsalebill->address;
+        $sale_bill->supplier_id              = $getsalebill->supplier_id;
+        $sale_bill->agent_id                 = $getsalebill->agent_id;
+        $sale_bill->financial_year_id        = $user->financial_year_id;
+        $sale_bill->change_in_amount         = $getsalebill->change_in_amount;
+        $sale_bill->sign_change              = $getsalebill->sign_change;
+        $sale_bill->total                    = $getsalebill->total;
+        $sale_bill->remark                   = $getsalebill->remark;
+        $sale_bill->sale_bill_flag           = 1;
+        $sale_bill->required_followup        = 0;
+        $sale_bill->is_copied                = 1;
+        $sale_bill->iuid                     = $iuid;
+        $sale_bill->save();
+
+        $dataentry_update = array('sale_bill_id' => $sale_bill_id, 'updated_at' => $dateAdded);
+        $this->updateComboId($dataentry_update, $comboid);
+
+        $transport_detail = new SaleBillTransport;
+        $transport_detail->sale_bill_id = $sale_bill_id;
+        $transport_detail->transport_id = $getsalebillTransport->transport_id;
+        $transport_detail->financial_year_id = $user->financial_year_id;
+        $transport_detail->station = $getsalebillTransport->station;
+        $transport_detail->save();
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = $user->employee_id;
+        $logs->log_path = 'Sale Bill / Insert';
+        $logs->log_subject = 'Sale Bill Details was inserted by ' . $user->username . '.';
+        $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->iuid = $iuid;
+        $logs->save();
+
+        return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);
+    }
+
+    public function getReferenceForSaleBillUpdate(Request $request)
+    {
+        $reference = DB::table('reference_ids')
+            ->select('r.employee_id', 'r.reference_id', 'r.created_at', 'r.company_id', 'r.selection_date', 'r.type_of_inward', 'r.from_name', 'r.from_number', 'r.receiver_number', 'r.from_email_id', 'r.receiver_email_id', 'r.latter_by_id', 'r.courier_name', 'r.weight_of_parcel', 'r.courier_receipt_no', 'r.courier_received_time', 'r.delivery_by', 'c.company_name')
+            // ->where('r.reference_id', $id)
+            ->where('c.company_type', $request->sale_bill_via)
+            ->where('r.financial_year_id', Session::get('user')->financial_year_id)
+            ->where('r.inward_or_outward', $request->ref_via)
+            ->whereRaw("(r.type_of_inward = 'Email' OR r.type_of_inward = 'Courier' OR r.type_of_inward = 'Hand')")
+            ->whereRaw("(r.employee_id = " . Session::get('user')->employee_id . " or r.employee_id = 15)")
+            ->where('r.is_deleted', 0)
+            ->limit(1)
+            ->first();
+    }
+
+    public function editSaleBill($id)
+    {
+        $page_title = 'Update Sale Bill';
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['scope'] = 'edit';
+        $employees['editedId'] = $id;
+
+        return view('account.sale_bill.editSaleBill', compact('financialYear', 'page_title', 'employees'));
+    }
+
+    public function fetchSaleBill($id)
+    {
+        $user = Session::get('user');
+        $sale_bill = DB::table('sale_bills')
+            ->where('sale_bill_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        $all = [];
+        return response()->json($all);
+    }
+
+    // FOR BOTH PRODUCT & FABRIC
     public function listProductMainCategory($id)
     {
         $categories = DB::table('product_categories')
@@ -565,6 +801,7 @@ class SaleBillController extends Controller
         return response()->json($categories);
     }
 
+    // FOR BOTH SUB PRODUCT & SUB FABRIC
     public function listProductSubCategory($product_id, $supplier_id)
     {
         $company_details = $this->getCompanyDetailsForLinkCompanies($supplier_id);
