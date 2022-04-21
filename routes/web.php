@@ -280,14 +280,18 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/list-inward-customers/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCompanyFromInward']);
         Route::get('/list-customers-and-suppliers', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomersAndSuppliers']);
         Route::get('/list-customer-address/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getCustomerAddress']);
+        Route::get('/list-sale-bill-agents', [App\Http\Controllers\Account\SaleBillController::class, 'getAgents']);
         Route::post('/check-supplier-invoice', [App\Http\Controllers\Account\SaleBillController::class, 'checkSupplierInvoiceNo']);
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBill']);
         Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getOldReferenceForSaleBill']);
         Route::get('/getSubProductFromProduct', [App\Http\Controllers\Account\SaleBillController::class, 'getSubProductFromProduct']);
-        Route::get('/getReferenceForSaleBillUpdate', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBillUpdate']);
+        Route::get('/getReferenceForSaleBillUpdate/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getReferenceForSaleBillUpdate']);
+        Route::get('/getRefForSaleBillUpdate', [App\Http\Controllers\Account\SaleBillController::class, 'getRefForSaleBillUpdate']);
         Route::get('/list-transport', [App\Http\Controllers\Account\SaleBillController::class, 'listTransports']);
         Route::get('/list-stations/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getStations']);
-        Route::get('/fetch-sale-bill/{id}', [App\Http\Controllers\databank\SaleBillController::class, 'fetchSaleBill']);
+        Route::get('/fetch-sale-bill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchSaleBill']);
+        Route::get('/updateSupplier/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'updateSupplier']);
+        Route::get('/removeAttachment/{file}', [App\Http\Controllers\Account\SaleBillController::class, 'removeAttachment']);
     });
 });
 

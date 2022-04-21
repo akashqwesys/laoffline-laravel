@@ -71,8 +71,8 @@ class LoginController extends Controller
 
 
             // FOR TESTING ==========
-            // $user['financial_year_id'] = $financialYear->id;
-            $user['financial_year_id'] = 7;
+            $user['financial_year_id'] = $financialYear->id;
+            // $user['financial_year_id'] = 7;
             // FOR TESTING ==========
 
 

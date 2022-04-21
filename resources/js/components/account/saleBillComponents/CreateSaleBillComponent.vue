@@ -55,6 +55,7 @@
                                                         <label class="form-label" for="from_email">From Email ID</label>
                                                         <div class="form-control-wrap">
                                                             <input type="email" v-model="from_email" id="from_email" class="form-control">
+                                                            <div v-if="v$.from_email.$error" class="invalid mt-1">Select Product Category</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -63,6 +64,7 @@
                                                         <label class="form-label" for="delivery_by">Delivery By</label>
                                                         <div class="form-control-wrap">
                                                             <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
+                                                            <div v-if="v$.delivery_by.$error" class="invalid mt-1">Select Product Category</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -152,7 +154,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="extra_attachment">Extra Attachment</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="file" @change="uploadAttachment" id="extra_attachment" class="form-control">
+                                                        <input type="file" @change="uploadAttachment" id="extra_attachment" class="form-control" accept="text/plain,image/png,image/jpeg,application/msword,application/pdf,audio/ogg,audio/mpeg">
                                                     </div>
                                                 </div>
                                             </div>
@@ -200,7 +202,7 @@
                                                         </div>
                                                     </div>&nbsp;
                                                     <button class="btn btn-sm btn-primary" type="button" id="add_product_details" @click="addProductDetailsRow"><em class="icon ni ni-plus"></em></button>
-                                                    <button class="btn btn-sm btn-primary" type="button" id="add_fabric_details" @click="addFabricDetailsRow"><em class="icon ni ni-plus"></em></button>
+                                                    <button class="btn btn-sm btn-primary hidden" type="button" id="add_fabric_details" @click="addFabricDetailsRow"><em class="icon ni ni-plus"></em></button>
                                                 </div>
                                             </div>
 
@@ -213,7 +215,7 @@
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label for="">Sub Product</label>
-                                                        <multiselect v-model="k.sub_product_name" :options="sub_product_options" placeholder="Select One" label="name" track-by="id" @close="getSubProductRate(i)"></multiselect>
+                                                        <multiselect v-model="k.sub_product_name" :options="sub_product_options[i]" placeholder="Select One" label="name" track-by="id" @close="getSubProductRate(i)"></multiselect>
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Pieces</label>
@@ -510,10 +512,8 @@
                 product_category_options: [],
                 product_sub_category_options: [],
                 product_options: [],
-                sub_product_options: [],
-                reference_inward_options: [
-                    { id: 0, name: 'Direct'}
-                ],
+                sub_product_options: [[]],
+                reference_inward_options: [ { id: 0, name: 'Direct'} ],
                 customer_options: [],
                 customer_address_options: [],
                 supplier_options: [],
@@ -595,6 +595,10 @@
                 change_in_sign: { name: '+' },
                 change_in_amount: 0,
                 transport_remark: '',
+                is_from_name_required: false,
+                is_from_email_required: false,
+                is_delivery_by_required: false,
+                is_reference_via_required: false,
             }
         },
         validations () {
@@ -602,17 +606,38 @@
                 supplier: { required },
                 product_category: { required },
                 agent: { /* required */ },
-                supplier_invoice_no: { /* required */ },
-                bill_date: { /* required */ },
-                station: { /* required */ },
-                transport_date: { /* required */ }
+                from_email: { /* required */ },
+                delivery_by: { /* required */ },
+                reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
+                supplier_invoice_no: { required },
+                bill_date: { required },
+                station: { required },
+                transport_date: { required }
             };
-            if (this.reference_via.name == "Email") {
-                localRules.from_email = { required };
-            } else if (this.reference_via.name == "Courier" || this.reference_via.name == "Hand") {
-                localRules.delivery_by = { required };
+            if (this.reference_via) {
+                if (this.reference_via.name == "Email") {
+                    localRules.from_email = { required };
+                } else if (this.reference_via.name == "Courier" || this.reference_via.name == "Hand") {
+                    localRules.delivery_by = { required };
+                }
             }
             return localRules;
+        },
+        created () {
+            axios.get('/account/sale-bill/list-customers-and-suppliers')
+            .then(response => {
+                this.customer_options = response.data[0];
+                this.supplier_options = response.data[1];
+            });
+            axios.get('/account/sale-bill/list-transport')
+            .then(response => {
+                this.transport_options = response.data;
+            });
+            axios.get('/account/sale-bill/list-sale-bill-agents')
+            .then(response => {
+                this.agent = '';
+                this.agent_options = response.data;
+            });
         },
         methods: {
             resetSupplier (event) {
@@ -793,26 +818,23 @@
                     });
                 }
             },
-            getAgents (event) {
-                if (event != null) {
-                    axios.get('/account/sale-bill/list-customer-address/'+event.id)
-                    .then(response => {
-                        this.customer_address = '';
-                        this.customer_address_options = response.data;
-                    });
-                }
-            },
             showHideName (event) {
-                $('#error-validate-reference-div').text('');
-                if (event.name == 'Email') {
-                    $('#delivery_by_section').hide();
-                    $('#from_email_section').show();
-                } else {
-                    $('#delivery_by_section').show();
-                    $('#from_email_section').hide();
-                }
-                if (this.new_old_sale_bill == 0) {
-                    this.getOldReferences();
+                if (event) {
+                    $('#error-validate-reference-div').text('');
+                    if (event.name == 'Email') {
+                        $('#delivery_by_section').hide();
+                        $('#from_email_section').show();
+                        this.is_from_email_required = true;
+                        this.is_delivery_by_required = false;
+                    } else {
+                        $('#delivery_by_section').show();
+                        $('#from_email_section').hide();
+                        this.is_from_email_required = false;
+                        this.is_delivery_by_required = true;
+                    }
+                    if (this.new_old_sale_bill == 0) {
+                        this.getOldReferences();
+                    }
                 }
             },
             setCustomer (e) {
@@ -839,6 +861,7 @@
                 }
             },
             addProductDetailsRow () {
+                this.sub_product_options[this.productDetails.length] = [];
                 this.productDetails.push({
                     product_name: '',
                     sub_product_name: '',
@@ -902,7 +925,7 @@
                 if (this.productDetails[i].product_name.id) {
                     axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
                     .then(response => {
-                        this.sub_product_options = response.data;
+                        this.sub_product_options[i] = response.data;
                     });
                 }
             },
@@ -1027,15 +1050,6 @@
         },
         mounted() {
             const self = this;
-            axios.get('/account/sale-bill/list-customers-and-suppliers')
-            .then(response => {
-                this.customer_options = response.data[0];
-                this.supplier_options = response.data[1];
-            });
-            axios.get('/account/sale-bill/list-transport')
-            .then(response => {
-                this.transport_options = response.data;
-            });
 
             $(document).on('change', 'input[name=reference_id_sale_bill]', function () {
                 self.getUpdatedOldReferences();
