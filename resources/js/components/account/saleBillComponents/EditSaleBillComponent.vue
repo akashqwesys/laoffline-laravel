@@ -46,7 +46,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="fw-reference_via">Reference Via</label>
                                                         <div class="form-control-wrap">
-                                                            <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @close="showHideName($event), refUpdateForSaleBill($event)"></multiselect>
+                                                            <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @select="showHideName($event), refUpdateForSaleBill($event)"></multiselect>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -92,7 +92,7 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="" id="delivery_by_section">
+                                                            <div class="hidden" id="delivery_by_section">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="delivery_by">Delivery By</label>
                                                                     <div class="form-control-wrap">
@@ -511,7 +511,7 @@
                                             <div class="col-md-12 text-center">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary mr-3">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    <button type="submit" class="btn btn-primary" id="submit-form" :disabled="isSubmitDisabled">Save changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -663,13 +663,14 @@
                 showUpdateSupplier: false,
                 sale_bill_id: '',
                 isProductSubCategoryDisabled: false,
+                isSubmitDisabled: false,
             }
         },
         validations () {
             const localRules = {
                 supplier: { required },
                 product_category: { required },
-                agent: { /* required */ },
+                agent: { required },
                 from_email: { /* required */ },
                 delivery_by: { /* required */ },
                 reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
@@ -680,9 +681,9 @@
                 transport_date: { required }
             };
             if (this.reference_via) {
-                if (this.reference_via.name == "Email") {
+                if (this.reference_via.name == "Email" && this.new_old_sale_bill == 1) {
                     localRules.from_email = { required };
-                } else if (this.reference_via.name == "Courier" || this.reference_via.name == "Hand") {
+                } else if ((this.reference_via.name == "Courier" || this.reference_via.name == "Hand") && this.new_old_sale_bill == 1) {
                     localRules.delivery_by = { required };
                 }
             }
@@ -779,6 +780,7 @@
                     this.product_sub_category.push(this.product_sub_category_options.find( _ => _.id == k ));
                 });
                 this.getProducts();
+
                 if (data.sale_bill.sale_bill_for == 1 && subCat.length > 0) {
                     $('#add_product_details').show();
                     if (data.sale_bill_items.length > 0) {
@@ -823,9 +825,10 @@
                                 amount: parseFloat(k.amount)
                             }
                         });
-                        this.calculateTotalProducts(0);
+                        this.calculateTotalFabrics(0);
                     }
                 }
+                // this.getProductSubCategory();
 
                 this.transport = this.transport_options.find( _ => _.id == data.sale_bill_transports.transport_id );
                 this.station = this.station_options.find( _ => _.id == data.sale_bill_transports.station );
@@ -872,16 +875,6 @@
                         this.getUpdatedOldReferences();
                     });
                 } else {
-                    if (this.reference_via.name == 'Email') {
-                        $('#from_email_section').show();
-                        $('#delivery_by_section').hide();
-                    } else if (this.reference_via.name == 'Courier' || this.reference_via.name == 'Hand') {
-                        $('#from_email_section').hide();
-                        $('#delivery_by_section').show();
-                    } else {
-                        $('#from_email_section').show();
-                        $('#delivery_by_section').show();
-                    }
                     $('#new_reference_details_div').slideDown();
                     $('#show-references').slideUp();
                     this.bill_date = '';
@@ -903,10 +896,11 @@
                 this.transport_date = '';
             },
             getOldReferences (event) {
-                if (this.reference_via == null) {
+                if (this.reference_via.name == '') {
                     setTimeout(() => {
                         this.new_old_sale_bill = 1;
                         $('#error-validate-reference-div').text('Please select Reference Via');
+                        $('#show-references').hide().html('');
                     }, 500);
                     this.isSupplierDisabled = false;
                 } else {
@@ -1010,12 +1004,15 @@
                 this.final_total = 0;
             },
             getProductSubCategory (e) {
+                if (e) {
+                    this.product_category = e;
+                }
                 if (this.sale_bill_is_moved == 0) {
                     if (this.sale_bill_via == 3) {
                         $('#supplierChangeDivMsg').show();
                         this.getReferenceForSaleBillUpdate(e);
                     }
-                    if (this.product_category != '' && this.supplier != '') {
+                    if (this.product_category && this.supplier) {
                         axios.get('/account/sale-bill/list-product-sub-category/'+this.product_category.id+'/'+this.supplier.id)
                         .then(response => {
                             if (response.data.length > 0) {

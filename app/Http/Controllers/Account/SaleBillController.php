@@ -78,7 +78,7 @@ class SaleBillController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->where('general_ref_id', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('updated_at', '=', $columnName_arr[1]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('updated_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('select_date', '=', $columnName_arr[4]['search']['value']);
@@ -112,7 +112,7 @@ class SaleBillController extends Controller
             $SaleBill = $SaleBill->where('s.general_ref_id', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $SaleBill = $SaleBill->whereDate('s.updated_at', '=', $columnName_arr[1]['search']['value']);
+            $SaleBill = $SaleBill->whereDate('s.updated_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $SaleBill = $SaleBill->where('s.select_date', '=', $columnName_arr[4]['search']['value']);
@@ -291,8 +291,9 @@ class SaleBillController extends Controller
                 );
                 $this->insertIncrementIds($data_ref);
             }
-
+            $next_ref_id = DB::table('reference_ids')->select('id')->orderBy('id', 'desc')->limit(1)->first();
             DB::table('reference_ids')->insert([
+                'id' => ($next_ref_id->id + 1),
                 'reference_id' => $ref_id,
                 'financial_year_id' => $user->financial_year_id,
                 'employee_id' => $user->employee_id,
@@ -331,6 +332,7 @@ class SaleBillController extends Controller
             $this->insertIncrementIds($data_iuid);
         }
         $dataentry_iuid = array(
+            'id' => (getLastID('iuids', 'id') + 1),
             'iuid' => $iuid,
             'financial_year_id' => $user->financial_year_id,
             'created_at' => $dateAdded,
@@ -339,6 +341,7 @@ class SaleBillController extends Controller
         DB::table('iuids')->insert($dataentry_iuid);
 
         $combo_id = new Comboids;
+        $combo_id->comboid                       = (getLastID('comboids', 'comboid') + 1);
         $combo_id->iuid                          = $iuid;
         $combo_id->general_ref_id                = $general_ref_no;
         $combo_id->inward_ref_via                = $referenceDetails->sale_bill_via;
@@ -355,7 +358,7 @@ class SaleBillController extends Controller
         $combo_id->inward_or_outward_via        = $referenceDetails->reference_via->name;
         $combo_id->selection_date               = $select_date;
         $combo_id->from_name                    = $personName;
-        $combo_id->subject                      = 'For ' . $companyName->name . ' Of Rs. ' . $request->final_total . '/-';
+        $combo_id->subject                      = 'For ' . $companyName->company_name . ' Of Rs. ' . $request->final_total . '/-';
         $combo_id->default_category_id          = $referenceDetails->sale_bill_for->id;
         $combo_id->main_category_id             = $referenceDetails->product_category->id;
         $combo_id->agent_id                     = $referenceDetails->agent->id;
@@ -392,10 +395,10 @@ class SaleBillController extends Controller
         $combo_id->tds = 0;
         $combo_id->net_received_amount = 0;
         $combo_id->received_commission_amount = 0;
-        $combo_id->action_date = 0;
+        $combo_id->action_date = null;
         $combo_id->action_instruction = 0;
-        $combo_id->next_follow_up_date = 0;
-        $combo_id->next_follow_up_time = 0;
+        $combo_id->next_follow_up_date = null;
+        $combo_id->next_follow_up_time = null;
         $combo_id->being_late = 0;
         $combo_id->system_url = 0;
         $combo_id->enjay_uniqueid = 0;
@@ -427,6 +430,7 @@ class SaleBillController extends Controller
         } else {
             $sale_bill_id = 1;
             $data_sale_bill_id = array(
+                'id' => (getLastID('iuids', 'id') + 1),
                 'sale_bill_id' => $sale_bill_id,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -436,15 +440,16 @@ class SaleBillController extends Controller
         }
 
         $sale_bill = new SaleBill;
+        $sale_bill->id                       = (getLastID('sale_bills', 'id') + 1);
         $sale_bill->sale_bill_id             = $sale_bill_id;
         $sale_bill->sale_bill_for            = $referenceDetails->sale_bill_for->id;
-        $sale_bill->attachments              = $extra_attachment;
+        $sale_bill->attachment              = $extra_attachment;
         $sale_bill->general_ref_id           = $general_ref_no;
         $sale_bill->sale_bill_via            = $referenceDetails->sale_bill_via;
         $sale_bill->new_or_old_reference     = $referenceDetails->new_old_sale_bill;
         $sale_bill->product_default_category_id = $referenceDetails->product_category->id;
         $sale_bill->product_category_id      = json_encode($subCategory);
-        $sale_bill->inward_id                = $referenceDetails->reference_inward;
+        $sale_bill->inward_id                = $referenceDetails->reference_inward->id;
         $sale_bill->company_id               = $customer_id;
         $sale_bill->address                  = $referenceDetails->customer_address->id;
         $sale_bill->supplier_id              = $supplier_id;
@@ -465,16 +470,17 @@ class SaleBillController extends Controller
         $this->updateComboId($dataentry_update, $comboid);
         $total_peices = 0;
         $total_meters = 0;
-        if (count($productDetails)) {
+        $dataentry_item = [];
+        if (count($productDetails) > 0 && $productDetails[0]->amount > 0) {
             foreach ($productDetails as $row) {
                 $dataentry_item[] = array(
                     'sale_bill_id'         => $sale_bill_id,
                     'product_or_fabric_id' => intval($row->product_name->id),
                     'financial_year_id'    => $user->financial_year_id,
-                    'sub_product_id'       => intval($row->sub_product_name->id),
+                    'sub_product_id'       => intval($row->sub_product_name->id ?? 0),
                     'pieces'               => intval($row->pieces),
                     'rate'                 => floatval($row->rate),
-                    'hsn_code'             => $row->hsn_code,
+                    'hsn_code'             => $row->hsn_code ?? 0,
                     'discount'             => floatval($row->discount),
                     'cgst'                 => floatval($row->cgst),
                     'sgst'                 => floatval($row->sgst),
@@ -490,7 +496,7 @@ class SaleBillController extends Controller
                 $total_peices += intval($row->pieces);
             }
         }
-        if (count($fabricDetails)) {
+        if (count($fabricDetails) > 0 && $fabricDetails[0]->amount > 0) {
             foreach ($fabricDetails as $row) {
                 $dataentry_item[] = array(
                     'sale_bill_id'         => $sale_bill_id,
@@ -498,9 +504,9 @@ class SaleBillController extends Controller
                     'financial_year_id'    => $user->financial_year_id,
                     'pieces'               => intval($row->pieces),
                     'meters'               => floatval($row->meters),
-                    'pieces_meters'        => intval($row->pieces_or_meters),
+                    'pieces_meters'        => intval($row->pieces_or_meters->id),
                     'rate'                 => floatval($row->rate),
-                    'hsn_code'             => $row->hsn_code,
+                    'hsn_code'             => $row->hsn_code ?? 0,
                     'discount'             => floatval($row->discount),
                     'cgst'                 => floatval($row->cgst),
                     'sgst'                 => floatval($row->sgst),
@@ -525,6 +531,7 @@ class SaleBillController extends Controller
         // end
 
         $transport_detail = new SaleBillTransport;
+        $transport_detail->id = (getLastID('sale_bill_transports', 'id') + 1);
         $transport_detail->sale_bill_id = $sale_bill_id;
         $transport_detail->transport_id = $transport_id;
         $transport_detail->financial_year_id = $user->financial_year_id;
@@ -545,7 +552,6 @@ class SaleBillController extends Controller
         $logs->log_path = 'Sale Bill / Insert';
         $logs->log_subject = 'Sale Bill Details was inserted by ' . $user->username . '.';
         $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $logs->iuid = $iuid;
         $logs->save();
 
         return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);
@@ -613,6 +619,7 @@ class SaleBillController extends Controller
         DB::table('iuids')->insert($dataentry_iuid);
 
         $combo_id = new Comboids;
+        $combo_id->comboid                      = (getLastID('comboids', 'comboid') + 1);
         $combo_id->iuid                         = $iuid;
         $combo_id->general_ref_id               = $getsalebill->general_ref_id;
         $combo_id->inward_ref_via               = 0;
@@ -629,7 +636,7 @@ class SaleBillController extends Controller
         $combo_id->inward_or_outward_via        = $getsalebillcombo->inward_or_outward_via;
         $combo_id->selection_date               = null;
         $combo_id->from_name                    = $personName;
-        $combo_id->subject                      = 'For ' . $companyName->name . ' Of Rs._____/-';
+        $combo_id->subject                      = 'For ' . $companyName->company_name . ' Of Rs._____/-';
         $combo_id->default_category_id          = $getsalebill->sale_bill_for->id;
         $combo_id->main_category_id             = $getsalebill->product_main_category_id->id;
         $combo_id->agent_id                     = $getsalebill->agent_id;
@@ -982,7 +989,7 @@ class SaleBillController extends Controller
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
             ->first();
-        dd();
+
         if ($request->hasFile('extra_attachment')) {
             unlink(public_path('upload/sale_bill/' . $sale_bill->attachment));
             $extra_attachment = date('YmdHis') . "_." . $request->extra_attachment->getClientOriginalExtension();
@@ -1003,9 +1010,9 @@ class SaleBillController extends Controller
         }
 
         if ($referenceDetails->reference_id != '') {
-            $general_ref_id = $referenceDetails->reference_id;
+            $general_ref_no = $referenceDetails->reference_id;
         } else {
-            $general_ref_id = $sale_bill->general_ref_id;
+            $general_ref_no = $sale_bill->general_ref_id;
         }
         $customer_id = $referenceDetails->customer->id ?? 0;
         $transport_id = $transportDetails->transport->id ?? 0;
@@ -1038,7 +1045,7 @@ class SaleBillController extends Controller
             ->where('main_or_followup', 0)
             ->where('is_deleted', 0)
             ->first();
-        $ref_via = $ReferenceVia->inward_or_outward_via;
+        $ref_via = $ReferenceVia->inward_or_outward_via ?? 0;
 
         if ($sale_bill->is_copied != 1 && ($sale_bill->sale_bill_flag == 1 || $sale_bill->is_moved == 1)) {
             $general_ref = $this->getReferenceDetailsWithCompany($ref_company_id, $referenceDetails->reference_via->name);
@@ -1089,7 +1096,9 @@ class SaleBillController extends Controller
                 );
                 $this->insertIncrementIds($data_ref);
             }
+            $next_ref_id = DB::table('reference_ids')->select('id')->orderBy('id', 'desc')->limit(1)->first();
             $dataentry_ref = [
+                'id' => ($next_ref_id->id + 1),
                 'reference_id' => $ref_id,
                 'financial_year_id' => $user->financial_year_id,
                 'employee_id' => $user->employee_id,
@@ -1178,7 +1187,9 @@ class SaleBillController extends Controller
                         );
                         $this->insertIncrementIds($data_ref);
                     }
+                    $next_ref_id = DB::table('reference_ids')->select('id')->orderBy('id', 'desc')->limit(1)->first();
                     $dataentry_ref = [
+                        'id' => ($next_ref_id->id + 1),
                         'reference_id' => $ref_id,
                         'financial_year_id' => $user->financial_year_id,
                         'employee_id' => $user->employee_id,
@@ -1213,7 +1224,7 @@ class SaleBillController extends Controller
         if ($sale_bill->sale_bill_flag == 1 && $sale_bill->general_ref_id == 0) {
             $sale_bill_via = $referenceDetails->reference_via->name;
         } else {
-            $sale_bill_via = "";
+            $sale_bill_via = 0;
         }
 
         if ($sale_bill->is_moved == 1) {
@@ -1258,44 +1269,45 @@ class SaleBillController extends Controller
         $main_category = $referenceDetails->product_category->id;
 
         $combo_id = Comboids::where('iuid', $iuid)->where('financial_year_id', $user->financial_year_id)->first();
+        if ($combo_id) {
 
-        $combo_id->general_ref_id               = $general_ref_no;
-        $combo_id->inward_ref_via               = (int)$sale_bill_via;
-        $combo_id->new_or_old_inward_or_outward = $new_or_old_inward_or_outward;
-        $combo_id->system_module_id             = 5;
-        $combo_id->main_or_followup             = 0;
+            $combo_id->general_ref_id               = $general_ref_no;
+            $combo_id->inward_ref_via               = (int)$sale_bill_via;
+            $combo_id->new_or_old_inward_or_outward = $new_or_old_inward_or_outward;
+            $combo_id->system_module_id             = 5;
+            $combo_id->main_or_followup             = 0;
+            $combo_id->updated_by                   = $user->employee_id;
+            $combo_id->company_id                   = $customer_id;
+            $combo_id->supplier_id                  = $supplier_id;
+            $combo_id->company_type                 = $typeName;
+            $combo_id->followup_via                 = 'Sale Bill';
+            $combo_id->inward_or_outward_via        = $ref_via;
+            $combo_id->selection_date               = $select_date;
+            $combo_id->from_name                    = $personName;
+            $combo_id->subject                      = 'For ' . $companyName->company_name . ' Of Rs. ' . $request->final_total . '/-';
+            $combo_id->default_category_id          = $sale_bill_for;
+            $combo_id->main_category_id             = $main_category;
+            $combo_id->agent_id                     = $referenceDetails->agent->id;
+            $combo_id->supplier_invoice_no          = $referenceDetails->supplier_invoice_no;
+            $combo_id->total                        = intval($request->final_total);
+            $combo_id->sale_bill_flag               = 0;
+            $combo_id->financial_year_id            = $user->financial_year_id;
+            $combo_id->required_followup            = 0;
+            $combo_id->color_flag_id                = 0;
+            $combo_id->attachments                  = $extra_attachment;
+            $combo_id->save();
 
-        $combo_id->updated_by                   = $user->employee_id;
-        $combo_id->company_id                   = $customer_id;
-        $combo_id->supplier_id                  = $supplier_id;
-        $combo_id->company_type                 = $typeName;
-        $combo_id->followup_via                 = 'Sale Bill';
-        $combo_id->inward_or_outward_via        = $ref_via;
-        $combo_id->selection_date               = $select_date;
-        $combo_id->from_name                    = $personName;
-        $combo_id->subject                      = 'For ' . $companyName->name . ' Of Rs. ' . $request->final_total . '/-';
-        $combo_id->default_category_id          = $sale_bill_for;
-        $combo_id->main_category_id             = $main_category;
-        $combo_id->agent_id                     = $referenceDetails->agent->id;
-        $combo_id->supplier_invoice_no          = $referenceDetails->supplier_invoice_no;
-        $combo_id->total                        = intval($request->final_total);
-        $combo_id->sale_bill_flag               = 0;
-        $combo_id->financial_year_id            = $user->financial_year_id;
-        $combo_id->required_followup            = 0;
-        $combo_id->color_flag_id                = 0;
-        $combo_id->attachments                  = $extra_attachment;
-        $combo_id->save();
-
-        $comboid = $combo_id->comboid;
+            $comboid = $combo_id->comboid;
+        }
 
         $sale_bill->sale_bill_for            = $sale_bill_for;
-        $sale_bill->attachments              = $extra_attachment;
+        $sale_bill->attachment               = $extra_attachment;
         $sale_bill->general_ref_id           = $general_ref_no;
-        $sale_bill->sale_bill_via            = $sale_bill_via;
+        $sale_bill->sale_bill_via            = (int)$sale_bill_via;
         $sale_bill->new_or_old_reference     = $new_or_old_inward_or_outward;
         $sale_bill->product_default_category_id = $main_category;
         $sale_bill->product_category_id      = $subCategory;
-        $sale_bill->inward_id                = $referenceDetails->reference_inward;
+        $sale_bill->inward_id                = $referenceDetails->reference_inward->id;
         $sale_bill->company_id               = $customer_id;
         $sale_bill->address                  = $referenceDetails->customer_address->id;
         $sale_bill->supplier_id              = $supplier_id;
@@ -1314,17 +1326,18 @@ class SaleBillController extends Controller
 
         $total_peices = 0;
         $total_meters = 0;
-        if (count($productDetails)) {
+        $dataentry_item = [];
+        if (count($productDetails) > 0 && $productDetails[0]->amount > 0) {
             DB::table('sale_bill_items')->where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->delete();
             foreach ($productDetails as $row) {
                 $dataentry_item[] = array(
                     'sale_bill_id'         => $request->sale_bill_id,
                     'product_or_fabric_id' => intval($row->product_name->id),
                     'financial_year_id'    => $user->financial_year_id,
-                    'sub_product_id'       => intval($row->sub_product_name->id),
+                    'sub_product_id'       => intval($row->sub_product_name->id ?? 0),
                     'pieces'               => intval($row->pieces),
                     'rate'                 => floatval($row->rate),
-                    'hsn_code'             => $row->hsn_code,
+                    'hsn_code'             => $row->hsn_code ?? 0,
                     'discount'             => floatval($row->discount),
                     'cgst'                 => floatval($row->cgst),
                     'sgst'                 => floatval($row->sgst),
@@ -1340,7 +1353,7 @@ class SaleBillController extends Controller
                 $total_peices += intval($row->pieces);
             }
         }
-        if (count($fabricDetails)) {
+        if (count($fabricDetails) > 0 && $fabricDetails[0]->amount > 0) {
             DB::table('sale_bill_items')->where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->delete();
             foreach ($fabricDetails as $row) {
                 $dataentry_item[] = array(
@@ -1349,9 +1362,9 @@ class SaleBillController extends Controller
                     'financial_year_id'    => $user->financial_year_id,
                     'pieces'               => intval($row->pieces),
                     'meters'               => floatval($row->meters),
-                    'pieces_meters'        => intval($row->pieces_or_meters),
+                    'pieces_meters'        => intval($row->pieces_or_meters->id),
                     'rate'                 => floatval($row->rate),
-                    'hsn_code'             => $row->hsn_code,
+                    'hsn_code'             => $row->hsn_code ?? 0,
                     'discount'             => floatval($row->discount),
                     'cgst'                 => floatval($row->cgst),
                     'sgst'                 => floatval($row->sgst),
@@ -1395,7 +1408,6 @@ class SaleBillController extends Controller
         $logs->log_path = 'Sale Bill / Update';
         $logs->log_subject = 'Sale Bill Details was updated by ' . $user->username . '.';
         $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $logs->iuid = $iuid;
         $logs->save();
 
         return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);

@@ -25,7 +25,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fw-reference_via">Reference Via</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @close="showHideName"></multiselect>
+                                                        <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @select="showHideName"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -55,7 +55,7 @@
                                                         <label class="form-label" for="from_email">From Email ID</label>
                                                         <div class="form-control-wrap">
                                                             <input type="email" v-model="from_email" id="from_email" class="form-control">
-                                                            <div v-if="v$.from_email.$error" class="invalid mt-1">Select Product Category</div>
+                                                            <div v-if="v$.from_email.$error" class="invalid mt-1">Enter Valid Email Address</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -452,7 +452,7 @@
                                             <div class="col-md-12 text-center">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary mr-3">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    <button type="submit" class="btn btn-primary" id="submit-form" :disabled="isSubmitDisabled">Save changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -473,7 +473,7 @@
     import Multiselect from 'vue-multiselect';
     import AddCompany from '../../databank/productsComponents/modal/AddNewCompanyModelComponent.vue';
     import useVuelidate from '@vuelidate/core';
-    import { required, email } from '@vuelidate/validators';
+    import { required, email, requiredIf } from '@vuelidate/validators';
 
     export default {
         setup () {
@@ -599,13 +599,14 @@
                 is_from_email_required: false,
                 is_delivery_by_required: false,
                 is_reference_via_required: false,
+                isSubmitDisabled: false,
             }
         },
         validations () {
             const localRules = {
                 supplier: { required },
                 product_category: { required },
-                agent: { /* required */ },
+                agent: { required },
                 from_email: { /* required */ },
                 delivery_by: { /* required */ },
                 reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
@@ -615,9 +616,9 @@
                 transport_date: { required }
             };
             if (this.reference_via) {
-                if (this.reference_via.name == "Email") {
+                if (this.reference_via.name == "Email" && this.new_old_sale_bill == 1) {
                     localRules.from_email = { required };
-                } else if (this.reference_via.name == "Courier" || this.reference_via.name == "Hand") {
+                } else if ((this.reference_via.name == "Courier" || this.reference_via.name == "Hand") && this.new_old_sale_bill == 1) {
                     localRules.delivery_by = { required };
                 }
             }
@@ -655,10 +656,11 @@
                 this.transport_date = '';
             },
             getOldReferences (event) {
-                if (this.reference_via == null) {
+                if (this.reference_via.name == '') {
                     setTimeout(() => {
                         this.new_old_sale_bill = 1;
                         $('#error-validate-reference-div').text('Please select Reference Via');
+                        $('#show-references').hide().html('');
                     }, 500);
                     this.isSupplierDisabled = false;
                 } else {
@@ -762,8 +764,9 @@
                 this.final_total = 0;
             },
             getProductSubCategory (event) {
+                this.product_category = event;
                 if (this.sale_bill_is_moved == 0) {
-                    if (this.product_category != '' && this.supplier != '') {
+                    if (this.product_category && this.supplier) {
                         axios.get('/account/sale-bill/list-product-sub-category/'+this.product_category.id+'/'+this.supplier.id)
                         .then(response => {
                             if (response.data.length > 0) {
@@ -824,13 +827,9 @@
                     if (event.name == 'Email') {
                         $('#delivery_by_section').hide();
                         $('#from_email_section').show();
-                        this.is_from_email_required = true;
-                        this.is_delivery_by_required = false;
                     } else {
                         $('#delivery_by_section').show();
                         $('#from_email_section').hide();
-                        this.is_from_email_required = false;
-                        this.is_delivery_by_required = true;
                     }
                     if (this.new_old_sale_bill == 0) {
                         this.getOldReferences();
@@ -1042,6 +1041,7 @@
             },
             async submitForm () {
                 const isFormCorrect = await this.v$.$validate();
+                console.log(isFormCorrect);
                 // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
                 if (!isFormCorrect) return;
                 // actually submit form
@@ -1078,6 +1078,7 @@
                 });
 
             });
+
         },
     };
 </script>
