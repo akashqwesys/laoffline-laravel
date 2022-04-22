@@ -201,7 +201,7 @@ class SaleBillController extends Controller
         return view('account.sale_bill.createSaleBill', compact('financialYear', 'page_title', 'employees'));
     }
 
-    public function AddSaleBill(Request $request)
+    public function addSaleBill(Request $request)
     {
         $referenceDetails = json_decode($request->referenceDetails);
         $referenceDetails->sale_bill_via = 3;
@@ -246,7 +246,7 @@ class SaleBillController extends Controller
         }
         $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
         $receiver_details = $user->user_email;
-        $general_ref = $this->getReferenceDetails($referenceDetails->sale_bill_via, $referenceDetails->reference_via);
+        $general_ref = $this->getReferenceDetails($referenceDetails->sale_bill_via, $referenceDetails->reference_via->name);
         if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
             $ref_via = $referenceDetails->reference_via->name;
             if ($referenceDetails->reference_via->name == "Email") {
@@ -256,12 +256,12 @@ class SaleBillController extends Controller
                 $courier_name = null;
                 $weight_of_parcel = null;
                 $courier_receipt_no = null;
-                $courier_received_time = '0000-00-00 00:00:00';
+                $courier_received_time = null;
                 $delivery_by = null;
             } else if ($referenceDetails->reference_via->name == "Courier") {
                 $from_name = null;
                 $from_email_id = null;
-                $latter_by_id = '1';
+                $latter_by_id = 1;
                 $courier_name = $transport_id;
                 $weight_of_parcel = $transportDetails->courier_weight;
                 $courier_receipt_no = $transportDetails->lr_mr_no;
@@ -270,7 +270,7 @@ class SaleBillController extends Controller
             } else if ($referenceDetails->reference_via->name == "Hand") {
                 $from_name = null;
                 $from_email_id = null;
-                $latter_by_id = '0';
+                $latter_by_id = 0;
                 $courier_name = null;
                 $courier_weight_of_parcel = $transportDetails->courier_weight;
                 $courier_receipt_no = null;
@@ -358,7 +358,7 @@ class SaleBillController extends Controller
         $combo_id->subject                      = 'For ' . $companyName->name . ' Of Rs. ' . $request->final_total . '/-';
         $combo_id->default_category_id          = $referenceDetails->sale_bill_for->id;
         $combo_id->main_category_id             = $referenceDetails->product_category->id;
-        $combo_id->agent_id                     = $referenceDetails->agent;
+        $combo_id->agent_id                     = $referenceDetails->agent->id;
         $combo_id->supplier_invoice_no          = $referenceDetails->supplier_invoice_no;
         $combo_id->total                        = intval($request->final_total);
         $combo_id->sale_bill_flag               = 0;
@@ -448,7 +448,7 @@ class SaleBillController extends Controller
         $sale_bill->company_id               = $customer_id;
         $sale_bill->address                  = $referenceDetails->customer_address->id;
         $sale_bill->supplier_id              = $supplier_id;
-        $sale_bill->agent_id                 = $referenceDetails->agent;
+        $sale_bill->agent_id                 = $referenceDetails->agent->id;
         $sale_bill->supplier_invoice_no      = $referenceDetails->supplier_invoice_no;
         $sale_bill->select_date              = $select_date;
         $sale_bill->financial_year_id        = $user->financial_year_id;
@@ -967,6 +967,440 @@ class SaleBillController extends Controller
         return response()->json($all);
     }
 
+    public function updateSaleBill(Request $request)
+    {
+        $referenceDetails = json_decode($request->referenceDetails);
+        $referenceDetails->sale_bill_via = 3;
+        $productDetails = json_decode($request->productDetails);
+        $fabricDetails = json_decode($request->fabricDetails);
+        $totals = json_decode($request->totals);
+        $transportDetails = json_decode($request->transportDetails);
+        $changeAmount = json_decode($request->changeAmount);
+
+        $user = Session::get('user');
+        $sale_bill = SaleBill::where('sale_bill_id', $request->sale_bill_id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        dd();
+        if ($request->hasFile('extra_attachment')) {
+            unlink(public_path('upload/sale_bill/' . $sale_bill->attachment));
+            $extra_attachment = date('YmdHis') . "_." . $request->extra_attachment->getClientOriginalExtension();
+            $request->extra_attachment->move(public_path('upload/sale_bill'), $extra_attachment);
+        } else {
+            $extra_attachment = $request->exist_attachment;
+        }
+
+        $dateAdded = date('Y-m-d H:i:s');
+        $select_date = date('Y-m-d', strtotime($referenceDetails->bill_date));
+        $transport_date = date('Y-m-d', strtotime($transportDetails->transport_date));
+
+        if ($referenceDetails->sale_bill_for->id == 1) {
+            $subCategory = collect($referenceDetails->product_sub_category)->pluck('id')->toArray();
+            $subCategory = json_encode($subCategory);
+        } else {
+            $subCategory = '[]';
+        }
+
+        if ($referenceDetails->reference_id != '') {
+            $general_ref_id = $referenceDetails->reference_id;
+        } else {
+            $general_ref_id = $sale_bill->general_ref_id;
+        }
+        $customer_id = $referenceDetails->customer->id ?? 0;
+        $transport_id = $transportDetails->transport->id ?? 0;
+        $supplier_id = $referenceDetails->supplier->id ?? 0;
+        $ref_company_id = $customer_id;
+
+        $companyName = $this->getCompanyNameWithId($ref_company_id);
+        if ($companyName->company_type != 0) {
+            $companyTypeName = $this->getCompanyTypeName($companyName->company_type);
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+
+        $companyPerson = $this->getCompanyDetails($ref_company_id);
+        if ($companyPerson) {
+            $personName = $companyPerson->contact_person_name;
+        } else {
+            $personName = '';
+        }
+
+        $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
+
+        $receiver_details = $user->user_email;
+
+        $ReferenceVia = DB::table('comboids')
+            ->select('inward_or_outward_via')
+            ->where('sale_bill_id', $request->sale_bill_id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('main_or_followup', 0)
+            ->where('is_deleted', 0)
+            ->first();
+        $ref_via = $ReferenceVia->inward_or_outward_via;
+
+        if ($sale_bill->is_copied != 1 && ($sale_bill->sale_bill_flag == 1 || $sale_bill->is_moved == 1)) {
+            $general_ref = $this->getReferenceDetailsWithCompany($ref_company_id, $referenceDetails->reference_via->name);
+            if ($referenceDetails->reference_via->name) {
+                $ref_via = $referenceDetails->reference_via->name;
+            }
+            $ref_via = $referenceDetails->reference_via->name;
+            $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = null;
+            if ($referenceDetails->reference_via->name == "Email") {
+                $from_name = $referenceDetails->from_name;
+                $from_email_id = $referenceDetails->from_email;
+                $latter_by_id = null;
+                $courier_name = null;
+                $weight_of_parcel = null;
+                $courier_receipt_no = null;
+                $courier_received_time = null;
+                $delivery_by = null;
+            } else if ($referenceDetails->reference_via->name == "Courier") {
+                $from_name = $referenceDetails->from_name;
+                $from_email_id = null;
+                $latter_by_id = 1;
+                $courier_name = $transport_id;
+                $weight_of_parcel = $transportDetails->courier_weight;
+                $courier_receipt_no = $transportDetails->lr_mr_no;
+                $courier_received_time = $transport_date;
+                $delivery_by = $referenceDetails->delivery_by;
+            } else if ($referenceDetails->reference_via->name == "Hand") {
+                $from_name = $referenceDetails->from_name;
+                $from_email_id = null;
+                $latter_by_id = 0;
+                $courier_name = null;
+                $courier_weight_of_parcel = $transportDetails->courier_weight;
+                $courier_receipt_no = null;
+                $courier_received_time = $transport_date;
+                $delivery_by = $referenceDetails->delivery_by;
+            }
+            if ($increment_id_details) {
+                $ref_id = $increment_id_details->reference_id + 1;
+                $data_ref = array('reference_id' => $ref_id, 'updated_at' => $dateAdded);
+                $this->updateIncrementIds($data_ref, $user->financial_year_id);
+            } else {
+                $ref_id = 1;
+                $data_ref = array(
+                    'reference_id' => $ref_id,
+                    'financial_year_id' => $user->financial_year_id,
+                    'created_at' => $dateAdded,
+                    'updated_at' => $dateAdded
+                );
+                $this->insertIncrementIds($data_ref);
+            }
+            $dataentry_ref = [
+                'reference_id' => $ref_id,
+                'financial_year_id' => $user->financial_year_id,
+                'employee_id' => $user->employee_id,
+                'type_of_inward' => $ref_via,
+                'inward_or_outward' => 1,
+                'company_id' => $ref_company_id,
+                'selection_date' => $select_date,
+                'from_name' => $from_name,
+                'receiver_email_id' => $receiver_details,
+                'from_email_id' => $from_email_id,
+                'latter_by_id' => (int)$latter_by_id,
+                'courier_name' => $courier_name,
+                'weight_of_parcel' => $weight_of_parcel,
+                'courier_receipt_no' => $courier_receipt_no,
+                'courier_received_time' => $courier_received_time,
+                'delivery_by' => $delivery_by,
+                'created_at' => $dateAdded,
+                'updated_at' => $dateAdded
+            ];
+            if ($sale_bill->general_ref_id == 0) {
+                if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
+                    DB::table('reference_ids')->insert($dataentry_ref);
+                    $general_ref_no = $ref_id;
+                } else {
+                    $general_ref_no = $referenceDetails->reference_id;
+                }
+                $new_or_old_inward_or_outward = $referenceDetails->new_old_sale_bill;
+            } else {
+                if ($supplier_id != $sale_bill->supplier_id && $referenceDetails->new_old_sale_bill == 1) {
+                    DB::table('reference_ids')->insert($dataentry_ref);
+                    $general_ref_no = $ref_id;
+                    $new_or_old_inward_or_outward = $referenceDetails->new_old_sale_bill;
+                } elseif ($referenceDetails->new_old_sale_bill == 0) {
+                    $general_ref_no = $referenceDetails->reference_id;
+                    $new_or_old_inward_or_outward = $referenceDetails->new_old_sale_bill;
+                } else {
+                    $general_ref_no = $sale_bill->general_ref_id;
+                    $new_or_old_inward_or_outward = $sale_bill->new_or_old_reference;
+                }
+            }
+        } else {
+            if ($request->change_reference == 1) {
+                $general_ref = $this->getReferenceDetailsWithCompany($ref_company_id, $referenceDetails->reference_via->name);
+                if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
+                    $ref_via = $referenceDetails->reference_via->name;
+                    $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = null;
+                    if ($referenceDetails->reference_via->name == "Email") {
+                        $from_name = $referenceDetails->from_name;
+                        $from_email_id = $referenceDetails->from_email;
+                        $latter_by_id = null;
+                        $courier_name = null;
+                        $weight_of_parcel = null;
+                        $courier_receipt_no = null;
+                        $courier_received_time = null;
+                        $delivery_by = null;
+                    } else if ($referenceDetails->reference_via->name == "Courier") {
+                        $from_name = $referenceDetails->from_name;
+                        $from_email_id = null;
+                        $latter_by_id = 1;
+                        $courier_name = $transport_id;
+                        $weight_of_parcel = $transportDetails->courier_weight;
+                        $courier_receipt_no = $transportDetails->lr_mr_no;
+                        $courier_received_time = $transport_date;
+                        $delivery_by = $referenceDetails->delivery_by;
+                    } else if ($referenceDetails->reference_via->name == "Hand") {
+                        $from_name = $referenceDetails->from_name;
+                        $from_email_id = null;
+                        $latter_by_id = 0;
+                        $courier_name = null;
+                        $courier_weight_of_parcel = $transportDetails->courier_weight;
+                        $courier_receipt_no = null;
+                        $courier_received_time = $transport_date;
+                        $delivery_by = $referenceDetails->delivery_by;
+                    }
+                    if ($increment_id_details) {
+                        $ref_id = $increment_id_details->reference_id + 1;
+                        $data_ref = array('reference_id' => $ref_id, 'updated_at' => $dateAdded);
+                        $this->updateIncrementIds($data_ref, $user->financial_year_id);
+                    } else {
+                        $ref_id = 1;
+                        $data_ref = array(
+                            'reference_id' => $ref_id,
+                            'financial_year_id' => $user->financial_year_id,
+                            'created_at' => $dateAdded,
+                            'updated_at' => $dateAdded
+                        );
+                        $this->insertIncrementIds($data_ref);
+                    }
+                    $dataentry_ref = [
+                        'reference_id' => $ref_id,
+                        'financial_year_id' => $user->financial_year_id,
+                        'employee_id' => $user->employee_id,
+                        'type_of_inward' => $ref_via,
+                        'inward_or_outward' => 1,
+                        'company_id' => $ref_company_id,
+                        'selection_date' => $select_date,
+                        'from_name' => $from_name,
+                        'receiver_email_id' => $receiver_details,
+                        'from_email_id' => $from_email_id,
+                        'latter_by_id' => (int)$latter_by_id,
+                        'courier_name' => $courier_name,
+                        'weight_of_parcel' => $weight_of_parcel,
+                        'courier_receipt_no' => $courier_receipt_no,
+                        'courier_received_time' => $courier_received_time,
+                        'delivery_by' => $delivery_by,
+                        'created_at' => $dateAdded,
+                        'updated_at' => $dateAdded
+                    ];
+                    DB::table('reference_ids')->insert($dataentry_ref);
+                    $general_ref_no = $ref_id;
+                } else {
+                    $general_ref_no = $referenceDetails->reference_id;
+                }
+                $new_or_old_inward_or_outward = $referenceDetails->new_old_sale_bill;
+            } else {
+                $general_ref_no = $sale_bill->general_ref_id;
+                $new_or_old_inward_or_outward = $sale_bill->new_or_old_reference;
+            }
+        }
+
+        if ($sale_bill->sale_bill_flag == 1 && $sale_bill->general_ref_id == 0) {
+            $sale_bill_via = $referenceDetails->reference_via->name;
+        } else {
+            $sale_bill_via = "";
+        }
+
+        if ($sale_bill->is_moved == 1) {
+            if ($sale_bill->iuid == 0) {
+                if ($increment_id_details) {
+                    $iuid = $increment_id_details->iuid + 1;
+                    $data_iuid = array('iuid' => $iuid, 'updated_at' => $dateAdded);
+                    $this->updateIncrementIds($data_iuid, $user->financial_year_id);
+                } else {
+                    $iuid = 1;
+                    $data_iuid = array(
+                        'iuid' => $iuid,
+                        'financial_year_id' => $user->financial_year_id,
+                        'created_at' => $dateAdded,
+                        'updated_at' => $dateAdded
+                    );
+                    $this->insertIncrementIds($data_iuid);
+                }
+                $dataentry_iuid = array(
+                    'iuid' => $iuid,
+                    'financial_year_id' => $user->financial_year_id,
+                    'created_at' => $dateAdded,
+                    'updated_at' => $dateAdded
+                );
+                DB::table('iuids')->insert($dataentry_iuid);
+
+                $sale_bill->iuid = $iuid;
+                $sale_bill->save();
+
+                DB::table('comboids')
+                ->where('sale_bill_id', $request->sale_bill_id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->where('main_or_followup', 0)
+                ->update(['iuid' => $iuid, 'updated_at' => $dateAdded]);
+            } else {
+                $iuid = $sale_bill->iuid;
+            }
+        } else {
+            $iuid = $sale_bill->iuid;
+        }
+        $sale_bill_for = $referenceDetails->sale_bill_for->id;
+        $main_category = $referenceDetails->product_category->id;
+
+        $combo_id = Comboids::where('iuid', $iuid)->where('financial_year_id', $user->financial_year_id)->first();
+
+        $combo_id->general_ref_id               = $general_ref_no;
+        $combo_id->inward_ref_via               = (int)$sale_bill_via;
+        $combo_id->new_or_old_inward_or_outward = $new_or_old_inward_or_outward;
+        $combo_id->system_module_id             = 5;
+        $combo_id->main_or_followup             = 0;
+
+        $combo_id->updated_by                   = $user->employee_id;
+        $combo_id->company_id                   = $customer_id;
+        $combo_id->supplier_id                  = $supplier_id;
+        $combo_id->company_type                 = $typeName;
+        $combo_id->followup_via                 = 'Sale Bill';
+        $combo_id->inward_or_outward_via        = $ref_via;
+        $combo_id->selection_date               = $select_date;
+        $combo_id->from_name                    = $personName;
+        $combo_id->subject                      = 'For ' . $companyName->name . ' Of Rs. ' . $request->final_total . '/-';
+        $combo_id->default_category_id          = $sale_bill_for;
+        $combo_id->main_category_id             = $main_category;
+        $combo_id->agent_id                     = $referenceDetails->agent->id;
+        $combo_id->supplier_invoice_no          = $referenceDetails->supplier_invoice_no;
+        $combo_id->total                        = intval($request->final_total);
+        $combo_id->sale_bill_flag               = 0;
+        $combo_id->financial_year_id            = $user->financial_year_id;
+        $combo_id->required_followup            = 0;
+        $combo_id->color_flag_id                = 0;
+        $combo_id->attachments                  = $extra_attachment;
+        $combo_id->save();
+
+        $comboid = $combo_id->comboid;
+
+        $sale_bill->sale_bill_for            = $sale_bill_for;
+        $sale_bill->attachments              = $extra_attachment;
+        $sale_bill->general_ref_id           = $general_ref_no;
+        $sale_bill->sale_bill_via            = $sale_bill_via;
+        $sale_bill->new_or_old_reference     = $new_or_old_inward_or_outward;
+        $sale_bill->product_default_category_id = $main_category;
+        $sale_bill->product_category_id      = $subCategory;
+        $sale_bill->inward_id                = $referenceDetails->reference_inward;
+        $sale_bill->company_id               = $customer_id;
+        $sale_bill->address                  = $referenceDetails->customer_address->id;
+        $sale_bill->supplier_id              = $supplier_id;
+        $sale_bill->agent_id                 = $referenceDetails->agent->id;
+        $sale_bill->supplier_invoice_no      = $referenceDetails->supplier_invoice_no;
+        $sale_bill->select_date              = $select_date;
+        $sale_bill->change_in_amount         = (int)$changeAmount->change_in_amount;
+        $sale_bill->sign_change              = $changeAmount->change_in_sign->name;
+        $sale_bill->total                    = (int)$request->final_total;
+        $sale_bill->remark                   = $changeAmount->transport_remark;
+        $sale_bill->sale_bill_flag           = 0;
+        $sale_bill->required_followup        = 0;
+        $sale_bill->is_copied                = 0;
+        $sale_bill->done_outward             = 0;
+        $sale_bill->save();
+
+        $total_peices = 0;
+        $total_meters = 0;
+        if (count($productDetails)) {
+            DB::table('sale_bill_items')->where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->delete();
+            foreach ($productDetails as $row) {
+                $dataentry_item[] = array(
+                    'sale_bill_id'         => $request->sale_bill_id,
+                    'product_or_fabric_id' => intval($row->product_name->id),
+                    'financial_year_id'    => $user->financial_year_id,
+                    'sub_product_id'       => intval($row->sub_product_name->id),
+                    'pieces'               => intval($row->pieces),
+                    'rate'                 => floatval($row->rate),
+                    'hsn_code'             => $row->hsn_code,
+                    'discount'             => floatval($row->discount),
+                    'cgst'                 => floatval($row->cgst),
+                    'sgst'                 => floatval($row->sgst),
+                    'igst'                 => floatval($row->igst),
+                    'discount_amount'      => floatval($row->discount_amount),
+                    'cgst_amount'          => floatval($row->cgst_amount),
+                    'sgst_amount'          => floatval($row->sgst_amount),
+                    'igst_amount'          => floatval($row->igst_amount),
+                    'amount'               => floatval($row->amount),
+                    'created_at'           => $dateAdded,
+                    'updated_at'           => $dateAdded
+                );
+                $total_peices += intval($row->pieces);
+            }
+        }
+        if (count($fabricDetails)) {
+            DB::table('sale_bill_items')->where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->delete();
+            foreach ($fabricDetails as $row) {
+                $dataentry_item[] = array(
+                    'sale_bill_id'         => $request->sale_bill_id,
+                    'product_or_fabric_id' => intval($row->fabric_name->id),
+                    'financial_year_id'    => $user->financial_year_id,
+                    'pieces'               => intval($row->pieces),
+                    'meters'               => floatval($row->meters),
+                    'pieces_meters'        => intval($row->pieces_or_meters),
+                    'rate'                 => floatval($row->rate),
+                    'hsn_code'             => $row->hsn_code,
+                    'discount'             => floatval($row->discount),
+                    'cgst'                 => floatval($row->cgst),
+                    'sgst'                 => floatval($row->sgst),
+                    'igst'                 => floatval($row->igst),
+                    'discount_amount'      => floatval($row->discount_amount),
+                    'cgst_amount'          => floatval($row->cgst_amount),
+                    'sgst_amount'          => floatval($row->sgst_amount),
+                    'igst_amount'          => floatval($row->igst_amount),
+                    'amount'               => floatval($row->amount),
+                    'created_at'           => $dateAdded,
+                    'updated_at'           => $dateAdded
+                );
+                $total_peices += intval($row->pieces);
+                $total_meters += floatval($row->meters);
+            }
+        }
+        DB::table('sale_bill_items')->insert($dataentry_item);
+        // 07-03-2017 to update total_peices & total_meters which is usefull for sales_register_report.
+        $wr = array("is_deleted" => 0, "sale_bill_id" => $request->sale_bill_id, "financial_year_id" => $user->financial_year_id);
+        $fld = array("total_peices" => $total_peices, "total_meters" => $total_meters);
+        DB::table('sale_bills')->where($wr)->update($fld);
+        // end
+
+        $transport_detail = SaleBillTransport::where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->first();
+        $transport_detail->sale_bill_id = $request->sale_bill_id;
+        $transport_detail->transport_id = $transport_id;
+        $transport_detail->station = $transportDetails->station->id;
+        $transport_detail->lr_mr_no = $transportDetails->lr_mr_no;
+        $transport_detail->date = $transport_date;
+        $transport_detail->cases = $transportDetails->transport_cases;
+        $transport_detail->weight = $transportDetails->courier_weight;
+        $transport_detail->freight = $transportDetails->courier_freight;
+        $transport_detail->save();
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = $user->employee_id;
+        $logs->log_path = 'Sale Bill / Update';
+        $logs->log_subject = 'Sale Bill Details was updated by ' . $user->username . '.';
+        $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->iuid = $iuid;
+        $logs->save();
+
+        return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);
+    }
+
     // FOR BOTH PRODUCT & FABRIC
     public function listProductMainCategory($id)
     {
@@ -1279,16 +1713,31 @@ class SaleBillController extends Controller
         return DB::table('increment_ids')->insert($data);
     }
 
-    public function getReferenceDetails($sale_bill_via, $ref_via)
+    public function getReferenceDetails($company_type, $ref_via)
     {
         return DB::table('reference_ids as r')
             ->join('companies as c', 'r.company_id', '=', 'c.id')
             ->select('r.employee_id', 'r.reference_id', 'r.created_at')
-            ->where('c.company_type', $sale_bill_via)
+            ->where('c.company_type', $company_type)
             ->where('r.financial_year_id', Session::get('user')->financial_year_id)
             ->where('r.type_of_inward', $ref_via)
             ->where('r.inward_or_outward', 1)
             ->whereRaw("(r.employee_id = " . Session::get('user')->employee_id . " or r.employee_id = 15)")
+            ->orderBy('r.reference_id', 'desc')
+            ->limit(4)
+            ->get();
+    }
+
+    public function getReferenceDetailsWithCompany($id, $ref_via)
+    {
+        return DB::table('reference_ids as r')
+            ->select('r.employee_id', 'r.reference_id', 'r.created_at')
+            ->where('r.company_id', $id)
+            ->where('r.financial_year_id', Session::get('user')->financial_year_id)
+            ->where('r.type_of_inward', $ref_via)
+            ->where('r.inward_or_outward', 1)
+            ->whereRaw("(r.employee_id = " . Session::get('user')->employee_id . " or r.employee_id = 15)")
+            ->where('r.is_deleted', 0)
             ->orderBy('r.reference_id', 'desc')
             ->limit(4)
             ->get();

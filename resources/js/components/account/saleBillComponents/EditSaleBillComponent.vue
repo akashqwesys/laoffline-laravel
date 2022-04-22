@@ -1302,8 +1302,11 @@
                 formData.append('changeAmount', JSON.stringify(changeAmount));
                 formData.append('final_total', this.final_total);
                 formData.append('extra_attachment', this.extra_attachment);
+                formData.append('exist_attachment', this.exist_attachment);
+                formData.append('sale_bill_id', this.sale_bill_id);
+                formData.append('change_reference', this.change_reference);
 
-                axios.post('/account/sale-bill/create-sale-bill/create', formData)
+                axios.post('/account/sale-bill/update', formData)
                 .then(response => {
                     window.location.href = '/account/sale-bill';
                 })

@@ -298,7 +298,7 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
 Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify-sale-bill']], function () {
     Route::group(['prefix' => 'sale-bill'], function () {
         Route::get('/create-sale-bill', [App\Http\Controllers\Account\SaleBillController::class, 'createSaleBill']);
-        Route::post('/create-sale-bill/create', [App\Http\Controllers\Account\SaleBillController::class, 'AddSaleBill']);
+        Route::post('/create-sale-bill/create', [App\Http\Controllers\Account\SaleBillController::class, 'addSaleBill']);
         Route::get('/edit-sale-bill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'editSaleBill']);
         Route::get('/copy/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'copySaleBill']);
         Route::get('/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteSaleBill']);
