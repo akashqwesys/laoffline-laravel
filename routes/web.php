@@ -292,6 +292,8 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/fetch-sale-bill/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'fetchSaleBill']);
         Route::get('/updateSupplier/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'updateSupplier']);
         Route::get('/removeAttachment/{file}', [App\Http\Controllers\Account\SaleBillController::class, 'removeAttachment']);
+        Route::get('/view-sale-bill/{id}/{fid}', [App\Http\Controllers\Account\SaleBillController::class, 'viewSaleBill']);
+        Route::get('/view-sale-bill-details/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getSaleBillDetails']);
     });
 });
 

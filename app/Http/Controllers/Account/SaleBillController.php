@@ -97,13 +97,15 @@ class SaleBillController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         $SaleBill = DB::table('sale_bills as s')
-            ->leftJoin('companies as cc', 's.company_id', '=', 'cc.id')
-            ->leftJoin('companies as cs', 's.company_id', '=', 'cs.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
             ->leftJoin('payment_details as pd', 's.sale_bill_id', '=', 'pd.sr_no')
             ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
-            // ->leftJoin('outward_sale_bills as o', 's.sale_bill_id', '=', 'o.sale_bill_id')
+            // ->joinSub('SELECT "is_completed", "color_flag_id", MAX(comboid) FROM comboids group by "sale_bill_id"', 'cid', function ($join) {
+            //     $join->on('cid.sale_bill_id', '=', 's.sale_bill_id');
+            // })
             // ->leftJoin('comboids as cid', 's.sale_bill_id', '=', 'cid.sale_bill_id')
-            ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'p.payment_id', 'pd.sr_no'/* , 'o.outward_id', 'cid.is_completed', 'cid.color_flag_id' */)
+            ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'p.payment_id', 'pd.sr_no', DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "sale_bill_id" = "s"."sale_bill_id" ORDER BY "id" DESC LIMIT 1) as outward_id')/* , 'cid.is_completed', 'cid.color_flag_id' */)
             ->where('s.financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $SaleBill = $SaleBill->where('s.sale_bill_id', $columnName_arr[0]['search']['value']);
@@ -135,41 +137,109 @@ class SaleBillController extends Controller
             ->get();
 
         $data_arr = array();
+        $customer_ids = collect($SaleBill)->pluck('company_id')->toArray();
+        $supplier_ids = collect($SaleBill)->pluck('supplier_id')->toArray();
+        $company_ids = array_unique(array_merge($customer_ids, $supplier_ids));
+        $companies = DB::table('companies')
+            ->select('id')
+            ->where('is_delete', 0)
+            ->whereRaw("(company_name is not null or company_name <> '') and company_type <> 0 and company_country <> 0 and (company_city is not null or company_city <> '') and company_landline @> '0'")
+            ->whereIn('id', $company_ids)
+            ->get();
+        $company_addresses = DB::table('company_addresses')
+            ->select('id', 'company_id')
+            ->whereRaw("(address is not null or address <> '')")
+            ->whereIn('company_id', $company_ids)
+            ->get();
+        $company_owners = DB::table('company_address_owners as cao')
+            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+            ->select('cao.id', 'ca.company_id')
+            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+            ->whereIn('ca.company_id', $company_ids)
+            ->get();
 
+        $sale_bill_ids = collect($SaleBill)->pluck('sale_bill_id')->toArray();
+        $combo_ids = DB::table('comboids')
+            ->select('is_completed', 'color_flag_id', 'sale_bill_id')
+            ->whereIn('sale_bill_id', $sale_bill_ids)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->orderBy('comboid', 'desc')
+            ->get();
         foreach ($SaleBill as $s) {
             $updated_at = date('d-m-Y H:i A', strtotime($s->updated_at));
             $select_date = date('d-m-Y', strtotime($s->select_date));
+
             if ($s->done_outward == 0) {
                 $outward_status = '<em class="icon ni ni-cross" title="No"></em>';
             } else {
                 $outward_status = '<a href="' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             }
+
             $ref_id = '<a href="/reference/view-reference/'.$s->general_ref_id.'" class="" target="_blank">' . $s->general_ref_id . '</a>';
+
             if ($s->payment_id) {
                 $payment_status = '<a href="' . $s->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             } else {
                 $payment_status = '<em class="icon ni ni-cross" title="No"></em>';
             }
+
             $action = null;
             if ($s->sale_bill_flag == 0) {
-                $action .= '<a href="/account/sale-bill/view-bill/' . $s->sale_bill_id . '/'. $user->financial_year_id .'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> ';
+                $action .= '<a href="/account/sale-bill/view-sale-bill/' . $s->sale_bill_id . '/'. $user->financial_year_id .'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> ';
             }
-            if (/* $s->is_completed == 0 && */ empty($s->payment_id)) {
+
+            $comboid = collect($combo_ids)->where('sale_bill_id', $s->sale_bill_id)->toArray();
+            if ((count($comboid) < 1 || (count($comboid) > 0 && $comboid['is_completed'] == 0)) && empty($s->payment_id)) {
                 $action .= '<a href="/account/sale-bill/edit-sale-bill/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a> ';
+                if ($s->sale_bill_id != $s->sr_no) {
+                    $action .= '<a href="javascript:void(0)" data-id="' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon delete-salebill" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a> ';
+                }
             }
-            if ($s->sale_bill_id != $s->sr_no) {
-                $action .= '<a href="/account/sale-bill/delete/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a> ';
+            $action .= '<a href="javascript:void(0)" data-id="' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon copy-salebill" data-toggle="tooltip" data-placement="top" title="Copy"><em class="icon ni ni-copy"></em></a>';
+
+            if ($comboid) {
+                if ($comboid['is_completed'] == 1) {
+                    $sale_bill_row = '<div class="color-flag" data-color_flag="#FFFFC8">' . $s->sale_bill_id . '</div>';
+                }
+                else if ($comboid['is_completed'] == 2) {
+                    $sale_bill_row = '<div class="color-flag" data-color_flag="#F2DEDE">' . $s->sale_bill_id . '</div>';
+                } else {
+                    $sale_bill_row = '<div class="color-flag" data-color_flag="">' . $s->sale_bill_id . '</div>';
+                }
+            } else {
+                $sale_bill_row = '<div class="color-flag" data-color_flag="">' . $s->sale_bill_id . '</div>';
             }
-            $action .= '<a href="account/sale-bill/copy/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-copy"></em></a>';
+
+            $company = collect($companies)->where('id', $s->company_id)->toArray();
+            $address = collect($company_addresses)->where('company_id', $s->company_id)->toArray();
+            $company_owner = collect($company_owners)->where('company_id', $s->company_id)->toArray();
+            if ((count($company) == 0 || count($company_owner) == 0 || count($address) == 0)) {
+                $customer_color = '';
+            } else {
+                $customer_color = ' text-danger ';
+            }
+            $customer_row = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $s->company_id . '">' . $s->customer_name . '</a>';
+
+            $company_s = collect($companies)->where('id', $s->supplier_id)->toArray();
+            $address_s = collect($company_addresses)->where('company_id', $s->supplier_id)->toArray();
+            $company_owner_s = collect($company_owners)->where('company_id', $s->supplier_id)->toArray();
+
+            if ((count($company_s) == 0 || count($company_owner_s) == 0 || count($address_s) == 0)) {
+                $supplier_color = '';
+            } else {
+                $supplier_color = ' text-danger ';
+            }
+            $supplier_row = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $s->supplier_id . '">' . $s->supplier_name . '</a>';
 
             $data_arr[] = array(
-                "sale_bill_id" => $s->sale_bill_id,
+                "sale_bill_id" => $sale_bill_row,
                 "iuid" => $s->iuid,
                 "general_ref_id" => $ref_id,
                 "updated_at" => $updated_at,
                 "select_date" => $select_date,
-                "customer" => $s->customer_name,
-                "supplier" => $s->supplier_name,
+                "customer" => $customer_row,
+                "supplier" => $supplier_row,
                 "supplier_invoice_no" => $s->supplier_invoice_no,
                 "total" => $s->total,
                 "payment_status" => $payment_status,
@@ -347,7 +417,7 @@ class SaleBillController extends Controller
         $combo_id->inward_ref_via                = $referenceDetails->sale_bill_via;
         $combo_id->new_or_old_inward_or_outward = $referenceDetails->new_old_sale_bill;
         $combo_id->system_module_id             = 5;
-        $combo_id->main_or_followup             = 0;
+        // $combo_id->main_or_followup             = 0;
         $combo_id->generated_by                 = $user->employee_id;
         $combo_id->assigned_to                  = $user->employee_id;
         $combo_id->updated_by                   = $user->employee_id;
@@ -366,7 +436,7 @@ class SaleBillController extends Controller
         $combo_id->total                        = intval($request->final_total);
         $combo_id->sale_bill_flag               = 0;
         $combo_id->financial_year_id            = $user->financial_year_id;
-        $combo_id->required_followup            = 0;
+        // $combo_id->required_followup            = 0;
         $combo_id->color_flag_id                = 0;
         $combo_id->attachments                  = $extra_attachment;
         $combo_id->ouid = 0;
@@ -375,11 +445,11 @@ class SaleBillController extends Controller
         $combo_id->inward_or_outward_id = 0;
         $combo_id->sale_bill_id = 0;
         $combo_id->payment_id = 0;
-        $combo_id->payment_followup_id = 0;
+        // $combo_id->payment_followup_id = 0;
         $combo_id->goods_return_id = 0;
-        $combo_id->good_return_followup_id = 0;
+        // $combo_id->good_return_followup_id = 0;
         $combo_id->commission_id = 0;
-        $combo_id->commission_followup_id = 0;
+        // $combo_id->commission_followup_id = 0;
         $combo_id->commission_invoice_id = 0;
         $combo_id->is_invoice = 0;
         $combo_id->sample_id = 0;
@@ -397,8 +467,8 @@ class SaleBillController extends Controller
         $combo_id->received_commission_amount = 0;
         $combo_id->action_date = null;
         $combo_id->action_instruction = 0;
-        $combo_id->next_follow_up_date = null;
-        $combo_id->next_follow_up_time = null;
+        // $combo_id->next_follow_up_date = null;
+        // $combo_id->next_follow_up_time = null;
         $combo_id->being_late = 0;
         $combo_id->system_url = 0;
         $combo_id->enjay_uniqueid = 0;
@@ -462,7 +532,7 @@ class SaleBillController extends Controller
         $sale_bill->total                    = (int)$request->final_total;
         $sale_bill->remark                   = $changeAmount->transport_remark;
         $sale_bill->sale_bill_flag           = 0;
-        $sale_bill->required_followup        = 0;
+        // $sale_bill->required_followup        = 0;
         $sale_bill->iuid                     = $iuid;
         $sale_bill->save();
 
@@ -625,7 +695,7 @@ class SaleBillController extends Controller
         $combo_id->inward_ref_via               = 0;
         $combo_id->new_or_old_inward_or_outward = 0;
         $combo_id->system_module_id             = 5;
-        $combo_id->main_or_followup             = 0;
+        // $combo_id->main_or_followup             = 0;
         $combo_id->generated_by                 = $user->employee_id;
         $combo_id->assigned_to                  = $user->employee_id;
         $combo_id->updated_by                   = $user->employee_id;
@@ -644,7 +714,7 @@ class SaleBillController extends Controller
         $combo_id->total                        = 0;
         $combo_id->sale_bill_flag               = 1;
         $combo_id->financial_year_id            = $user->financial_year_id;
-        $combo_id->required_followup            = 0;
+        // $combo_id->required_followup            = 0;
         $combo_id->color_flag_id                = 2;
         $combo_id->attachments                  = null;
         $combo_id->ouid = 0;
@@ -653,11 +723,11 @@ class SaleBillController extends Controller
         $combo_id->inward_or_outward_id = 0;
         $combo_id->sale_bill_id = 0;
         $combo_id->payment_id = 0;
-        $combo_id->payment_followup_id = 0;
+        // $combo_id->payment_followup_id = 0;
         $combo_id->goods_return_id = 0;
-        $combo_id->good_return_followup_id = 0;
+        // $combo_id->good_return_followup_id = 0;
         $combo_id->commission_id = 0;
-        $combo_id->commission_followup_id = 0;
+        // $combo_id->commission_followup_id = 0;
         $combo_id->commission_invoice_id = 0;
         $combo_id->is_invoice = 0;
         $combo_id->sample_id = 0;
@@ -675,8 +745,8 @@ class SaleBillController extends Controller
         $combo_id->received_commission_amount = 0;
         $combo_id->action_date = 0;
         $combo_id->action_instruction = 0;
-        $combo_id->next_follow_up_date = 0;
-        $combo_id->next_follow_up_time = 0;
+        // $combo_id->next_follow_up_date = 0;
+        // $combo_id->next_follow_up_time = 0;
         $combo_id->being_late = 0;
         $combo_id->system_url = 0;
         $combo_id->enjay_uniqueid = 0;
@@ -724,7 +794,7 @@ class SaleBillController extends Controller
         $sale_bill->total                    = $getsalebill->total;
         $sale_bill->remark                   = $getsalebill->remark;
         $sale_bill->sale_bill_flag           = 1;
-        $sale_bill->required_followup        = 0;
+        // $sale_bill->required_followup        = 0;
         $sale_bill->is_copied                = 1;
         $sale_bill->iuid                     = $iuid;
         $sale_bill->save();
@@ -748,7 +818,6 @@ class SaleBillController extends Controller
         $logs->log_path = 'Sale Bill / Insert';
         $logs->log_subject = 'Sale Bill Details was inserted by ' . $user->username . '.';
         $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $logs->iuid = $iuid;
         $logs->save();
 
         return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);
@@ -974,6 +1043,101 @@ class SaleBillController extends Controller
         return response()->json($all);
     }
 
+    public function viewSaleBill($id, $fid)
+    {
+        $page_title = 'View Sale Bill';
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['sale_bill_id'] = $id;
+
+        return view('account.sale_bill.viewSaleBill', compact('financialYear', 'page_title', 'employees'));
+    }
+
+    public function getSaleBillDetails($id)
+    {
+        $user = Session::get('user');
+        $sale_bill = DB::table('sale_bills')
+            ->where('sale_bill_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        $sale_bill_items = DB::table('sale_bill_items')
+            ->where('sale_bill_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->get();
+        $sale_bill_transports = DB::table('sale_bill_transports')
+            ->where('sale_bill_id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        return response()->json([
+            'sale_bill' => $sale_bill,
+            'sale_bill_items' => $sale_bill_items,
+            'sale_bill_transports' => $sale_bill_transports,
+        ]);
+    }
+
+    public function deleteSaleBill($id)
+    {
+        $user = Session::get('user');
+
+        $combo_id = DB::table('comboids')
+            ->where('sale_bill_id', $id)
+            ->where('is_deleted', 0)
+            ->first();
+        $sale_bill_ids = $iuids = $ouids = [];
+        foreach ($combo_id as $v) {
+            $sale_bill_ids[] = $v->sale_bill_id;
+            $iuids[] = $v->iuid;
+            $ouids[] = $v->ouid;
+        }
+
+        DB::table('comboids')
+        ->whereIn('sale_bill_id', $sale_bill_ids)
+        ->where('financial_year_id', $user->financial_year_id)
+        ->update([
+            'is_deleted' => 1,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+        DB::table('iuids')->whereIn('iuid', $iuids)->delete();
+        DB::table('ouids')->whereIn('ouid', $ouids)->delete();
+        DB::table('sale_bill_items')
+        ->where('sale_bill_id', $id)
+        ->where('financial_year_id', $user->financial_year_id)
+        ->delete();
+        DB::table('sale_bill_transports')
+        ->where('sale_bill_id', $id)
+        ->where('financial_year_id', $user->financial_year_id)
+        ->update([
+            'is_deleted' => 1,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+        DB::table('sale_bills')
+        ->where('sale_bill_id', $id)
+        ->where('financial_year_id', $user->financial_year_id)
+        ->update([
+            'is_deleted' => 1,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = $user->employee_id;
+        $logs->log_path = 'Sale Bill / Insert';
+        $logs->log_subject = 'Sale Bill Details was inserted by ' . $user->username . '.';
+        $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+    }
+
     public function updateSaleBill(Request $request)
     {
         $referenceDetails = json_decode($request->referenceDetails);
@@ -1042,7 +1206,7 @@ class SaleBillController extends Controller
             ->select('inward_or_outward_via')
             ->where('sale_bill_id', $request->sale_bill_id)
             ->where('financial_year_id', $user->financial_year_id)
-            ->where('main_or_followup', 0)
+            // ->where('main_or_followup', 0)
             ->where('is_deleted', 0)
             ->first();
         $ref_via = $ReferenceVia->inward_or_outward_via ?? 0;
@@ -1257,7 +1421,7 @@ class SaleBillController extends Controller
                 DB::table('comboids')
                 ->where('sale_bill_id', $request->sale_bill_id)
                 ->where('financial_year_id', $user->financial_year_id)
-                ->where('main_or_followup', 0)
+                // ->where('main_or_followup', 0)
                 ->update(['iuid' => $iuid, 'updated_at' => $dateAdded]);
             } else {
                 $iuid = $sale_bill->iuid;
@@ -1275,7 +1439,7 @@ class SaleBillController extends Controller
             $combo_id->inward_ref_via               = (int)$sale_bill_via;
             $combo_id->new_or_old_inward_or_outward = $new_or_old_inward_or_outward;
             $combo_id->system_module_id             = 5;
-            $combo_id->main_or_followup             = 0;
+            // $combo_id->main_or_followup             = 0;
             $combo_id->updated_by                   = $user->employee_id;
             $combo_id->company_id                   = $customer_id;
             $combo_id->supplier_id                  = $supplier_id;
@@ -1292,7 +1456,7 @@ class SaleBillController extends Controller
             $combo_id->total                        = intval($request->final_total);
             $combo_id->sale_bill_flag               = 0;
             $combo_id->financial_year_id            = $user->financial_year_id;
-            $combo_id->required_followup            = 0;
+            // $combo_id->required_followup            = 0;
             $combo_id->color_flag_id                = 0;
             $combo_id->attachments                  = $extra_attachment;
             $combo_id->save();
@@ -1319,7 +1483,7 @@ class SaleBillController extends Controller
         $sale_bill->total                    = (int)$request->final_total;
         $sale_bill->remark                   = $changeAmount->transport_remark;
         $sale_bill->sale_bill_flag           = 0;
-        $sale_bill->required_followup        = 0;
+        // $sale_bill->required_followup        = 0;
         $sale_bill->is_copied                = 0;
         $sale_bill->done_outward             = 0;
         $sale_bill->save();

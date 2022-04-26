@@ -53,9 +53,11 @@
             </div>
         </div>
     </div>
+    <ViewCompanyDetails ref="company"></ViewCompanyDetails>
 </template>
 
 <script>
+    import ViewCompanyDetails from '../../databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
     import VueLoader from './../../../VueLoader.vue';
 
     import $ from 'jquery';
@@ -71,6 +73,7 @@
             excelAccess: Number,
         },
         components: {
+            ViewCompanyDetails,
             VueLoader
         },
         data() {
@@ -79,6 +82,18 @@
             }
         },
         methods: {
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
+            }
         },
         mounted() {
             const self = this;
@@ -139,6 +154,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
+                    order: [[ 0, "desc" ]],
                     columns: [
                         { data: 'sale_bill_id' },
                         { data: 'iuid' },
@@ -169,7 +185,15 @@
                             columns: ':not(:last-child)'
                         }
                     },
-                    'print']
+                    'print'],
+                    createdRow: function( row, data, dataIndex ) {
+                        var color = $(row).find('.color-flag').attr('data-color_flag');
+                        if (color && color == '#FFFFC8') {
+                            $(row).style('background', '#FFFFC8');
+                        } else if (color && color == '#F2DEDE') {
+                            $(row).style('background', '#F2DEDE')
+                        }
+                    }
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="sale_bill_filter"><input type="search" id="sale_bill_id" class="form-control form-control-sm" placeholder="Sale Bill ID"><input type="search" id="reference_id" class="form-control form-control-sm" placeholder="Reference ID"><input type="date" id="updated_at" class="form-control form-control-sm" placeholder="Updated At" max="'+nDate+'"><input type="date" id="bill_date" class="form-control form-control-sm" placeholder="Bill Date" max="'+nDate+'"><input type="search" id="customer_name" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"><input type="search" id="supplier_inv_no" class="form-control form-control-sm" placeholder="Supplier Invoice No"></div>').insertAfter('.dataTables_length');
@@ -227,6 +251,26 @@
                     }
                     draw = 0;
                 }
+            });
+
+            $(document).on('click', '.delete-salebill', function(e) {
+                if (confirm('Are you sure you want to delete?')) {
+                    location.href = '/account/sale-bill/delete/' + $(this).attr('data-id');
+                }
+                return;
+            });
+            $(document).on('click', '.copy-salebill', function(e) {
+                if (confirm('Are you sure you want to copy?')) {
+                    location.href = '/account/sale-bill/copy/' + $(this).attr('data-id');
+                }
+                return;
+            });
+
+            $(document).on('click', '.view-details', function(e) {
+                self.showModal($(this).attr('data-id'));
+            });
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
             });
 
         },
