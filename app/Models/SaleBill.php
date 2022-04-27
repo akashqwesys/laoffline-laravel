@@ -33,7 +33,7 @@ class SaleBill extends Model
         'total_peices',
         'total_meters',
         'remark',
-        'required_followup',
+        // 'required_followup',
         'sale_bill_flag',
         'done_outward',
         'is_copied',

@@ -250,7 +250,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
 <style scoped>
     .form-control-wrap img {
         position: absolute;

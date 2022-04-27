@@ -53,9 +53,11 @@
             </div>
         </div>
     </div>
+    <ViewCompanyDetails ref="company"></ViewCompanyDetails>
 </template>
 
 <script>
+    import ViewCompanyDetails from '../../databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
     import VueLoader from './../../../VueLoader.vue';
 
     import $ from 'jquery';
@@ -71,6 +73,7 @@
             excelAccess: Number,
         },
         components: {
+            ViewCompanyDetails,
             VueLoader
         },
         data() {
@@ -79,58 +82,91 @@
             }
         },
         methods: {
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
+            }
         },
         mounted() {
             const self = this;
-            var buttons = [];
             var dt_table = null;
-            /* function init_dt_table () {
-                dt_table = $('#companies').DataTable({
+            /* const toINR = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                // minimumFractionDigits: 2
+            }); */
+            var today = new Date();
+            var dt = today.toJSON().slice(0, 10);
+            var nDate = dt.slice(0, 4) + '-' + dt.slice(5, 7) + '-' + dt.slice(8, 10);
+            function init_dt_table () {
+                dt_table = $('#saleBill').DataTable({
                     processing: true,
                     serverSide: true,
                     responsive: true,
                     ajax: {
-                        url: "./companies/list",
+                        url: "./sale-bill/list-data",
                         data: function (data) {
-                            if ($('#dt_name').val() == '') {
+                            if ($('#sale_bill_id').val() == '') {
+                                data.columns[0].search.value = '';
+                            } else {
+                                data.columns[0].search.value = $('#sale_bill_id').val();
+                            }
+                            if ($('#reference_id').val() == '') {
+                                data.columns[2].search.value = '';
+                            } else {
+                                data.columns[2].search.value = $('#reference_id').val();
+                            }
+                            if ($('#updated_at').val() == '') {
                                 data.columns[3].search.value = '';
                             } else {
-                                data.columns[3].search.value = $('#dt_name').val();
+                                data.columns[3].search.value = $('#updated_at').val();
                             }
-                            if ($('#dt_office_no').val() == '') {
+                            if ($('#bill_date').val() == '') {
                                 data.columns[4].search.value = '';
                             } else {
-                                data.columns[4].search.value = $('#dt_office_no').val();
+                                data.columns[4].search.value = $('#bill_date').val();
                             }
-                            if ($('#dt_company_type').val() == '') {
+                            if ($('#customer_name').val() == '') {
                                 data.columns[5].search.value = '';
                             } else {
-                                data.columns[5].search.value = $('#dt_company_type').val();
+                                data.columns[5].search.value = $('#customer_name').val();
                             }
-                            if ($('#dt_company_category').val() == '') {
+                            if ($('#supplier_name').val() == '') {
                                 data.columns[6].search.value = '';
                             } else {
-                                data.columns[6].search.value = $('#dt_company_category').val();
+                                data.columns[6].search.value = $('#supplier_name').val();
                             }
-                            if ($('#dt_city').val() == '') {
+                            if ($('#supplier_inv_no').val() == '') {
                                 data.columns[7].search.value = '';
                             } else {
-                                data.columns[7].search.value = $('#dt_city').val();
+                                data.columns[7].search.value = $('#supplier_inv_no').val();
                             }
                         },
                         complete: function (data) { }
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
+                    order: [[ 0, "desc" ]],
                     columns: [
-                        { data: 'id' },
-                        { data: 'flag', orderable: false },
-                        { data: 'verified', orderable: false },
-                        { data: 'company_name' },
-                        { data: 'office_no', orderable: false },
-                        { data: 'company_type' },
-                        { data: 'company_category' },
-                        { data: 'company_city' },
+                        { data: 'sale_bill_id' },
+                        { data: 'iuid' },
+                        { data: 'general_ref_id' },
+                        { data: 'updated_at' },
+                        { data: 'select_date' },
+                        { data: 'customer', orderable: false },
+                        { data: 'supplier', orderable: false },
+                        { data: 'supplier_invoice_no' },
+                        { data: 'total', render: $.fn.dataTable.render.number(',', '.', 0, '₹') },
+                        { data: 'payment_status', orderable: false },
+                        { data: 'outward_status', orderable: false },
                         { data: 'action', orderable: false },
                     ],
                     search: {
@@ -149,10 +185,18 @@
                             columns: ':not(:last-child)'
                         }
                     },
-                    'print']
+                    'print'],
+                    createdRow: function( row, data, dataIndex ) {
+                        var color = $(row).find('.color-flag').attr('data-color_flag');
+                        if (color && color == '#FFFFC8') {
+                            $(row).style('background', '#FFFFC8');
+                        } else if (color && color == '#F2DEDE') {
+                            $(row).style('background', '#F2DEDE')
+                        }
+                    }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="company_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name"><input type="search" id="dt_office_no" class="form-control form-control-sm" placeholder="Office Number"><input type="search" id="dt_company_type" class="form-control form-control-sm" placeholder="Company Type"><input type="search" id="dt_company_category" class="form-control form-control-sm" placeholder="Company Category"><input type="search" id="dt_city" class="form-control form-control-sm" placeholder="City"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="sale_bill_filter"><input type="search" id="sale_bill_id" class="form-control form-control-sm" placeholder="Sale Bill ID"><input type="search" id="reference_id" class="form-control form-control-sm" placeholder="Reference ID"><input type="date" id="updated_at" class="form-control form-control-sm" placeholder="Updated At" max="'+nDate+'"><input type="date" id="bill_date" class="form-control form-control-sm" placeholder="Bill Date" max="'+nDate+'"><input type="search" id="customer_name" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"><input type="search" id="supplier_inv_no" class="form-control form-control-sm" placeholder="Supplier Invoice No"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -193,9 +237,9 @@
                 });
                 // Requery the server with the new one-time export settings
                 dt.ajax.reload();
-            } */
+            }
             var draw = 1;
-            $(document).on('keyup', '#company_filter input', function(e) {
+            $(document).on('keyup', '#sale_bill_filter input', function(e) {
                 if ($(this).val() == '') {
                     if (draw == 0) {
                         dt_table.clear().draw();
@@ -209,13 +253,26 @@
                 }
             });
 
+            $(document).on('click', '.delete-salebill', function(e) {
+                if (confirm('Are you sure you want to delete?')) {
+                    location.href = '/account/sale-bill/delete/' + $(this).attr('data-id');
+                }
+                return;
+            });
+            $(document).on('click', '.copy-salebill', function(e) {
+                if (confirm('Are you sure you want to copy?')) {
+                    location.href = '/account/sale-bill/copy/' + $(this).attr('data-id');
+                }
+                return;
+            });
+
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });
-
-            /* document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
-            }); */
+            });
+
         },
     };
 </script>

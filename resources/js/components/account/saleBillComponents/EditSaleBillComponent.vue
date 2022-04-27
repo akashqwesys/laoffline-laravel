@@ -6,10 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Create Sale Bill</h3>
-                                <div class="nk-block-des text-soft">
-                                    <p>Please fill the details.</p>
-                                </div>
+                                <h3 class="nk-block-title page-title">Update Sale Bill</h3>
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
@@ -17,58 +14,105 @@
                         <div class="card card-bordered">
                             <div class="card-inner">
                                 <form action="#" class="form-validate" @submit.prevent="submitForm()">
-                                    <div id="allhiddenfield_div"></div>
                                     <div class="preview-block">
-                                        <span class="preview-title-lg overline-title">Reference Details</span>
-                                        <div class="row gy-4">
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="fw-reference_via">Reference Via</label>
-                                                    <div class="form-control-wrap">
-                                                        <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @select="showHideName"></multiselect>
-                                                    </div>
+                                        <div id="top-reference-change-section">
+                                            <h5>This Sale Bill's Current Reference ID is {{ reference_id }}</h5>
+                                            <hr>
+                                            <div class="row gy-4">
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Do You Want to Change?</label>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="preview-block">
-                                                    <label class="form-label">Reference</label>
-                                                    <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
+                                                <div class="col-md-4">
+                                                    <ul class="custom-control-group g-3 align-center" >
                                                         <li class="w-25">
                                                             <div class="custom-control custom-radio">
-                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_new" value="1" @click="reference_new = true" @change="resetSupplier">
-                                                                <label class="custom-control-label" for="fv-reference_new">NEW</label>
+                                                                <input v-model="change_reference" type="radio" class="custom-control-input" id="fv-change_reference_yes" value="1" @click="change_reference_new = true" @change="showAllReferenceDetails">
+                                                                <label class="custom-control-label" for="fv-change_reference_yes">Yes</label>
                                                             </div>
                                                         </li>
                                                         <li>
                                                             <div class="custom-control custom-radio">
-                                                                <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false" @change="getOldReferences">
-                                                                <label class="custom-control-label" for="fv-reference_old">OLD</label>
+                                                                <input v-model="change_reference" type="radio" class="custom-control-input" id="fv-change_reference_no" value="0" @click="change_reference_new = false" @change="showAllReferenceDetails">
+                                                                <label class="custom-control-label" for="fv-change_reference_no">No</label>
                                                             </div>
                                                         </li>
                                                     </ul>
-                                                    <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
                                                 </div>
                                             </div>
-                                            <div id="new_reference_details_div" class="col-md-4">
-                                                <div class="hidden" id="from_email_section">
+                                        </div>
+                                        <div class="hidden" id="show-all-reference-details">
+                                            <div class="row gy-4" >
+                                                <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label class="form-label" for="from_email">From Email ID</label>
+                                                        <label class="form-label" for="fw-reference_via">Reference Via</label>
                                                         <div class="form-control-wrap">
-                                                            <input type="email" v-model="from_email" id="from_email" class="form-control">
-                                                            <div v-if="v$.from_email.$error" class="invalid mt-1">Enter Valid Email Address</div>
+                                                            <multiselect v-model="reference_via" :options="reference_options" placeholder="Select One" label="name" track-by="name" id="reference_via" @select="showHideName($event), refUpdateForSaleBill($event)"></multiselect>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="" id="delivery_by_section">
-                                                    <div class="form-group">
-                                                        <label class="form-label" for="delivery_by">Delivery By</label>
-                                                        <div class="form-control-wrap">
-                                                            <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
-                                                            <div v-if="v$.delivery_by.$error" class="invalid mt-1">Select Product Category</div>
+                                                <div class="col-md-6">
+                                                    <div class="preview-block">
+                                                        <label class="form-label">Reference</label>
+                                                        <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
+                                                            <li class="w-25">
+                                                                <div class="custom-control custom-radio">
+                                                                    <input v-model="new_old_sale_bill" type="radio" class="custom-control-input" id="fv-reference_new" value="1" @click="reference_new = true" @change="resetSupplier($event), refUpdateForSaleBill($event)">
+                                                                    <label class="custom-control-label" for="fv-reference_new">NEW</label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="custom-control custom-radio">
+                                                                    <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false" @change="getOldReferences($event), refUpdateForSaleBill($event)">
+                                                                    <label class="custom-control-label" for="fv-reference_old">OLD</label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                        <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
+                                                <div id="new_reference_details_div" class="col-md-12">
+                                                    <div class="row">
+                                                        <div class="col-md-6" >
+                                                            <div class="form-group">
+                                                                <label class="form-label" for="from_name">From Name</label>
+                                                                <div class="form-control-wrap">
+                                                                    <input type="text" v-model="from_name" id="from_name" class="form-control" >
+                                                                    <div v-if="v$.from_name.$error" class="invalid mt-1">Enter Name</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="hidden" id="from_email_section">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="from_email">From Email ID</label>
+                                                                    <div class="form-control-wrap">
+                                                                        <input type="email" v-model="from_email" id="from_email" class="form-control">
+                                                                        <div v-if="v$.from_email.$error" class="invalid mt-1">Enter Valid Email Address</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="hidden" id="delivery_by_section">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="delivery_by">Delivery By</label>
+                                                                    <div class="form-control-wrap">
+                                                                        <input type="text" v-model="delivery_by" id="delivery_by" class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="pt-5 mt-5"></div>
+                                    <div id="allhiddenfield_div"></div>
+                                    <div class="preview-block">
+                                        <h5 class="">Update Sale Bill Details</h5>
+                                        <hr>
+                                        <div class="row gy-4">
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="sale_bill_for">Sale Bill For</label>
@@ -77,7 +121,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
+
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="product_category">Product Main Category</label>
@@ -91,16 +135,15 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="reference_inward">Inward</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="reference_inward" :options="reference_inward_options" placeholder="Select One" label="name" track-by="id" id="reference_inward" @change="getInwardCustomers"></multiselect>
+                                                        <multiselect v-model="reference_inward" :options="reference_inward_options" placeholder="Select One" label="name" track-by="id" id="reference_inward" @change="getInwardCustomers" disabled></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="customer">Customer</label>
-                                                    <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Customer" @click="setCustomer"><span class="clipboard-text">Add New</span></button>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @close="getCustomerAddress"></multiselect>
+                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @close="getCustomerAddress" :disabled="isCustomerDisabled"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -115,7 +158,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="supplier">Supplier</label>
-                                                    <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Supplier" @click="setSupplier" :disabled="isSupplierDisabled"><span class="clipboard-text">Add New</span></button>
+                                                    <button v-if="showUpdateSupplier" type="button" id="update_supplier" class="btn btn-primary float-right clipboard-init badge" title="Update Supplier" @click="updateSupplier" ><span class="clipboard-text">Update Supplier</span></button>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="supplier" :options="supplier_options" placeholder="Select One" label="name" track-by="id" id="supplier" @close="getProductSubCategory(), checkSupplierInvoiceNo()" :disabled="isSupplierDisabled"></multiselect>
                                                         <div v-if="v$.supplier.$error" class="invalid mt-1">Select Supplier</div>
@@ -128,6 +171,14 @@
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="agent" :options="agent_options" placeholder="Select One" label="name" track-by="id" id="agent" ></multiselect>
                                                         <div v-if="v$.agent.$error" class="invalid mt-1">Select Agent</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" >
+                                                <div class="form-group">
+                                                    <label class="form-label" for="sale_bill_id">Sr. No.</label>
+                                                    <div class="form-control-wrap">
+                                                        <input type="text" v-model="sale_bill_id" id="sale_bill_id" class="form-control" disabled>
                                                     </div>
                                                 </div>
                                             </div>
@@ -150,25 +201,33 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4" >
-                                                <div class="form-group">
-                                                    <label class="form-label" for="extra_attachment">Extra Attachment</label>
-                                                    <div class="form-control-wrap">
-                                                        <input type="file" @change="uploadAttachment" id="extra_attachment" class="form-control" accept="text/plain,image/png,image/jpeg,application/msword,application/pdf,audio/ogg,audio/mpeg">
+                                            <div class="row col-md-4">
+                                                <div class="col-md-9" >
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="extra_attachment">Extra Attachment</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="file" @change="uploadAttachment" id="extra_attachment" class="form-control" accept="text/plain,image/png,image/jpeg,application/msword,application/pdf,audio/ogg,audio/mpeg">
+                                                        </div>
                                                     </div>
+                                                </div>
+                                                <div class="col-md-3" v-if="exist_attachment">
+                                                    <a :href="'/upload/sale_bill/'+exist_attachment" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="" style="opacity: 0.5; padding-top: 5px;">
+                                                    </a>
+                                                    <span class="remove-attachment" @click="removeAttachment()"><i class="ni ni-cross"></i></span>
                                                 </div>
                                             </div>
 
                                         </div>
                                         <hr class="mt-5">
-                                        <div id="product_sub_category_section_full">
+                                        <div id="product_sub_category_section_full" class="hidden">
                                             <span class="preview-title-lg overline-title">Product Sub Category</span>
-                                            <div class="" id="product_sub_category_text">
+                                            <div class="hidden" id="product_sub_category_text">
                                                 <label class="form-label">Please Select Product Main Category And Supplier Field.</label>
                                             </div>
                                             <div class="form-group hidden" id="product_sub_category_section">
                                                 <div class="form-control-wrap">
-                                                    <multiselect v-model="product_sub_category" :options="product_sub_category_options" :multiple="true" placeholder="Select One" label="name" track-by="id" id="product_sub_category" @close="getProducts($event)"></multiselect>
+                                                    <multiselect v-model="product_sub_category" :options="product_sub_category_options" :multiple="true" placeholder="Select One" label="name" track-by="id" id="product_sub_category" @close="getProducts($event)" :disabled="isProductSubCategoryDisabled"></multiselect>
                                                 </div>
                                             </div>
                                         </div>
@@ -201,7 +260,7 @@
                                                             </div>
                                                         </div>
                                                     </div>&nbsp;
-                                                    <button class="btn btn-sm btn-primary" type="button" id="add_product_details" @click="addProductDetailsRow"><em class="icon ni ni-plus"></em></button>
+                                                    <button class="btn btn-sm btn-primary hidden" type="button" id="add_product_details" @click="addProductDetailsRow"><em class="icon ni ni-plus"></em></button>
                                                     <button class="btn btn-sm btn-primary hidden" type="button" id="add_fabric_details" @click="addFabricDetailsRow"><em class="icon ni ni-plus"></em></button>
                                                 </div>
                                             </div>
@@ -491,10 +550,6 @@
         data() {
             return {
                 cancel_url: '/account/sale-bill',
-                errors: {
-                    product_category: '',
-                    supplier: ''
-                },
                 old_reference_data: '',
                 reference_options:[
                     // { name: 'Call'},
@@ -524,14 +579,19 @@
                 fabric_options: [],
                 pieces_meters_options: [{ id: 1, name: 'Meters' }, { id: 2, name: 'Pieces' }],
                 sale_bill_is_moved: 0,
+                change_reference: 0,
+                change_reference_new: false,
                 reference_via: { name: '' },
                 new_old_sale_bill: 1,
                 from_email: '',
                 delivery_by: '',
+                from_name: '',
                 reference_new: true,
                 reference_id: '',
                 isSupplierDisabled: false,
+                isCustomerDisabled: false,
                 sale_bill_for: '',
+                sale_bill_via: 3,
                 product_category: '',
                 product_sub_category: [],
                 reference_inward: { id: 0, name: 'Direct'},
@@ -542,6 +602,7 @@
                 supplier_invoice_no: '',
                 bill_date: '',
                 extra_attachment: '',
+                exist_attachment: '',
                 productDetails : [{
                     product_name: '',
                     sub_product_name: '',
@@ -599,6 +660,9 @@
                 is_from_email_required: false,
                 is_delivery_by_required: false,
                 is_reference_via_required: false,
+                showUpdateSupplier: false,
+                sale_bill_id: '',
+                isProductSubCategoryDisabled: false,
                 isSubmitDisabled: false,
             }
         },
@@ -610,6 +674,7 @@
                 from_email: { /* required */ },
                 delivery_by: { /* required */ },
                 reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
+                from_name: { requiredIf: requiredIf(this.is_from_name_required) },
                 supplier_invoice_no: { required },
                 bill_date: { required },
                 station: { required },
@@ -639,13 +704,188 @@
                 this.agent = '';
                 this.agent_options = response.data;
             });
+            axios.get('/account/sale-bill/fetch-sale-bill/'+this.id)
+            .then(response => {
+                var data = response.data;
+                this.reference_id = data.sale_bill.general_ref_id;
+
+                if (data.sale_bill.sale_bill_flag == 1 && data.sale_bill.general_ref_id == 0) {
+                    $('#top-reference-change-section').hide();
+                    $('#show-all-reference-details').show().css({'padding': '1rem', 'background': '#ffcccc'});
+                } else {
+                    if (data.sale_bill.is_moved != 1) {
+                        $('#top-reference-change-section').show();
+                        $('#show-all-reference-details').hide();
+                    }
+                }
+
+                if (data.sale_bill.sale_bill_for == 1) {
+                    $('#product_sub_category_section_full, #product_sub_category_section').show();
+                }
+
+                this.sale_bill_options = data.product_default_categories;
+                this.sale_bill_for = data.product_default_categories.find( _ => _.id == data.sale_bill.sale_bill_for );
+
+                this.product_category_options = data.product_categories;
+                this.product_category = data.product_categories.find( _ => _.id == data.sale_bill.product_default_category_id );
+
+                if (data.sale_bill.inward_id == 1) {
+                    this.reference_inward = { id: 0, name: 'Direct'};
+                }
+
+                if (data.companyFromInward.length > 0) {
+                    this.customer_options = data.companyFromInward;
+                }
+                this.customer = this.customer_options.find( _ => _.id == data.sale_bill.company_id );
+                this.customer_address = this.customer_address_options.find( _ => _.id == data.sale_bill.address );
+                if (this.companyType == 2) { this.isCustomerDisabled = true; }
+
+                if (data.sale_bill.is_moved == 0) {
+                    this.isSupplierDisabled = true;
+                } else {
+                    this.supplier_options = data.supplier_group;
+                    if (this.companyType == 3) {
+                        this.isSupplierDisabled = true;
+                        this.showUpdateSupplier = true;
+                    }
+                }
+                this.supplier = this.supplier_options.find( _ => _.id == data.sale_bill.supplier_id );
+
+                this.agent = this.agent_options.find( _ => _.id == data.sale_bill.agent_id );
+
+                this.sale_bill_id = data.sale_bill.sale_bill_id;
+                this.supplier_invoice_no = data.sale_bill.supplier_invoice_no;
+                this.bill_date = data.sale_bill.select_date;
+
+                if (data.sale_bill.attachment) {
+                    this.exist_attachment = data.sale_bill.attachment;
+                    var ext = data.sale_bill.attachment.split('.');
+                    setTimeout(() => {
+                        if (ext.includes('mp3') || ext.includes('amr')) {
+                            $('#preview-img').attr('src', '/assets/images/icons/mp3.jpg');
+                        } else if (ext.includes('pdf') || ext.includes('docx')) {
+                            $('#preview-img').attr('src', '/assets/images/icons/pdf.png');
+                        } else if (ext.includes('txt')) {
+                            $('#preview-img').attr('src', '/assets/images/icons/txt.jpg');
+                        } else {
+                            $('#preview-img').attr('src', '/assets/images/icons/txt.jpg');
+                        }
+                    }, 500);
+                }
+
+                if (data.sale_bill.is_moved == 1) { isProductSubCategoryDisabled = true; }
+                this.product_sub_category_options = data.subCategory;
+                var subCat = JSON.parse(data.sale_bill.product_category_id);
+                subCat.forEach((k, i) => {
+                    this.product_sub_category.push(this.product_sub_category_options.find( _ => _.id == k ));
+                });
+                this.getProducts();
+
+                if (data.sale_bill.sale_bill_for == 1 && subCat.length > 0) {
+                    $('#add_product_details').show();
+                    if (data.sale_bill_items.length > 0) {
+                        data.sale_bill_items.forEach((k, i) => {
+                            this.productDetails[i] = {
+                                product_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
+                                sub_product_name: data.subProducts.find( _ => _.id == k.sub_product_id ),
+                                hsn_code: k.hsn_code,
+                                pieces: parseInt(k.pieces),
+                                rate: parseInt(k.rate),
+                                discount: parseFloat(k.discount),
+                                discount_amount: parseFloat(k.discount_amount),
+                                cgst: parseFloat(k.cgst),
+                                cgst_amount: parseFloat(k.cgst_amount),
+                                sgst: parseFloat(k.sgst),
+                                sgst_amount: parseFloat(k.sgst_amount),
+                                igst: parseFloat(k.igst),
+                                igst_amount: parseFloat(k.igst_amount),
+                                amount: parseFloat(k.amount)
+                            }
+                        });
+                        this.calculateTotalProducts(0);
+                    }
+                } else if (data.sale_bill.sale_bill_for == 2) {
+                    $('#add_fabric_details').show();
+                    if (data.sale_bill_items.length > 0) {
+                        data.sale_bill_items.forEach((k, i) => {
+                            this.fabricDetails[i] = {
+                                fabric_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
+                                hsn_code: k.hsn_code,
+                                pieces: parseInt(k.pieces),
+                                pieces_or_meters: k.pieces_meters,
+                                rate: parseInt(k.rate),
+                                discount: parseFloat(k.discount),
+                                discount_amount: parseFloat(k.discount_amount),
+                                cgst: parseFloat(k.cgst),
+                                cgst_amount: parseFloat(k.cgst_amount),
+                                sgst: parseFloat(k.sgst),
+                                sgst_amount: parseFloat(k.sgst_amount),
+                                igst: parseFloat(k.igst),
+                                igst_amount: parseFloat(k.igst_amount),
+                                amount: parseFloat(k.amount)
+                            }
+                        });
+                        this.calculateTotalFabrics(0);
+                    }
+                }
+                // this.getProductSubCategory();
+
+                this.transport = this.transport_options.find( _ => _.id == data.sale_bill_transports.transport_id );
+                this.station = this.station_options.find( _ => _.id == data.sale_bill_transports.station );
+                this.lr_mr_no = data.sale_bill_transports.lr_mr_no;
+                this.transport_date = data.sale_bill_transports.date;
+                this.transport_cases = data.sale_bill_transports.cases;
+                this.courier_weight = data.sale_bill_transports.weight;
+                this.courier_freight = data.sale_bill_transports.freight;
+
+                this.change_in_amount = data.sale_bill.change_in_amount;
+                this.change_in_sign = data.sale_bill.sign_change == '+' ? { name: '+' } : { name: '-' };
+                this.final_total = parseFloat(data.sale_bill.total);
+                this.transport_remark = data.sale_bill.remark;
+
+            });
+        },
+        watch: {
+            customer (newValue, oldValue) {
+                this.getCustomerAddress(newValue);
+            },
         },
         methods: {
+            showAllReferenceDetails (e) {
+                if (this.change_reference == 1) {
+                    $('#show-all-reference-details').slideDown();
+                    this.is_from_name_required = this.is_reference_via_required = true;
+                } else {
+                    this.is_from_name_required = this.is_reference_via_required = false;
+                    $('#show-all-reference-details').slideUp();
+                }
+            },
+            getReferenceForSaleBillUpdate (e, url = '') {
+                if(this.new_old_sale_bill == 0) {
+                    $('#show-references').slideDown();
+                    $('#new_reference_details_div').slideUp();
+                    this.is_reference_via_required = this.is_from_name_required = false;
+                    if (url == '') {
+                        url = '/account/sale_bill/getReferenceForSaleBillUpdate/'+this.supplier.id+'?ref_via='+this.reference_via.name;
+                    }
+                    axios.get(url)
+                    .then(response => {
+                        this.old_reference_data = response.data;
+                        $('#show-references tbody tr input[type="radio"]').first().prop('checked', true);
+                        this.getUpdatedOldReferences();
+                    });
+                } else {
+                    $('#new_reference_details_div').slideDown();
+                    $('#show-references').slideUp();
+                    this.bill_date = '';
+                    $('#bill_date').attr('disabled', false);
+                }
+            },
             resetSupplier (event) {
                 $('#new_reference_details_div').show();
                 $('#show-references').slideUp();
                 this.old_reference_data = '';
-                // $('#reference_via').attr('required', true);
+                this.is_from_name_required = this.is_reference_via_required = true;
                 this.bill_date = '';
                 $('#bill_date').attr('disabled', false);
                 this.customer = '';
@@ -687,7 +927,7 @@
                 .then(response2 => {
                     if (response2.data != '') {
                         $('#allhiddenfield_div').html(response2.data);
-                        if($('#hidden_sale_bill_date').val() != '') {
+                        if ($('#hidden_sale_bill_date').val() != '') {
                             this.bill_date = $('#hidden_sale_bill_date').val();
                             $('#bill_date').attr('disabled', true);
                         }
@@ -715,7 +955,7 @@
                     }
                 }
                 $('#product_sub_category_section, #item_details_div').hide();
-                $('#product_sub_category_text').show();
+                $('#product_sub_category_section_full, #product_sub_category_text').show();
                 this.resetProductAndFabrics();
             },
             resetProductAndFabrics () {
@@ -763,9 +1003,15 @@
                 };
                 this.final_total = 0;
             },
-            getProductSubCategory (event) {
-                this.product_category = event;
+            getProductSubCategory (e) {
+                if (e) {
+                    this.product_category = e;
+                }
                 if (this.sale_bill_is_moved == 0) {
+                    if (this.sale_bill_via == 3) {
+                        $('#supplierChangeDivMsg').show();
+                        this.getReferenceForSaleBillUpdate(e);
+                    }
                     if (this.product_category && this.supplier) {
                         axios.get('/account/sale-bill/list-product-sub-category/'+this.product_category.id+'/'+this.supplier.id)
                         .then(response => {
@@ -794,6 +1040,14 @@
                             }
                         });
                     }
+                } else if (this.sale_bill_is_moved == 1) {
+                    $('#new_reference_details_div').slideDown();
+                }
+            },
+            refUpdateForSaleBill (e) {
+                if (this.reference_via) {
+                    var url = '/account/sale_bill/getRefForSaleBillUpdate?supplier_id='+this.supplier.id+'&ref_via='+this.reference_via.name;
+                    this.getReferenceForSaleBillUpdate(e, url);
                 }
             },
             getInwardCustomers (event) {
@@ -859,7 +1113,7 @@
                     });
                 }
             },
-            addProductDetailsRow () {
+            addProductDetailsRow (row) {
                 this.sub_product_options[this.productDetails.length] = [];
                 this.productDetails.push({
                     product_name: '',
@@ -983,6 +1237,25 @@
                     this.final_total = parseInt(this.totals.amount) - parseInt(this.change_in_amount);
                 }
             },
+            updateSupplier (e) {
+                axios.get('/account/sale-bill/updateSupplier/'+this.supplier.id)
+                .then(response => {
+                    this.supplier_options = response.data;
+                });
+            },
+            removeAttachment () {
+                if (confirm('Are you sure you want to delete?')) {
+                    axios.get('/account/sale-bill/removeAttachment/'+this.exist_attachment)
+                    .then(response => {
+                        if (response.data.flag == 1) {
+                            $('.remove-attachment').parent().html('<div class="text-success">SUCCESS</div>');
+                            setTimeout(() => {
+                                $('.remove-attachment').parent().remove();
+                            }, 4000);
+                        }
+                    });
+                }
+            },
 
             register () {
                 var formData = new FormData();
@@ -1026,8 +1299,11 @@
                 formData.append('changeAmount', JSON.stringify(changeAmount));
                 formData.append('final_total', this.final_total);
                 formData.append('extra_attachment', this.extra_attachment);
+                formData.append('exist_attachment', this.exist_attachment);
+                formData.append('sale_bill_id', this.sale_bill_id);
+                formData.append('change_reference', this.change_reference);
 
-                axios.post('/account/sale-bill/create-sale-bill/create', formData)
+                axios.post('/account/sale-bill/update', formData)
                 .then(response => {
                     window.location.href = '/account/sale-bill';
                 })
@@ -1041,7 +1317,6 @@
             },
             async submitForm () {
                 const isFormCorrect = await this.v$.$validate();
-                console.log(isFormCorrect);
                 // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
                 if (!isFormCorrect) return;
                 // actually submit form
@@ -1078,7 +1353,6 @@
                 });
 
             });
-
         },
     };
 </script>
@@ -1100,6 +1374,15 @@
     .dynamic_items .form-control, .dynamic_items_fabrics .form-control {
         padding: 0.4375rem 0.6rem;
     }
+    .remove-attachment {
+        color: red;
+        position: absolute;
+        top: -5px;
+        /* right: 35px; */
+        cursor: pointer;
+    }
+    .ni-cross {
+        font-weight: bold;
+    }
 
 </style>
-

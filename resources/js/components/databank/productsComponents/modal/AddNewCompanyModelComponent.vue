@@ -195,7 +195,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
 <style scoped>
     #addCompany .modal-dialog{
         max-width: 920px;

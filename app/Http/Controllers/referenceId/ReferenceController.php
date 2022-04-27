@@ -466,31 +466,30 @@ class ReferenceController extends Controller
                     $ReferenceId->reference_id = $Reference->reference_id + '1';
                 }
             }
-                    $ReferenceId->id = $ReferencesId;
-                    $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
-                    $ReferenceId->selection_date = $Date;
-                    $ReferenceId->employee_id = $user->employee_id;
-                    $ReferenceId->company_id = !empty($request->companyName) ? $request->companyName['id'] : 0;
-                    $ReferenceId->type_of_inward= !empty($request->Reference_via) ? $request->Reference_via['name'] : '';
-                    $ReferenceId->latter_by_id = 0;
-                    $ReferenceId->courier_name = "";
-                    $ReferenceId->weight_of_parcel = "";
-                    $ReferenceId->courier_receipt_no = "";
-                    $ReferenceId->courier_received_time = NULL;
-                    $ReferenceId->delivery_by = "";
-                    $ReferenceId->receiver_email_id = "";
-                    $ReferenceId->from_email_id = "";
-                    $ReferenceId->receiver_number = $request->receiver_number;
-                    $ReferenceId->from_number = $request->from_number;
-                    $ReferenceId->from_name = $request->from_name;
-                    $ReferenceId->is_deleted = '0';
-                    $ReferenceId->mark_as_sample="0";
-                    $ReferenceId->save();
+            $ReferenceId->id = $ReferencesId;
+            $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
+            $ReferenceId->selection_date = $Date;
+            $ReferenceId->employee_id = $user->employee_id;
+            $ReferenceId->company_id = !empty($request->companyName) ? $request->companyName['id'] : 0;
+            $ReferenceId->type_of_inward= !empty($request->Reference_via) ? $request->Reference_via['name'] : '';
+            $ReferenceId->latter_by_id = 0;
+            $ReferenceId->courier_name = "";
+            $ReferenceId->weight_of_parcel = "";
+            $ReferenceId->courier_receipt_no = "";
+            $ReferenceId->courier_received_time = NULL;
+            $ReferenceId->delivery_by = "";
+            $ReferenceId->receiver_email_id = "";
+            $ReferenceId->from_email_id = "";
+            $ReferenceId->receiver_number = $request->receiver_number;
+            $ReferenceId->from_number = $request->from_number;
+            $ReferenceId->from_name = $request->from_name;
+            $ReferenceId->is_deleted = '0';
+            $ReferenceId->mark_as_sample="0";
+            $ReferenceId->save();
         }
         elseif($request->Reference_via['name'] == 'Email')
         {
-            if ($request->inward_outward == 1)
-            {
+            if ($request->inward_outward == 1) {
                 $ReferenceId = new ReferenceId;
                 $ReferenceId->inward_or_outward = $request->inward_outward;
                 if ($Reference == null)
@@ -503,8 +502,7 @@ class ReferenceController extends Controller
                     $ReferenceId->reference_id = $Reference->reference_id + '1';
                 }
             }
-            elseif ($request->inward_outward == 0)
-            {
+            elseif ($request->inward_outward == 0) {
                 $ReferenceId = new ReferenceId;
                 $ReferenceId->inward_or_outward = $request->inward_outward;
                 if ($Reference == null)
@@ -540,15 +538,14 @@ class ReferenceController extends Controller
             $ReferenceId->updated_at=$Date;
             $ReferenceId->save();
         }
-        else
-        {
+        else {
             if ($request->Reference_via['name'] == 'Courier') {
                 $latterBy = '1';
             }
             elseif ($request->Reference_via['name'] == 'Hand'){
                 $latterBy = '0';
             }
-            else{
+            else {
                 $latterBy = '0';
             }
             $marks = 0;
@@ -558,15 +555,13 @@ class ReferenceController extends Controller
 
             $ReferenceId = new ReferenceId;
             $ReferenceId->inward_or_outward = $request->inward_outward;
-            if ($Reference == null)
-                {
-                    $ReferenceId->reference_id = '1';
-                    $ReferenceId->inward_or_outward = $request->inward_outward;
-                }
-                else
-                {
-                    $ReferenceId->reference_id = $Reference->reference_id + '1';
-                }
+            if ($Reference == null) {
+                $ReferenceId->reference_id = '1';
+                $ReferenceId->inward_or_outward = $request->inward_outward;
+            }
+            else {
+                $ReferenceId->reference_id = $Reference->reference_id + '1';
+            }
             $ReferenceId->id = $ReferencesId;
             $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
             $ReferenceId->type_of_inward= !empty($request->Reference_via['name']) ? $request->Reference_via['name'] : '';

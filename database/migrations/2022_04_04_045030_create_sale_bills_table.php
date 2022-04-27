@@ -38,7 +38,7 @@ return new class extends Migration
             $table->double('total_peices')->default(0);
             $table->double('total_meters')->default(0);
             $table->text('remark')->nullable();
-            $table->tinyInteger('required_followup')->default(0);
+            // $table->tinyInteger('required_followup')->default(0);
             $table->tinyInteger('sale_bill_flag')->default(0);
             $table->tinyInteger('done_outward')->default(0);
             $table->tinyInteger('is_copied')->default(0);

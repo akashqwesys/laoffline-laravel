@@ -10,17 +10,19 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "@popperjs/core": "^2.11.4",
+        "@popperjs/core": "^2.11.5",
         "axios": "^0.25.0",
         "bootstrap": "^5.1.3",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "postcss": "^8.4.12",
         "resolve-url-loader": "^5.0.0",
-        "sass": "^1.49.9",
+        "sass": "^1.50.1",
         "sass-loader": "^11.0.1"
     },
     "dependencies": {
+        "@vuelidate/core": "^2.0.0-alpha.40",
+        "@vuelidate/validators": "^2.0.0-alpha.28",
         "datatables.net": "^1.11.5",
         "datatables.net-bs5": "^1.11.5",
         "datatables.net-buttons": "^2.2.2",
@@ -31,10 +33,10 @@
         "datatables.net-searchpanes-bs5": "^2.0.0",
         "datatables.net-select-bs5": "^1.3.4",
         "jquery": "^3.6.0",
-        "jszip": "^3.7.1",
-        "pdfmake": "^0.2.4",
+        "jszip": "^3.9.1",
+        "pdfmake": "^0.2.5",
         "vform": "^2.1.2",
-        "vue": "^3.2.31",
+        "vue": "^3.2.33",
         "vue-loader": "^17.0.0",
         "vue-multiselect": "^3.0.0-alpha.2",
         "vue-router": "^4.0.14"

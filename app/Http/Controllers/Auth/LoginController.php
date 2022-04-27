@@ -34,7 +34,7 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = RouteServiceProvider::HOME;
-    
+
     /**
      * Create a new controller instance.
      *
@@ -53,27 +53,38 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $input = $request->all();
-   
+
         $this->validate($request, [
             'email' => 'required',
             'password' => 'required',
         ]);
-   
+
         if(auth()->attempt(array('username' => $input['email'], 'password' => $input['password']))) {
             $financialYear = FinancialYear::where('current_year_flag', '1')->first();
 
             $user = Auth::User();
             $employee = Employee::where('id', $user->employee_id)->first();
             $user['excel_access'] = $employee->excel_access;
+            $user['user_email'] = $employee->email_id;
             $user['financial_year'] = $financialYear->name;
+
+
+
+            // FOR TESTING ==========
             $user['financial_year_id'] = $financialYear->id;
+            // $user['financial_year_id'] = 7;
+            // FOR TESTING ==========
+
+
+
+
             $user['extension_port_id'] = $employee->extension_port_id;
-            
+
             Session::put('user', $user);
-            
+
             $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
             $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-                            
+
             $logs = new Logs;
             $logs->id = $logsId;
             $logs->employee_id = $user->employee_id;
@@ -84,7 +95,7 @@ class LoginController extends Controller
 
             $employee = Employee::where('id', $user->employee_id)->first();
             $employee->web_login = Carbon\Carbon::now()->format('Y-m-d H:i:s');
-            $employee->save();    
+            $employee->save();
 
             return redirect()->route('home');
         }else{

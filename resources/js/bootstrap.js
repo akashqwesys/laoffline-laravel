@@ -14,6 +14,26 @@ window.axios = require('axios');
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+axios.interceptors.request.use((config) => {
+    // trigger 'loading=true' event here
+    document.getElementById('overlay').style.display = 'block';
+    return config;
+}, (error) => {
+    // trigger 'loading=false' event here
+    document.getElementById('overlay').style.display = 'none';
+    return Promise.reject(error);
+});
+
+axios.interceptors.response.use((response) => {
+    // trigger 'loading=false' event here
+    document.getElementById('overlay').style.display = 'none';
+    return response;
+}, (error) => {
+    // trigger 'loading=false' event here
+    document.getElementById('overlay').style.display = 'none';
+    return Promise.reject(error);
+});
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

@@ -725,7 +725,7 @@
         },
     };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
 <style scoped>
     .multiselect {
         height: calc(2.125rem + 2px);
