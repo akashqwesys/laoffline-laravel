@@ -94,8 +94,14 @@ import PermissionComponent from './components/settings/permissionsComponents/Per
 import CreatePermissionComponent from './components/settings/permissionsComponents/CreatePermissionComponent.vue';
 
 import PaymentComponent from './components/payment/PaymentComponent.vue';
-import CreatePaymentComponent from './components/payment/CreatePaymentComponent.vue'
-import AddPaymentComponent from './components/payment/AddPaymentComponent.vue'
+import CreatePaymentComponent from './components/payment/CreatePaymentComponent.vue';
+import AddPaymentComponent from './components/payment/AddPaymentComponent.vue';
+import AddGoodReturnComponent from './components/payment/AddGoodReturnComponent.vue';
+import EditGoodReturnComponent from './components/payment/EditGoodReturnComponent.vue';
+import PaymentStatusComponent from './components/payment/PaymentStatusComponent.vue';
+import GoodReturnComponent from './components/payment/GoodReturnComponent.vue';
+import ViewPaymentComponent from './components/payment/ViewPaymentComponent.vue';
+import ViewVoucherComponent from './components/payment/ViewVoucherComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -307,9 +313,16 @@ const routes = [
         path: '/payments/',
         component: PaymentComponent,
         children: [
-            { path: 'create-payments', component: CreatePaymentComponent },
-            { path: 'edit-payments/:id', component: AddPaymentComponent },
+            { path: 'create-payment', component: CreatePaymentComponent },
+            { path: 'edit-payment/:id', component: AddPaymentComponent },
             { path: 'addpayment', component: AddPaymentComponent },
+            { path: 'add-goodreturn/:id', component: AddGoodReturnComponent},
+            { path: 'edit-goodreturn/:id', component: EditGoodReturnComponent},
+            { path: 'status/:status', component: PaymentStatusComponent},
+            { path: 'goods_returns', component: GoodReturnComponent},
+            { path: 'view-payment/:id', component: ViewPaymentComponent},
+            { path: 'view-voucher/:id', component: ViewVoucherComponent},
+
         ]
     },
 ];
@@ -384,5 +397,11 @@ createApp({
         PaymentComponent,
         CreatePaymentComponent,
         AddPaymentComponent,
+        AddGoodReturnComponent,
+        EditGoodReturnComponent,
+        PaymentStatusComponent,
+        GoodReturnComponent,
+        ViewPaymentComponent,
+        ViewVoucherComponent,
     }
 }).use(router).mount('#app');

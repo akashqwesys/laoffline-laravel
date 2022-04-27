@@ -624,14 +624,31 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:acces
         Route::get('/list-bank', [App\Http\Controllers\PaymentsController::class, 'listbank'])->name('list-bank');
         Route::post('/searchsalebill', [App\Http\Controllers\PaymentsController::class, 'searchSaleBill']);
         Route::get('/', [App\Http\Controllers\PaymentsController::class, 'index'])->name('payments');
+        Route::get('/status/{status}', [App\Http\Controllers\PaymentsController::class, 'paymentStatus'])->name('paymentstatus');
         Route::get('/list', [App\Http\Controllers\PaymentsController::class, 'listpayment'])->name('list');
+        Route::get('/incompletelist', [App\Http\Controllers\PaymentsController::class, 'inCompletelistpayment'])->name('incompletelist');
+        Route::get('/goods_returns', [App\Http\Controllers\PaymentsController::class, 'goodReturn'])->name('goodreturn');
+        Route::get('/goodreturn-list', [App\Http\Controllers\PaymentsController::class, 'goodreturnList'])->name('goodreturnlist');
+        Route::get('/completelist', [App\Http\Controllers\PaymentsController::class, 'completelistpayment'])->name('completelist');
         Route::get('/list-data', [App\Http\Controllers\PaymentsController::class, 'listData'])->name('list-data');
         Route::get('/fetch-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchPayment']);
+        Route::get('/view-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'viewPayment']);
+        Route::get('/view-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'viewVoucher']);
+        Route::get('/fetch-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchVoucher']);
+        Route::get('/fetch-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchGoodReturn']);
         Route::get('/getbasicdata', [App\Http\Controllers\PaymentsController::class, 'getBasicData']);
-});
+        Route::get('/getsalbillforadd', [App\Http\Controllers\PaymentsController::class, 'getSalbillforAdd']);
+        Route::get('/getReferenceForSaleBill', [App\Http\Controllers\PaymentsController::class, 'getReferenceForSaleBill']);
+        Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\PaymentsController::class, 'getOldReferenceForSaleBill']);
+        Route::get('/getsalebillwithproduct', [App\Http\Controllers\PaymentsController::class, 'getSalebillWithProduct']);
+    });
 
 Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modify-payment']], function () {
         Route::get('/create-payment', [App\Http\Controllers\PaymentsController::class, 'createPayment']);
+        Route::get('/add-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'addGoodRetuen']);
+        Route::get('/edit-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'editGoodRetuen']);
+        Route::post('/insertgoodreturn', [App\Http\Controllers\PaymentsController::class, 'insertGoodRetuen']);
+        Route::post('/updategoodreturn', [App\Http\Controllers\PaymentsController::class, 'updateGoodRetuen']);
         Route::post('/create', [App\Http\Controllers\PaymentsController::class, 'insertPaymentData']);
         Route::post('/generatepayment', [App\Http\Controllers\PaymentsController::class, 'generatePaymentData']);
         Route::post('/selectsalebills', [App\Http\Controllers\PaymentsController::class, 'selectSaleBills']);
@@ -639,6 +656,8 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modif
         Route::post('/update', [App\Http\Controllers\PaymentsController::class, 'updatePaymentData']);
         Route::get('/edit-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'editPayment']);
         Route::get('/delete/{id}', [App\Http\Controllers\PaymentsController::class, 'deletePayment'])->name('delete');
-});
+        Route::get('/deletegoodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'deleteGoodReturn'])->name('deletegoodreturn');
+        
+    });
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

@@ -3,15 +3,12 @@
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
-                    <div class="nk-block-head nk-block-head-sm">
-                        
-                    </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-header">
                                 <div class="row">
                                     <div class="col-sm-4">
-                                        <h3 class="nk-block-title page-title">Payment List</h3>
+                                        <h6 class="nk-block-title page-title">Payment List</h6>
                                     </div>
                                     <div class="col-md-8 text-right">
 				                    	<a href="/payments/status/1" class="btn btn-success mx-1">
@@ -27,7 +24,6 @@
 										<a href="/payments/" class="btn btn-dark mx-1">
 				                            Clear All
 				                        </a>
-                                        <a v-bind:href="create_payment" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
 				                    </div>
                                 </div>
                                 
@@ -74,10 +70,12 @@
     import "datatables.net-buttons/js/buttons.print.js";
     import $ from 'jquery';
 
+    var url;
     export default {
         name: 'payment',
         props: {
             excelAccess: Number,
+            status: Number,
         },
         data() {
             return {
@@ -91,7 +89,7 @@
             delete_data(id){
                 axios.delete('./payments/delete/'+id)
                 .then(response => {
-                    location.reload();
+                    window.location.href = './payments/'
                 });
             },
         },
@@ -114,13 +112,18 @@
                 },
                 'print'];
             }
+            if (this.status) {
+                url = '/payments/completelist';
+            } else {
+                url = '/payments/incompletelist';
+            }
             function init_dt_table () {
                 dt_table = $('#payment').DataTable({
                     processing: true,
                     serverSide: true,
                     lengthChange: true,
                     ajax: {
-                        url: "/payments/list",
+                        url: url,
                         data: function (data) {
                             if ($('#payment_no').val() == '') {
                                 data.columns[0].search.value = '';
@@ -196,7 +199,7 @@
                     search: {
                         return: true
                     },
-                    buttons: buttons,
+                    buttons: buttons
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="paymentdate" class="form-control form-control-sm" placeholder="Payment Date"><input type="search" id="customer" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="voucher" class="form-control form-control-sm" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm" placeholder="Amount"></div>').insertAfter('.dataTables_length');
@@ -238,7 +241,7 @@
             }
             var draw = 1;
             $(document).on('keyup', '#payment_filter input', function(e) {
-                 if ($(this).val() == '') {
+                if ($(this).val() == '') {
                     if (draw == 0) {
                         dt_table.clear().draw();
                         draw = 1;

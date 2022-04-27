@@ -7,8 +7,8 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 v-if="scope == 'edit'" class="nk-block-title page-title">Edit Financial Year</h3>
-                                <h3 v-else class="nk-block-title page-title">Add Financial Year</h3>
+                                <h3 v-if="scope == 'edit'" class="nk-block-title page-title">Edit Payments Detail</h3>
+                                <h3 v-else class="nk-block-title page-title">Add Payment Detail</h3>
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
@@ -16,8 +16,11 @@
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <form action="#" class="form-validate" @submit.prevent="register()">
+                    <input type="hidden" v-if="scope == 'edit'" id="fv-payment-id" v-model="form.id">
+                    <input type="hidden" v-if="scope == 'edit'" id="fv-refrence-id" v-model="form.refrence_type">
+                    <div id="allhiddenfield_div"></div>
                     <div class="nk-block">
-                        <div class="card card-bordered">
+                        <div v-if="scope != 'edit'" class="card card-bordered">
                            <div class="card-header">
                                 <h5>Reference Details</h5>
                             </div>
@@ -35,25 +38,26 @@
                                         <label class="form-label" for="fv-refrence">Refrence</label>
                                     </div>
                                     <div class="col-sm-4">
-                                        <div class="form-control-wrap">
-                                            <ul class="custom-control-group g-3 align-center">
-                                                <li>
+                                        <div class="preview-block">
+                                            <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
+                                                <li class="w-25">
                                                     <div class="custom-control custom-radio">
-                                                        <input type="radio" class="custom-control-input" name="refrence" v-model="form.refrence" id="fv-old" value="old" @change="onRefrenceChange($event)">
-                                                        <label class="custom-control-label" for="fv-old">Old</label>
+                                                        <input v-model="form.refrence" type="radio" class="custom-control-input"  id="fv-reference_new" value="1" @click="reference_new = true" @change="newRefence">
+                                                        <label class="custom-control-label" for="fv-reference_new">NEW</label>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div class="custom-control custom-radio">
-                                                        <input type="radio" class="custom-control-input" name="refrence" v-model="form.refrence" id="fv-new" value="new" @change="onRefrenceChange($event)">
-                                                        <label class="custom-control-label" for="fv-new">New</label>
+                                                        <input v-model="form.refrence" type="radio" class="custom-control-input"  id="fv-reference_old" value="0" @click="reference_new = false" @change="getOldReferences">
+                                                        <label class="custom-control-label" for="fv-reference_old">OLD</label>
                                                     </div>
                                                 </li>
                                             </ul>
-                                            <span v-if="errors.refrence" class="invalid">{{errors.refrence}}</span>
+                                            <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
                                 <div class="new">
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
@@ -124,35 +128,7 @@
                                     </div>
                                 </div>
                                 </div>
-                                <div class="old d-none">
-                                    <div class="row gy-4 text-center">
-                                        <div class="col-sm-2 text-right">
-                                        </div>
-                                        <div class="col-sm-10">
-                                            <table id="salebills" class="table mb-2 table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Select</th>
-                                                        <th>Ref. no</th>
-                                                        <th>Generated By</th>
-                                                        <th>Date</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="itm in items" :key="itm.reference_id" class="text-center">
-                                                        <td><div class="custom-control custom-radio">
-                                                                <input type="radio" class="custom-control-input" name="refrence_type" v-model="form.refrence_type" :id="itm.reference_id">
-                                                                <label class="custom-control-label" :for="itm.id"></label>
-                                                            </div></td>
-                                                        <td>{{itm.reference_id}}</td>
-                                                        <td>{{itm.generateby}}</td>
-                                                        <td>{{itm.date}}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                         <div class="card card-bordered">
@@ -305,7 +281,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 cash">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-Recipt-amount">Recipt Amount</label>
                                                     <div class="form-control-wrap">
@@ -364,7 +340,7 @@
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.short" @change="changeShort"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.interest" @change="changeInterest"></td>
                                                         <td><input type="text" class="form-control" v-model="salebill.remark" ></td>
-                                                        <td><button class="btn btn-primary">x</button></td>
+                                                        <td><button class="btn btn-primary" @click="removeSalebill">x</button></td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot class="total">
@@ -393,7 +369,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
+                                                    <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
                                                     <button type="submit" class="btn btn-primary">Save changes</button>
                                                 </div>
                                             </div>
@@ -411,6 +387,7 @@
 </template>
 
 <script>
+    import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
     import addSalebill from './modal/AddSalebillModelComponent.vue';
@@ -419,6 +396,7 @@
     var referncevia = [];
     var salebilldata = [];
     var salebill = [];
+    var gData = [];
     var element = '';
     export default {
         name: 'addPayment',
@@ -431,15 +409,11 @@
         },
         data() {
             return {
+                old_reference_data: '',
                 cancel_url: '/payments/',
                 userGroups: [],
                 banks:[],
-                salebilldata :[
-                    { sallbillid: 101, financialyear: "2020-2021", invoiceid: "201", date: '2021-03-15', supplier: "Dadan Soft", amount:"200", overdue: "15" },
-                    { sallbillid: 103, financialyear: "2020-2021", invoiceid: "202", date: '2021-03-15', supplier: "Dadan Soft", amount:"250", overdue: "15" },
-                    { sallbillid: 104, financialyear: "2020-2021", invoiceid: "203", date: '2021-03-15', supplier: "Dadan Soft", amount:"252", overdue: "15" },
-                    { sallbillid: 106, financialyear: "2020-2021", invoiceid: "204", date: '2021-03-15', supplier: "Dadan Soft", amount:"285", overdue: "15" },
-                    ],
+                salebilldata :[],
                 // salebill :[
                 //     {id: 101, sup_inv: 1025, amount: 5000},
                 //     {id: 103, sup_inv: 1028, amount: 150000}
@@ -515,9 +489,11 @@
             axios.get('/payments/getbasicdata')
             .then(responce => {
                 this.salebills = responce.data.salebill;
-                this.items = responce.data.reference;
-                this.form.reciptfrom = responce.data.customer.company_name;
-                this.form.supplier = responce.data.seller.company_name;
+                this.salebilldata = responce.data.salebilldata;
+                if (this.scope != 'edit') {
+                    this.form.reciptfrom = responce.data.customer.company_name;
+                    this.form.supplier = responce.data.seller.company_name;
+                }
                 this.form.depositebank = 'Cheque in Hand';
                 let totalamount = 0;
                 let totalAdjustamount = 0;
@@ -526,12 +502,63 @@
                     totalamount += parseInt(value.amount);
                 });
                 this.form.totalamount = totalamount;
-                this.form.totaladjustamount = totalAdjustamount;
+                this.form.totaladjustamount = totalAdjustamount; 
             })
             this.form.refrence = 'new';
             this.form.recipt_mode = 'cheque';
         },
         methods: {
+            removeSalebill (event) {
+                let index = event.target.parentElement.parentElement.rowIndex;
+                this.salebills.splice(index-1, 1);
+            },
+            getOldReferences: function (event) {
+                if (this.form.refrencevia == null) {
+                    setTimeout(() => {
+                        this.form.refrence = 1;
+                        $('#error-validate-reference-div').text('Please select Reference Via');
+                    }, 500);
+                } else {
+                    $('#overlay').show();
+                    $(".new").addClass("d-none");
+                    axios.get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
+                    .then(response => {
+                        this.old_reference_data = response.data;
+                        $("#show-references").removeClass('d-none');
+                        $('#show-references').slideDown();
+                        setTimeout(() => {
+                            $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                        }, 500);
+                        $('#overlay').hide();
+                    })
+                    .catch(function (error) {
+                        $('#overlay').hide();
+                    });
+                }
+            },
+            newRefence: function (event) {
+                if (this.form.refrencevia == null) {
+                    setTimeout(() => {
+                        this.form.refrence = 1;
+                        $('#error-validate-reference-div').text('Please select Reference Via');
+                    }, 500);
+                } else {
+                    $(".new").removeClass("d-none");
+                    $("#show-references").addClass('d-none');
+                    axios.get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
+                    .then(response => {
+                        this.old_reference_data = response.data;
+                        $('#show-references').slideDown();
+                        setTimeout(() => {
+                            $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                        }, 500);
+                        $('#overlay').hide();
+                    })
+                    .catch(function (error) {
+                        $('#overlay').hide();
+                    });
+                }
+            },
             changeInterest (event) {
                 let totalInterst = 0;
                 let totalRateDifference = 0;
@@ -1026,16 +1053,6 @@
             uploadLetterImage (event) {
                 this.letterimage = event.target.files[0];
             },
-            onRefrenceChange(event) {
-                let ref = event.target.value;
-                if (ref == 'old'){
-                    $(".new").addClass("d-none");
-                    $(".old").removeClass("d-none");
-                } else {
-                    $(".new").removeClass("d-none");
-                    $(".old").addClass("d-none");
-                }
-            },
             typePayment(event) {
                 let paymentType = event.target.value;
                 let goodreturn = 0;
@@ -1084,23 +1101,34 @@
                 }
             },
             register () {
+                var paymentdata = new FormData();
                 if (this.scope == 'edit') {
-                    this.form.post('/payments/update')
+                
+                    paymentdata.append('billdata', JSON.stringify(this.salebills));
+                    paymentdata.append('formdata', JSON.stringify(this.form));
+                    paymentdata.append('chequeimage', this.chequeimage);
+                    paymentdata.append('letterimage', this.letterimage);
+
+                   axios.post('/payments/update',paymentdata)
                     .then(() => {
-                        window.location.href = '/payments';
+                        //window.location.href = '/payments';
                     })
                     .catch((error) => {
                         var validationError = error.response.data.errors;
                     })
                 } else {
-                    var paymentdata = new FormData();
+                    
                     paymentdata.append('billdata', JSON.stringify(this.salebills));
                     paymentdata.append('formdata', JSON.stringify(this.form));
                     paymentdata.append('chequeimage', this.chequeimage);
                     paymentdata.append('letterimage', this.letterimage);
                     axios.post('/payments/create', paymentdata)
-                    .then(() => {
-                        window.location.href = '/payments';
+                    .then((response2) => {
+                        if (response2.redirect_url == ''){
+                            window.location.href = '/payments';
+                        } else {
+                            window.location.href = response2.redirect_url;
+                        }
                     })
                     .catch((error) => {
                         var validationError = error.response.data.errors;
@@ -1109,6 +1137,7 @@
             },
         },
         mounted() {
+            const self = this;
             this.form.refrencevia = {name: 'Courier', code: '1'};
             this.form.discountamount = 0;
             this.form.goodreturn = 0;
@@ -1119,14 +1148,89 @@
             this.form.claim = 0;
             this.form.short = 0;
             this.form.interest = 0;
+            $(document).on('change', '.old-reference', function () {
+                self.form.refrence_type = this.value;
+                console.log(self.form);
+            });
+            $(document).on('click', '#sale_bill_ref_search_btn', function() {
+                axios.get('/payments/getOldReferenceForSaleBill/'+$('#sale_bill_ref_search').val())
+                .then(response2 => {
+                    if (response2.data != '') {
+                        $('#allhiddenfield_div').html(response2.data);
+                        $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="r-'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
+                        $('#show-references tr input[type="radio"]').last().prop('checked', true);
+                        self.form.refrence_type = $('#hidden_reference_id_input').val();
+                        console.log(self.form);
+                        // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
+                    } else {
+                        this.new_old_sale_bill = 1;
+                        $('#sale_bill_ref_msg').html('<td colspan="5">This Reference Id is not generated by Email, Courier OR Hand.</td>');
+                    }
+                });
 
+            });
             switch (this.scope) {
                 case 'edit' :
                     axios.get(`/payments/fetch-payment/${this.id}`)
                     .then(response => {
                         gData = response.data;
-
-                        this.form.id = gData.id;
+                        self.form.recipt_mode = gData.paymentData.reciept_mode;
+                        if (gData.paymentData.reciept_mode == 'cash') {
+                            $(".cash").removeClass("d-none");
+                            $(".cheque").addClass("d-none");
+                            $(".table-responsive").addClass("salebilltable");
+                        } else if (gData.paymentData.reciept_mode == 'cheque') {
+                            self.form.chequedate = gData.paymentData.cheque_date;
+                            self.form.chequeno = gData.paymentData.cheque_dd_no;
+                            self.form.chequebank = gData.paymentData.cheque_dd_bank;
+                            $(".cash").removeClass("d-none");
+                            $(".cheque").removeClass("d-none");
+                            $(".table-responsive").addClass("salebilltable");
+                        } else if (gData.paymentData.reciept_mode == 'fullreturn' || gData.paymentData.reciept_mode == 'partreturn') {
+                            $(".cheque").addClass("d-none");
+                            $(".cash").addClass("d-none");
+                            $(".table-responsive").removeClass("salebilltable");
+                        }
+                        setTimeout(() => {
+                        
+                            self.form.id = this.id;
+                            self.form.refrence_type = gData.paymentData.reference_id;
+                            self.form.reciptdate = gData.paymentData.date;
+                            self.form.reciptfrom = gData.customer.company_name;
+                            self.form.supplier = gData.supplier.company_name;
+                            self.form.depositebank = 'Cheque in Hand';
+                            self.form.term = gData.paymentData.trns;
+                            self.form.reciptamount = gData.paymentData.receipt_amount;
+                            self.form.totalamount = gData.paymentData.total_amount;
+                            self.form.totaladjustamount = gData.paymentData.tot_adjust_amount;
+                            self.form.discountamount = gData.paymentData.tot_discount;
+                            self.form.goodreturn = gData.paymentData.tot_good_returns;
+                            self.form.ratedifference = gData.paymentData.tot_rate_difference;
+                            self.form.bankcommission = gData.paymentData.tot_bank_cpmmission;
+                            self.form.agentcommission = gData.paymentData.tot_agent_commission;
+                            self.form.vatav = gData.paymentData.tot_vatav;
+                            self.form.claim = gData.paymentData.tot_claim;
+                            self.form.short = gData.paymentData.tot_short;
+                            self.form.interest = gData.paymentData.tot_interest;
+                            gData.salebill.forEach((value,index) => {
+                                self.salebills[index].id = value.sr_no;
+                                self.salebills[index].sup_inv = value.supplier_invoice_no;
+                                self.salebills[index].amount = value.amount;
+                                self.salebills[index].adjamount = value.adjust_amount;
+                                self.salebills[index].discount = value.discount;
+                                self.salebills[index].discountamount = value.discount_amount;
+                                self.salebills[index].vatav = value.vatav;
+                                self.salebills[index].bankcommission = value.bank_commission;
+                                self.salebills[index].agentcommission = value.agent_commission;
+                                self.salebills[index].claim = value.claim;
+                                self.salebills[index].goodreturn = value.goods_return;
+                                self.salebills[index].short = value.short;
+                                self.salebills[index].interest = value.interest;
+                                self.salebills[index].ratedifference = value.rate_difference;
+                                self.salebills[index].remark = value.remark;
+                            });
+                        }, 500);
+                        
                     });
                     break;
                 default:

@@ -17,7 +17,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-customer">Cuatomer</label>
+                                                    <label class="form-label" for="fv-customer">Customer</label>
                                                     <div>
                                                         <multiselect v-model="form.customer" :options="customer" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
@@ -25,7 +25,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-seller">Seller</label>
+                                                    <label class="form-label" for="fv-seller">Supplier</label>
                                                     <div>
                                                         <multiselect v-model="form.seller" :options="seller" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
@@ -36,7 +36,7 @@
                                                     <label class="form-label" for="fv-seller"></label>
                                                     <div>
                                                         <button class="btn btn-primary" @click="searchSalebills($event)">Search</button>
-                                                        <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
+                                                        <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -66,9 +66,9 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="itm in items" :key="itm.sallbillid" class="text-center">
+                                        <tr v-for="itm in salebill" :key="itm.sallbillid" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
-				                            <td>{{ itm.sallbillid}}</td>
+				                            <td>{{ itm.sallbillid }}</td>
 				                            <td>{{ itm.financialyear }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
@@ -94,7 +94,6 @@
     import Multiselect from 'vue-multiselect';
     import Form from 'vform';
 
-    var items = [];
     export default {
         name: 'createPayment',
         components: {
@@ -110,12 +109,8 @@
                 seller: [],
                 customer: [],
                 selected: [],
-                items: [
-                    { sallbillid: 101, financialyear: "2020-2021", invoiceid: "201", date: '2021-03-15', supplier: "Dadan Soft", amount:"200", overdue: "15" },
-                    { sallbillid: 103, financialyear: "2020-2021", invoiceid: "202", date: '2021-03-15', supplier: "Dadan Soft", amount:"250", overdue: "15" },
-                    { sallbillid: 104, financialyear: "2020-2021", invoiceid: "203", date: '2021-03-15', supplier: "Dadan Soft", amount:"252", overdue: "15" },
-                    { sallbillid: 106, financialyear: "2020-2021", invoiceid: "204", date: '2021-03-15', supplier: "Dadan Soft", amount:"285", overdue: "15" },
-                    ],
+                salebill: [],
+
                 form: new Form({
                     id: '',
                     customer: '',
@@ -145,13 +140,19 @@
                 })
             },
             searchSalebills(event) {
+                const self = this;
+
                 axios.post('/payments/searchsalebill', {
-                    customer: this.form.customer.id,
-                    seller: this.form.seller.id
+                    customer: self.form.customer.id,
+                    seller: self.form.seller.id
                 })
                 .then(function (response) {
                     $(".salebill").removeClass("d-none");
                     $(".generatepayment").removeClass('disabled');
+                    setTimeout(() => {
+                        self.salebill = response.data.salebill;
+                    }, 500);
+                    
                 })
                 .catch(function (error) {
                 });

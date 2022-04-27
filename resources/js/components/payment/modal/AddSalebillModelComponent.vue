@@ -53,23 +53,23 @@
         name: 'addSalebill',
         data() {
             return {
-                items :[
-                    { sallbillid: 101, financialyear: "2020-2021", invoiceid: "201", date: '2021-03-15', supplier: "Dadan Soft", amount:"200", overdue: "15" },
-                    { sallbillid: 103, financialyear: "2020-2021", invoiceid: "202", date: '2021-03-15', supplier: "Dadan Soft", amount:"250", overdue: "15" },
-                    { sallbillid: 104, financialyear: "2020-2021", invoiceid: "203", date: '2021-03-15', supplier: "Dadan Soft", amount:"252", overdue: "15" },
-                    { sallbillid: 106, financialyear: "2020-2021", invoiceid: "204", date: '2021-03-15', supplier: "Dadan Soft", amount:"285", overdue: "15" },
-                    ],
+                items :[],
                 selected: [],
             }
         },
+        created() {
+            axios.get('/payments/getsalbillforadd')
+            .then(responce => {
+                this.items = responce.data.salebilldata;
+            });
+        },
         methods: {
             selectSalebill(event){
-                alert(this.selected);
                axios.post('/payments/selectsalebills', {
                     salebill: this.selected
                 })
                 .then(responce => {
-                    //window.location.href = '/payments/addpayment';
+                    window.location.href = '/payments/addpayment';
                 })
             }
         },

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\sales;
+namespace App\Models\Sales;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class salesBill extends Model
+class SalesBill extends Model
 {
     use HasFactory;
 

@@ -4,52 +4,37 @@
             <div class="nk-content-inner">
                 <div class="nk-content-body">
                     <div class="nk-block-head nk-block-head-sm">
-                        
+                        <div class="nk-block-between">
+                            <div class="nk-block-head-content">
+                                <h3 class="nk-block-title page-title">Good Return Lists</h3>
+                                <div class="nk-block-des text-soft">
+                                    <!-- <p>You have total {{employees.length}} employee.</p> -->
+                                </div>
+                            </div><!-- .nk-block-head-content -->
+                            <div class="nk-block-head-content">
+                                <div class="toggle-wrap nk-block-tools-toggle">
+                                    <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+                                    <div class="toggle-expand-content" data-content="pageMenu">
+                                        
+                                    </div>
+                                </div><!-- .toggle-wrap -->
+                            </div><!-- .nk-block-head-content -->
+                        </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
-                            <div class="card-header">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <h3 class="nk-block-title page-title">Payment List</h3>
-                                    </div>
-                                    <div class="col-md-8 text-right">
-				                    	<a href="/payments/status/1" class="btn btn-success mx-1">
-				                            Completed
-				                        </a>
-				                        <a href="/payments/status/0" class="btn btn-danger mx-1">
-				                            Incomplete
-				                        </a> 
-										
-										<a href="/payments/goods_returns" class="btn btn-primary mx-1">
-				                            Goods Return
-				                        </a> 
-										<a href="/payments/" class="btn btn-dark mx-1">
-				                            Clear All
-				                        </a>
-                                        <a v-bind:href="create_payment" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
-				                    </div>
-                                </div>
-                                
-                            </div>
                             <div class="card-inner">
                                 <div class="table-responsive">
-                                <table id="payment" class="table table-hover">
+                                <table id="goodreturn" class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th>No</th>
 				                            <th>IUID</th>
-				                            <th>OUID</th>
 				                            <th>Ref. ID</th>
 				                            <th>Date Added</th>
-				                            <th>Payment Date</th>
                                             <th>Customer</th>
                                             <th>Supplier</th>
-				                            <th>Voucher No</th>
-				                            <th>Paid Amount</th>
-				                            <th>Supplier Commission Status</th>
-				                            <th>Customer Commission Status</th>
-				                            <th>Outward Status</th>
+				                            <th>GR Amount</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -74,10 +59,12 @@
     import "datatables.net-buttons/js/buttons.print.js";
     import $ from 'jquery';
 
+    var url;
     export default {
         name: 'payment',
         props: {
             excelAccess: Number,
+            status: Number,
         },
         data() {
             return {
@@ -86,10 +73,10 @@
         },
         methods: {
             edit_data(id){
-                window.location.href = './payments/edit-payment/'+id;
+                window.location.href = './payments/edit-goodreturn/'+id;
             },
             delete_data(id){
-                axios.delete('./payments/delete/'+id)
+                axios.delete('./payments/deletegoodreturn/'+id)
                 .then(response => {
                     location.reload();
                 });
@@ -115,62 +102,42 @@
                 'print'];
             }
             function init_dt_table () {
-                dt_table = $('#payment').DataTable({
+                dt_table = $('#goodreturn').DataTable({
                     processing: true,
                     serverSide: true,
-                    lengthChange: true,
+                    responsive: true,
                     ajax: {
-                        url: "/payments/list",
+                        url: "/payments/goodreturn-list",
                         data: function (data) {
-                            if ($('#payment_no').val() == '') {
+                            if ($('#good_return_no').val() == '') {
                                 data.columns[0].search.value = '';
                             } else {
-                                data.columns[0].search.value = $('#payment_no').val();
+                                data.columns[0].search.value = $('#good_return_no').val();
                             }
                             if ($('#iuid').val() == '') {
                                 data.columns[1].search.value = '';
                             } else {
                                 data.columns[1].search.value = $('#iuid').val();
                             }
-                            if ($('#ouid').val() == '') {
+                            if ($('#ref_no').val() == '') {
                                 data.columns[2].search.value = '';
                             } else {
-                                data.columns[2].search.value = $('#ouid').val();
-                            }
-                            if ($('#ref_no').val() == '') {
-                                data.columns[3].search.value = '';
-                            } else {
-                                data.columns[3].search.value = $('#ref_no').val();
+                                data.columns[2].search.value = $('#ref_no').val();
                             }
                             if ($('#date_added').val() == '') {
-                                data.columns[4].search.value = '';
+                                data.columns[3].search.value = '';
                             } else {
-                                data.columns[4].search.value = $('#date_added').val();
-                            }
-                            if ($('#paymentdate').val() == '') {
-                                data.columns[5].search.value = '';
-                            } else {
-                                data.columns[5].search.value = $('#paymentdate').val();
+                                data.columns[3].search.value = $('#date_added').val();
                             }
                             if ($('#customer').val() == '') {
-                                data.columns[6].search.value = '';
+                                data.columns[4].search.value = '';
                             } else {
-                                data.columns[6].search.value = $('#customer').val();
+                                data.columns[4].search.value = $('#customer').val();
                             }
                             if ($('#supplier').val() == '') {
-                                data.columns[7].search.value = '';
+                                data.columns[5].search.value = '';
                             } else {
-                                data.columns[7].search.value = $('#supplier').val();
-                            }
-                            if ($('#voucher').val() == '') {
-                                data.columns[8].search.value = '';
-                            } else {
-                                data.columns[8].search.value = $('#voucher').val();
-                            }
-                            if ($('#paidamount').val() == '') {
-                                data.columns[9].search.value = '';
-                            } else {
-                                data.columns[9].search.value = $('#paidamount').val();
+                                data.columns[5].search.value = $('#supplier').val();
                             }
                         },
                         complete: function (data) { }
@@ -180,17 +147,11 @@
                     columns: [
                         { data: 'id' },
                         { data: 'iuid' },
-                        { data: 'ouid' },
                         { data: 'refeenceid' },
                         { data: 'dateadd' },
-                        { data: 'paymentdate' },
                         { data: 'customer' },
                         { data: 'supplier' },
-                        { data: 'voucherno' },
-                        { data: 'paidamount' },
-                        { data: 'suppiler_commission_status' },
-                        { data: 'customer_commission_status' },
-                        { data: 'outward_status' },
+                        { data: 'gramount' },
                         { data: 'action', orderable: false },
                     ],
                     search: {
@@ -199,8 +160,8 @@
                     buttons: buttons,
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="paymentdate" class="form-control form-control-sm" placeholder="Payment Date"><input type="search" id="customer" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="voucher" class="form-control form-control-sm" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm" placeholder="Amount"></div>').insertAfter('.dataTables_length');
-                });
+                    $('<div class="dataTables_filter mt-2" id="goodreturn_filter"><input type="search" id="good_return_no" class="form-control form-control-sm" placeholder="GoodReturn No"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="customer" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"></div>').insertAfter('.dataTables_length');
+                } );
             }
             init_dt_table();
             function exportAllRecords(e, dt, button, config) {
@@ -237,8 +198,8 @@
                 dt.ajax.reload();
             }
             var draw = 1;
-            $(document).on('keyup', '#payment_filter input', function(e) {
-                 if ($(this).val() == '') {
+            $(document).on('keyup', '#goodreturn_filter input', function(e) {
+                if ($(this).val() == '') {
                     if (draw == 0) {
                         dt_table.clear().draw();
                         draw = 1;
