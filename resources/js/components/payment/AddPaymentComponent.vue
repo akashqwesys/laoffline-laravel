@@ -37,7 +37,7 @@
                                     <div class="col-sm-2 text-right">
                                         <label class="form-label" for="fv-refrence">Refrence</label>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-4" style="z-index:0">
                                         <div class="preview-block">
                                             <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
                                                 <li class="w-25">
@@ -53,6 +53,7 @@
                                                     </div>
                                                 </li>
                                             </ul>
+                                            <div id="error-for-reference" class="mt-2 text-danger"></div>
                                             <div id="error-validate-reference-div" class="mt-2 text-danger"></div>
                                         </div>
                                     </div>
@@ -95,6 +96,7 @@
                                         <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" >
                                         <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
                                     </div>
+                                    <div id="error-for-recivedate" class="mt-2 text-danger"></div>
                                 </div>
                                 </div>
                                 <div class="courier">
@@ -105,6 +107,7 @@
                                     <div class="col-sm-4">
                                         <multiselect v-model="form.courrier" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
                                     </div>
+                                    <div id="error-for-couurier" class="mt-2 text-danger"></div>
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
@@ -114,6 +117,7 @@
                                         <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno" >
                                         <span v-if="errors.reciptno" class="invalid">{{errors.reciptno}}</span>
                                     </div>
+                                    
                                 </div>
                                 </div>
                                 <div class="email d-none">
@@ -181,6 +185,7 @@
                                                         <input type="date" class="form-control" id="fv-recive-date" v-model="form.reciptdate">
                                                         <span v-if="errors.reciptdate" class="invalid">{{errors.reciptdate}}</span>
                                                     </div>
+                                                    <div id="error-for-reciptdate" class="mt-2 text-danger"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
@@ -190,6 +195,7 @@
                                                         <input type="text" :readonly="true" class="form-control" id="fv-recipt-from" v-model="form.reciptfrom" >
                                                         <span v-if="errors.reciptfrom" class="invalid">{{errors.reciptfrom}}</span>
                                                     </div>
+
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
@@ -229,6 +235,7 @@
                                                         <input type="date" class="form-control" id="fv-cheque-date" v-model="form.chequedate">
                                                         <span v-if="errors.chequedate" class="invalid">{{errors.chequedate}}</span>
                                                     </div>
+                                                    <div id="error-for-chequedate" class="mt-2 text-danger"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 cheque">
@@ -391,7 +398,7 @@
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
     import addSalebill from './modal/AddSalebillModelComponent.vue';
-
+    
     var items = [];
     var referncevia = [];
     var salebilldata = [];
@@ -414,12 +421,13 @@
                 userGroups: [],
                 banks:[],
                 salebilldata :[],
+                isValidate: false,
                 // salebill :[
                 //     {id: 101, sup_inv: 1025, amount: 5000},
                 //     {id: 103, sup_inv: 1028, amount: 150000}
                 // ],
 
-                referncevia :[{name: 'Courier', code: '1'},{name: 'Hand', code: '2'},{name: 'Email', code: '3'}],
+                referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'}],
 
                 courier:[{name: "KOMAL ROADWAYS"},{name: "DELHI RAJASTHAN TRANSPORT"}, {name: "Dart Air"}],
                 errors: {
@@ -504,7 +512,7 @@
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount; 
             })
-            this.form.refrence = 'new';
+            //this.form.refrence = 'new';
             this.form.recipt_mode = 'cheque';
         },
         methods: {
@@ -513,12 +521,15 @@
                 this.salebills.splice(index-1, 1);
             },
             getOldReferences: function (event) {
-                if (this.form.refrencevia == null) {
+                
+                if (this.form.refrencevia == '') {
                     setTimeout(() => {
                         this.form.refrence = 1;
                         $('#error-validate-reference-div').text('Please select Reference Via');
                     }, 500);
                 } else {
+                    $("#error-for-reference").text("");
+                    $('#error-validate-reference-div').text('');
                     $('#overlay').show();
                     $(".new").addClass("d-none");
                     axios.get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
@@ -569,8 +580,13 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
+
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
+               
                 if (!goodreturn) {
                     goodreturn = 0 ;
                 }
@@ -595,9 +611,11 @@
                 if (!claim) {
                     claim = 0;
                 }
-
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
@@ -627,6 +645,9 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -654,8 +675,11 @@
                     claim = 0;
                 }
 
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
@@ -685,6 +709,9 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                 let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -711,9 +738,11 @@
                 if (!claim) {
                     claim = 0;
                 }
-
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
@@ -743,6 +772,9 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                 let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -769,9 +801,11 @@
                 if (!claim) {
                     claim = 0;
                 }
-
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
@@ -801,6 +835,9 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                 let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -827,9 +864,11 @@
                 if (!claim) {
                     claim = 0;
                 }
-
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
 
                 this.salebills.forEach((value,index) => {
@@ -860,6 +899,9 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                 let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -886,9 +928,11 @@
                 if (!claim) {
                     claim = 0;
                 }
-
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
 
                 this.salebills.forEach((value,index) => {
@@ -918,6 +962,9 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
+                 let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -944,9 +991,11 @@
                 if (!claim) {
                     claim = 0;
                 }
-
-                let diff = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
-                let rateDiff = rateDifference - diff;
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
@@ -967,81 +1016,218 @@
 
             },
             changeDiscountAmount (event) {
-                let discount,amount,disAmount,adjamount;
                 let totalamount = 0;
+                let totalRateDifference = 0;
                 let index = event.target.parentElement.parentElement.rowIndex;
-                let discountamount = this.salebills[index-1].discountamount;
-                amount = this.salebills[index-1].amount;
-                if (!discountamount){
-                    discountamount = 0;
+                let bankcommossion = this.salebills[index-1].bankcommission;
+                let vatav = this.salebills[index-1].vatav;
+                let agentComm = this.salebills[index-1].agentcommission;
+                let short = this.salebills[index-1].short;
+                let claim = this.salebills[index-1].claim;
+                let interest = this.salebills[index-1].interest;
+                let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount_amount = this.salebills[index-1].discountamount;
+                let rateDifference = 0;
+                let goodreturn = this.salebills[index-1].goodreturn;
+                if (!goodreturn) {
+                    goodreturn = 0 ;
                 }
-
-                discount = parseInt(discountamount) / parseInt(amount) * 100 ;
+                if (!bankcommossion) {
+                    bankcommossion = 0;
+                }
+                if (!rateDifference) {
+                    rateDifference = 0;
+                }
+                if (!vatav) {
+                    vatav = 0;
+                }
+                if (!agentComm) {
+                    agentComm = 0;
+                }
+                if (!short) {
+                    short = 0;
+                }
+                if (!interest) {
+                    interest = 0;
+                }
+                if (!claim) {
+                    claim = 0;
+                }
+                if (!discount_amount) {
+                    discount_amount = 0;
+                }
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
+                this.salebills[index-1].ratedifference = rateDiff;
+                let discount = parseInt(discount_amount) / parseInt(amount) * 100 ;
                 this.salebills[index-1].discount = discount;
 
+                // let discount,amount,disAmount,adjamount;
+                
+                // let index = event.target.parentElement.parentElement.rowIndex;
+                
+                // if (!discountamount){
+                //     discountamount = 0;
+                // }
+
+                
+
                 this.salebills.forEach((value) => {
-                    disAmount = value.discountamount;
+                    let disAmount = value.discountamount;
+                    let rate = value.ratedifference;
                     if (!disAmount){
                         disAmount = 0;
                     }
+                    if (!rate) {
+                        rate = 0;
+                    }
+                    totalRateDifference += rate;
                     totalamount +=parseInt(disAmount);
                 });
                 this.form.discountamount = totalamount;
+                this.form.ratedifference = totalRateDifference;
             },
             changeDiscount (event) {
-                let discount,amount,disAmount;
+                let totalRateDifference = 0;
                 let totalamount = 0;
                 let index = event.target.parentElement.parentElement.rowIndex;
-                discount = this.salebills[index-1].discount;
-                amount = this.salebills[index-1].amount;
-                if (!discount){
-                    discount = 0;
+                let bankcommossion = this.salebills[index-1].bankcommission;
+                let vatav = this.salebills[index-1].vatav;
+                let agentComm = this.salebills[index-1].agentcommission;
+                let short = this.salebills[index-1].short;
+                let claim = this.salebills[index-1].claim;
+                let interest = this.salebills[index-1].interest;
+                let amount = this.salebills[index-1].amount;
+                let ajdust_amount = this.salebills[index-1].adjustamount;
+                let discount = this.salebills[index-1].discount;
+                
+                let rateDifference = 0;
+                let goodreturn = this.salebills[index-1].goodreturn;
+                if (!goodreturn) {
+                    goodreturn = 0 ;
                 }
+                if (!bankcommossion) {
+                    bankcommossion = 0;
+                }
+                if (!rateDifference) {
+                    rateDifference = 0;
+                }
+                if (!vatav) {
+                    vatav = 0;
+                }
+                if (!agentComm) {
+                    agentComm = 0;
+                }
+                if (!short) {
+                    short = 0;
+                }
+                if (!interest) {
+                    interest = 0;
+                }
+                if (!claim) {
+                    claim = 0;
+                }
+                
+                let discount_amount = parseInt(discount) * parseInt(amount) / 100 ;
+                this.salebills[index-1].discountamount = discount_amount;
 
-                let discountamount = parseInt(discount) * parseInt(amount) / 100 ;
-                this.salebills[index-1].discountamount = discountamount;
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let rateDiff = rateDifference + diff;
+                this.salebills[index-1].ratedifference = rateDiff;
+
+                
 
                 this.salebills.forEach((value) => {
-                    disAmount = value.discountamount;
+                    let disAmount = value.discountamount;
+                    let rate = value.ratedifference;
                     if (!disAmount){
                         disAmount = 0;
                     }
+                    if (!rate) {
+                        rate = 0;
+                    }
+                    totalRateDifference += rate;
                     totalamount +=parseInt(disAmount);
                 });
                 this.form.discountamount = totalamount;
+                this.form.ratedifference = totalRateDifference;
             },
             changeAdjAmount (event) {
+                let totalRateDifference = 0;
                 let totalAdjustamount = 0,totaldiscount = 0 ;
                 let diff,discount;
                 let index = event.target.parentElement.parentElement.rowIndex;
+                
+                let bankcommossion = this.salebills[index-1].bankcommission;
+                let vatav = this.salebills[index-1].vatav;
+                let agentComm = this.salebills[index-1].agentcommission;
+                let short = this.salebills[index-1].short;
+                let claim = this.salebills[index-1].claim;
+                let interest = this.salebills[index-1].interest;
                 let amount = this.salebills[index-1].amount;
                 let adjamount = this.salebills[index-1].adjustamount;
-                    if (amount > adjamount) {
-                        diff = amount - adjamount;
-                        discount = diff / amount * 100;
+                
+                
+                let rateDifference = 0;
+                let goodreturn = this.salebills[index-1].goodreturn;
+                if (!goodreturn) {
+                    goodreturn = 0 ;
+                }
+                if (!bankcommossion) {
+                    bankcommossion = 0;
+                }
+                if (!rateDifference) {
+                    rateDifference = 0;
+                }
+                if (!vatav) {
+                    vatav = 0;
+                }
+                if (!agentComm) {
+                    agentComm = 0;
+                }
+                if (!short) {
+                    short = 0;
+                }
+                if (!interest) {
+                    interest = 0;
+                }
+                if (!claim) {
+                    claim = 0;
+                }
+                
+                if (amount > adjamount) {
+                    diff = amount - adjamount;
+                    discount = diff / amount * 100;
+                        this.salebills[index-1].discountamount = diff;
+                        this.salebills[index-1].discount = discount;
+                } else if (amount == adjamount) {
+                    setTimeout(() => {
+                        this.salebills[index-1].discount = 0;
+                        this.salebills[index-1].discountamount = 0;
+                    }, 500);
+                }
 
-                            this.salebills[index-1].discountamount = diff;
-                            this.salebills[index-1].discount = discount;
-
-                    } else if (amount == adjamount) {
-                        setTimeout(() => {
-                            this.salebills[index].discount = 0;
-                            this.salebills[index].discountamount = 0;
-                        }, 500);
-                    }
-
+                let diff1 = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
+                let rateDiff = rateDifference - diff1;
+                this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
                     let discountamount = value.discountamount;
+                    let rate = value.ratedifference;
                     if(!discountamount){
                         discountamount = 0;
                     }
-
+                    if (!rate) {
+                        rate = 0;
+                    }
+                    totalRateDifference += rate;
                     totalAdjustamount += parseInt(value.adjustamount);
                     totaldiscount += parseInt(discountamount);
                 });
                 setTimeout(() => {
                      this.form.totaladjustamount = totalAdjustamount;
                      this.form.discountamount = totaldiscount;
+                     this.form.ratedifference = totalRateDifference;
                 }, 1000);
 
             },
@@ -1101,6 +1287,10 @@
                 }
             },
             register () {
+                $("#error-for-couurier").text("");
+                $("#error-for-reference").text("");
+                $("#error-for-recivedate").text("");
+                $("#error-for-chequedate").text("");
                 var paymentdata = new FormData();
                 if (this.scope == 'edit') {
                 
@@ -1118,27 +1308,80 @@
                     })
                 } else {
                     
+                    if (this.form.refrence == '') {
+                        $("#error-for-reference").text("Select Reference");
+                        this.isValidate = false;
+                    } else { 
+                        if (this.form.refrencevia.name == 'Courier') {
+                            
+                            if (this.form.courrier == '') {
+                                $("#error-for-couurier").text("Select Courier");
+                                this.isValidate = false;
+                            } else {
+                                $("#error-for-couurier").text("");
+                                this.isValidate = true;
+                            }
+                            if (this.form.recivedate == '') {
+                                $("#error-for-recivedate").text("Select Recive Date");
+                                this.isValidate = false;
+                            } else {
+                                $("#error-for-recivedate").text("");
+                                this.isValidate = true;
+                            }
+                        } else if (this.form.refrencevia.name == 'Hand') {
+                            if (this.form.recivedate == '') {
+                                $("#error-for-recivedate").text("Select Recive Date");
+                                this.isValidate = false;
+                            } else {
+                                $("#error-for-recivedate").text("");
+                                this.isValidate = true;
+                            }
+                        }
+                    }
+                    if (this.form.reciptdate == '') {
+                        $("#error-for-reciptdate").text("Select Receipt Date");
+                        this.isValidate = false; 
+                    } else {
+                        this.isValidate = true;
+                        $("#error-for-reference").text("");
+                    }
+                    if (this.form.recipt_mode == 'cheque') {
+                        console.log(this.form.chequedate);
+                        if (this.form.chequedate == '') {
+                            $("#error-for-chequedate").text("Select Cheque Date");
+                            this.isValidate = false;
+                        } else {
+                            $("#error-for-chequedate").text("");
+                            this.isValidate = true;
+                        }
+                    }
+                    
+
                     paymentdata.append('billdata', JSON.stringify(this.salebills));
                     paymentdata.append('formdata', JSON.stringify(this.form));
                     paymentdata.append('chequeimage', this.chequeimage);
                     paymentdata.append('letterimage', this.letterimage);
-                    axios.post('/payments/create', paymentdata)
-                    .then((response2) => {
-                        if (response2.redirect_url == ''){
-                            window.location.href = '/payments';
-                        } else {
-                            window.location.href = response2.redirect_url;
-                        }
-                    })
-                    .catch((error) => {
-                        var validationError = error.response.data.errors;
-                    })
+                    if (this.isValidate) {
+                        axios.post('/payments/create', paymentdata)
+                        .then((response2) => {
+                            if (response2.redirect_url == ''){
+                                window.location.href = '/payments';
+                            } else {
+                                window.location.href = response2.redirect_url;
+                            }
+                        })
+                        .catch((error) => {
+                            var validationError = error.response.data.errors;
+                        })
+                    } else {
+                        alert('Please Fill required Field');
+                    }
                 }
             },
         },
         mounted() {
             const self = this;
-            this.form.refrencevia = {name: 'Courier', code: '1'};
+            //this.form.refrencevia = {name: 'Courier', code: '1'};
             this.form.discountamount = 0;
             this.form.goodreturn = 0;
             this.form.ratedifference = 0;
@@ -1259,97 +1502,5 @@
         width: 85%;
         float: right;
     }
-    .multiselect {
-        height: calc(2.125rem + 2px);
-        font-family: Roboto,sans-serif;
-        font-size: 13px;
-        font-weight: 400;
-        background-color: #fff;
-        border: none;
-        border-radius: 4px;
-        box-shadow: none;
-        transition: all 0.3s;
-        min-height: 36px;
-        display: inline-flex;
-        flex-wrap: wrap;
-    }
-    .multiselect__tag-icon:after {
-        color: #526484;
-    }
-    .multiselect__tag {
-        color: #526484;
-        background: #ebeef2;
-        font-size: 13px;
-        font-family: Roboto,sans-serif;
-    }
-    .multiselect__tags {
-        padding: 7px 16px;
-        font-size: 13px;
-        min-height: 36px;
-        border: 1px solid #dbdfea;
-        width: 100%;
-    }
-    .multiselect__placeholder {
-        margin-bottom: 0;
-        padding-top: 0;
-    }
-    .multiselect__select {
-        height: calc(2.125rem + 2px);
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: calc(2.125rem + 2px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .multiselect__select:before {
-        display: none;
-    }
-    .multiselect .multiselect__select:after {
-        font-family: "Nioicon";
-        content: "";
-        line-height: 1;
-    }
-    .multiselect.multiselect--active .multiselect__input, .multiselect__single {
-        font-size: 13px;
-        padding: 0;
-        margin-bottom: 0;
-        width: 98% !important;
-    }
-    .multiselect__content-wrapper {
-        border-top: 1px solid #dbdfea;
-        padding: 6px;
-        top: 36px;
-    }
-    .multiselect__option--highlight {
-        background: #ebeef2;
-        border-radius: 4px;
-        color: #526484;
-    }
-    .multiselect__element {
-        margin-bottom: 0.125rem;
-    }
-    .multiselect__option--highlight:after, .multiselect__option:after {
-        display: none;
-    }
-    .multiselect__option--selected.multiselect__option--highlight {
-        background: #f3f3f3;
-        color: #35495e;
-    }
-    .multiselect__option--selected {
-        font-weight: 500;
-    }
-    .multiselect__tags-wrap {
-        display: inline-flex;
-    }
-    .multiselect--above .multiselect__content-wrapper {
-        border: 1px solid #e8e8e8;
-    }
-    .multiselect__tag-icon:focus, .multiselect__tag-icon:hover {
-        background: #ebeef2;
-    }
-    .multiselect__tag-icon:focus:after, .multiselect__tag-icon:hover:after {
-        color: #526484;
-    }
+    
 </style>
