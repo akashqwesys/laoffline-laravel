@@ -12,6 +12,6 @@ class salesBillAgent extends Model
     protected $fillable = [
         'agent_id',
         'name',
-        'is_defult',
+        'default',
     ];
 }
