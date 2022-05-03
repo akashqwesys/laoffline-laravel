@@ -48,6 +48,7 @@ use App\Models\Ouid;
 use App\Models\SaleBill;
 use App\Models\SaleBillTransport;
 use App\Models\SaleBillItem;
+use App\Models\Settings\SaleBillAgent;
 use App\Models\ProductFabricGroup;
 use App\Models\Payment;
 use App\Models\ProductDefaultCategory;
@@ -132,6 +133,9 @@ class ConnectionController extends Controller
         $servername = "localhost";
         $username = "root";
         $password = "";
+        // $servername = "139.59.23.41";
+        // $username = "new_la";
+        // $password = "LA@remote2022";
         $database = "laoffline";
         // $username = "akashs_laoffline123";
         // $password = "laoffline123";
@@ -2205,10 +2209,11 @@ class ConnectionController extends Controller
 
         if(!empty($SalebillAgentList)) {
             foreach($SalebillAgentList as $sba) {
-                $productfabricgroupdata = new ProductFabricGroup();
-                $productfabricgroupdata->id = $sba['id'];
-                $productfabricgroupdata->name = $sba['name'];
-                $productfabricgroupdata->save();
+                $SaleBillAgent = new SaleBillAgent();
+                $SaleBillAgent->id = $sba['id'];
+                $SaleBillAgent->name = $sba['name'];
+                $SaleBillAgent->default = 0;
+                $SaleBillAgent->save();
             }
         }
 
