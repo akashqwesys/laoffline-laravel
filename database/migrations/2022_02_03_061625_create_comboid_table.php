@@ -14,8 +14,8 @@ class CreateComboidTable extends Migration
     public function up()
     {
         Schema::create('comboids', function (Blueprint $table) {
-            $table->id();
-            $table->integer('comboid');
+            $table->id('comboid');
+            // $table->integer('comboid');
             $table->integer('iuid')->nullable();
             $table->integer('ouid')->nullable();
             $table->integer('general_ref_id')->nullable();
