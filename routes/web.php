@@ -669,4 +669,27 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modif
         
     });
 
+    Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:access-commission']], function () {
+            Route::get('/', [App\Http\Controllers\CommissionController::class, 'index'])->name('commission');
+            Route::get('/list-company', [App\Http\Controllers\CommissionController::class, 'listCompany'])->name('listComapany');
+            Route::get('/list', [App\Http\Controllers\CommissionController::class, 'listCommission'])->name('list');
+            Route::get('/view-commission/{id}', [App\Http\Controllers\CommissionController::class, 'viewCommission']);
+            Route::get('/getbasicdata', [App\Http\Controllers\CommissionController::class, 'getBasicData']);
+            Route::get('/list-data', [App\Http\Controllers\CommissionController::class, 'listData'])->name('list-data');
+            Route::get('/fetch-commission/{id}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
+    });
+    
+    
+    
+    Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:modify-companytype']], function () {
+            Route::get('/create-commission', [App\Http\Controllers\CommissionController::class, 'createCommission']);
+            Route::get('/add-commission', [App\Http\Controllers\CommissionController::class, 'addCommission']);
+            Route::post('/searchcommissioninvoice', [App\Http\Controllers\CommissionController::class, 'searchCommissionInvoice']);
+            Route::post('/generate-commission', [App\Http\Controllers\CommissionController::class, 'generateCommissionData']);
+            Route::post('/create', [App\Http\Controllers\CommissionController::class, 'insertCommission']);
+            Route::post('/update', [App\Http\Controllers\CommissionController::class, 'updateCommission']);
+            Route::get('/edit-commission/{id}', [App\Http\Controllers\CommissionController::class, 'editCommission']);
+            Route::get('/delete/{id}', [App\Http\Controllers\CommissionController::class, 'deleteCommission'])->name('delete');
+    });
+
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

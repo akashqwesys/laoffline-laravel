@@ -706,6 +706,7 @@ class PaymentsController extends Controller
         $salebill = DB::table('sale_bills')->where('company_id', $customer_id)
                     ->where('supplier_id', $supplier_id)
                     ->where('financial_year_id', $user->financial_year_id)
+                    ->where('payment_status', 0)
                     ->orderBy('sale_bill_id', 'desc')
                     ->get();
         $salebills = array();
@@ -791,7 +792,7 @@ class PaymentsController extends Controller
                 $courier_name = '';
                 $courier_receipt_no = '';
                 $courier_received_time = '';
-            } else if ($paymentData->refrencevia->name == 'Email') {
+            } else if ($paymentData->refrencevia->name == 'Hand') {
                 $courier_name = '';
                 $courier_receipt_no = '';
                 $courier_received_time = $paymentData->recivedate;
@@ -1160,10 +1161,10 @@ class PaymentsController extends Controller
         $salebill_ids = $request->session()->get('saleBill');
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
-        $salebills = DB::table('sale_bills')->where('financial_year_id', '7')->whereIn('sale_bill_id', $salebill_ids)->get();
+        $salebills = DB::table('sale_bills')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('sale_bill_id', $salebill_ids)->get();
         $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
                         ->where('supplier_id', $seller_id)
-                        ->where('financial_year_id', '7')
+                        ->where('financial_year_id', Session::get('user')->financial_year_id)
                         ->whereNotIn('sale_bill_id', $salebill_ids)
                         ->orderBy('sale_bill_id', 'desc')
                         ->get();
@@ -1203,7 +1204,8 @@ class PaymentsController extends Controller
         $seller = Company::where('id', $seller_id)->first();
         $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
                         ->where('supplier_id', $seller_id)
-                        ->where('financial_year_id', '7')
+                        ->where('financial_year_id', Session::get('user')->financial_year_id)
+                        ->where('payment_status', 0)
                         ->whereNotIn('sale_bill_id', $salebill_ids)
                         ->orderBy('sale_bill_id', 'desc')
                         ->get();

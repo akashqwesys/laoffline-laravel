@@ -104,6 +104,12 @@ import PaymentStatusComponent from './components/payment/PaymentStatusComponent.
 import GoodReturnComponent from './components/payment/GoodReturnComponent.vue';
 import ViewPaymentComponent from './components/payment/ViewPaymentComponent.vue';
 import ViewVoucherComponent from './components/payment/ViewVoucherComponent.vue';
+
+import CommissionComponent from './components/account/commission/CommissionComponent.vue';
+import CreateCommissionComponent from './components/account/commission/CreateCommissionComponent.vue';
+import AddCommissionComponent from './components/account/commission/AddCommissionComponent.vue';
+import ViewCommissionComponent from './components/account/commission/ViewCommissionComponent.vue';
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -328,6 +334,16 @@ const routes = [
 
         ]
     },
+    {
+        path: '/commission/',
+        component: CommissionComponent,
+        children: [
+            { path: 'create-commission', component: CreateCommissionComponent },
+            { path: 'add-commission', component: AddCommissionComponent },
+            { path: 'edit-commission/:id', component: AddCommissionComponent },
+            { path: 'view-commissiom/:id', component: ViewCommissionComponent },
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -408,5 +424,10 @@ createApp({
         GoodReturnComponent,
         ViewPaymentComponent,
         ViewVoucherComponent,
+
+        CommissionComponent,
+        CreateCommissionComponent,
+        AddCommissionComponent,
+        ViewCommissionComponent
     }
 }).use(router).mount('#app');
