@@ -309,6 +309,27 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
 });
 
 
+// Routes for Account / Commission - Invoice
+Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access-commission']], function () {
+    Route::group(['prefix' => 'commission/invoice'], function () {
+        Route::get('/', [App\Http\Controllers\Account\InvoiceController::class, 'index']);
+        Route::get('/list-data', [App\Http\Controllers\Account\InvoiceController::class, 'listInvoice']);
+        Route::get('/view-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoice']);
+        Route::get('/view-invoice-details/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceDetails']);
+    });
+});
+
+Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify-commission']], function () {
+    Route::group(['prefix' => 'commission/invoice'], function () {
+        Route::get('/create-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'createInvoice']);
+        Route::post('/create-invoice/create', [App\Http\Controllers\Account\InvoiceController::class, 'addInvoice']);
+        Route::get('/edit-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'editInvoice']);
+        Route::get('/delete/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'deleteInvoice']);
+        Route::post('/update', [App\Http\Controllers\Account\InvoiceController::class, 'updateInvoice']);
+    });
+});
+
+
 // Routes for Register
 Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:access-register']], function () {
     Route::get('/', [App\Http\Controllers\register\RegisterController::class, 'index'])->name('register');
@@ -666,7 +687,7 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modif
         Route::get('/edit-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'editPayment']);
         Route::get('/delete/{id}', [App\Http\Controllers\PaymentsController::class, 'deletePayment'])->name('delete');
         Route::get('/deletegoodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'deleteGoodReturn'])->name('deletegoodreturn');
-        
+
     });
 
     Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:access-commission']], function () {

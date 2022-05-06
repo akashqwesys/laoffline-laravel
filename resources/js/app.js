@@ -53,6 +53,11 @@ import CreateSaleBillComponent from './components/account/saleBillComponents/Cre
 import EditSaleBillComponent from './components/account/saleBillComponents/EditSaleBillComponent.vue';
 import ViewSaleBillComponent from './components/account/saleBillComponents/ViewSaleBillComponent.vue';
 
+import InvoiceComponent from './components/account/invoiceComponents/InvoiceComponent.vue';
+import CreateInvoiceComponent from './components/account/invoiceComponents/CreateInvoiceComponent.vue';
+// import EditInvoiceComponent from './components/account/invoiceComponents/EditInvoiceComponent.vue';
+// import ViewInvoiceComponent from './components/account/invoiceComponents/ViewInvoiceComponent.vue';
+
 
 // Settings Menu
 import BankDetailsComponent from "./components/settings/bankDetailsComponents/BankDetailsComponent.vue";
@@ -211,6 +216,15 @@ const routes = [
             { path: 'create-sale-bill', component: CreateSaleBillComponent },
             { path: 'edit-sale-bill/:id', component: EditSaleBillComponent },
             { path: 'view-sale-bill/:id/:fid', component: ViewSaleBillComponent },
+        ]
+    },
+    {
+        path: '/account/commission/invoice/',
+        component: InvoiceComponent,
+        children: [
+            { path: 'create-invoice', component: CreateInvoiceComponent },
+            // { path: 'edit-invoice/:id', component: EditInvoiceComponent },
+            // { path: 'view-invoice/:id/:fid', component: ViewInvoiceComponent },
         ]
     },
     // Settings Menu
@@ -387,6 +401,11 @@ createApp({
         CreateSaleBillComponent,
         EditSaleBillComponent,
         ViewSaleBillComponent,
+
+        InvoiceComponent,
+        CreateInvoiceComponent,
+        // EditInvoiceComponent,
+        // ViewInvoiceComponent,
 
         BankDetailsComponent,
         CreateBankDetailsComponent,

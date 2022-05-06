@@ -11,7 +11,7 @@ use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
 use App\Models\comboids\Comboids;
 use App\Models\Commission\commission;
-use App\Models\Commission\commissionInvoice;
+use App\Models\Commission\CommissionInvoice;
 use App\Models\ProductCategory;
 use App\Models\Settings\TransportDetails;
 use App\Models\Settings\TransportMultipleAddressDetails;
@@ -48,6 +48,7 @@ use App\Models\Ouid;
 use App\Models\SaleBill;
 use App\Models\SaleBillTransport;
 use App\Models\SaleBillItem;
+use App\Models\Settings\SaleBillAgent;
 use App\Models\ProductFabricGroup;
 use App\Models\Payment;
 use App\Models\ProductDefaultCategory;
@@ -132,6 +133,9 @@ class ConnectionController extends Controller
         $servername = "localhost";
         $username = "root";
         $password = "";
+        // $servername = "139.59.23.41";
+        // $username = "new_la";
+        // $password = "LA@remote2022";
         $database = "laoffline";
         // $username = "akashs_laoffline123";
         // $password = "laoffline123";
@@ -190,13 +194,13 @@ class ConnectionController extends Controller
                     $SalebillList[$i]['sale_bill_id'] = $result['sale_bill_id'];
                     $SalebillList[$i]['iuid'] = $result['iuid'];
                     $SalebillList[$i]['sale_bill_via'] = $result['sale_bill_via'];
-                    $SalebillList[$i]['attachment'] = $result['attachment'];
+                    $SalebillList[$i]['attachment'] = $result['attachments'];
                     $SalebillList[$i]['financial_year_id'] = $result['financial_year_id'];
                     $SalebillList[$i]['general_ref_id'] = $result['general_ref_id'];
                     $SalebillList[$i]['new_or_old_reference'] = $result['new_or_old_reference'];
                     $SalebillList[$i]['sale_bill_for'] = $result['sale_bill_for'];
-                    $SalebillList[$i]['product_default_category_id'] = $result['product_default_category_id'];
-                    $SalebillList[$i]['product_category_id'] = $result['product_category_id'];
+                    $SalebillList[$i]['product_default_category_id'] = $result['product_main_category_id'];
+                    $SalebillList[$i]['product_category_id'] = json_encode(unserialize($result['product_sub_category_id']));
                     $SalebillList[$i]['inward_id'] = $result['inward_id'];
                     $SalebillList[$i]['company_id'] = $result['company_id'];
                     $SalebillList[$i]['address'] = $result['address'];
@@ -237,8 +241,8 @@ class ConnectionController extends Controller
                     $SalebillTransportList[$i]['lr_mr_no'] = $result['lr_mr_no'];
                     $SalebillTransportList[$i]['date'] = $result['date'];
                     $SalebillTransportList[$i]['cases'] = $result['cases'];
-                    $SalebillTransportList[$i]['weight'] = $result['weight'];
-                    $SalebillTransportList[$i]['freight'] = $result['freight'];
+                    $SalebillTransportList[$i]['weight'] = empty($result['weight']) ? 0 : $result['weight'];
+                    $SalebillTransportList[$i]['freight'] = empty($result['freight']) ? 0 : $result['freight'];
                     $SalebillTransportList[$i]['is_deleted'] = $result['is_deleted'];
                     $i++;
                 }
@@ -254,10 +258,10 @@ class ConnectionController extends Controller
                     $SalebillItemList[$i]['financial_year_id'] = $result['financial_year_id'];
                     $SalebillItemList[$i]['product_or_fabric_id'] = $result['product_or_fabric_id'];
                     $SalebillItemList[$i]['sub_product_id'] = $result['sub_product_id'];
-                    $SalebillItemList[$i]['pieces'] = $result['pieces'];
+                    $SalebillItemList[$i]['pieces'] = $result['peices'];
                     $SalebillItemList[$i]['cut'] = $result['cut'];
                     $SalebillItemList[$i]['meters'] = $result['meters'];
-                    $SalebillItemList[$i]['pieces_meters'] = $result['pieces_meters'];
+                    $SalebillItemList[$i]['pieces_meters'] = $result['peices_meters'];
                     $SalebillItemList[$i]['rate'] = $result['rate'];
                     $SalebillItemList[$i]['hsn_code'] = $result['hsn_code'];
                     $SalebillItemList[$i]['discount'] = $result['discount'];
@@ -272,7 +276,7 @@ class ConnectionController extends Controller
                     $SalebillItemList[$i]['main_or_sub'] = $result['main_or_sub'];
                     $SalebillItemList[$i]['inward_order_action_id'] = $result['inward_order_action_id'];
                     $SalebillItemList[$i]['is_deleted'] = $result['is_deleted'];
-                    
+
                     $i++;
                 }
             }
@@ -334,7 +338,7 @@ class ConnectionController extends Controller
                     $PaymentDetailList[$i]['payment_id'] = $result['payment_id'];
                     $PaymentDetailList[$i]['p_increment_id'] = $result['p_increment_id'];
                     $PaymentDetailList[$i]['financial_year_id'] = $result['financial_year_id'];
-                    $PaymentDetailList[$i]['payment_followup_id'] = $result['payment_followup_id'];
+                    // $PaymentDetailList[$i]['payment_followup_id'] = $result['payment_followup_id'];
                     $PaymentDetailList[$i]['sr_no'] = $result['sr_no'];
                     $PaymentDetailList[$i]['supplier_invoice_no'] = $result['supplier_invoice_no'];
                     $PaymentDetailList[$i]['amount'] = $result['amount'];
@@ -356,7 +360,7 @@ class ConnectionController extends Controller
                     $i++;
                 }
             }
-            
+
             $payment = "SELECT * FROM payment";
             $paymentquery = mysqli_query($conn, $payment);
             if(mysqli_num_rows($paymentquery) != 0) {
@@ -366,7 +370,7 @@ class ConnectionController extends Controller
                     $PaymentList[$i]['payment_id'] = $result['payment_id'];
                     $PaymentList[$i]['iuid'] = $result['iuid'];
                     $PaymentList[$i]['reference_id'] = $result['reference_id'];
-                    $PaymentList[$i]['attachments'] = $result['attachments'];
+                    $PaymentList[$i]['attachments'] = json_encode(unserialize($result['attachments']));
                     $PaymentList[$i]['letter_attachment'] = $result['letter_attachment'];
                     $PaymentList[$i]['financial_year_id'] = $result['financial_year_id'];
                     $PaymentList[$i]['reciept_mode'] = $result['reciept_mode'];
@@ -600,7 +604,7 @@ class ConnectionController extends Controller
                     $GRItemList[$i]['cgst_per'] = $result['cgst_per'];
                     $GRItemList[$i]['cgst_amt'] = $result['cgst_amt'];
                     $GRItemList[$i]['sgst_per'] = $result['sgst_per'];
-                    $GRItemList[$i]['sgst_amt'] = $result['sgst_amt'];                     
+                    $GRItemList[$i]['sgst_amt'] = $result['sgst_amt'];
                     $GRItemList[$i]['igst_per'] = $result['igst_per'];
                     $GRItemList[$i]['igst_amt'] = $result['igst_amt'];
                     $GRItemList[$i]['is_deleted'] = $result['is_deleted'];
@@ -664,7 +668,7 @@ class ConnectionController extends Controller
                     $InwardOrderActionList[$i]['is_deleted'] = $result['is_deleted'];
                 }
             }
-            
+
             $companylink = "SELECT * FROM link_companies";
             $companylinkquery = mysqli_query($conn, $companylink);
             if(mysqli_num_rows($companylinkquery) != 0) {
@@ -688,7 +692,7 @@ class ConnectionController extends Controller
                 }
             }
 
-           
+
 
             $inwardOrder = "SELECT * FROM inward_order";
             $inwardOrderquery = mysqli_query($conn, $inwardOrder);
@@ -704,10 +708,10 @@ class ConnectionController extends Controller
                     $InwardOrderList[$i]['qty'] = $result['qty'];
                     $InwardOrderList[$i]['rate'] = $result['rate'];
                     $InwardOrderList[$i]['discount'] = $result['discount'];
-                    $InwardOrderList[$i]['packing_id'] = $result['packing_id'];                    
+                    $InwardOrderList[$i]['packing_id'] = $result['packing_id'];
                     $InwardOrderList[$i]['packing_date'] = $result['packing_date'];
                     $InwardOrderList[$i]['lump'] = $result['lump'];
-                    $InwardOrderList[$i]['cut'] = $result['cut'];                    
+                    $InwardOrderList[$i]['cut'] = $result['cut'];
                     $InwardOrderList[$i]['top'] = $result['top'];
                     $InwardOrderList[$i]['bottom'] = $result['bottom'];
                     $InwardOrderList[$i]['duppatta'] = $result['duppatta'];
@@ -829,7 +833,7 @@ class ConnectionController extends Controller
                 }
             }
 
-            
+
 
             $incrementids = "SELECT * FROM increment_ids";
             $incrementidsquery = mysqli_query($conn, $country);
@@ -1024,7 +1028,7 @@ class ConnectionController extends Controller
             if(mysqli_num_rows($ciquery) != 0) {
                 $i = 0;
                 while($result = mysqli_fetch_assoc($ciquery)) {
-                    $commisionInvoiceList[$i]['commission_invoice_id'] = $result['commission_invoice_id'];
+                    $commisionInvoiceList[$i]['id'] = $result['commission_invoice_id'];
                     $commisionInvoiceList[$i]['reference_id'] = $result['reference_id'];
                     $commisionInvoiceList[$i]['customer_id'] = $result['customer_id'];
                     $commisionInvoiceList[$i]['supplier_id'] = $result['supplier_id'];
@@ -1034,31 +1038,31 @@ class ConnectionController extends Controller
                     $commisionInvoiceList[$i]['bill_period_to'] = $result['bill_period_to'];
                     $commisionInvoiceList[$i]['bill_period_from'] = $result['bill_period_from'];
                     $commisionInvoiceList[$i]['bill_date'] = $result['bill_date'];
-                    $commisionInvoiceList[$i]['commission_amount'] = $result['commission_amount'];
-                    $commisionInvoiceList[$i]['service_tax_amount'] = $result['service_tax_amount'];
-                    $commisionInvoiceList[$i]['service_tax'] = $result['service_tax'];
-                    $commisionInvoiceList[$i]['other_amount'] = $result['other_amount'];
-                    $commisionInvoiceList[$i]['rounded_off'] = $result['rounded_off'];
-                    $commisionInvoiceList[$i]['tds_amount'] = $result['tds_amount'];
-                    $commisionInvoiceList[$i]['final_amount'] = $result['final_amount'];
+                    $commisionInvoiceList[$i]['commission_amount'] = floatval($result['commission_amount']);
+                    $commisionInvoiceList[$i]['service_tax_amount'] = floatval($result['service_tax_amount']);
+                    $commisionInvoiceList[$i]['service_tax'] = floatval($result['service_tax']);
+                    $commisionInvoiceList[$i]['other_amount'] = floatval($result['other_amount']);
+                    $commisionInvoiceList[$i]['rounded_off'] = floatval($result['rounded_off']);
+                    $commisionInvoiceList[$i]['tds_amount'] = floatval($result['tds_amount']);
+                    $commisionInvoiceList[$i]['final_amount'] = floatval($result['final_amount']);
                     $commisionInvoiceList[$i]['service_tax_flag'] = $result['service_tax_flag'];
                     $commisionInvoiceList[$i]['tds_flag'] = $result['tds_flag'];
                     $commisionInvoiceList[$i]['tax_class'] = $result['tax_class'];
                     $commisionInvoiceList[$i]['with_without_gst'] = $result['with_without_gst'];
-                    $commisionInvoiceList[$i]['cgst'] = $result['cgst'];
-                    $commisionInvoiceList[$i]['cgst_amount'] = $result['cgst_amount'];
-                    $commisionInvoiceList[$i]['sgst'] = $result['sgst'];
-                    $commisionInvoiceList[$i]['sgst_amount'] = $result['sgst_amount'];
-                    $commisionInvoiceList[$i]['igst'] = $result['igst'];
-                    $commisionInvoiceList[$i]['igst_amount'] = $result['igst_amount'];
-                    $commisionInvoiceList[$i]['commission_percent'] = $result['commission_percent'];
+                    $commisionInvoiceList[$i]['cgst'] = floatval($result['cgst']);
+                    $commisionInvoiceList[$i]['cgst_amount'] = floatval($result['cgst_amount']);
+                    $commisionInvoiceList[$i]['sgst'] = floatval($result['sgst']);
+                    $commisionInvoiceList[$i]['sgst_amount'] = floatval($result['sgst_amount']);
+                    $commisionInvoiceList[$i]['igst'] = floatval($result['igst']);
+                    $commisionInvoiceList[$i]['igst_amount'] = floatval($result['igst_amount']);
+                    $commisionInvoiceList[$i]['commission_percent'] = floatval($result['commission_percent']);
+                    $commisionInvoiceList[$i]['total_payment_received_amount'] = floatval($result['total_payment_rec_amount']);
                     $commisionInvoiceList[$i]['agent_id'] = $result['agent_id'];
                     $commisionInvoiceList[$i]['done_outward'] = $result['done_outward'];
                     $commisionInvoiceList[$i]['commission_status'] = $result['commission_status'];
                     $commisionInvoiceList[$i]['right_of_amount'] = $result['right_of_amount'];
                     $commisionInvoiceList[$i]['is_deleted'] = $result['is_deleted'];
                     $commisionInvoiceList[$i]['right_of_remark'] = $result['right_of_remark'];
-                    $commisionInvoiceList[$i]['date_added'] = $result['date_added'];
                     $i++;
                 }
             }
@@ -1915,7 +1919,7 @@ class ConnectionController extends Controller
         //         $companyEmail->save();
         //     }
         // }
-        
+
         if(!empty($InwardList)) {
             foreach($InwardList as $inwardata) {
                 $inward = new inward();
@@ -2116,7 +2120,7 @@ class ConnectionController extends Controller
                 $payment->right_of_amount = $paymentdata['right_of_amount'];
                 $payment->right_of_remark = $paymentdata['right_of_remark'];
                 $payment->is_deleted = $paymentdata['is_deleted'];
-                $payment->done_outward = $result['done_outward'];    
+                $payment->done_outward = $paymentdata['done_outward'];
             }
         }
 
@@ -2130,7 +2134,7 @@ class ConnectionController extends Controller
                 $inwardsample->price = $is['price'];
                 $inwardsample->qty = $is['qty'];
                 $inwardsample->meters = $is['meters'];
-                $inwardsample->is_deleted = $is['is_deleted'];    
+                $inwardsample->is_deleted = $is['is_deleted'];
                 $inwardsample->save();
             }
         }
@@ -2139,16 +2143,16 @@ class ConnectionController extends Controller
             foreach($OutwardOrderDetailList as $ood) {
                 $outwardorderdetaildata = new OutwardOrderDetail();
                 $outwardorderdetaildata->id = $ood['id'];
-                $outwardorderdetaildata->outward_id = $ood['outward_id']; 
-                $outwardorderdetaildata->order_for = $ood['order_for']; 
-                $outwardorderdetaildata->packing_id = $ood['packing_id'];     
-                $outwardorderdetaildata->packing_date = $ood['packing_date']; 
-                $outwardorderdetaildata->lump = $ood['lump']; 
-                $outwardorderdetaildata->cut = $ood['cut']; 
-                $outwardorderdetaildata->top = $ood['top']; 
-                $outwardorderdetaildata->bottom = $ood['bottom']; 
+                $outwardorderdetaildata->outward_id = $ood['outward_id'];
+                $outwardorderdetaildata->order_for = $ood['order_for'];
+                $outwardorderdetaildata->packing_id = $ood['packing_id'];
+                $outwardorderdetaildata->packing_date = $ood['packing_date'];
+                $outwardorderdetaildata->lump = $ood['lump'];
+                $outwardorderdetaildata->cut = $ood['cut'];
+                $outwardorderdetaildata->top = $ood['top'];
+                $outwardorderdetaildata->bottom = $ood['bottom'];
                 $outwardorderdetaildata->duppatta = $ood['duppatta'];
-                $outwardorderdetaildata->is_deleted = $ood['is_deleted']; 
+                $outwardorderdetaildata->is_deleted = $ood['is_deleted'];
                 $outwardorderdetaildata->save();
             }
         }
@@ -2161,7 +2165,7 @@ class ConnectionController extends Controller
                 $paymentdetail->payment_id = $pddata['payment_id'];
                 $paymentdetail->p_increment_id = $pddata['p_increment_id'];
                 $paymentdetail->financial_year_id = $pddata['financial_year_id'];
-                $paymentdetail->payment_followup_id = $pddata['payment_followup_id'];
+                // $paymentdetail->payment_followup_id = $pddata['payment_followup_id'];
                 $paymentdetail->sr_no = $pddata['sr_no'];
                 $paymentdetail->supplier_invoice_no = $pddata['supplier_invoice_no'];
                 $paymentdetail->amount = $pddata['amount'];
@@ -2179,11 +2183,11 @@ class ConnectionController extends Controller
                 $paymentdetail->rate_difference = $pddata['rate_difference'];
                 $paymentdetail->remark = $pddata['remark'];
                 $paymentdetail->flag_sale_bill_sr_no = $pddata['flag_sale_bill_sr_no'];
-                $paymentdetail->is_deleted = $pddata['is_deleted'];    
+                $paymentdetail->is_deleted = $pddata['is_deleted'];
                 $paymentdetail->save();
             }
         }
-    
+
         if(!empty($ProductDefaultCatagoriesList)) {
             foreach($ProductDefaultCatagoriesList as $pdc) {
                 $productdefaultcatagoriesdata = new ProductDefaultCategory();
@@ -2205,10 +2209,11 @@ class ConnectionController extends Controller
 
         if(!empty($SalebillAgentList)) {
             foreach($SalebillAgentList as $sba) {
-                $productfabricgroupdata = new ProductFabricGroup();
-                $productfabricgroupdata->id = $pfg['id'];
-                $productfabricgroupdata->name = $pfg['name'];
-                $productfabricgroupdata->save();
+                $SaleBillAgent = new SaleBillAgent();
+                $SaleBillAgent->id = $sba['id'];
+                $SaleBillAgent->name = $sba['name'];
+                $SaleBillAgent->default = 0;
+                $SaleBillAgent->save();
             }
         }
 
@@ -2233,10 +2238,10 @@ class ConnectionController extends Controller
                 $inwardorder->qty = $io['qty'];
                 $inwardorder->rate = $io['rate'];
                 $inwardorder->discount = $io['discount'];
-                $inwardorder->packing_id = $io['packing_id'];                    
+                $inwardorder->packing_id = $io['packing_id'];
                 $inwardorder->packing_date = $io['packing_date'];
                 $inwardorder->lump = $io['lump'];
-                $inwardorder->cut = $io['cut'];                    
+                $inwardorder->cut = $io['cut'];
                 $inwardorder->top = $io['top'];
                 $inwardorder->bottom = $io['bottom'];
                 $inwardorder->duppatta = $io['duppatta'];
@@ -2290,7 +2295,7 @@ class ConnectionController extends Controller
                 $grsalebillitem->cgst_per = $gritem['cgst_per'];
                 $grsalebillitem->cgst_amt = $gritem['cgst_amt'];
                 $grsalebillitem->sgst_per = $gritem['sgst_per'];
-                $grsalebillitem->sgst_amt = $gritem['sgst_amt'];                     
+                $grsalebillitem->sgst_amt = $gritem['sgst_amt'];
                 $grsalebillitem->igst_per = $gritem['igst_per'];
                 $grsalebillitem->igst_amt = $gritem['igst_amt'];
                 $grsalebillitem->is_deleted = $gritem['is_deleted'];
@@ -2311,7 +2316,7 @@ class ConnectionController extends Controller
                 $incremeniddata->sale_bill_id = $iid['sale_bill_id'];
                 $incremeniddata->payment_id = $iid['payment_id'];
                 $incremeniddata->commission_id = $iid['commission_id'];
-                $incremeniddata->goods_return_id = $iid['goods_return_id'];    
+                $incremeniddata->goods_return_id = $iid['goods_return_id'];
             }
         }
 
@@ -2343,7 +2348,7 @@ class ConnectionController extends Controller
                 $inwardorderactiondata->rate = $ioa['rate'];
                 $inwardorderactiondata->qty = $ioa['qty'];
                 $inwardorderactiondata->discount = $ioa['discount'];
-                $inwardorderactiondata->is_deleted = $ioa['is_deleted'];    
+                $inwardorderactiondata->is_deleted = $ioa['is_deleted'];
                 $inwardorderactiondata->save();
             }
         }
@@ -2474,7 +2479,7 @@ class ConnectionController extends Controller
                 $outwarddata->save();
             }
         }
-        
+
 
         if(!empty($OutwardFMList)) {
             foreach($OutwardFMList as $ofm) {
@@ -2486,7 +2491,7 @@ class ConnectionController extends Controller
             }
         }
 
-        
+
 
         if(!empty($ComapnyLinkList)) {
             foreach($ComapnyLinkList as $cl) {
@@ -2528,7 +2533,7 @@ class ConnectionController extends Controller
             }
         }
 
-    
+
         if(!empty($FinancialYearList)) {
             foreach($FinancialYearList as $fyl) {
                 $fy = new FinancialYear();
@@ -2537,7 +2542,7 @@ class ConnectionController extends Controller
                 $fy->start_date = $fyl['start_date'];
                 $fy->end_date = $fyl['end_date'];
                 $fy->current_year_flag = $fyl['current_year_flag'];
-                $fy->inv_prefix = $fyl['inv_prefix'];    
+                $fy->inv_prefix = $fyl['inv_prefix'];
                 $fy->save();
             }
         }
@@ -2591,7 +2596,7 @@ class ConnectionController extends Controller
                 $inwardorderdetail->bottom = $iod['bottom'];
                 $inwardorderdetail->duppatta = $iod['duppatta'];
                 $inwardorderdetail->is_deleted = $iod['is_deleted'];
-                $inwardorderdetail->save();   
+                $inwardorderdetail->save();
             }
         }
 
@@ -2664,13 +2669,13 @@ class ConnectionController extends Controller
                 $commission->normal_amt_flag = $commissionData['normal_amt_flag'];
                 $commission->is_invoice = $commissionData['is_invoice'];
                 $commission->date_added = $commissionData['date_added'];
-                $commission->is_deleted = $commissionData['is_deleted'];    
+                $commission->is_deleted = $commissionData['is_deleted'];
             }
         }
         if(!empty($commisionInvoiceList)) {
             foreach($commisionInvoiceList as $commissionInvoice) {
-                $commissioninvoice = new commissionInvoice();
-                $commissioninvoice->commission_invoice_id = $commissionInvoice['commission_invoice_id'];
+                $commissioninvoice = new CommissionInvoice();
+                $commissioninvoice->id = $commissionInvoice['id'];
                 $commissioninvoice->reference_id = $commissionInvoice['reference_id'];
                 $commissioninvoice->customer_id = $commissionInvoice['customer_id'];
                 $commissioninvoice->supplier_id = $commissionInvoice['supplier_id'];
@@ -2698,13 +2703,14 @@ class ConnectionController extends Controller
                 $commissioninvoice->igst = $commissionInvoice['igst'];
                 $commissioninvoice->igst_amount = $commissionInvoice['igst_amount'];
                 $commissioninvoice->commission_percent = $commissionInvoice['commission_percent'];
+                $commissioninvoice->total_payment_received_amount = $commissionInvoice['total_payment_received_amount'];
                 $commissioninvoice->agent_id = $commissionInvoice['agent_id'];
                 $commissioninvoice->done_outward = $commissionInvoice['done_outward'];
                 $commissioninvoice->commission_status = $commissionInvoice['commission_status'];
                 $commissioninvoice->right_of_amount = $commissionInvoice['right_of_amount'];
                 $commissioninvoice->is_deleted = $commissionInvoice['is_deleted'];
                 $commissioninvoice->right_of_remark = $commissionInvoice['right_of_remark'];
-                $commissioninvoice->date_added = $commissionInvoice['date_added'];    
+                $commissioninvoice->save();
             }
         }
         if(!empty($comboList)) {
@@ -2773,7 +2779,7 @@ class ConnectionController extends Controller
                 $Comboids->fabric_meters = $combo['fabric_meters'];
                 $Comboids->sample_return_qty = $combo['sample_return_qty'];
                 $Comboids->mobile_flag = $combo['mobile_flag'];
-                $Comboids->is_deleted = $combo['is_deleted'];    
+                $Comboids->is_deleted = $combo['is_deleted'];
                 $Comboids->save();
             }
         }
