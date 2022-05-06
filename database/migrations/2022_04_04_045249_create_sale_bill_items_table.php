@@ -20,9 +20,9 @@ return new class extends Migration
             $table->integer('product_or_fabric_id')->default(0);
             $table->integer('sub_product_id')->default(0)->comment('Main ID of Product Table');
             $table->integer('pieces')->default(0);
-            $table->integer('cut')->default(0);
-            $table->double('meters')->default(0);
-            $table->integer('pieces_meters')->default(0);
+            $table->integer('cut')->nullable()->default(0);
+            $table->double('meters')->nullable()->default(0);
+            $table->integer('pieces_meters')->nullable()->default(0);
             $table->double('rate')->default(0);
             $table->string('hsn_code')->nullable();
             $table->double('discount')->default(0);

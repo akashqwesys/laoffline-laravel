@@ -11,7 +11,7 @@ use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
 use App\Models\comboids\Comboids;
 use App\Models\Commission\commission;
-use App\Models\Commission\commissionInvoice;
+use App\Models\Commission\CommissionInvoice;
 use App\Models\ProductCategory;
 use App\Models\Settings\TransportDetails;
 use App\Models\Settings\TransportMultipleAddressDetails;
@@ -194,13 +194,13 @@ class ConnectionController extends Controller
                     $SalebillList[$i]['sale_bill_id'] = $result['sale_bill_id'];
                     $SalebillList[$i]['iuid'] = $result['iuid'];
                     $SalebillList[$i]['sale_bill_via'] = $result['sale_bill_via'];
-                    $SalebillList[$i]['attachment'] = $result['attachment'];
+                    $SalebillList[$i]['attachment'] = $result['attachments'];
                     $SalebillList[$i]['financial_year_id'] = $result['financial_year_id'];
                     $SalebillList[$i]['general_ref_id'] = $result['general_ref_id'];
                     $SalebillList[$i]['new_or_old_reference'] = $result['new_or_old_reference'];
                     $SalebillList[$i]['sale_bill_for'] = $result['sale_bill_for'];
-                    $SalebillList[$i]['product_default_category_id'] = $result['product_default_category_id'];
-                    $SalebillList[$i]['product_category_id'] = $result['product_category_id'];
+                    $SalebillList[$i]['product_default_category_id'] = $result['product_main_category_id'];
+                    $SalebillList[$i]['product_category_id'] = json_encode(unserialize($result['product_sub_category_id']));
                     $SalebillList[$i]['inward_id'] = $result['inward_id'];
                     $SalebillList[$i]['company_id'] = $result['company_id'];
                     $SalebillList[$i]['address'] = $result['address'];
@@ -241,8 +241,8 @@ class ConnectionController extends Controller
                     $SalebillTransportList[$i]['lr_mr_no'] = $result['lr_mr_no'];
                     $SalebillTransportList[$i]['date'] = $result['date'];
                     $SalebillTransportList[$i]['cases'] = $result['cases'];
-                    $SalebillTransportList[$i]['weight'] = $result['weight'];
-                    $SalebillTransportList[$i]['freight'] = $result['freight'];
+                    $SalebillTransportList[$i]['weight'] = empty($result['weight']) ? 0 : $result['weight'];
+                    $SalebillTransportList[$i]['freight'] = empty($result['freight']) ? 0 : $result['freight'];
                     $SalebillTransportList[$i]['is_deleted'] = $result['is_deleted'];
                     $i++;
                 }
@@ -258,10 +258,10 @@ class ConnectionController extends Controller
                     $SalebillItemList[$i]['financial_year_id'] = $result['financial_year_id'];
                     $SalebillItemList[$i]['product_or_fabric_id'] = $result['product_or_fabric_id'];
                     $SalebillItemList[$i]['sub_product_id'] = $result['sub_product_id'];
-                    $SalebillItemList[$i]['pieces'] = $result['pieces'];
+                    $SalebillItemList[$i]['pieces'] = $result['peices'];
                     $SalebillItemList[$i]['cut'] = $result['cut'];
                     $SalebillItemList[$i]['meters'] = $result['meters'];
-                    $SalebillItemList[$i]['pieces_meters'] = $result['pieces_meters'];
+                    $SalebillItemList[$i]['pieces_meters'] = $result['peices_meters'];
                     $SalebillItemList[$i]['rate'] = $result['rate'];
                     $SalebillItemList[$i]['hsn_code'] = $result['hsn_code'];
                     $SalebillItemList[$i]['discount'] = $result['discount'];
@@ -338,7 +338,7 @@ class ConnectionController extends Controller
                     $PaymentDetailList[$i]['payment_id'] = $result['payment_id'];
                     $PaymentDetailList[$i]['p_increment_id'] = $result['p_increment_id'];
                     $PaymentDetailList[$i]['financial_year_id'] = $result['financial_year_id'];
-                    $PaymentDetailList[$i]['payment_followup_id'] = $result['payment_followup_id'];
+                    // $PaymentDetailList[$i]['payment_followup_id'] = $result['payment_followup_id'];
                     $PaymentDetailList[$i]['sr_no'] = $result['sr_no'];
                     $PaymentDetailList[$i]['supplier_invoice_no'] = $result['supplier_invoice_no'];
                     $PaymentDetailList[$i]['amount'] = $result['amount'];
@@ -370,7 +370,7 @@ class ConnectionController extends Controller
                     $PaymentList[$i]['payment_id'] = $result['payment_id'];
                     $PaymentList[$i]['iuid'] = $result['iuid'];
                     $PaymentList[$i]['reference_id'] = $result['reference_id'];
-                    $PaymentList[$i]['attachments'] = $result['attachments'];
+                    $PaymentList[$i]['attachments'] = json_encode(unserialize($result['attachments']));
                     $PaymentList[$i]['letter_attachment'] = $result['letter_attachment'];
                     $PaymentList[$i]['financial_year_id'] = $result['financial_year_id'];
                     $PaymentList[$i]['reciept_mode'] = $result['reciept_mode'];
@@ -1028,7 +1028,7 @@ class ConnectionController extends Controller
             if(mysqli_num_rows($ciquery) != 0) {
                 $i = 0;
                 while($result = mysqli_fetch_assoc($ciquery)) {
-                    $commisionInvoiceList[$i]['commission_invoice_id'] = $result['commission_invoice_id'];
+                    $commisionInvoiceList[$i]['id'] = $result['commission_invoice_id'];
                     $commisionInvoiceList[$i]['reference_id'] = $result['reference_id'];
                     $commisionInvoiceList[$i]['customer_id'] = $result['customer_id'];
                     $commisionInvoiceList[$i]['supplier_id'] = $result['supplier_id'];
@@ -1038,31 +1038,31 @@ class ConnectionController extends Controller
                     $commisionInvoiceList[$i]['bill_period_to'] = $result['bill_period_to'];
                     $commisionInvoiceList[$i]['bill_period_from'] = $result['bill_period_from'];
                     $commisionInvoiceList[$i]['bill_date'] = $result['bill_date'];
-                    $commisionInvoiceList[$i]['commission_amount'] = $result['commission_amount'];
-                    $commisionInvoiceList[$i]['service_tax_amount'] = $result['service_tax_amount'];
-                    $commisionInvoiceList[$i]['service_tax'] = $result['service_tax'];
-                    $commisionInvoiceList[$i]['other_amount'] = $result['other_amount'];
-                    $commisionInvoiceList[$i]['rounded_off'] = $result['rounded_off'];
-                    $commisionInvoiceList[$i]['tds_amount'] = $result['tds_amount'];
-                    $commisionInvoiceList[$i]['final_amount'] = $result['final_amount'];
+                    $commisionInvoiceList[$i]['commission_amount'] = floatval($result['commission_amount']);
+                    $commisionInvoiceList[$i]['service_tax_amount'] = floatval($result['service_tax_amount']);
+                    $commisionInvoiceList[$i]['service_tax'] = floatval($result['service_tax']);
+                    $commisionInvoiceList[$i]['other_amount'] = floatval($result['other_amount']);
+                    $commisionInvoiceList[$i]['rounded_off'] = floatval($result['rounded_off']);
+                    $commisionInvoiceList[$i]['tds_amount'] = floatval($result['tds_amount']);
+                    $commisionInvoiceList[$i]['final_amount'] = floatval($result['final_amount']);
                     $commisionInvoiceList[$i]['service_tax_flag'] = $result['service_tax_flag'];
                     $commisionInvoiceList[$i]['tds_flag'] = $result['tds_flag'];
                     $commisionInvoiceList[$i]['tax_class'] = $result['tax_class'];
                     $commisionInvoiceList[$i]['with_without_gst'] = $result['with_without_gst'];
-                    $commisionInvoiceList[$i]['cgst'] = $result['cgst'];
-                    $commisionInvoiceList[$i]['cgst_amount'] = $result['cgst_amount'];
-                    $commisionInvoiceList[$i]['sgst'] = $result['sgst'];
-                    $commisionInvoiceList[$i]['sgst_amount'] = $result['sgst_amount'];
-                    $commisionInvoiceList[$i]['igst'] = $result['igst'];
-                    $commisionInvoiceList[$i]['igst_amount'] = $result['igst_amount'];
-                    $commisionInvoiceList[$i]['commission_percent'] = $result['commission_percent'];
+                    $commisionInvoiceList[$i]['cgst'] = floatval($result['cgst']);
+                    $commisionInvoiceList[$i]['cgst_amount'] = floatval($result['cgst_amount']);
+                    $commisionInvoiceList[$i]['sgst'] = floatval($result['sgst']);
+                    $commisionInvoiceList[$i]['sgst_amount'] = floatval($result['sgst_amount']);
+                    $commisionInvoiceList[$i]['igst'] = floatval($result['igst']);
+                    $commisionInvoiceList[$i]['igst_amount'] = floatval($result['igst_amount']);
+                    $commisionInvoiceList[$i]['commission_percent'] = floatval($result['commission_percent']);
+                    $commisionInvoiceList[$i]['total_payment_received_amount'] = floatval($result['total_payment_rec_amount']);
                     $commisionInvoiceList[$i]['agent_id'] = $result['agent_id'];
                     $commisionInvoiceList[$i]['done_outward'] = $result['done_outward'];
                     $commisionInvoiceList[$i]['commission_status'] = $result['commission_status'];
                     $commisionInvoiceList[$i]['right_of_amount'] = $result['right_of_amount'];
                     $commisionInvoiceList[$i]['is_deleted'] = $result['is_deleted'];
                     $commisionInvoiceList[$i]['right_of_remark'] = $result['right_of_remark'];
-                    $commisionInvoiceList[$i]['date_added'] = $result['date_added'];
                     $i++;
                 }
             }
@@ -2165,7 +2165,7 @@ class ConnectionController extends Controller
                 $paymentdetail->payment_id = $pddata['payment_id'];
                 $paymentdetail->p_increment_id = $pddata['p_increment_id'];
                 $paymentdetail->financial_year_id = $pddata['financial_year_id'];
-                $paymentdetail->payment_followup_id = $pddata['payment_followup_id'];
+                // $paymentdetail->payment_followup_id = $pddata['payment_followup_id'];
                 $paymentdetail->sr_no = $pddata['sr_no'];
                 $paymentdetail->supplier_invoice_no = $pddata['supplier_invoice_no'];
                 $paymentdetail->amount = $pddata['amount'];
@@ -2674,8 +2674,8 @@ class ConnectionController extends Controller
         }
         if(!empty($commisionInvoiceList)) {
             foreach($commisionInvoiceList as $commissionInvoice) {
-                $commissioninvoice = new commissionInvoice();
-                $commissioninvoice->commission_invoice_id = $commissionInvoice['commission_invoice_id'];
+                $commissioninvoice = new CommissionInvoice();
+                $commissioninvoice->id = $commissionInvoice['id'];
                 $commissioninvoice->reference_id = $commissionInvoice['reference_id'];
                 $commissioninvoice->customer_id = $commissionInvoice['customer_id'];
                 $commissioninvoice->supplier_id = $commissionInvoice['supplier_id'];
@@ -2703,13 +2703,14 @@ class ConnectionController extends Controller
                 $commissioninvoice->igst = $commissionInvoice['igst'];
                 $commissioninvoice->igst_amount = $commissionInvoice['igst_amount'];
                 $commissioninvoice->commission_percent = $commissionInvoice['commission_percent'];
+                $commissioninvoice->total_payment_received_amount = $commissionInvoice['total_payment_received_amount'];
                 $commissioninvoice->agent_id = $commissionInvoice['agent_id'];
                 $commissioninvoice->done_outward = $commissionInvoice['done_outward'];
                 $commissioninvoice->commission_status = $commissionInvoice['commission_status'];
                 $commissioninvoice->right_of_amount = $commissionInvoice['right_of_amount'];
                 $commissioninvoice->is_deleted = $commissionInvoice['is_deleted'];
                 $commissioninvoice->right_of_remark = $commissionInvoice['right_of_remark'];
-                $commissioninvoice->date_added = $commissionInvoice['date_added'];
+                $commissioninvoice->save();
             }
         }
         if(!empty($comboList)) {

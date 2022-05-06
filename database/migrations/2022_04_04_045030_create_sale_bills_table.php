@@ -40,7 +40,7 @@ return new class extends Migration
             $table->text('remark')->nullable();
             // $table->tinyInteger('required_followup')->default(0);
             $table->tinyInteger('sale_bill_flag')->default(0);
-            $table->tinyInteger('done_outward')->default(0);
+            $table->tinyInteger('done_outward')->default(0)->comment('0-pending, 1-complete');
             $table->tinyInteger('is_copied')->default(0);
             $table->tinyInteger('is_moved')->default(0);
             $table->integer('inward_main_or_sub_id')->default(0);

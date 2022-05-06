@@ -100,7 +100,7 @@
                                 <a href="html/user-details-regular.html" class="nk-menu-link"><span class="nk-menu-text">Ledger</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="html/user-profile-regular.html" class="nk-menu-link"><span class="nk-menu-text">Commision</span></a>
+                                <a href="/account/commission/invoice" class="nk-menu-link"><span class="nk-menu-text">Commision</span></a>
                             </li>
                         </ul><!-- .nk-menu-sub -->
                     </li><!-- .nk-menu-item -->
