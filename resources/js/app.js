@@ -240,7 +240,7 @@ const routes = [
         children: [
             { path: 'create-invoice', component: CreateInvoiceComponent },
             { path: 'generate-invoice', component: GenerateInvoiceComponent },
-            // { path: 'edit-invoice/:id', component: EditInvoiceComponent },
+            { path: 'edit-invoice/:id', component: GenerateInvoiceComponent },
             // { path: 'view-invoice/:id/:fid', component: ViewInvoiceComponent },
         ]
     },

@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\FinancialYear;
 use App\Models\Logs;
+use App\Models\InvoicePaymentDetails;
 use App\Models\comboids\Comboids;
 use App\Http\Controllers\Account\SaleBillController;
 use Illuminate\Support\Facades\Session;
@@ -261,13 +262,13 @@ class InvoiceController extends Controller
             ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
             ->where('employees.id', $user->employee_id)
             ->first();
-
+        $employees['editedId'] = 0;
+        $employees['scope'] = "create";
         return view('account.commission.invoice.createInvoice', compact('financialYear', 'page_title', 'employees'));
     }
 
     public function saveInvoice(Request $request)
     {
-        dd($request->all());
         $user = Session::get('user');
 
         $companyName = $request->company;
@@ -692,6 +693,245 @@ class InvoiceController extends Controller
         }
         $billNo = $agent->inv_prefix . "-" . $fid_prefix . "-" . $billNo;
         echo $billNo;
+        exit;
+    }
+
+    public function editInvoice($id)
+    {
+        $page_title = 'Update Invoice';
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+        $employees['editedId'] = $id;
+        $employees['scope'] = "edit";
+        return view('account.commission.invoice.generateInvoice', compact('financialYear', 'page_title', 'employees'));
+    }
+
+    public function getInvoiceData($id)
+    {
+        $user = Session::get('user');
+        $invoice_details = DB::table('commission_invoices')
+            ->where('id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->first();
+
+        // $payment_details = DB::table('invoice_payment_details')->where('commission_invoice_id', $id)->get();
+        $payment_details = DB::table('invoice_payment_details as ipd')
+            ->join('payments as p', 'ipd.payment_id', '=', 'p.payment_id')
+            ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->leftJoin('financial_year as fy', 'p.financial_year_id', '=', 'fy.id')
+            ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst') )
+            ->where('ipd.commission_invoice_id', $id)
+            ->where('p.is_deleted', 0)
+            ->where('pd.is_deleted', 0)
+            ->get();
+        $without_gst_amt = $with_gst_amt = 0;
+        foreach ($payment_details as $v) {
+            $without_gst = round((($v->adjust_amount * 100) / $v->gst), 2);
+            $without_gst_amt += $without_gst;
+            $with_gst_amt += $v->received_amount;
+        }
+        $agents = DB::table('agents')->select('id', 'name', 'gst_no', 'pan_no', 'inv_prefix')->where('is_delete', '0')->get();
+
+        $supplier = DB::table('companies as c')
+            ->leftJoin('company_packaging_details as cpd', 'c.id', '=', 'cpd.company_id')
+            ->leftJoin('company_addresses as ca', 'c.id', '=', 'ca.company_id')
+            ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address')
+            ->where('c.id', $invoice_details->supplier_id)
+            ->first();
+
+        $customer = DB::table('companies as c')
+            ->leftJoin('company_packaging_details as cpd', 'c.id', '=', 'cpd.company_id')
+            ->leftJoin('company_addresses as ca', 'c.id', '=', 'ca.company_id')
+            ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address')
+            ->where('c.id', $invoice_details->customer_id)
+            ->first();
+
+        $commission_details = DB::table('commission_details')
+            ->select('id')
+            ->where('commission_invoice_id', $id)
+            ->where('is_deleted', 0)
+            ->get();
+
+        return response()->json([
+            'invoice_details' => $invoice_details,
+            'payment_details' => $payment_details,
+            'agents' => $agents,
+            'supplier' => $supplier,
+            'customer' => $customer,
+            'commission_details' => $commission_details,
+            'bill_period_from' => date('d-m-Y', strtotime($invoice_details->bill_period_from)),
+            'bill_period_to' => date('d-m-Y', strtotime($invoice_details->bill_period_to)),
+            'invoice_bill_date' => date('d-m-Y', strtotime($invoice_details->bill_date)),
+            'without_gst_amt' => $without_gst_amt,
+            'with_gst_amt' => $with_gst_amt
+        ]);
+    }
+
+    public function updateInvoice(Request $request)
+    {
+        $user = Session::get('user');
+
+        $companyName = $request->company;
+        $sale_bill_cont = new SaleBillController;
+        if ($companyName->company_type != 0) {
+            $companyTypeName = $sale_bill_cont->getCompanyTypeName($companyName->company_type);
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+        $companyPerson = $sale_bill_cont->getCompanyDetails($companyName->id);
+        if ($companyPerson) {
+            $personName = $companyPerson->name;
+        } else {
+            $personName = '';
+        }
+
+
+        $commi_total_amount  = $request->comm_total_amount;
+        $rounded_off         = $request->rounded_off;
+        $final_amount        = $request->final_amount;
+        $invoice_others      = $request->invoice_others;
+        $payment_comm        = $request->payment_comm;
+        $tax_class           = $request->select_tax;
+        $service_tax_flag    = 0;
+        $tds_flag            = 0;
+        $cgst                = 0;
+        $cgst_amt            = 0;
+        $sgst                = 0;
+        $sgst_amt            = 0;
+        $igst                = 0;
+        $igst_amt            = 0;
+        $tds_amt             = 0;
+        if (isset($request->comm_invoice_gst)) {
+            $service_tax_flag = 1;
+            if (isset($request->cgst_amount)) {    // for gujarat
+                $cgst     = $request->cgst;
+                $cgst_amt = $request->cgst_amount;
+                $sgst     = $request->sgst;
+                $sgst_amt = $request->sgst_amount;
+            }
+            if (isset($request->igst_amount)) {    // for other state
+                $igst     = $request->igst;
+                $igst_amt = $request->igst_amount;
+            }
+        }
+        if (isset($request->comm_invoice_tds)) {
+            $tds_flag = 1;
+            $tds_amt  = $request->tds_amount;
+        }
+        $invoice = CommissionInvoice::where('id', $request->id)->first();
+        $invoice->bill_no            = $request->full_bill_no;
+        $invoice->bill_period_to     = date('Y-m-d', strtotime($request->bill_period_to));
+        $invoice->bill_period_from   = date('Y-m-d', strtotime($request->bill_period_from));
+        $invoice->bill_date          = date('Y-m-d', strtotime($request->invoice_bill_date));
+        $invoice->service_tax_amount = 0;
+        $invoice->service_tax        = 0;
+        $invoice->commission_amount  = $commi_total_amount;
+        $invoice->service_tax_flag   = $service_tax_flag;
+        $invoice->tds_flag           = (int)$tds_flag;
+        $invoice->with_without_gst   = $request->with_without_gst;
+        $invoice->tax_class          = $tax_class;
+        $invoice->cgst               = $cgst;
+        $invoice->cgst_amount        = $cgst_amt;
+        $invoice->sgst               = $sgst;
+        $invoice->sgst_amount        = $sgst_amt;
+        $invoice->igst               = $igst;
+        $invoice->igst_amount        = $igst_amt;
+        $invoice->commission_percent = $payment_comm;
+        $invoice->other_amount       = $invoice_others;
+        $invoice->rounded_off        = $rounded_off;
+        $invoice->tds_amount         = (int)$tds_amt;
+        $invoice->final_amount       = $final_amount;
+        $invoice->agent_id           = $request->courier_agent->id;
+        $invoice->total_payment_received_amount = $request->total_amount;
+        $invoice->save();
+
+        return response()->json(['success' => 1]);
+    }
+
+    public function deleteInvoicePaymentDetail(Request $request)
+    {
+        $id = $request->invoice_payment_detail_id;
+        $invoice_id = $request->invoice_id;
+
+        DB::table('invoice_payment_details')->where('id', $id)->delete();
+
+        // get sum of rec_amount from invoice_payment_receive_details.
+        $sum = DB::table('invoice_payment_details')
+            ->selectRaw('SUM(received_amount) as new_rec_amount')
+            ->where('commission_invoice_id', $invoice_id)
+            ->pluck('new_rec_amount')
+            ->first();
+
+        $invoice = CommissionInvoice::where('id', $invoice_id)->first();
+        $invoice->commission_amount = round((($sum * $invoice->commission_percent) / 100), 2);
+        $invoice->total_payment_received_amount = $sum;
+        $invoice->save();
+        return response()->json(['success' => 1]);
+    }
+
+    public function refreshInvoicePaymentDetail(Request $request)
+    {
+        $id                = $request->invoice_payment_detail_id;
+        $invoice_id        = $request->invoice_id;
+        $payment_id        = $request->payment_id;
+        $financial_year_id = $request->financial_year_id;
+        $amount            = $request->amount;
+
+        $invinfo = DB::table('commission_invoices')
+            ->select('with_without_gst')
+            ->where('commission_invoice_id', $invoice_id)
+            ->first();
+
+        $with_without_gst = $invinfo->with_without_gst;
+        $total_inv_amount = $amount;
+
+        $paymentinfo = DB::table('payments')
+            ->select('receipt_amount')
+            ->where('payment_id', $payment_id)
+            ->where('financial_year_id', $financial_year_id)
+            ->where('is_deleted', 0)
+            ->first();
+        $receipt_amount = $paymentinfo->receipt_amount;
+
+        $invpaymentinfo = InvoicePaymentDetails::select('id', 'received_amount')
+            ->where('id', $id)
+            ->first();
+        $rec_amount = $invpaymentinfo->received_amount;
+
+        $diff_amount = $rec_amount - $receipt_amount;
+        if ($with_without_gst == 1 && $diff_amount >= 0) {
+            $new_rec_amount       = $rec_amount - $diff_amount;
+            $new_total_inv_amount = $total_inv_amount - $diff_amount;
+            $invpaymentinfo->received_amount = $new_rec_amount;
+            $invpaymentinfo->save();
+        } else if ($with_without_gst == 1 && $diff_amount < 0) {
+            $new_rec_amount       = $rec_amount + abs($diff_amount);
+            $new_total_inv_amount = $total_inv_amount + abs($diff_amount);
+            $invpaymentinfo->received_amount = $new_rec_amount;
+            $invpaymentinfo->save();
+        } else {
+            if ($diff_amount >= 0) {
+                $new_rec_amount = $rec_amount - $diff_amount;
+            } else {
+                $new_rec_amount = $rec_amount + abs($diff_amount);
+            }
+            $invpaymentinfo->received_amount = $new_rec_amount;
+            $invpaymentinfo->save();
+            $res = DB::table('invoice_payment_details')
+                ->selectRaw('SUM(rec_amount) as total_rec_amount')
+                ->where('commission_invoice_id', $invoice_id)
+                ->first();
+            $new_total_inv_amount = $res->total_rec_amount;
+        }
+        $data = array("new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount));
+        echo json_encode($data);
         exit;
     }
 }
