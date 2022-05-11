@@ -764,7 +764,9 @@
                 this.final_total = 0;
             },
             getProductSubCategory (event) {
-                this.product_category = event;
+                if (event) {
+                    this.product_category = event;
+                }
                 if (this.sale_bill_is_moved == 0) {
                     if (this.product_category && this.supplier) {
                         axios.get('/account/sale-bill/list-product-sub-category/'+this.product_category.id+'/'+this.supplier.id)

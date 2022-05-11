@@ -855,7 +855,7 @@ class SaleBillController extends Controller
 
     public function getRefForSaleBillUpdate(Request $request)
     {
-        $company_details = $this->getCompanyDetailsForLinkCompanies($request->supplier_id);
+        /* $company_details = $this->getCompanyDetailsForLinkCompanies($request->supplier_id);
         $link_companies = $this->getLinkCompaniesDetails($request->supplier_id);
         if (empty($link_companies)) {
             $is_linked = $this->isCompanyLinkedWithOtherMainCompany($request->supplier_id);
@@ -865,7 +865,7 @@ class SaleBillController extends Controller
             }
         }
         $main_cmp_id = $company_details->id;
-        array_push($link_companies, $main_cmp_id);
+        array_push($link_companies, $main_cmp_id); */
         $general_ref = DB::table('reference_ids as r')
             ->select('r.employee_id', 'r.reference_id', 'r.created_at')
             ->where('r.type_of_inward', $request->ref_via)

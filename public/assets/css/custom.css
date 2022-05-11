@@ -1,6 +1,9 @@
 #overlay {
     display: none;
 }
+.hidden {
+    display: none;
+}
 .btn-icon .icon, .dt-buttons .btn-secondary .icon {
     width: 1.75rem;
 }
@@ -212,7 +215,7 @@ td .ni-sign-inr {
     padding: 6px;
     top: 36px;
     z-index: 1000;
-    
+
 }
 
 .multiselect__option--highlight {
@@ -246,7 +249,7 @@ td .ni-sign-inr {
 .multiselect--above .multiselect__content-wrapper {
     border: 1px solid #e8e8e8;
     bottom: unset;
-   
+
 }
 
 .multiselect__tag-icon:focus,
