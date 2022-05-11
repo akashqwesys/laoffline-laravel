@@ -60,6 +60,7 @@ import ViewSaleBillComponent from './components/account/saleBillComponents/ViewS
 
 import InvoiceComponent from './components/account/invoiceComponents/InvoiceComponent.vue';
 import CreateInvoiceComponent from './components/account/invoiceComponents/CreateInvoiceComponent.vue';
+import GenerateInvoiceComponent from './components/account/invoiceComponents/GenerateInvoiceComponent.vue';
 // import EditInvoiceComponent from './components/account/invoiceComponents/EditInvoiceComponent.vue';
 // import ViewInvoiceComponent from './components/account/invoiceComponents/ViewInvoiceComponent.vue';
 
@@ -238,6 +239,7 @@ const routes = [
         component: InvoiceComponent,
         children: [
             { path: 'create-invoice', component: CreateInvoiceComponent },
+            { path: 'generate-invoice', component: GenerateInvoiceComponent },
             // { path: 'edit-invoice/:id', component: EditInvoiceComponent },
             // { path: 'view-invoice/:id/:fid', component: ViewInvoiceComponent },
         ]
@@ -425,6 +427,7 @@ createApp({
 
         InvoiceComponent,
         CreateInvoiceComponent,
+        GenerateInvoiceComponent,
         // EditInvoiceComponent,
         // ViewInvoiceComponent,
 

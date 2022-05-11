@@ -67,6 +67,13 @@ class LoginController extends Controller
             $user['excel_access'] = $employee->excel_access;
             $user['user_email'] = $employee->email_id;
             $user['financial_year'] = $financialYear->name;
+            $user['service_tax'] = 15;
+            $user['tds'] = 3.75;
+            $user['tax_limit'] = 0;
+            $user['cgst'] = 9;
+            $user['sgst'] = 9;
+            $user['sgst_per'] = 9;
+            $user['igst'] = 18;
 
 
 

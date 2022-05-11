@@ -161,7 +161,7 @@ class CommissionController extends Controller
             } else {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
-            
+
             $action = '<a href="/commission/view-commission/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="/commission/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
@@ -244,7 +244,7 @@ class CommissionController extends Controller
     public function getBasicData(Request $request) {
         $company_id = $request->session()->get('company');
         $commissioninvoice_id = $request->session()->get('commissioninvoice');
-        
+
         $company = Company::where('id', $company_id)->first();
         $agent = Agent::where('is_delete', '0')->get();
         
@@ -348,7 +348,7 @@ class CommissionController extends Controller
         $nextAutoID = !empty($iuids) ? $iuids->id + 1 : 1;
 
         $companyName = Company::where('id', $request->session()->get('company'))->first();
-        
+
 
         if ($companyName && $companyName->company_type != 0) {
             $companyTypeName = CompanyType::where('id', $companyName->company_type)->first();
@@ -358,7 +358,7 @@ class CommissionController extends Controller
         }
 
         $personName = '';
-        
+
         $iuid_ids = new Iuid();
         $iuid_ids->id = $nextAutoID;
         $iuid_ids->iuid = $iuid;
@@ -367,10 +367,10 @@ class CommissionController extends Controller
 
         $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
         $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
-    
+
         $comboids = new Comboids();
-        
-        if ($typeName == "Supplier") {    
+
+        if ($typeName == "Supplier") {
             $comboids->supplier_id = $request->session()->get('company');
         } else {
             $comboids->company_id = $request->session()->get('company');
@@ -432,7 +432,7 @@ class CommissionController extends Controller
             $commissiondate = Carbon::now()->format('d-m-Y');;
         }
         $commissions = new commission();
-        if ($typeName == "Supplier") {    
+        if ($typeName == "Supplier") {
             $commissions->supplier_id = $request->session()->get('company');
             $commissions->customer_id = '0';
         } else {
@@ -525,7 +525,7 @@ class CommissionController extends Controller
             $commission_detail->remark = $remark;
             $commission_detail->is_deleted = '0';
             $commission_detail->save();
-            
+
         }
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
@@ -606,7 +606,7 @@ class CommissionController extends Controller
             array_push($attachments, $ExtraImage);
         }
         $companyName = Company::where('id', $commissionData->companyid)->first();
-        
+
 
         if ($companyName && $companyName->company_type != 0) {
             $companyTypeName = CompanyType::where('id', $companyName->company_type)->first();
@@ -649,10 +649,10 @@ class CommissionController extends Controller
                     $courier_receipt_no = $commissionData->reciptno;
                     $courier_received_time = $commissionData->recivedate;
                 }
-    
+
                 $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
                 $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
-    
+
                 $refence = new ReferenceId();
                 $refence->id = $refrenceid;
                 $refence->reference_id = $ref_id;
@@ -696,8 +696,8 @@ class CommissionController extends Controller
         } else {
             $commissiondate = Carbon::now()->format('d-m-Y');
         }
-        
-        if ($typeName == "Supplier") {    
+
+        if ($typeName == "Supplier") {
             $commissions->supplier_id = $request->session()->get('company');
             $commissions->customer_id = '0';
         } else {
@@ -715,7 +715,7 @@ class CommissionController extends Controller
             $chequebank = '0';
             $chequeno = '';
         }
-    
+
         $commissions->reference_id = $ref_id;
         $commissions->attachments = serialize($attachments);
         $commissions->deposite_bank = (int)$depositebank;
@@ -739,7 +739,7 @@ class CommissionController extends Controller
             $commission_pay_amount = $invoice->amount;
             $remark = $invoice->remark;
             $commission_detail = CommissionDetail::where('commission_invoice_id', $invoice->id)->first();
-            
+
             $commission_detail->bill_date = $invoice->date;
             $commission_detail->bill_amount = $invoice->totalCommission;
             $commission_detail->received_amount = '0';
@@ -763,7 +763,7 @@ class CommissionController extends Controller
         $logs->log_path = 'Commission / update';
         $logs->log_subject = 'Commission update page visited.';
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $logs->save();       
+        $logs->save();
     }
 
     public function viewCommission($id) {
@@ -773,8 +773,8 @@ class CommissionController extends Controller
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
         $employees['id'] = $id;
-        return view('commission.viewcommission',compact('financialYear', 'page_title'))->with('employees', $employees);       
+        return view('commission.viewcommission',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    
+
 }

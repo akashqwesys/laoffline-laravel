@@ -316,16 +316,23 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/list-data', [App\Http\Controllers\Account\InvoiceController::class, 'listInvoice']);
         Route::get('/view-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoice']);
         Route::get('/view-invoice-details/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceDetails']);
+        Route::get('/list-company', [App\Http\Controllers\Account\InvoiceController::class, 'listCompany']);
+        Route::get('/get-payments', [App\Http\Controllers\Account\InvoiceController::class, 'getPayments']);
+        Route::get('/get-data', [App\Http\Controllers\Account\InvoiceController::class, 'getData']);
+        Route::get('/generate-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'invoiceView']);
+        Route::post('/getInvoiceBillNo/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceBillNo']);
     });
 });
 
 Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify-commission']], function () {
     Route::group(['prefix' => 'commission/invoice'], function () {
         Route::get('/create-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'createInvoice']);
-        Route::post('/create-invoice/create', [App\Http\Controllers\Account\InvoiceController::class, 'addInvoice']);
+        Route::post('/save-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'saveInvoice']);
         Route::get('/edit-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'editInvoice']);
         Route::get('/delete/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'deleteInvoice']);
         Route::post('/update', [App\Http\Controllers\Account\InvoiceController::class, 'updateInvoice']);
+        Route::post('/update-payments-remarks', [App\Http\Controllers\Account\InvoiceController::class, 'updatePaymentRemark']);
+        Route::post('/setSessionForPaymentDetails', [App\Http\Controllers\Account\InvoiceController::class, 'setSessionForPaymentDetails']);
     });
 });
 
@@ -701,10 +708,8 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modif
             Route::get('/list-data', [App\Http\Controllers\CommissionController::class, 'listData'])->name('list-data');
             Route::get('/fetch-commission/{id}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
     });
-    
-    
-    
-    Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:modify-companytype']], function () {
+
+    Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:modify-commission']], function () {
             Route::get('/create-commission', [App\Http\Controllers\CommissionController::class, 'createCommission']);
             Route::get('/add-commission', [App\Http\Controllers\CommissionController::class, 'addCommission']);
             Route::post('/searchcommissioninvoice', [App\Http\Controllers\CommissionController::class, 'searchCommissionInvoice']);
