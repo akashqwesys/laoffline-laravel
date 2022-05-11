@@ -47,9 +47,11 @@
             </div>
         </div>
     </div>
+    <ViewCompanyDetails ref="company"></ViewCompanyDetails>
 </template>
 
 <script>
+    import ViewCompanyDetails from '../databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
     import 'jquery/dist/jquery.min.js';
     import 'datatables.net-bs5/js/dataTables.bootstrap5';
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
@@ -66,12 +68,27 @@
             excelAccess: Number,
             status: Number,
         },
+        components: {
+            ViewCompanyDetails
+        },
         data() {
             return {
                 create_payment: '/payments/create-payment',
             }
         },
         methods: {
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
+            },
             edit_data(id){
                 window.location.href = './payments/edit-goodreturn/'+id;
             },
@@ -83,6 +100,7 @@
             },
         },
         mounted() {
+            const self = this;
             var buttons = [];
             var dt_table = null;
             if(this.excelAccess == 1) {
@@ -210,6 +228,12 @@
                     }
                     draw = 0;
                 }
+            });
+            $(document).on('click', '.view-details', function(e) {
+                self.showModal($(this).attr('data-id'));
+            });
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
             });
         },
     };

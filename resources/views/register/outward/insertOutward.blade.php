@@ -2,7 +2,7 @@
 
 @section('content')
     <div id="app">
-        <register-component :excel-access="{{ $employees['excelAccess'] ?? 0 }}"></register-component>
+        <insert-outward-component :type="{{ $employees['outwardType'] }}"></insert-outward-component>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
 @endsection

@@ -44,9 +44,11 @@
             </div>
         </div>
     </div>
+    <ViewCompanyDetails ref="company"></ViewCompanyDetails>
 </template>
 
 <script>
+    import ViewCompanyDetails from '../../databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
     import 'jquery/dist/jquery.min.js';
     import 'datatables.net-bs5/js/dataTables.bootstrap5';
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
@@ -61,12 +63,27 @@
         props: {
             excelAccess: Number,
         },
+        components: {
+            ViewCompanyDetails
+        },
         data() {
             return {
                 create_commission: '/commission/create-commission',
             }
         },
         methods: {
+            showModal: function(id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function() {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
+            },
             edit_data(id){
                 window.location.href = './commission/edit-commission/'+id;
             },
@@ -78,6 +95,7 @@
             },
         },
         mounted() {
+            const self = this;
             var buttons = [];
             var dt_table = null;
             if(this.excelAccess == 1) {
@@ -103,6 +121,39 @@
                     lengthChange: true,
                     ajax: {
                         url: "/commission/list",
+                        data: function (data) {
+                            if ($('#commission_no').val() == '') {
+                                data.columns[0].search.value = '';
+                            } else {
+                                data.columns[0].search.value = $('#commission_no').val();
+                            }
+                            if ($('#iuid').val() == '') {
+                                data.columns[1].search.value = '';
+                            } else {
+                                data.columns[1].search.value = $('#iuid').val();
+                            }
+                            if ($('#ref_no').val() == '') {
+                                data.columns[2].search.value = '';
+                            } else {
+                                data.columns[2].search.value = $('#ref_no').val();
+                            }
+                            if ($('#date_added').val() == '') {
+                                data.columns[3].search.value = '';
+                            } else {
+                                data.columns[3].search.value = $('#date_added').val();
+                            }
+                            if ($('#company').val() == '') {
+                                data.columns[4].search.value = '';
+                            } else {
+                                data.columns[4].search.value = $('#company').val();
+                            }
+                            if ($('#recivedcommamount').val() == '') {
+                                data.columns[5].search.value = '';
+                            } else {
+                                data.columns[5].search.value = $('#recivedcommamount').val();
+                            }
+                        },
+                        complete: function (data) { }
                     },
                     pagingType: 'full_numbers',
                     dom: "Blrtip",
@@ -121,7 +172,10 @@
                         return: true
                     },
                     buttons: buttons,
-                })
+                }).
+                on( 'init.dt', function () {
+                    $('<div class="dataTables_filter mt-2" id="commission_filter"><input type="search" id="commission_no" class="form-control form-control-sm" placeholder="Commission Id"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="recivedcommamount" class="form-control form-control-sm" placeholder="Amount"></div>').insertAfter('.dataTables_length');
+                });
             }
             init_dt_table();
             function exportAllRecords(e, dt, button, config) {
@@ -170,6 +224,12 @@
                     }
                     draw = 0;
                 }
+            });
+            $(document).on('click', '.view-details', function(e) {
+                self.showModal($(this).attr('data-id'));
+            });
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
             });
         },
     };

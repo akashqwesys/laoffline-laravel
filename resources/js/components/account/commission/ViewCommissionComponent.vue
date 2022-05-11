@@ -16,7 +16,7 @@
                             <div class="print_area">
                                 <div class="row">
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>iuid : </b> {{ paymentData.reciept_mode}} </label>
+				    			        <label class="control-label"><b>iuid : </b> {{ commission.iuid }} </label>
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Generated Date : </b> {{ created_at }} </label>
@@ -26,28 +26,28 @@
 				    		        </div>
                                     
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Commission Date : </b> {{ paymentData.date}} </label>
+				    			        <label class="control-label"><b>Commission Date : </b> {{ commission.commission_date}} </label>
 				    		        </div>
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Commission Account : </b> {{ paymentData.date}} </label>
+				    			        <label class="control-label"><b>Commission Account : </b> {{ commission.commissionaccount}} </label>
 				    		        </div>
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Recipt Mode : </b> {{ paymentData.date}} </label>
+				    			        <label class="control-label"><b>Recipt Mode : </b> {{ commission.commission_reciept_mode }} </label>
 				    		        </div>
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Deposite Bank : </b>  </label>
+				    			        <label class="control-label"><b>Deposite Bank : </b> {{ commission.depositebank }} </label>
 				    		        </div>
                                     <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque Date : </b> {{ paymentData.cheque_date}} </label>
+				    			        <label class="control-label"><b>Cheque Date : </b> {{ commission.cheque_date}} </label>
 				    		        </div>
                                     <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque No : </b> {{ paymentData.cheque_dd_no}} </label>
+				    			        <label class="control-label"><b>Cheque No : </b> {{ commission.cheque_dd_no}} </label>
 				    		        </div>
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Amount : </b> {{ paymentData.receipt_amount }} </label>
+				    			        <label class="control-label"><b>Amount : </b> {{ commission.commission_payment_amount }} </label>
 				    		        </div>
                                     <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque Bank : </b> {{ paymentData.cheque_dd_bank}} </label>
+				    			        <label class="control-label"><b>Cheque Bank : </b> {{ commission.chequebank}} </label>
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Extra Attachment : </b>  </label>
@@ -68,20 +68,20 @@
 							        		        </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr class="salebillrow" v-for="(salebill,index) in salebills" :key="index">
-                                                        <td>{{ salebill.sr_no}}</td>
-                                                        <td>{{ salebill.supplier_invoice_no}}</td>
-                                                        <td>{{ salebill.amount}}</td>
-                                                        <td>{{ salebill.adjust_amount}}</td>
-                                                        <td v-if="salebill.status = '1'">Completed</td><td v-else>Pending</td>
-                                                        <td>Action</td>
+                                                    <tr class="salebillrow" v-for="(commission_invoice,index) in commissioninvoice" :key="index">
+                                                        <td>{{ commission_invoice.bill_no }}</td>
+                                                        <td>{{ commission_invoice.bill_date}}</td>
+                                                        <td>{{ commission_invoice.received_commission_amount}}</td>
+                                                        <td v-if="commission_invoice.status = '1'">Completed</td><td v-else>Pending</td>
+                                                        <td>{{ commission_invoice.remark}}</td>
+                                                        <td></td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot class="total">
                                                     <tr>
                                                         <td><b>Grand Total :</b></td>
                                                         <td></td>
-                                                        <td><b>{{ paymentData.total_amount }}</b></td>
+                                                        <td><b>{{ commission.commission_payment_amount }}</b></td>
                                                         <td></td>
                                                         <td></td>
                                                         <td></td>
@@ -118,8 +118,8 @@
         },
         data() {
             return {
-                paymentData: [],
-                salebills: [],
+                commission: [],
+                commissioninvoice: [],
                 customer: [],
                 supplier: [],
                 created_at: '', 
@@ -130,21 +130,9 @@
                 .then(response => {
                         
                         gData = response.data;
-                        if (gData.paymentData.reciept_mode == 'cash') {
-                            $(".cash").removeClass("d-none");
-                            $(".cheque").addClass("d-none");
-                            $(".table-responsive").addClass("salebilltable");
-                        } else if (gData.paymentData.reciept_mode == 'cheque') {
-                            $(".cash").removeClass("d-none");
-                            $(".cheque").removeClass("d-none");
-                            $(".table-responsive").addClass("salebilltable");
-                        } else if (gData.paymentData.reciept_mode == 'fullreturn' || gData.paymentData.reciept_mode == 'partreturn') {
-                            $(".cheque").addClass("d-none");
-                            $(".cash").addClass("d-none");
-                            $(".table-responsive").removeClass("salebilltable");
-                        }
-                        this.paymentData = gData.paymentData;
-                        this.salebills = gData.salebill;
+                        
+                        this.commission = gData.commission;
+                        this.commissioninvoice = gData.commissioninvoice;
                         this.customer = gData.customer;
                         this.supplier = gData.supplier;
                         this.created_at = gData.created_at;

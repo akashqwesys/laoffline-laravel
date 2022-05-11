@@ -351,6 +351,8 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::get('/create-inward', [App\Http\Controllers\register\RegisterController::class, 'createInward']);
     Route::get('/create-outward', [App\Http\Controllers\register\RegisterController::class, 'createOutward']);
     Route::get('/inward/{type}', [App\Http\Controllers\register\RegisterController::class, 'addInward']);
+    Route::get('/outward/{type}', [App\Http\Controllers\register\RegisterController::class, 'addOutward']);
+    Route::post('/insertinward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertInward']);
     Route::post('/inward/{type}/add-fabrics-details', [App\Http\Controllers\register\RegisterController::class, 'addFabricDetails']);
 });
 

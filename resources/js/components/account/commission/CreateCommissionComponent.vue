@@ -9,7 +9,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered">
                             <div class="card-header">
-                                <h6>Search Payments</h6>
+                                <h6>Search Commission Invoice</h6>
                             </div>
                             <div class="card-inner">
                                     

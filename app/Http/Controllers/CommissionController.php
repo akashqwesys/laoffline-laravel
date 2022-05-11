@@ -88,75 +88,48 @@ class CommissionController extends Controller
         $totalRecords = commission::where('is_deleted', '0')->select('count(*) as allcount')->count();
 
         $totalRecordswithFilter = commission::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
-        // if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where('payment_id', '=', $columnName_arr[0]['search']['value']);
-        // }
-        // if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[1]['search']['value']);
-        // }
-        // if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[2]['search']['value']);
-        // }
-        // if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[3]['search']['value']);
-        // }
-        // if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.created_at', '=', $columnName_arr[4]['search']['value']);
-        // }
-        // if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
-        // }
-        // if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-        //     $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
-        //     $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
-        // }
-        // if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-        //     $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
-        //     $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $sp_id);
-        // }
-        // if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where('payment_id', '=', $columnName_arr[8]['search']['value']);
-        // }
-        // if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
-        //     $totalRecordswithFilter = $totalRecordswithFilter->where('tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
-        // }
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('commission_id', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('commissions.created_at', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $cc_id);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('commission_payment_amount', '=', $columnName_arr[5]['search']['value']);
+        }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
         $records = commission::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
-        // if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-        //     $records = $records->where('payment_id', '=', $columnName_arr[0]['search']['value']);
-        // }
-        // if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
-        //     $records = $records->where('iuid', '=', $columnName_arr[1]['search']['value']);
-        // }
-        // if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-        //     $records = $records->where('ouid', '=', $columnName_arr[2]['search']['value']);
-        // }
-        // if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-        //     $records = $records->where('reference_id', '=', $columnName_arr[3]['search']['value']);
-        // }
-        // if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-        //     $records = $records->whereDate('payments.created_at', '=', $columnName_arr[4]['search']['value']);
-        // }
-        // if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-        //     $records = $records->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
-        // }
-        // if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-        //     $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
-        //     $records = $records->whereIn('company_id', $cc_id);
-        // }
-        // if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-        //     $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
-        //     $records = $records->whereIn('supplier_id', $sp_id);
-        // }
-        // if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
-        //     $records = $records->where('payment_id', '=', $columnName_arr[8]['search']['value']);
-        // }
-        // if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
-        //     $records = $records->where('tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
-        // }
-
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $records = $records->where('commission_id', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $records = $records->where('iuid', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $records = $records->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $records = $records->whereDate('commissions.created_at', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('supplier_id', $cc_id);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $records = $records->where('commission_payment_amount', '=', $columnName_arr[5]['search']['value']);
+        }
 
         // Fetch records
         $records = $records->select('*');
@@ -175,7 +148,8 @@ class CommissionController extends Controller
             $iuid = $record->iuid;
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
-            $seller = Company::where('id', $record->supplier_id)->first()->company_name;
+            $seller = Company::where('id', $record->supplier_id)->first();
+            $seller_id = '<a href="#" class="view-details text-danger" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
             $paid_amount = $record->commission_payment_amount;
             if ($iscompleted && $iscompleted->is_completed == '1') {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
@@ -196,7 +170,7 @@ class CommissionController extends Controller
                 "iuid" => $iuid,
                 "referenceid" => $ref_id,
                 "dateadd" => $date_add,
-                "company" => $seller,
+                "company" => $seller_id,
                 "Recivecommission" => $paid_amount,
                 "completed" => $completed,
                 "outward_status" => $outward,
@@ -237,14 +211,13 @@ class CommissionController extends Controller
                     ->where('supplier_id', $company_id)
                     ->where('financial_year_id', $user->financial_year_id)
                     ->where('commission_status', 0)
-                    ->orderBy('commission_invoice_id', 'desc')
+                    ->orderBy('id', 'desc')
                     ->get();
         $commissioninvoices = array();
-        $commissioninvoices = [array('commission_id' => '257', 'financialyear' => '2022-2023', 'invoiceno' => 'AF-20212022-257', 'date' => '2022-05-01', 'amount' => '30000', 'overdue' => "60"),
-                                array('commission_id' => '258', 'financialyear' => '2022-2023', 'invoiceno' => 'AF-20212022-260', 'date' => '2022-05-01', 'amount' => '36000', 'overdue' => "60")
-    ];
+       
         foreach($commissioninvoice as $invoice) {
-            $invoice = array('commission_id' => $invoice->commission_invoice_id, 'financialyear' => $bill->financial_year_id, 'invoiceno' => $bill->bill_no, 'date' => $bill->bill_date, 'amount' => $bill->final_amount, 'overdue' => "60");
+            $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
+            $invoice = array('commission_id' => $invoice->id, 'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => "60");
             array_push($commissioninvoices, $invoice);
         }
         $data['commissioninvoice'] = $commissioninvoices;
@@ -270,18 +243,17 @@ class CommissionController extends Controller
 
     public function getBasicData(Request $request) {
         $company_id = $request->session()->get('company');
-        
         $commissioninvoice_id = $request->session()->get('commissioninvoice');
         
         $company = Company::where('id', $company_id)->first();
         $agent = Agent::where('is_delete', '0')->get();
-        $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('commission_invoice_id', $commissioninvoice_id)->get();
+        
+        $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('id', $commissioninvoice_id)->get();
+        
         $commissioninvoice_data = array();
-        $commissioninvoice_data = [
-            array('commission_id' => '256', 'invoiceno' => 'AF-20212022-256', 'date' => '2022-05-01', 'totalCommission' => '30000')
-        ];
+        
         foreach ($commissioninvoice as $invoice) {
-            $commission_invoice = array('commission_id' => $invoice->commission_invoice_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'totalCommission' => $invoice->final_amount);
+            $commission_invoice = array('commission_id' => $invoice->id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'totalCommission' => $invoice->final_amount);
             array_push($commissioninvoice_data, $commission_invoice);
         }
         $data['company'] = $company;
@@ -585,10 +557,27 @@ class CommissionController extends Controller
         $commission = commission::where('commission_id', $id)->first();
         $supplier = Company::where('id', $commission->supplier_id)->first();
         $customer = Company::where('id', $commission->customer_id)->first();
+        $deposite = BankDetails::where('id', $commission->deposite_bank)->first();
+        $cheque_bank = BankDetails::where('id', $commission->cheque_dd_bank)->first();
         $agent = Agent::where('is_delete', '0')->get();
-        $commissioninvoice = CommissionDetail::where('commission_id', $commission->commission_id)->get();
+        $commissionacc = Agent::where('id', $commission->commission_account)->first();
+        $commissioninvoice = DB::table('commission_details as cd')->join('commission_invoices as ci', 'ci.id', '=', 'cd.commission_invoice_id' )->where('cd.commission_id', $commission->commission_id)->select('cd.*', 'ci.bill_no')->get();
         
         $data['commission'] = $commission;
+        if (!empty($deposite)) {
+            $data['commission']['depositebank'] = $deposite->name;
+        } else {
+            $data['commission']['depositebank'] = '';
+        }
+        
+        
+        if (!empty($cheque_bank)) {
+            $data['commission']['chequebank'] = $cheque_bank->name;
+        } else {
+            $data['commission']['chequebank'] = '';
+        }
+       
+        $data['commission']['commissionaccount'] = $commissionacc->name;
         $data['created_at'] = date_format($commission->created_at,"Y/m/d H:i:s");
         $data['commissioninvoice'] = $commissioninvoice;
         $data['customer'] = $customer;

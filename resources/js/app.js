@@ -8,6 +8,11 @@ import VueLoader from './VueLoader.vue';
 
 import DashboardComponent from './components/DashboardComponent.vue';
 
+import RegisterComponent from './components/register/RegisterComponent.vue';
+import CreateInwardComponent from './components/register/inward/CreateInwardComponent.vue';
+import InsertInwardComponent from './components/register/inward/InsertInwardComponent.vue';
+import InsertOutwardComponent from './components/register/outward/InsertOutwardComponent.vue';
+import CreateOutwardComponent from './components/register/outward/CreateOutwardComponent.vue';
 // Databank Menu
 import UserGroupComponent from './components/databank/userGroupComponents/UserGroupComponent.vue';
 import CreateUserGroupComponent from './components/databank/userGroupComponents/CreateUserGroupComponent.vue';
@@ -124,6 +129,16 @@ const routes = [
     {
         path: '/home',
         component: DashboardComponent
+    },
+    {
+        path: '/register',
+        component: RegisterComponent,
+        children: [
+            { path: 'create-inward', component: CreateInwardComponent },
+            { path: 'create-outward', component: CreateOutwardComponent },
+            { path: 'inward/{type}', component: InsertInwardComponent },
+            { path: 'outward/{type}', component: InsertOutwardComponent },
+        ]
     },
     {
         path: '/databank/users-group',
@@ -388,6 +403,12 @@ createApp({
         // ViewCompanyDetailsModelComponent,
         LinkCompaniesComponent,
         CreateLinkCompaniesComponent,
+
+        RegisterComponent,
+        CreateInwardComponent,
+        InsertInwardComponent,
+        CreateOutwardComponent,
+        InsertOutwardComponent,
 
         ReferenceIdComponent,
         CreateReferenceIdComponent,

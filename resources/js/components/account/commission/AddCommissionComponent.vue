@@ -422,6 +422,7 @@
                     commissiondate: '',
                     commissionacc: '',
                     commissionamount:'',
+                    totalCommission:''
               })
             }
         },
@@ -438,6 +439,11 @@
                 this.form.companyid = responce.data.company.id;
                 this.commissioninvoices = responce.data.commissioninvoice;
                 this.agent = responce.data.agent;
+                let total = 0;
+                this.commissioninvoices.forEach((value,index) => {
+                    total += parseInt(value.totalCommission);
+                });
+                this.form.totalCommission = total;
             });
             }
                 
@@ -691,7 +697,7 @@
                         self.form.commissionamount = gData.commission.commission_payment_amount;
                         gData.commissioninvoice.forEach((value,index) => {
                                 self.commissioninvoices[index].id = value.commission_invoice_id;
-                                self.commissioninvoices[index].invoiceno = value.invoiceno;
+                                self.commissioninvoices[index].invoiceno = value.bill_no;
                                 self.commissioninvoices[index].date = value.bill_date;
                                 self.commissioninvoices[index].totalCommission = value.bill_amount;
                                 self.commissioninvoices[index].recivedCommission = '0';
@@ -704,11 +710,16 @@
                                 self.commissioninvoices[index].amount = value.received_commission_amount;
                                 self.commissioninvoices[index].remark = value.remark;
                             });
-                        
+                         let total = 0;
+                        self.commissioninvoices.forEach((value,index) => {
+                            total += parseInt(value.totalCommission);
+                        });
+                        self.form.totalCommission = total;
                     });
                     break;
                 default:
                     $(".referncechange").removeClass("d-none");
+                    this.form.recipt_mode = 'cheque';
                     break;
             }
         },

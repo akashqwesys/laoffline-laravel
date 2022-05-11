@@ -165,12 +165,14 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+            $customer_company = Company::where('id', $record->company_id)->first();
+            $seller_company = Company::where('id', $record->supplier_id)->first();
             $id = $record->goods_return_id;
             $iuid = $record->iuid;
             $ref_id = $record->reference_id;
             $date_add = $record->created_at;
-            $customer = Company::where('id', $record->company_id)->first()->company_name;
-            $seller = Company::where('id', $record->supplier_id)->first()->company_name;
+            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $gramount = $record->goods_return;
             
             $action = '<a href="/payments/view-goodreturn/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
@@ -220,9 +222,9 @@ class PaymentsController extends Controller
             $columnName = 'payments.'.$columnName;
         }
         // Total records
-        $totalRecords = DB::table('payments')->join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3')->select('count(payments.*) as count')->count();
+        $totalRecords = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3')->select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = DB::table('payments')->join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.financial_year_id', $user->financial_year_id)->whereNot('comboids.color_flag_id', '3');
+        $totalRecordswithFilter = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -258,7 +260,7 @@ class PaymentsController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
-        $records = DB::table('payments')->join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('comboids.goods_return_id', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3');
+        $records = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -272,10 +274,10 @@ class PaymentsController extends Controller
             $records = $records->where('payments.reference_id', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $records = $records->whereDate('payments.payments.created_at', '=', $columnName_arr[4]['search']['value']);
+            $records = $records->whereDate('payments.created_at', '=', $columnName_arr[4]['search']['value']);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $records = $records->whereDate('payments.payments.date', '=', $columnName_arr[3]['search']['value']);
+            $records = $records->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
@@ -294,7 +296,8 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.*');
+        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward');
+
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
             ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
@@ -303,14 +306,16 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+            $customer_company = Company::where('id', $record->customer_id)->first();
+            $seller_company = Company::where('id', $record->supplier_id)->first();
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
-            $date_add = $record->created_at;
+            $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $payment_date = $record->date;
-            $customer = Company::where('id', $record->customer_id)->first()->company_name;
-            $seller = Company::where('id', $record->supplier_id)->first()->company_name;
+            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
             $scs = 0;
@@ -378,9 +383,9 @@ class PaymentsController extends Controller
             $columnName = 'payments.'.$columnName;
         }
         // Total records
-        $totalRecords = DB::table('payments')->join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNot('comboids.color_flag_id', '3')->select('count(payments.*) as count')->count();
+        $totalRecords = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNotIn('comboids.color_flag_id', ['3'])->where('comboids.goods_return_id', '0')->select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = DB::table('payments')->join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.financial_year_id', $user->financial_year_id)->whereNot('comboids.color_flag_id', '3');
+        $totalRecordswithFilter = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNotIn('comboids.color_flag_id', ['3'])->where('comboids.goods_return_id', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -416,7 +421,7 @@ class PaymentsController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
-        $records = DB::table('payments')->join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('comboids.goods_return_id', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNot('comboids.color_flag_id', '3');
+        $records = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNotIn('comboids.color_flag_id', ['3'])->where('comboids.goods_return_id', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -452,7 +457,8 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.*');
+        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward');
+
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
             ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
@@ -461,14 +467,16 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+            $customer_company = Company::where('id', $record->customer_id)->first();
+            $seller_company = Company::where('id', $record->supplier_id)->first();
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
-            $date_add = $record->created_at;
+            $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $payment_date = $record->date;
-            $customer = Company::where('id', $record->customer_id)->first()->company_name;
-            $seller = Company::where('id', $record->supplier_id)->first()->company_name;
+            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
             $scs = 0;
@@ -620,14 +628,16 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+            $customer_company = Company::where('id', $record->customer_id)->first();
+            $seller_company = Company::where('id', $record->supplier_id)->first();
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $payment_date = $record->date;
-            $customer = Company::where('id', $record->customer_id)->first()->company_name;
-            $seller = Company::where('id', $record->supplier_id)->first()->company_name;
+            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
             $scs = 0;

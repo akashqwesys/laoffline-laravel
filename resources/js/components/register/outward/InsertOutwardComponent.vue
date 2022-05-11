@@ -8,7 +8,7 @@
                             <div class="nk-block-head-content">
                                 <!-- <h3 v-if="scope == 'edit'" class="nk-block-title page-title">Edit Agent</h3> -->
                                 <!-- <h3 v-else class="nk-block-title page-title">Add Agent</h3> -->
-                                <h3 class="nk-block-title page-title">Add Inward</h3>
+                                <h3 class="nk-block-title page-title">Add Outward</h3>
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
@@ -21,7 +21,7 @@
                                 <form action="#" @submit.prevent="register()">
                                     <!-- <input type="hidden" v-if="scope == 'edit'" id="fv-group-id" v-model="form.id"> -->
                                     <div class="preview-block">
-                                        <span class="preview-title-lg overline-title">Insert Inward Details</span>
+                                        <span class="preview-title-lg overline-title">Insert Outward Details</span>
                                         <div class="row gy-4">
                                             <div v-if="inwardType == 'call'" class="col-md-4">
                                                 <div class="form-group">
@@ -730,7 +730,7 @@
 <script>
     import Multiselect from 'vue-multiselect';
     import Form from 'vform';
-    import AddPerson from './modal/AddNewPersonModelComponent';
+    import AddPerson from '../inward/modal/AddNewPersonModelComponent';
 
     export default {
         name: 'inserInward',
@@ -1204,9 +1204,9 @@
                 })
             },
             register () {
-                this.form.post('/register/insertinward/'+this.inwardType)
+                this.form.post('/settings/agent/create')
                     .then(( response ) => {
-                        //window.location.href = '/settings/agent';
+                        window.location.href = '/settings/agent';
                 })
             },
         },
