@@ -1203,7 +1203,7 @@ class PaymentsController extends Controller
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
-        return view('payment.addpayment',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('payment.addPayment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function getSalbillforAdd(Request $request) {
