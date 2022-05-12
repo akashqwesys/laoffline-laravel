@@ -17,7 +17,7 @@ use App\Models\PaymentDetail;
 use App\Models\IncrementId;
 use App\Models\Goods\GoodsReturn;
 use App\Models\Goods\GrSaleBillItem;
-use App\Models\settings\BankDetails;
+use App\Models\Settings\BankDetails;
 use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
 use DB;
@@ -1166,7 +1166,11 @@ class PaymentsController extends Controller
         $salebill_ids = $request->session()->get('saleBill');
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
-        $salebills = DB::table('sale_bills')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('sale_bill_id', $salebill_ids)->get();
+        $salebills = DB::table('sale_bills')
+            ->where('financial_year_id', Session::get('user')->financial_year_id)
+            ->whereIn('sale_bill_id', $salebill_ids)
+            ->where('payment_status', 0)
+            ->get();
         $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
                         ->where('supplier_id', $seller_id)
                         ->where('financial_year_id', Session::get('user')->financial_year_id)
