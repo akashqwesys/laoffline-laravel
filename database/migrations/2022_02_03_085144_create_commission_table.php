@@ -37,7 +37,7 @@ class CreateCommissionTable extends Migration
             $table->date('commission_date')->nullable();
             $table->string('commission_account',50)->nullable();
             $table->string('remark')->nullable();
-            $table->integer('required_followup');
+            // $table->integer('required_followup');
             $table->string('commission_reciept_mode',32)->nullable();
             $table->date('commission_payment_date')->nullable();
             $table->integer('commission_deposite_bank');

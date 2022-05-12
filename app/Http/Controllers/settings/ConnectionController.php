@@ -9,7 +9,7 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
-use App\Models\comboids\Comboids;
+use App\Models\Comboids\Comboids;
 use App\Models\Commission\commission;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\ProductCategory;
@@ -446,7 +446,7 @@ class ConnectionController extends Controller
                     $OutwardList[$i]['client_remark'] = $result['client_remark'];
                     $OutwardList[$i]['notify_client'] = $result['notify_client'];
                     $OutwardList[$i]['notify_md'] = $result['notify_md'];
-                    $OutwardList[$i]['required_followup'] = $result['required_followup'];
+                    // $OutwardList[$i]['required_followup'] = $result['required_followup'];
                     $OutwardList[$i]['courier_agent'] = $result['courier_agent'];
                     $OutwardList[$i]['mark_as_draft'] = $result['mark_as_draft'];
                     $OutwardList[$i]['outward_courier_flag'] = $result['outward_courier_flag'];
@@ -516,7 +516,7 @@ class ConnectionController extends Controller
                     $InwardList[$i]['client_remark'] = $result['client_remark'];
                     $InwardList[$i]['notify_client'] = $result['notify_client'];
                     $InwardList[$i]['notify_md'] = $result['notify_md'];
-                    $InwardList[$i]['required_followup'] = $result['required_followup'];
+                    // $InwardList[$i]['required_followup'] = $result['required_followup'];
                     $InwardList[$i]['delivery_period'] = $result['delivery_period'];
                     $InwardList[$i]['to_name'] = $result['to_name'];
                     $InwardList[$i]['mark_as_draft'] = $result['mark_as_draft'];
@@ -1095,7 +1095,7 @@ class ConnectionController extends Controller
                     $commissionList[$i]['commission_date'] = $result['commission_date'];
                     $commissionList[$i]['commission_account'] = $result['commission_account'];
                     $commissionList[$i]['remark'] = $result['remark'];
-                    $commissionList[$i]['required_followup'] = $result['required_followup'];
+                    // $commissionList[$i]['required_followup'] = $result['required_followup'];
                     $commissionList[$i]['commission_reciept_mode'] = $result['commission_reciept_mode'];
                     $commissionList[$i]['commission_payment_date'] = $result['commission_payment_date'];
                     $commissionList[$i]['commission_deposite_bank'] = $result['commission_deposite_bank'];
@@ -1957,7 +1957,7 @@ class ConnectionController extends Controller
                 $inward->client_remark = $inwardata['client_remark'];
                 $inward->notify_client = $inwardata['notify_client'];
                 $inward->notify_md = $inwardata['notify_md'];
-                $inward->required_followup = $inwardata['required_followup'];
+                // $inward->required_followup = $inwardata['required_followup'];
                 $inward->delivery_period = $inwardata['delivery_period'];
                 $inward->to_name = $inwardata['to_name'];
                 $inward->mark_as_draft = $inwardata['mark_as_draft'];
@@ -2470,7 +2470,7 @@ class ConnectionController extends Controller
                 $outwarddata->client_remark = $outward['client_remark'];
                 $outwarddata->notify_client = $outward['notify_client'];
                 $outwarddata->notify_md = $outward['notify_md'];
-                $outwarddata->required_followup = $outward['required_followup'];
+                // $outwarddata->required_followup = $outward['required_followup'];
                 $outwarddata->courier_agent = $outward['courier_agent'];
                 $outwarddata->mark_as_draft = $outward['mark_as_draft'];
                 $outwarddata->outward_courier_flag = $outward['outward_courier_flag'];
@@ -2656,7 +2656,7 @@ class ConnectionController extends Controller
                 $commission->commission_date = $commissionData['commission_date'];
                 $commission->commission_account = $commissionData['commission_account'];
                 $commission->remark = $commissionData['remark'];
-                $commission->required_followup = $commissionData['required_followup'];
+                // $commission->required_followup = $commissionData['required_followup'];
                 $commission->commission_reciept_mode = $commissionData['commission_reciept_mode'];
                 $commission->commission_payment_date = $commissionData['commission_payment_date'];
                 $commission->commission_deposite_bank = $commissionData['commission_deposite_bank'];

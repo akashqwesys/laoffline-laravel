@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Company\Company;
 use App\Models\settings\Cities;
 use App\Models\settings\Country;
-use App\Models\comboids\comboids;
+use App\Models\Comboids\Comboids;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\settings\Designation;
@@ -385,7 +385,7 @@ class ReferenceController extends Controller
             ->leftJoin('companies as cp', 'cb.company_id', '=', 'cp.id')
             ->join('employees as e1', 'cb.generated_by', '=', 'e1.id')
             ->join('employees as e2', 'cb.assigned_to', '=', 'e2.id')
-            ->select('cb.comboid', 'cb.iuid', 'cb.ouid', 'cb.general_ref_id', 'cb.system_module_id', 'cb.main_or_followup', 'cb.selection_date', 'cb.inward_or_outward_via', 'cb.followup_via', 'cb.subject', 'cb.created_at', 'cp.company_name', 'e1.firstname as generated_by', 'e2.firstname as assigned_to')
+            ->select('cb.comboid', 'cb.iuid', 'cb.ouid', 'cb.general_ref_id', 'cb.system_module_id', 'cb.selection_date', 'cb.inward_or_outward_via', 'cb.followup_via', 'cb.subject', 'cb.created_at', 'cp.company_name', 'e1.firstname as generated_by', 'e2.firstname as assigned_to')
             ->where('cb.general_ref_id', $id)
             ->where('cb.financial_year_id', $User->financial_year_id)
             ->orderBy('cb.comboid', 'desc')

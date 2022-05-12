@@ -321,6 +321,7 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/get-data', [App\Http\Controllers\Account\InvoiceController::class, 'getData']);
         Route::get('/generate-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'invoiceView']);
         Route::post('/getInvoiceBillNo/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceBillNo']);
+        Route::get('/get-invoice-data/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceData']);
     });
 });
 
@@ -330,9 +331,11 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
         Route::post('/save-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'saveInvoice']);
         Route::get('/edit-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'editInvoice']);
         Route::get('/delete/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'deleteInvoice']);
-        Route::post('/update', [App\Http\Controllers\Account\InvoiceController::class, 'updateInvoice']);
+        Route::post('/update-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'updateInvoice']);
         Route::post('/update-payments-remarks', [App\Http\Controllers\Account\InvoiceController::class, 'updatePaymentRemark']);
         Route::post('/setSessionForPaymentDetails', [App\Http\Controllers\Account\InvoiceController::class, 'setSessionForPaymentDetails']);
+        Route::post('/delete-invoice-payment-detail', [App\Http\Controllers\Account\InvoiceController::class, 'deleteInvoicePaymentDetail']);
+        Route::post('/refresh-invoice-payment-detail', [App\Http\Controllers\Account\InvoiceController::class, 'refreshInvoicePaymentDetail']);
     });
 });
 

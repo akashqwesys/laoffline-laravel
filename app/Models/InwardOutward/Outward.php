@@ -42,7 +42,7 @@ class outward extends Model
         'client_remark',
         'notify_client',
         'notify_md',
-        'required_followup',
+        // 'required_followup',
         'courier_agent',
         'mark_as_draft',
         'outward_courier_flag',

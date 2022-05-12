@@ -195,7 +195,42 @@
                                         </thead>
                                     </table>
                                     <div class="mt-2 mb-2"><b>Payment Rec. Details</b></div>
-                                    <table class="table table-striped mb-0" border="1" id="paymentTable">
+                                    <table class="table table-striped mb-0" border="1" id="paymentTable" v-if="scope == 'edit'">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr. No.</th>
+                                                <th>Date</th>
+                                                <th>Party Name</th>
+                                                <th class="text-right">Rec. Amount</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(k, i) in payments" :key="i">
+                                                <td> {{ i+1 }} </td>
+                                                <td> {{ k.payment_date }} </td>
+                                                <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
+                                                <td class="text-right"> {{ k.received_amount }} </td>
+                                                <td>
+                                                    <template v-if="commission_details.length == 0">
+                                                        <a @click="delete_invoice_payment_detail(k.id)" class="btn btn-primary btn-sm mr-2"><em class="icon ni ni-cross"></em></a>
+						                				<button type="button" class="btn btn-primary btn-sm" @click="refresh_invoice_payment_detail(k.id, k.payment_id, k.financial_year_id)"><em class="icon ni ni-reload"></em></button>
+                                                    </template>
+                                                    <template v-else>
+                                                        <a onclick="return alert('You can not delete this record?');" class="btn btn-primary">x</a>
+                                                    </template>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td><b>Total Amount</b></td>
+                                                <td><b> {{ total_amount }} </b></td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-striped mb-0" border="1" id="paymentTable" v-else>
                                         <thead>
                                             <tr>
                                                 <th>Sr. No.</th>
@@ -206,7 +241,7 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="(k, i) in payments" :key="i">
-                                                <td> {{ i }} </td>
+                                                <td> {{ i+1 }} </td>
                                                 <td> {{ k.date }} </td>
                                                 <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
                                                 <td> {{ k.receipt_amount }} </td>
@@ -221,7 +256,13 @@
                                     </table>
                                 </div>
                                 <div class="table-responsive text-center mt-3">
-                                    <button class="btn btn-primary" @click="saveInvoice">Save</button>
+                                    <template v-if="commission_details.length > 0">
+                                        You can't update this invoice because commission is made on this invoice <a href="">Click here</a> to view detail.
+                                        <br>
+                                    </template>
+                                    <a href="/account/commission/invoice" class="btn btn-dark mr-2">Cancel</a>
+                                    <button class="btn btn-primary" @click="updateInvoice" v-if="scope == 'edit' && commission_details.length == 0">Update</button>
+                                    <button class="btn btn-primary" @click="saveInvoice" v-else>Save</button>
                                 </div>
 
                             </div>
@@ -248,7 +289,7 @@
         },
         data() {
             return {
-                cancel_url: '/account/commission/invoice',
+                invoice_url: '/account/commission/invoice/view-invoice/' + this.id,
                 comm_invoice_gst: 1,
                 comm_invoice_tds: 1,
                 with_without_gst: 1,
@@ -280,33 +321,71 @@
                 rounded_off: 0,
                 total_commission: 0,
                 final_amount: 0,
+                commission_details: [],
             }
         },
         created () {
-            axios.get('/account/commission/invoice/get-data')
-            .then(response => {
-                var data = response.data;
-                this.agents = data.agents;
-                this.courier_agent = data.agents[0];
-                this.company = data.company;
-                this.payments = data.payments;
-                this.bill = data.bill;
-                this.full_bill_no = data.agents[0].inv_prefix + '-' + data.fid_prefix + '-' + data.suffix_bill;
-                this.bill_no = data.suffix_bill;
-                this.bill_period_from = data.bill_period_from;
-                this.bill_period_to = data.bill_period_to;
-                this.invoice_bill_date = data.invoice_bill_date;
-                this.with_gst_amt = this.total_amount = data.total_amount;
-                this.without_gst_amt = this.without_gst_amt;
-                this.comm_total_amount = (data.total_amount * 2) / 100;
-                this.cgst = data.cgst;
-                this.sgst = data.sgst;
-                this.igst = data.igst;
-                this.tds = data.tds;
-                setTimeout(() => {
-                    this.everyLoadChange();
-                }, 100);
-            });
+            if (this.scope == 'edit') {
+                axios.get('/account/commission/invoice/get-invoice-data/' + this.id)
+                .then(response => {
+                    var data = response.data;
+                    this.agents = data.agents;
+                    this.courier_agent = this.agents.find( _ => _.id == data.invoice_details.agent_id );
+                    this.company = (data.invoice_details.supplier_id != 0) ? data.supplier : data.customer;
+                    this.comm_invoice_gst = data.invoice_details.service_tax_flag;
+                    this.comm_invoice_tds = data.invoice_details.tds_flag;
+                    this.hideShowSelect_tax();
+                    this.with_without_gst = data.invoice_details.with_without_gst;
+                    this.payment_comm = data.invoice_details.commission_percent;
+                    this.select_tax = data.invoice_details.tax_class;
+                    this.full_bill_no = data.invoice_details.bill_no;
+                    this.bill_period_from = data.bill_period_from;
+                    this.bill_period_to = data.bill_period_to;
+                    this.invoice_bill_date = data.invoice_bill_date;
+                    this.total_amount = data.invoice_details.total_payment_received_amount;
+                    this.with_gst_amt = data.with_gst_amt;
+                    this.without_gst_amt = data.without_gst_amt;
+                    this.comm_total_amount = data.invoice_details.commission_amount;
+                    this.cgst = data.invoice_details.cgst != 0 ? data.invoice_details.cgst : data.cgst;
+                    this.cgst_amount = data.invoice_details.cgst_amount;
+                    this.sgst = data.invoice_details.sgst != 0 ? data.invoice_details.sgst : data.sgst;
+                    this.sgst_amount = data.invoice_details.sgst_amount;
+                    this.igst = data.invoice_details.igst != 0 ? data.invoice_details.igst : data.igst;
+                    this.igst_amount = data.invoice_details.igst_amount;
+                    this.invoice_others = data.invoice_details.other_amount != 0 ? data.invoice_details.other_amount : 0;
+                    this.rounded_off = data.invoice_details.rounded_off;
+                    this.total_commission = parseFloat(this.comm_total_amount) + parseFloat(this.cgst_amount) + parseFloat(this.sgst_amount) + parseFloat(this.igst_amount) + parseFloat(this.invoice_others) + parseFloat(this.rounded_off);
+                    this.tds_amount = data.invoice_details.tds_amount;
+                    this.final_amount = data.invoice_details.final_amount;
+                    $('#total_in_words').html('<b>' + this.inWords(this.final_amount) + '</b>');
+                    this.payments = data.payment_details;
+                });
+            } else {
+                axios.get('/account/commission/invoice/get-data')
+                .then(response => {
+                    var data = response.data;
+                    this.agents = data.agents;
+                    this.courier_agent = data.agents[0];
+                    this.company = data.company;
+                    this.payments = data.payments;
+                    this.bill = data.bill;
+                    this.full_bill_no = data.agents[0].inv_prefix + '-' + data.fid_prefix + '-' + data.suffix_bill;
+                    this.bill_no = data.suffix_bill;
+                    this.bill_period_from = data.bill_period_from;
+                    this.bill_period_to = data.bill_period_to;
+                    this.invoice_bill_date = data.invoice_bill_date;
+                    this.with_gst_amt = this.total_amount = data.total_amount;
+                    this.without_gst_amt = this.without_gst_amt;
+                    this.comm_total_amount = (data.total_amount * 2) / 100;
+                    this.cgst = data.cgst;
+                    this.sgst = data.sgst;
+                    this.igst = data.igst;
+                    this.tds = data.tds;
+                    setTimeout(() => {
+                        this.everyLoadChange();
+                    }, 100);
+                });
+            }
         },
         methods: {
             everyLoadChange(e) {
@@ -465,7 +544,64 @@
                         location.href = '/account/commission/invoice';
                     }
                 });
-            }
+            },
+            updateInvoice () {
+                axios.post('/account/commission/invoice/update-invoice', {
+                    id: this.id,
+                    company: this.company,
+                    payments: this.payments,
+                    comm_total_amount: this.comm_total_amount,
+                    rounded_off: this.rounded_off,
+                    final_amount: this.final_amount,
+                    invoice_others: this.invoice_others,
+                    payment_comm: this.payment_comm,
+                    comm_invoice_gst: this.comm_invoice_gst,
+                    cgst: this.cgst,
+                    cgst_amount: this.cgst_amount,
+                    sgst: this.sgst,
+                    sgst_amount: this.sgst_amount,
+                    igst: this.igst,
+                    igst_amount: this.igst_amount,
+                    comm_invoice_tds: this.comm_invoice_tds,
+                    tds_amount: this.tds_amount,
+                    full_bill_no: this.full_bill_no,
+                    bill_period_to: this.bill_period_to,
+                    bill_period_from: this.bill_period_from,
+                    invoice_bill_date: this.invoice_bill_date,
+                    with_without_gst: this.with_without_gst,
+                    courier_agent: this.courier_agent,
+                    total_amount: this.total_amount,
+                    select_tax: this.select_tax
+                })
+                .then(response => {
+                    if (response.data.success == 1) {
+                        location.href = '/account/commission/invoice';
+                    }
+                });
+            },
+            delete_invoice_payment_detail(invoice_payment_detail_id) {
+                if (confirm('Are you sure to delete?')) {
+                    axios.post('/account/commission/invoice/delete-invoice-payment-detail', {
+                        invoice_id: this.id,
+                        invoice_payment_detail_id: invoice_payment_detail_id
+                    })
+                    .then(response => {
+                        if (response.data.success == 1) {
+                            location.reload();
+                        }
+                    });
+                }
+            },
+            refresh_invoice_payment_detail(invoice_payment_detail_id, payment_id, financial_year_id) {
+                axios.post('/account/commission/invoice/refresh-invoice-payment-detail', {
+                    invoice_payment_detail_id: invoice_payment_detail_id, invoice_id: this.id, payment_id: payment_id, financial_year_id: financial_year_id, amount: this.total_amount
+                })
+                .then(response => {
+                    if (response.data.success == 1) {
+                        location.reload();
+                    }
+                });
+            },
         },
         mounted() {
             // const self = this;
@@ -512,4 +648,3 @@
         padding-left: 0.5rem;
     }
 </style>
-

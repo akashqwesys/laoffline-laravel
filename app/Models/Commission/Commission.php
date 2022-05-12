@@ -33,7 +33,7 @@ class Commission extends Model
             'commission_date',
             'commission_account',
             'remark',
-            'required_followup',
+            // 'required_followup',
             'commission_reciept_mode',
             'commission_payment_date',
             'commission_deposite_bank',
