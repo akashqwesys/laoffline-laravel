@@ -61,8 +61,7 @@ import ViewSaleBillComponent from './components/account/saleBillComponents/ViewS
 import InvoiceComponent from './components/account/invoiceComponents/InvoiceComponent.vue';
 import CreateInvoiceComponent from './components/account/invoiceComponents/CreateInvoiceComponent.vue';
 import GenerateInvoiceComponent from './components/account/invoiceComponents/GenerateInvoiceComponent.vue';
-// import EditInvoiceComponent from './components/account/invoiceComponents/EditInvoiceComponent.vue';
-// import ViewInvoiceComponent from './components/account/invoiceComponents/ViewInvoiceComponent.vue';
+import ViewInvoiceComponent from './components/account/invoiceComponents/ViewInvoiceComponent.vue';
 
 
 // Settings Menu
@@ -241,7 +240,7 @@ const routes = [
             { path: 'create-invoice', component: CreateInvoiceComponent },
             { path: 'generate-invoice', component: GenerateInvoiceComponent },
             { path: 'edit-invoice/:id', component: GenerateInvoiceComponent },
-            // { path: 'view-invoice/:id/:fid', component: ViewInvoiceComponent },
+            { path: 'view-invoice/:id', component: ViewInvoiceComponent },
         ]
     },
     // Settings Menu
@@ -428,8 +427,7 @@ createApp({
         InvoiceComponent,
         CreateInvoiceComponent,
         GenerateInvoiceComponent,
-        // EditInvoiceComponent,
-        // ViewInvoiceComponent,
+        ViewInvoiceComponent,
 
         BankDetailsComponent,
         CreateBankDetailsComponent,

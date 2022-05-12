@@ -289,7 +289,7 @@
         },
         data() {
             return {
-                cancel_url: '/account/commission/invoice',
+                invoice_url: '/account/commission/invoice/view-invoice/' + this.id,
                 comm_invoice_gst: 1,
                 comm_invoice_tds: 1,
                 with_without_gst: 1,
@@ -648,4 +648,3 @@
         padding-left: 0.5rem;
     }
 </style>
-
