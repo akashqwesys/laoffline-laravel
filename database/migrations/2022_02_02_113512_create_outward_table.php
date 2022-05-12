@@ -47,7 +47,7 @@ class CreateOutwardTable extends Migration
             $table->text('client_remark')->nullable();
             $table->integer('notify_client')->default(0);
             $table->integer('notify_md')->default(0);
-            $table->integer('required_followup')->default(0);
+            // $table->integer('required_followup')->default(0);
             $table->integer('courier_agent')->default(0);
             $table->integer('mark_as_draft')->default(0);
             $table->integer('outward_courier_flag')->default(0);

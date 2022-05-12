@@ -381,7 +381,6 @@ class CommissionController extends Controller
         $comboids->ouid = 0;
         $comboids->system_module_id = '7';
         $comboids->general_ref_id = $ref_id;
-        $comboids->main_or_followup = '0';
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
         $comboids->company_type = $typeName;
@@ -395,11 +394,8 @@ class CommissionController extends Controller
         $comboids->inward_or_outward_flag = 0;
         $comboids->inward_or_outward_id = 0;
         $comboids->sale_bill_id = 0;
-        $comboids->payment_followup_id = 0;
         $comboids->goods_return_id = 0;
-        $comboids->good_return_followup_id = 0;
         $comboids->commission_id = 0;
-        $comboids->commission_followup_id = 0;
         $comboids->commission_invoice_id = 0;
         $comboids->is_invoice = '1';
         $comboids->sample_id = 0;
@@ -413,7 +409,6 @@ class CommissionController extends Controller
         $comboids->tds = 0;
         $comboids->net_received_amount = 0;
         $comboids->received_commission_amount = 0;
-        $comboids->required_followup = 0;
         $comboids->is_completed = 0;
         $comboids->mark_as_draft = 0;
         $comboids->color_flag_id = '3';
@@ -475,7 +470,6 @@ class CommissionController extends Controller
         $commissions->tds = '0';
         $commissions->net_received_amount = '0';
         $commissions->received_commission_amount = '0';
-        $commissions->required_followup = '0';
         $commissions->done_outward = '0';
         $commissions->normal_amt_flag = '3';
         $commissions->date_added = Carbon::now();

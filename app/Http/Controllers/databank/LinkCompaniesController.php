@@ -229,7 +229,7 @@ class LinkCompaniesController extends Controller
             foreach ($linkedCompany as $row_cmp) {
                 if ($row_cmp != '') {
                     $moduleId = DB::table('comboids')
-                        ->select('company_id', 'comboid', 'system_module_id', 'subject', 'inward_or_outward_flag', 'inward_or_outward_id', 'main_or_followup', 'goods_return_followup_id', 'supplier_id', 'payment_id', 'commission_id')
+                        ->select('company_id', 'comboid', 'system_module_id', 'subject', 'inward_or_outward_flag', 'inward_or_outward_id', 'supplier_id', 'payment_id', 'commission_id')
                         ->where('company_id', $row_cmp)
                         ->orderBy('comboid', 'desc')
                         ->get();

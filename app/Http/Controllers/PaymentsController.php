@@ -875,7 +875,6 @@ class PaymentsController extends Controller
         $comboids->ouid = 0;
         $comboids->system_module_id = '6';
         $comboids->general_ref_id = $ref_id;
-        $comboids->main_or_followup = '0';
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
         $comboids->company_id = $request->session()->get('customer');
@@ -895,11 +894,8 @@ class PaymentsController extends Controller
         $comboids->inward_or_outward_flag = 0;
         $comboids->inward_or_outward_id = 0;
         $comboids->sale_bill_id = 0;
-        $comboids->payment_followup_id = 0;
         $comboids->goods_return_id = 0;
-        $comboids->good_return_followup_id = 0;
         $comboids->commission_id = 0;
-        $comboids->commission_followup_id = 0;
         $comboids->commission_invoice_id = 0;
         $comboids->is_invoice = 0;
         $comboids->sample_id = 0;
@@ -913,7 +909,6 @@ class PaymentsController extends Controller
         $comboids->tds = 0;
         $comboids->net_received_amount = 0;
         $comboids->received_commission_amount = 0;
-        $comboids->required_followup = 0;
         $comboids->is_completed = 0;
         $comboids->mark_as_draft = 0;
         $comboids->color_flag_id = 0;
@@ -1384,7 +1379,6 @@ class PaymentsController extends Controller
         $ref_id = $paymentData->refrence_type;
         $comboids = Comboids::where('iuid', $combo->iuid)->first();
         $comboids->general_ref_id = $ref_id;
-        $comboids->main_or_followup = '0';
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
         $comboids->company_id = $cmpTypeName->id;
@@ -1402,11 +1396,8 @@ class PaymentsController extends Controller
         $comboids->inward_or_outward_flag = 0;
         $comboids->inward_or_outward_id = 0;
         $comboids->sale_bill_id = 0;
-        $comboids->payment_followup_id = 0;
         $comboids->goods_return_id = 0;
-        $comboids->good_return_followup_id = 0;
         $comboids->commission_id = 0;
-        $comboids->commission_followup_id = 0;
         $comboids->commission_invoice_id = 0;
         $comboids->is_invoice = 0;
         $comboids->sample_id = 0;
@@ -1420,7 +1411,6 @@ class PaymentsController extends Controller
         $comboids->tds = 0;
         $comboids->net_received_amount = 0;
         $comboids->received_commission_amount = 0;
-        $comboids->required_followup = 0;
         $comboids->is_completed = 0;
         $comboids->mark_as_draft = 0;
         $comboids->color_flag_id = 0;
@@ -1771,7 +1761,6 @@ class PaymentsController extends Controller
             $comboids->ouid = 0;
             $comboids->system_module_id = '6';
             $comboids->general_ref_id = $payment->reference_id;
-            $comboids->main_or_followup = '0';
             $comboids->generated_by = $user->employee_id;
             $comboids->assigned_to = $user->employee_id;
             $comboids->company_id = $payment->company_id;
@@ -1789,11 +1778,8 @@ class PaymentsController extends Controller
             $comboids->inward_or_outward_flag = 0;
             $comboids->inward_or_outward_id = 0;
             $comboids->sale_bill_id = 0;
-            $comboids->payment_followup_id = 0;
             $comboids->goods_return_id = 0;
-            $comboids->good_return_followup_id = 0;
             $comboids->commission_id = 0;
-            $comboids->commission_followup_id = 0;
             $comboids->commission_invoice_id = 0;
             $comboids->is_invoice = 0;
             $comboids->sample_id = 0;
@@ -1807,7 +1793,6 @@ class PaymentsController extends Controller
             $comboids->tds = 0;
             $comboids->net_received_amount = 0;
             $comboids->received_commission_amount = 0;
-            $comboids->required_followup = 0;
             $comboids->is_completed = 0;
             $comboids->mark_as_draft = 0;
             $comboids->color_flag_id = 0;

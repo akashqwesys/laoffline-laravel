@@ -289,7 +289,6 @@ class InvoiceController extends Controller
         $combo_id = new Comboids;
         $combo_id->comboid            = (getLastID('comboids', 'comboid') + 1);
         $combo_id->system_module_id   = '19';
-        $combo_id->main_or_followup   = '0';
         $combo_id->generated_by       = $user->employee_id;
         $combo_id->supplier_id        = $companyName->id;
         $combo_id->company_type       = $typeName;

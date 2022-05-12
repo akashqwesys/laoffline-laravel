@@ -43,7 +43,7 @@ class inward extends Model
         'client_remark',
         'notify_client',
         'notify_md',
-        'required_followup',
+        // 'required_followup',
         'delivery_period',
         'to_name',
         'mark_as_draft',
