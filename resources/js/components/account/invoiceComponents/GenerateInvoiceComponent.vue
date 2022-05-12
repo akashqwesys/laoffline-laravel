@@ -195,30 +195,6 @@
                                         </thead>
                                     </table>
                                     <div class="mt-2 mb-2"><b>Payment Rec. Details</b></div>
-                                    <table class="table table-striped mb-0" border="1" id="paymentTable" v-if="scope == 'create'">
-                                        <thead>
-                                            <tr>
-                                                <th>Sr. No.</th>
-                                                <th>Date</th>
-                                                <th>Party Name</th>
-                                                <th>Rec. Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(k, i) in payments" :key="i">
-                                                <td> {{ i }} </td>
-                                                <td> {{ k.date }} </td>
-                                                <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
-                                                <td> {{ k.receipt_amount }} </td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td><b>Total Amount</b></td>
-                                                <td><b> {{ total_amount }} </b></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                     <table class="table table-striped mb-0" border="1" id="paymentTable" v-if="scope == 'edit'">
                                         <thead>
                                             <tr>
@@ -231,14 +207,14 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="(k, i) in payments" :key="i">
-                                                <td> {{ i }} </td>
+                                                <td> {{ i+1 }} </td>
                                                 <td> {{ k.payment_date }} </td>
                                                 <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
                                                 <td class="text-right"> {{ k.received_amount }} </td>
                                                 <td>
                                                     <template v-if="commission_details.length == 0">
-                                                        <a @click="delete_invoice_payment_detail(k.id)" class="btn btn-primary">x</a>
-						                				<button type="button" class="btn btn-primary" @click="refresh_invoice_payment_detail(k.id, k.payment_id, k.financial_year_id)"><em class="icon ni ni-reload"></em></button>
+                                                        <a @click="delete_invoice_payment_detail(k.id)" class="btn btn-primary btn-sm mr-2"><em class="icon ni ni-cross"></em></a>
+						                				<button type="button" class="btn btn-primary btn-sm" @click="refresh_invoice_payment_detail(k.id, k.payment_id, k.financial_year_id)"><em class="icon ni ni-reload"></em></button>
                                                     </template>
                                                     <template v-else>
                                                         <a onclick="return alert('You can not delete this record?');" class="btn btn-primary">x</a>
@@ -254,6 +230,30 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                    <table class="table table-striped mb-0" border="1" id="paymentTable" v-else>
+                                        <thead>
+                                            <tr>
+                                                <th>Sr. No.</th>
+                                                <th>Date</th>
+                                                <th>Party Name</th>
+                                                <th>Rec. Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(k, i) in payments" :key="i">
+                                                <td> {{ i+1 }} </td>
+                                                <td> {{ k.date }} </td>
+                                                <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
+                                                <td> {{ k.receipt_amount }} </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td><b>Total Amount</b></td>
+                                                <td><b> {{ total_amount }} </b></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                                 <div class="table-responsive text-center mt-3">
                                     <template v-if="commission_details.length > 0">
@@ -261,8 +261,8 @@
                                         <br>
                                     </template>
                                     <a href="/account/commission/invoice" class="btn btn-dark mr-2">Cancel</a>
-                                    <button class="btn btn-primary" @click="saveInvoice" v-if="scope == 'create'">Save</button>
                                     <button class="btn btn-primary" @click="updateInvoice" v-if="scope == 'edit' && commission_details.length == 0">Update</button>
+                                    <button class="btn btn-primary" @click="saveInvoice" v-else>Save</button>
                                 </div>
 
                             </div>
@@ -354,7 +354,7 @@
                     this.igst_amount = data.invoice_details.igst_amount;
                     this.invoice_others = data.invoice_details.other_amount != 0 ? data.invoice_details.other_amount : 0;
                     this.rounded_off = data.invoice_details.rounded_off;
-                    this.total_commission = this.comm_total_amount + this.cgst_amount + this.sgst_amount + this.igst_amount + this.invoice_others + this.rounded_off;
+                    this.total_commission = parseFloat(this.comm_total_amount) + parseFloat(this.cgst_amount) + parseFloat(this.sgst_amount) + parseFloat(this.igst_amount) + parseFloat(this.invoice_others) + parseFloat(this.rounded_off);
                     this.tds_amount = data.invoice_details.tds_amount;
                     this.final_amount = data.invoice_details.final_amount;
                     $('#total_in_words').html('<b>' + this.inWords(this.final_amount) + '</b>');

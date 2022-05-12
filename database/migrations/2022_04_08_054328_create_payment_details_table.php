@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('adjust_amount')->default('0');
             $table->string('status')->nullable();
             $table->float('discount')->default('0');
-            $table->integer('discount_amount')->default('0');
+            $table->double('discount_amount')->default('0');
             $table->float('vatav')->default('0');
             $table->integer('agent_commission')->default('0');
             $table->integer('bank_commission')->default('0');

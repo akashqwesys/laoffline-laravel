@@ -567,7 +567,7 @@ class PaymentsController extends Controller
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
@@ -603,7 +603,7 @@ class PaymentsController extends Controller
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
-            $records = $records->whereIn('company_id', $cc_id);
+            $records = $records->whereIn('customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
@@ -615,7 +615,6 @@ class PaymentsController extends Controller
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
             $records = $records->where('tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
         }
-
 
         // Fetch records
         $records = $records->select('payment_id','iuid', 'reference_id', 'created_at', 'date', 'customer_id', 'supplier_id', 'payment_id', 'receipt_amount', 'customer_commission_status', 'done_outward');
@@ -849,14 +848,6 @@ class PaymentsController extends Controller
         } else {
             $typeName = '';
         }
-
-        // $companyPerson = CompanyOwner::where('company_id', $request->session->get('customer'))->first();
-        // if($companyPerson) {
-        //     $personName = $companyPerson->name;
-        // } else {
-        //     $personName = '';
-        // }
-
         $personName = '';
 
         $iuid_ids = new Iuid();
@@ -957,7 +948,7 @@ class PaymentsController extends Controller
         $payment->trns = $paymentData->term;
         $payment->supplier_id = $request->session()->get('seller');
         $payment->customer_id = $request->session()->get('customer');
-        $payment->receipt_amount = $paymentData->reciptamount;
+        $payment->receipt_amount = $paymentData->reciptamount ? $paymentData->reciptamount : 0;
         $payment->total_amount = $paymentData->totalamount;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount;
 

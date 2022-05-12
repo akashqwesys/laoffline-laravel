@@ -270,18 +270,19 @@ class InvoiceController extends Controller
     public function saveInvoice(Request $request)
     {
         $user = Session::get('user');
+        $new_req = $request->all();
 
-        $companyName = $request->company;
+        $companyName = $new_req['company'];
         $sale_bill_cont = new SaleBillController;
-        if ($companyName->company_type != 0) {
-            $companyTypeName = $sale_bill_cont->getCompanyTypeName($companyName->company_type);
+        if ($companyName['company_type'] != 0) {
+            $companyTypeName = $sale_bill_cont->getCompanyTypeName($companyName['company_type']);
             $typeName = $companyTypeName->name;
         } else {
             $typeName = '';
         }
-        $companyPerson = $sale_bill_cont->getCompanyDetails($companyName->id);
+        $companyPerson = $sale_bill_cont->getCompanyDetails($companyName['id']);
         if ($companyPerson) {
-            $personName = $companyPerson->name;
+            $personName = $companyPerson->contact_person_name;
         } else {
             $personName = '';
         }
@@ -290,25 +291,79 @@ class InvoiceController extends Controller
         $combo_id->comboid            = (getLastID('comboids', 'comboid') + 1);
         $combo_id->system_module_id   = '19';
         $combo_id->generated_by       = $user->employee_id;
-        $combo_id->supplier_id        = $companyName->id;
+        $combo_id->supplier_id        = $companyName['id'];
         $combo_id->company_type       = $typeName;
         $combo_id->from_name          = $personName;
-        $combo_id->subject            = 'Commission Invoice For : ' . $companyName->name;
+        $combo_id->subject            = 'Commission Invoice For : ' . $companyName['company_name'];
         $combo_id->financial_year_id  = $user->financial_year_id;
 
+        $combo_id->iuid                         = 0;
+        $combo_id->general_ref_id               = 0;
+        $combo_id->inward_ref_via               = 0;
+        $combo_id->new_or_old_inward_or_outward = 0;
+        $combo_id->assigned_to                  = 0;
+        $combo_id->updated_by                   = $user->employee_id;
+        $combo_id->company_id                   = 0;
+        $combo_id->followup_via                 = 'Commission Invoice';
+        $combo_id->inward_or_outward_via        = 0;
+        $combo_id->selection_date               = null;
+        $combo_id->default_category_id          = 0;
+        $combo_id->main_category_id             = 0;
+        $combo_id->agent_id                     = 0;
+        $combo_id->supplier_invoice_no          = 0;
+        $combo_id->total                        = 0;
+        $combo_id->sale_bill_flag               = 0;
+        $combo_id->color_flag_id                = 0;
+        $combo_id->attachments                  = null;
+        $combo_id->ouid = 0;
+        $combo_id->follow_as_inward_or_outward = 0;
+        $combo_id->inward_or_outward_flag = 0;
+        $combo_id->inward_or_outward_id = 0;
+        $combo_id->sale_bill_id = 0;
+        $combo_id->payment_id = 0;
+        $combo_id->goods_return_id = 0;
+        $combo_id->commission_id = 0;
+        $combo_id->commission_invoice_id = 0;
+        $combo_id->is_invoice = 0;
+        $combo_id->sample_id = 0;
+        $combo_id->inform_md = 0;
+        $combo_id->from_number = 0;
+        $combo_id->receiver_number = 0;
+        $combo_id->from_email_id = 0;
+        $combo_id->receiver_email_id = 0;
+        $combo_id->outward_attachments = 0;
+        $combo_id->outward_employe_id = 0;
+        $combo_id->receipt_mode = 0;
+        $combo_id->receipt_amount = 0;
+        $combo_id->tds = 0;
+        $combo_id->net_received_amount = 0;
+        $combo_id->received_commission_amount = 0;
+        $combo_id->action_date = null;
+        $combo_id->action_instruction = 0;
+        $combo_id->being_late = 0;
+        $combo_id->system_url = 0;
+        $combo_id->enjay_uniqueid = 0;
+        $combo_id->is_completed = 0;
+        $combo_id->mark_as_draft = 0;
+        $combo_id->product_qty = 0;
+        $combo_id->fabric_meters = 0;
+        $combo_id->sample_return_qty = 0;
+        $combo_id->mobile_flag = 0;
+        $combo_id->is_deleted = 0;
+        $combo_id->save();
+
         if ($typeName == "Supplier") {
-            $combo_id->supplier_id = $companyName->id;
+            $combo_id->supplier_id = $companyName['id'];
         } else {
-            $combo_id->company_id = $companyName->id;
+            $combo_id->company_id = $companyName['id'];
         }
         $combo_id->save();
-        $comboid = $combo_id->comboid;
 
-        $commi_total_amount  = $request->comm_total_amount;
-        $rounded_off         = $request->rounded_off;
-        $final_amount        = $request->final_amount;
-        $invoice_others      = $request->invoice_others;
-        $payment_comm        = $request->payment_comm;
+        $commi_total_amount  = $new_req['comm_total_amount'];
+        $rounded_off         = $new_req['rounded_off'];
+        $final_amount        = $new_req['final_amount'];
+        $invoice_others      = $new_req['invoice_others'];
+        $payment_comm        = $new_req['payment_comm'];
         $service_tax_flag    = 0;
         $tds_flag            = 0;
         $cgst                = 0;
@@ -318,36 +373,36 @@ class InvoiceController extends Controller
         $igst                = 0;
         $igst_amt            = 0;
         $tds_amt             = 0;
-        if (isset($request->comm_invoice_gst)) {
+        if (isset($new_req['comm_invoice_gst'])) {
             $service_tax_flag = 1;
-            if (isset($request->cgst_amount)) {    // for gujarat
-                $cgst     = $request->cgst;
-                $cgst_amt = $request->cgst_amount;
-                $sgst     = $request->sgst;
-                $sgst_amt = $request->sgst_amount;
+            if (isset($new_req['cgst_amount'])) {    // for gujarat
+                $cgst     = $new_req['cgst'];
+                $cgst_amt = $new_req['cgst_amount'];
+                $sgst     = $new_req['sgst'];
+                $sgst_amt = $new_req['sgst_amount'];
             }
-            if (isset($request->igst_amount)) {    // for other state
-                $igst     = $request->igst;
-                $igst_amt = $request->igst_amount;
+            if (isset($new_req['igst_amount'])) {    // for other state
+                $igst     = $new_req['igst'];
+                $igst_amt = $new_req['igst_amount'];
             }
         }
-        if (isset($request->comm_invoice_tds)) {
+        if (isset($new_req['comm_invoice_tds'])) {
             $tds_flag = 1;
-            $tds_amt  = $request->tds_amount;
+            $tds_amt  = $new_req['tds_amount'];
         }
         $invoice = new CommissionInvoice;
         $invoice->financial_year_id  = $user->financial_year_id;
         $invoice->generated_by       = $user->employee_id;
-        $invoice->bill_no            = $request->full_bill_no;
-        $invoice->bill_period_to     = date('Y-m-d', strtotime($request->bill_period_to));
-        $invoice->bill_period_from   = date('Y-m-d', strtotime($request->bill_period_from));
-        $invoice->bill_date          = date('Y-m-d', strtotime($request->invoice_bill_date));
+        $invoice->bill_no            = $new_req['full_bill_no'];
+        $invoice->bill_period_to     = date('Y-m-d', strtotime($new_req['bill_period_to']));
+        $invoice->bill_period_from   = date('Y-m-d', strtotime($new_req['bill_period_from']));
+        $invoice->bill_date          = date('Y-m-d', strtotime($new_req['invoice_bill_date']));
         $invoice->service_tax_amount = 0;
         $invoice->service_tax        = 0;
         $invoice->commission_amount  = $commi_total_amount;
         $invoice->service_tax_flag   = $service_tax_flag;
         $invoice->tds_flag           = (int)$tds_flag;
-        $invoice->with_without_gst   = $request->with_without_gst;
+        $invoice->with_without_gst   = $new_req['with_without_gst'];
         $invoice->cgst               = $cgst;
         $invoice->cgst_amount        = $cgst_amt;
         $invoice->sgst               = $sgst;
@@ -359,12 +414,12 @@ class InvoiceController extends Controller
         $invoice->rounded_off        = $rounded_off;
         $invoice->tds_amount         = (int)$tds_amt;
         $invoice->final_amount       = $final_amount;
-        $invoice->agent_id           = $request->courier_agent->id;
+        $invoice->agent_id           = $new_req['courier_agent']['id'];
 
         if ($typeName == "Supplier") {
-            $invoice->supplier_id  = $companyName->id;
+            $invoice->supplier_id  = $companyName['id'];
         } else {
-            $invoice->customer_id  = $companyName->id;
+            $invoice->customer_id  = $companyName['id'];
         }
         $invoice->save();
         $commission_invoice_id = $invoice->id;
@@ -381,14 +436,14 @@ class InvoiceController extends Controller
         }
 
         $dataentry_payment = [];
-        foreach ($request->payments as $p) {
+        foreach ($new_req['payments'] as $p) {
             $dataentry_payment[] = array(
                 'commission_invoice_id' => $commission_invoice_id,
-                'payment_id'            => $p->payment_id,
-                'financial_year_id'     => $p->financial_year_id,
-                'payment_date'          => date('Y-m-d', strtotime($p->date)),
-                'company_id'            => $p->$invoice_company_id,
-                'received_amount'       => $p->receipt_amount,
+                'payment_id'            => $p['payment_id'],
+                'financial_year_id'     => $p['financial_year_id'],
+                'payment_date'          => date('Y-m-d', strtotime($p['date'])),
+                'company_id'            => $p[$invoice_company_id],
+                'received_amount'       => $p['receipt_amount'],
                 'created_at'            => date('Y-m-d H:i:s'),
                 'updated_at'            => date('Y-m-d H:i:s'),
                 'flag'                  => $flag,
@@ -396,7 +451,7 @@ class InvoiceController extends Controller
         }
         DB::table('invoice_payment_details')->insert($dataentry_payment);
 
-        $invoice->total_payment_received_amount = $request->total_amount;
+        $invoice->total_payment_received_amount = $new_req['total_amount'];
         $invoice->save();
 
         $request->session()->forget(['commission_payment_id', 'commission_supplier']);
@@ -428,7 +483,7 @@ class InvoiceController extends Controller
             $flag = 2; // for customer
         }
         $payment = DB::table('payments as p')
-            ->join('company_commissions as ccm', function ($j) use($flag) {
+            ->leftJoin('company_commissions as ccm', function ($j) use($flag) {
                 $j->on('p.receipt_from', '=', 'ccm.customer_id')
                 ->on('p.supplier_id', '=', 'ccm.supplier_id')
                 ->where('ccm.flag', '=', $flag);
@@ -439,15 +494,19 @@ class InvoiceController extends Controller
             ->select('p.id', 'p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name');
         if ($company_details) {
             $main_cmp_id = $company_details->id;
-            $payment = $payment->whereRaw('"p"."supplier_id" = ' . $main_cmp_id . ' or "p"."customer_id" = ' . $main_cmp_id )
-                ->whereIn('p.supplier_id', $link_companies);
+            $add_in = null;
+            if (count($link_companies)) {
+                $add_in = ' or "p"."supplier_id" in (' . implode(',', $link_companies) . ')';
+            }
+            $payment = $payment->whereRaw('("p"."supplier_id" = ' . $main_cmp_id . ' or "p"."customer_id" = ' . $main_cmp_id . ' ' . $add_in . ' )');
+                // ->whereIn('p.supplier_id', $link_companies);
         }
         $payment = $payment->where('p.is_deleted', 0)
             ->where('p.right_of_amount', 0)
-            ->where('p.receipt_amount', 0)
+            // ->where('p.receipt_amount', 0)
             ->orderBy('p.date', 'asc')
             ->get();
-
+        $data_arr = [];
         if (count($payment)) {
             $payment_ids = collect($payment)->pluck('payment_id')->unique()->toArray();
             $finan_ids = collect($payment)->pluck('payment_id')->unique()->toArray();
@@ -461,8 +520,8 @@ class InvoiceController extends Controller
 
             $invoice_payment = DB::table('invoice_payment_details')
                 ->select('id')
-                ->whereIn('cd.payment_id', $payment_ids)
-                ->whereIn('cd.financial_year_id', $finan_ids);
+                ->whereIn('payment_id', $payment_ids)
+                ->whereIn('financial_year_id', $finan_ids);
             if ($flag != 0) {
                 $invoice_payment = $invoice_payment->where('flag', $flag);
             }
@@ -489,32 +548,12 @@ class InvoiceController extends Controller
                             "supplier" => $p->supplier_name,
                             "customer" => $p->customer_name,
                             'amount' => $p->receipt_amount,
-                            'due_days' => floor((time() - strtotime($p->bill_date)) / (60 * 60 * 24))
+                            'due_days' => floor((time() - strtotime($p->date)) / (60 * 60 * 24))
                         );
                     }
                 }
             }
         }
-        $data_arr[] = array(
-            'payment_id' => 123,
-            "financial_year" => 123,
-            "financial_year_id" => 8,
-            "date" => 12,
-            "supplier" => 123,
-            "customer" => 123,
-            'amount' => 25000,
-            'due_days' => 44
-        );
-        $data_arr[] = array(
-            'payment_id' => 124,
-            "financial_year" => 123,
-            "financial_year_id" => 8,
-            "date" => 12,
-            "supplier" => 123,
-            "customer" => 123,
-            'amount' => 60000,
-            'due_days' => 91
-        );
         echo json_encode($data_arr);
         exit;
     }
@@ -618,7 +657,7 @@ class InvoiceController extends Controller
             $total_amount += floatval($a[2]);
         }
         $payments = DB::table('payments as p')
-            ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
+            ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
             ->leftJoin('financial_year as fy', 'p.financial_year_id', '=', 'fy.id')
@@ -774,11 +813,12 @@ class InvoiceController extends Controller
 
     public function updateInvoice(Request $request)
     {
-        $user = Session::get('user');
+        // $user = Session::get('user');
+        $new_req = $request->all();
 
-        $companyName = $request->company;
-        $sale_bill_cont = new SaleBillController;
-        if ($companyName->company_type != 0) {
+        // $companyName = $new_req['company'];
+        // $sale_bill_cont = new SaleBillController;
+        /* if ($companyName->company_type != 0) {
             $companyTypeName = $sale_bill_cont->getCompanyTypeName($companyName->company_type);
             $typeName = $companyTypeName->name;
         } else {
@@ -789,15 +829,14 @@ class InvoiceController extends Controller
             $personName = $companyPerson->name;
         } else {
             $personName = '';
-        }
+        } */
 
-
-        $commi_total_amount  = $request->comm_total_amount;
-        $rounded_off         = $request->rounded_off;
-        $final_amount        = $request->final_amount;
-        $invoice_others      = $request->invoice_others;
-        $payment_comm        = $request->payment_comm;
-        $tax_class           = $request->select_tax;
+        $commi_total_amount  = $new_req['comm_total_amount'];
+        $rounded_off         = $new_req['rounded_off'];
+        $final_amount        = $new_req['final_amount'];
+        $invoice_others      = $new_req['invoice_others'];
+        $payment_comm        = $new_req['payment_comm'];
+        $tax_class           = $new_req['select_tax'];
         $service_tax_flag    = 0;
         $tds_flag            = 0;
         $cgst                = 0;
@@ -807,34 +846,34 @@ class InvoiceController extends Controller
         $igst                = 0;
         $igst_amt            = 0;
         $tds_amt             = 0;
-        if (isset($request->comm_invoice_gst)) {
+        if (isset($new_req['comm_invoice_gst'])) {
             $service_tax_flag = 1;
-            if (isset($request->cgst_amount)) {    // for gujarat
-                $cgst     = $request->cgst;
-                $cgst_amt = $request->cgst_amount;
-                $sgst     = $request->sgst;
-                $sgst_amt = $request->sgst_amount;
+            if (isset($new_req['cgst_amount'])) {    // for gujarat
+                $cgst     = $new_req['cgst'];
+                $cgst_amt = $new_req['cgst_amount'];
+                $sgst     = $new_req['sgst'];
+                $sgst_amt = $new_req['sgst_amount'];
             }
-            if (isset($request->igst_amount)) {    // for other state
-                $igst     = $request->igst;
-                $igst_amt = $request->igst_amount;
+            if (isset($new_req['igst_amount'])) {    // for other state
+                $igst     = $new_req['igst'];
+                $igst_amt = $new_req['igst_amount'];
             }
         }
-        if (isset($request->comm_invoice_tds)) {
+        if (isset($new_req['comm_invoice_tds'])) {
             $tds_flag = 1;
-            $tds_amt  = $request->tds_amount;
+            $tds_amt  = $new_req['tds_amount'];
         }
-        $invoice = CommissionInvoice::where('id', $request->id)->first();
-        $invoice->bill_no            = $request->full_bill_no;
-        $invoice->bill_period_to     = date('Y-m-d', strtotime($request->bill_period_to));
-        $invoice->bill_period_from   = date('Y-m-d', strtotime($request->bill_period_from));
-        $invoice->bill_date          = date('Y-m-d', strtotime($request->invoice_bill_date));
+        $invoice = CommissionInvoice::where('id', $new_req['id'])->first();
+        $invoice->bill_no            = $new_req['full_bill_no'];
+        $invoice->bill_period_to     = date('Y-m-d', strtotime($new_req['bill_period_to']));
+        $invoice->bill_period_from   = date('Y-m-d', strtotime($new_req['bill_period_from']));
+        $invoice->bill_date          = date('Y-m-d', strtotime($new_req['invoice_bill_date']));
         $invoice->service_tax_amount = 0;
         $invoice->service_tax        = 0;
         $invoice->commission_amount  = $commi_total_amount;
         $invoice->service_tax_flag   = $service_tax_flag;
         $invoice->tds_flag           = (int)$tds_flag;
-        $invoice->with_without_gst   = $request->with_without_gst;
+        $invoice->with_without_gst   = $new_req['with_without_gst'];
         $invoice->tax_class          = $tax_class;
         $invoice->cgst               = $cgst;
         $invoice->cgst_amount        = $cgst_amt;
@@ -847,8 +886,8 @@ class InvoiceController extends Controller
         $invoice->rounded_off        = $rounded_off;
         $invoice->tds_amount         = (int)$tds_amt;
         $invoice->final_amount       = $final_amount;
-        $invoice->agent_id           = $request->courier_agent->id;
-        $invoice->total_payment_received_amount = $request->total_amount;
+        $invoice->agent_id           = $new_req['courier_agent']['id'];
+        $invoice->total_payment_received_amount = $new_req['total_amount'];
         $invoice->save();
 
         return response()->json(['success' => 1]);

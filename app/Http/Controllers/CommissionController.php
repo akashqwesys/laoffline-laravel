@@ -387,6 +387,9 @@ class CommissionController extends Controller
         $comboids->followup_via = 'Commission';
         $comboids->inward_or_outward_via = $commissionData->refrencevia->name;
         $comboids->from_name = $personName;
+        $comboids->company_id = 0;
+        $comboids->total = 0;
+        $comboids->receipt_amount = 0;
         $comboids->subject = 'For '. $companyName->name .' RS '.$commissionData->commissionamount .'/-';
         $comboids->financial_year_id = $financialid;
         $comboids->attachments = serialize($attachments);
@@ -489,7 +492,7 @@ class CommissionController extends Controller
             $service_tax = 0;
             $commission_status = $invoice->status->code;
             $commission_pay_amount = $invoice->amount;
-            $remark = $invoice->remark;
+            $remark = $invoice->remark ?? 0;
            // $financial_year_id = commissionInvoice::where('commission_invoice_id', $invoice->id)->first()->financial_year_id;
             $commission_detail = new CommissionDetail();
             $CommissionDetailLastId = CommissionDetail::orderBy('id', 'DESC')->first('id');

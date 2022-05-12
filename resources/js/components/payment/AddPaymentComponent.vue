@@ -117,7 +117,7 @@
                                         <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno" >
                                         <span v-if="errors.reciptno" class="invalid">{{errors.reciptno}}</span>
                                     </div>
-                                    
+
                                 </div>
                                 </div>
                                 <div class="email d-none">
@@ -132,7 +132,7 @@
                                     </div>
                                 </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                         <div class="card card-bordered">
@@ -398,7 +398,7 @@
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
     import addSalebill from './modal/AddSalebillModelComponent.vue';
-    
+
     var items = [];
     var referncevia = [];
     var salebilldata = [];
@@ -510,7 +510,7 @@
                     totalamount += parseInt(value.amount);
                 });
                 this.form.totalamount = totalamount;
-                this.form.totaladjustamount = totalAdjustamount; 
+                this.form.totaladjustamount = totalAdjustamount;
             })
             //this.form.refrence = 'new';
             this.form.recipt_mode = 'cheque';
@@ -521,7 +521,7 @@
                 this.salebills.splice(index-1, 1);
             },
             getOldReferences: function (event) {
-                
+
                 if (this.form.refrencevia == '') {
                     setTimeout(() => {
                         this.form.refrence = 1;
@@ -586,7 +586,7 @@
 
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
-               
+
                 if (!goodreturn) {
                     goodreturn = 0 ;
                 }
@@ -1063,16 +1063,6 @@
                 let discount = parseInt(discount_amount) / parseInt(amount) * 100 ;
                 this.salebills[index-1].discount = discount;
 
-                // let discount,amount,disAmount,adjamount;
-                
-                // let index = event.target.parentElement.parentElement.rowIndex;
-                
-                // if (!discountamount){
-                //     discountamount = 0;
-                // }
-
-                
-
                 this.salebills.forEach((value) => {
                     let disAmount = value.discountamount;
                     let rate = value.ratedifference;
@@ -1101,7 +1091,7 @@
                 let amount = this.salebills[index-1].amount;
                 let ajdust_amount = this.salebills[index-1].adjustamount;
                 let discount = this.salebills[index-1].discount;
-                
+
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -1128,7 +1118,7 @@
                 if (!claim) {
                     claim = 0;
                 }
-                
+
                 let discount_amount = parseInt(discount) * parseInt(amount) / 100 ;
                 this.salebills[index-1].discountamount = discount_amount;
 
@@ -1136,7 +1126,7 @@
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
 
-                
+
 
                 this.salebills.forEach((value) => {
                     let disAmount = value.discountamount;
@@ -1158,7 +1148,7 @@
                 let totalAdjustamount = 0,totaldiscount = 0 ;
                 let diff,discount;
                 let index = event.target.parentElement.parentElement.rowIndex;
-                
+
                 let bankcommossion = this.salebills[index-1].bankcommission;
                 let vatav = this.salebills[index-1].vatav;
                 let agentComm = this.salebills[index-1].agentcommission;
@@ -1167,8 +1157,8 @@
                 let interest = this.salebills[index-1].interest;
                 let amount = this.salebills[index-1].amount;
                 let adjamount = this.salebills[index-1].adjustamount;
-                
-                
+
+
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -1195,7 +1185,7 @@
                 if (!claim) {
                     claim = 0;
                 }
-                
+
                 if (amount > adjamount) {
                     diff = amount - adjamount;
                     discount = diff / amount * 100;
@@ -1293,7 +1283,7 @@
                 $("#error-for-chequedate").text("");
                 var paymentdata = new FormData();
                 if (this.scope == 'edit') {
-                
+
                     paymentdata.append('billdata', JSON.stringify(this.salebills));
                     paymentdata.append('formdata', JSON.stringify(this.form));
                     paymentdata.append('chequeimage', this.chequeimage);
@@ -1307,13 +1297,13 @@
                         var validationError = error.response.data.errors;
                     })
                 } else {
-                    
+
                     if (this.form.refrence == '') {
                         $("#error-for-reference").text("Select Reference");
                         this.isValidate = false;
-                    } else { 
+                    } else {
                         if (this.form.refrencevia.name == 'Courier') {
-                            
+
                             if (this.form.courrier == '') {
                                 $("#error-for-couurier").text("Select Courier");
                                 this.isValidate = false;
@@ -1340,7 +1330,7 @@
                     }
                     if (this.form.reciptdate == '') {
                         $("#error-for-reciptdate").text("Select Receipt Date");
-                        this.isValidate = false; 
+                        this.isValidate = false;
                     } else {
                         this.isValidate = true;
                         $("#error-for-reference").text("");
@@ -1355,7 +1345,7 @@
                             this.isValidate = true;
                         }
                     }
-                    
+
 
                     paymentdata.append('billdata', JSON.stringify(this.salebills));
                     paymentdata.append('formdata', JSON.stringify(this.form));
@@ -1364,10 +1354,10 @@
                     if (this.isValidate) {
                         axios.post('/payments/create', paymentdata)
                         .then((response2) => {
-                            if (response2.redirect_url == ''){
+                            if (response2.data.redirect_url == ''){
                                 window.location.href = '/payments';
                             } else {
-                                window.location.href = response2.redirect_url;
+                                window.location.href = response2.data.redirect_url;
                             }
                         })
                         .catch((error) => {
@@ -1435,7 +1425,7 @@
                             $(".table-responsive").removeClass("salebilltable");
                         }
                         setTimeout(() => {
-                        
+
                             self.form.id = this.id;
                             self.form.refrence_type = gData.paymentData.reference_id;
                             self.form.reciptdate = gData.paymentData.date;
@@ -1473,7 +1463,7 @@
                                 self.salebills[index].remark = value.remark;
                             });
                         }, 500);
-                        
+
                     });
                     break;
                 default:
@@ -1502,5 +1492,5 @@
         width: 85%;
         float: right;
     }
-    
+
 </style>
