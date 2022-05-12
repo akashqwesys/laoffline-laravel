@@ -9,7 +9,7 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
-use App\Models\comboids\Comboids;
+use App\Models\Comboids\Comboids;
 use App\Models\Commission\commission;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\ProductCategory;

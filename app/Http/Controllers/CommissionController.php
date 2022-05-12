@@ -22,7 +22,7 @@ use App\Models\Goods\GrSaleBillItem;
 use App\Models\settings\BankDetails;
 use App\Models\settings\Agent;
 use App\Models\Company\Company;
-use App\Models\comboids\Comboids;
+use App\Models\Comboids\Comboids;
 use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -214,7 +214,7 @@ class CommissionController extends Controller
                     ->orderBy('id', 'desc')
                     ->get();
         $commissioninvoices = array();
-       
+
         foreach($commissioninvoice as $invoice) {
             $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
             $invoice = array('commission_id' => $invoice->id, 'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => "60");
@@ -247,11 +247,11 @@ class CommissionController extends Controller
 
         $company = Company::where('id', $company_id)->first();
         $agent = Agent::where('is_delete', '0')->get();
-        
+
         $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('id', $commissioninvoice_id)->get();
-        
+
         $commissioninvoice_data = array();
-        
+
         foreach ($commissioninvoice as $invoice) {
             $commission_invoice = array('commission_id' => $invoice->id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'totalCommission' => $invoice->final_amount);
             array_push($commissioninvoice_data, $commission_invoice);
@@ -341,7 +341,7 @@ class CommissionController extends Controller
             $refence->delivery_by = $commissionData->delivery;
             $refence->save();
         } else {
-            $ref_id = $paymentData->refrence_type;
+            $ref_id = $commissionData->refrence_type;
         }
 
         $iuids = Iuid::orderBy('id', 'DESC')->first('id');
@@ -562,21 +562,21 @@ class CommissionController extends Controller
         $agent = Agent::where('is_delete', '0')->get();
         $commissionacc = Agent::where('id', $commission->commission_account)->first();
         $commissioninvoice = DB::table('commission_details as cd')->join('commission_invoices as ci', 'ci.id', '=', 'cd.commission_invoice_id' )->where('cd.commission_id', $commission->commission_id)->select('cd.*', 'ci.bill_no')->get();
-        
+
         $data['commission'] = $commission;
         if (!empty($deposite)) {
             $data['commission']['depositebank'] = $deposite->name;
         } else {
             $data['commission']['depositebank'] = '';
         }
-        
-        
+
+
         if (!empty($cheque_bank)) {
             $data['commission']['chequebank'] = $cheque_bank->name;
         } else {
             $data['commission']['chequebank'] = '';
         }
-       
+
         $data['commission']['commissionaccount'] = $commissionacc->name;
         $data['created_at'] = date_format($commission->created_at,"Y/m/d H:i:s");
         $data['commissioninvoice'] = $commissioninvoice;

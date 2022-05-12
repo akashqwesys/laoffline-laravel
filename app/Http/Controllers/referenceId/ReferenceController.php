@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Company\Company;
 use App\Models\settings\Cities;
 use App\Models\settings\Country;
-use App\Models\comboids\comboids;
+use App\Models\Comboids\Comboids;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\settings\Designation;

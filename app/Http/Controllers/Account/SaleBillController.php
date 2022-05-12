@@ -8,7 +8,7 @@ use App\Models\Employee;
 use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Settings\TransportDetails;
-use App\Models\comboids\Comboids;
+use App\Models\Comboids\Comboids;
 use App\Models\SaleBill;
 use App\Models\SaleBillTransport;
 use Illuminate\Support\Facades\Session;
@@ -541,9 +541,11 @@ class SaleBillController extends Controller
         $total_peices = 0;
         $total_meters = 0;
         $dataentry_item = [];
+        $sale_bill_items_last_id = (getLastID('sale_bill_items', 'id') + 1);
         if (count($productDetails) > 0 && $productDetails[0]->amount > 0) {
             foreach ($productDetails as $row) {
                 $dataentry_item[] = array(
+                    'id'                   => $sale_bill_items_last_id,
                     'sale_bill_id'         => $sale_bill_id,
                     'product_or_fabric_id' => intval($row->product_name->id),
                     'financial_year_id'    => $user->financial_year_id,
@@ -563,12 +565,14 @@ class SaleBillController extends Controller
                     'created_at'           => $dateAdded,
                     'updated_at'           => $dateAdded
                 );
+                $sale_bill_items_last_id++;
                 $total_peices += intval($row->pieces);
             }
         }
         if (count($fabricDetails) > 0 && $fabricDetails[0]->amount > 0) {
             foreach ($fabricDetails as $row) {
                 $dataentry_item[] = array(
+                    'id'                   => $sale_bill_items_last_id,
                     'sale_bill_id'         => $sale_bill_id,
                     'product_or_fabric_id' => intval($row->fabric_name->id),
                     'financial_year_id'    => $user->financial_year_id,
@@ -589,6 +593,7 @@ class SaleBillController extends Controller
                     'created_at'           => $dateAdded,
                     'updated_at'           => $dateAdded
                 );
+                $sale_bill_items_last_id++;
                 $total_peices += intval($row->pieces);
                 $total_meters += floatval($row->meters);
             }

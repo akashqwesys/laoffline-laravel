@@ -9,7 +9,7 @@ use App\Models\Commission\CommissionInvoice;
 use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\InvoicePaymentDetails;
-use App\Models\comboids\Comboids;
+use App\Models\Comboids\Comboids;
 use App\Http\Controllers\Account\SaleBillController;
 use Illuminate\Support\Facades\Session;
 use DB;
