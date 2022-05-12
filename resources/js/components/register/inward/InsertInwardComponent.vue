@@ -57,7 +57,7 @@
                                             </div>
                                         </div>
                                         <div v-if="inwardType == 'sample'" class="row gy-4">
-                                            <div class="col-md-12">
+                                            <div class="col-md-12" style="z-index:0">
                                                 <table class="table table-hover table-bordered" id="agent">
                                                     <thead>
                                                         <tr>
