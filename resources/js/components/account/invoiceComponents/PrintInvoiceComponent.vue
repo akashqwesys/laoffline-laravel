@@ -204,8 +204,8 @@
                         <tr>
                             <td> {{ i+1 }} </td>
                             <td> {{ k.date }} </td>
-                            <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
-                            <td class="text-right"> {{ toINR.format(k.received_amount) }} </td>
+                            <td align="left"> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
+                            <td align="right"> {{ toINR.format(k.received_amount) }} </td>
                         </tr>
                     </template>
                 </tbody>

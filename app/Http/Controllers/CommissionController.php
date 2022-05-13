@@ -12,7 +12,7 @@ use App\Models\Logs;
 use App\Models\Iuid;
 use App\Models\Payment;
 use App\Models\CompanyType;
-use App\Models\Commission\commission;
+use App\Models\Commission\Commission;
 use App\Models\SaleBill;
 use App\Models\CommissionDetail;
 use App\Models\PaymentDetail;
@@ -434,7 +434,7 @@ class CommissionController extends Controller
         } else {
             $commissiondate = Carbon::now()->format('d-m-Y');;
         }
-        $commissions = new commission();
+        $commissions = new Commission();
         if ($typeName == "Supplier") {
             $commissions->supplier_id = $request->session()->get('company');
             $commissions->customer_id = '0';
@@ -576,7 +576,7 @@ class CommissionController extends Controller
             $commission_invoice['recivedCommission'] = $totalrecivedamount;
             array_push($commissioninvoice_data, $commission_invoice);
         }
-        
+
         $data['commission'] = $commission;
         if (!empty($deposite)) {
             $data['commission']['depositebank'] = $deposite->name;
