@@ -168,7 +168,7 @@
                                                 <td> {{ i+1 }} </td>
                                                 <td> {{ k.date }} </td>
                                                 <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
-                                                <td class="text-right"> {{ k.receipt_amount }} </td>
+                                                <td class="text-right"> {{ k.received_amount }} </td>
                                             </tr>
                                             <tr>
                                                 <td></td>

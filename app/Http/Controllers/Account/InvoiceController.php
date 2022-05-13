@@ -789,7 +789,7 @@ class InvoiceController extends Controller
             ->join('payments as p', 'ipd.payment_id', '=', 'p.payment_id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
-            ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'ipd.payment_id','cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id')
+            ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'ipd.payment_id','cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id', 'p.financial_year_id')
             ->where('commission_invoice_id', $id)
             ->get();
         foreach ($payment_details as $v) {
@@ -981,7 +981,7 @@ class InvoiceController extends Controller
 
         $invinfo = DB::table('commission_invoices')
             ->select('with_without_gst')
-            ->where('commission_invoice_id', $invoice_id)
+            ->where('id', $invoice_id)
             ->first();
 
         $with_without_gst = $invinfo->with_without_gst;

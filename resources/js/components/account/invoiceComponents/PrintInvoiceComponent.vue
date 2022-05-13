@@ -92,32 +92,32 @@
                     <tr v-if="invoice_details.service_tax != 0 && invoice_details.service_tax_flag != 0">
                         <td></td>
                         <td class="text-right">Service Tax</td>
-                        <td>₹ {{ toINR.format(invoice_details.service_tax_amount) }} </td>
+                        <td>₹&nbsp;{{ toINR.format(invoice_details.service_tax_amount) }} </td>
                     </tr>
                     <tr v-if="invoice_details.cgst != '' && invoice_details.cgst != 0">
                         <td></td>
                         <td class="text-right">CGST @ {{ invoice_details.cgst }}%</td>
-                        <td>₹ {{ toINR.format(invoice_details.cgst_amount) }} </td>
+                        <td>₹&nbsp;{{ toINR.format(invoice_details.cgst_amount) }} </td>
                     </tr>
                     <tr>
                         <td></td>
                         <td class="text-right">SGST @ {{ invoice_details.sgst }}%</td>
-                        <td>₹ {{ toINR.format(invoice_details.sgst_amount) }} </td>
+                        <td>₹&nbsp;{{ toINR.format(invoice_details.sgst_amount) }} </td>
                     </tr>
                     <tr v-if="invoice_details.igst != '' && invoice_details.igst != 0">
                         <td></td>
                         <td class="text-right">IGST @ {{ invoice_details.igst }}%</td>
-                        <td>₹ {{ toINR.format(invoice_details.igst_amount) }} </td>
+                        <td>₹&nbsp;{{ toINR.format(invoice_details.igst_amount) }} </td>
                     </tr>
                     <tr>
                         <td></td>
                         <td class="text-right">Others</td>
-                        <td>₹ {{ toINR.format(invoice_details.other_amount) }} </td>
+                        <td>₹&nbsp;{{ toINR.format(invoice_details.other_amount) }} </td>
                     </tr>
                     <tr>
                         <td></td>
                         <td class="text-right">Rounded Off</td>
-                        <td>₹ {{ invoice_details.rounded_off }}</td>
+                        <td>₹&nbsp;{{ invoice_details.rounded_off }}</td>
                     </tr>
                     <tr>
                         <td></td>
@@ -145,7 +145,7 @@
                     <tr v-if="invoice_details.tds_flag == 1">
                         <td></td>
                         <td class="text-right">Less TDS</td>
-                        <td>₹ {{ toINR.format(invoice_details.tds_amount) }} </td>
+                        <td>₹&nbsp;{{ toINR.format(invoice_details.tds_amount) }} </td>
                     </tr>
                     <tr>
                         <td></td><td></td><td></td>
@@ -205,7 +205,7 @@
                             <td> {{ i+1 }} </td>
                             <td> {{ k.date }} </td>
                             <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
-                            <td class="text-right"> {{ toINR.format(k.receipt_amount) }} </td>
+                            <td class="text-right"> {{ toINR.format(k.received_amount) }} </td>
                         </tr>
                     </template>
                 </tbody>
@@ -214,7 +214,7 @@
                         <td></td>
                         <td></td>
                         <td align="right"><b>Total: </b></td>
-                        <td align="right"><b></b> {{ with_gst_amt }} </td>
+                        <td align="right"><b></b> {{ toINR.format(with_gst_amt) }} </td>
                     </tr>
                 </tfoot>
             </table>
