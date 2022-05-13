@@ -314,7 +314,7 @@ class CommissionController extends Controller
             if ($commissionData->refrencevia->name == 'Email') {
                 $courier_name = '';
                 $courier_receipt_no = '';
-                $courier_received_time = Carbon::now()->format('d-m-Y');
+                $courier_received_time = Carbon::now()->format('Y-m-d H:i:s');
             } else if ($commissionData->refrencevia->name == 'Hand') {
                 $courier_name = '';
                 $courier_receipt_no = '';
@@ -336,7 +336,7 @@ class CommissionController extends Controller
             $refence->inward_or_outward = '1';
             $refence->type_of_inward = $commissionData->refrencevia->name;
             $refence->company_id = $request->session()->get('company');
-            $refence->selection_date = Carbon::now()->format('d-m-Y');
+            $refence->selection_date = Carbon::now()->format('Y-m-d');
             $refence->from_name = $commissionData->fromname;
             $refence->from_email_id = $commissionData->emailfrom;
             $refence->courier_name = $courier_name;
@@ -430,9 +430,9 @@ class CommissionController extends Controller
         $CommissionLastId = commission::orderBy('id', 'DESC')->first('id');
         $commissionId = !empty($CommissionLastId) ? $CommissionLastId->id + 1 : 1;
         if(!empty($commissionData->commissiondate)) {
-            $commissiondate = date('d-m-Y',strtotime($commissionData->commissiondate));
+            $commissiondate = date('Y-m-d', strtotime($commissionData->commissiondate));
         } else {
-            $commissiondate = Carbon::now()->format('d-m-Y');;
+            $commissiondate = Carbon::now()->format('Y-m-d');;
         }
         $commissions = new Commission();
         if ($typeName == "Supplier") {
@@ -449,7 +449,7 @@ class CommissionController extends Controller
             $chequeno = $commissionData->chequeno;
         } else {
             $depositebank = '0';
-            $chequedate = Carbon::now()->format('d-m-Y');
+            $chequedate = Carbon::now()->format('Y-m-d');
             $chequebank = '0';
             $chequeno = '';
         }
@@ -480,7 +480,7 @@ class CommissionController extends Controller
         $commissions->received_commission_amount = '0';
         $commissions->done_outward = '0';
         $commissions->normal_amt_flag = '3';
-        $commissions->date_added = Carbon::now();
+        $commissions->date_added = Carbon::now()->format('Y-m-d H:i:s');
         $commissions->is_deleted = '0';
         $commissions->is_invoice = '1';
         $commissions->save();
@@ -491,8 +491,8 @@ class CommissionController extends Controller
         $comboid1->save();
 
         foreach ($invoiceData as $invoice) {
-            $bill_date = Carbon::now()->format('d-m-Y');
-            $cheque_date = Carbon::now()->format('d-m-Y');
+            $bill_date = Carbon::now()->format('Y-m-d');
+            $cheque_date = Carbon::now()->format('Y-m-d');
             $tds = 0;
             $service_tax = 0;
             $commission_status = $invoice->status->code;
@@ -653,7 +653,7 @@ class CommissionController extends Controller
                 if ($commissionData->refrencevia->name == 'Email') {
                     $courier_name = '';
                     $courier_receipt_no = '';
-                    $courier_received_time = Carbon::now()->format('d-m-Y');
+                    $courier_received_time = Carbon::now()->format('Y-m-d H:i:s');
                 } else if ($commissionData->refrencevia->name == 'Hand') {
                     $courier_name = '';
                     $courier_receipt_no = '';
@@ -675,7 +675,7 @@ class CommissionController extends Controller
                 $refence->inward_or_outward = '1';
                 $refence->type_of_inward = $commissionData->refrencevia->name;
                 $refence->company_id = $request->session()->get('company');
-                $refence->selection_date = Carbon::now()->format('d-m-Y');
+                $refence->selection_date = Carbon::now()->format('Y-m-d');
                 $refence->from_name = $commissionData->fromname;
                 $refence->from_email_id = $commissionData->emailfrom;
                 $refence->courier_name = $courier_name;
@@ -706,9 +706,9 @@ class CommissionController extends Controller
             $comboids->save();
         }
         if(!empty($commissionData->commissiondate)) {
-            $commissiondate = date('d-m-Y',strtotime($commissionData->commissiondate));
+            $commissiondate = date('Y-m-d',strtotime($commissionData->commissiondate));
         } else {
-            $commissiondate = Carbon::now()->format('d-m-Y');
+            $commissiondate = Carbon::now()->format('Y-m-d');
         }
 
         if ($typeName == "Supplier") {
@@ -725,7 +725,7 @@ class CommissionController extends Controller
             $chequeno = $commissionData->chequeno;
         } else {
             $depositebank = '0';
-            $chequedate = Carbon::now()->format('d-m-Y');
+            $chequedate = Carbon::now()->format('Y-m-d');
             $chequebank = '0';
             $chequeno = '';
         }
