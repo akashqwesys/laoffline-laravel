@@ -800,7 +800,7 @@ class PaymentsController extends Controller
             if ($paymentData->refrencevia->name == 'Email') {
                 $courier_name = '';
                 $courier_receipt_no = '';
-                $courier_received_time = '';
+                $courier_received_time = Carbon::now()->format('d-m-Y');
             } else if ($paymentData->refrencevia->name == 'Hand') {
                 $courier_name = '';
                 $courier_receipt_no = '';
@@ -981,10 +981,10 @@ class PaymentsController extends Controller
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->status = '1';
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
-                    $paymentDetail->amount = $salebill->amount;
+                    $paymentDetail->amount = $salebill->amount ?? 0;
                     $paymentDetail->adjust_amount = (int)$salebill->amount - (int)$salebill->goodreturn;
-                    $paymentDetail->goods_return = $salebill->goodreturn;
-                    $paymentDetail->remark = $salebill->remark;
+                    $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
+                    $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->rate_difference = '0';
                     $paymentDetail->save();
 
@@ -1011,8 +1011,8 @@ class PaymentsController extends Controller
                     $paymentDetail->status = '0';
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
-                    $paymentDetail->amount = $salebill->amount;
-                    $paymentDetail->goods_return = $salebill->goodreturn;
+                    $paymentDetail->amount = $salebill->amount ?? 0;
+                    $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
                     $paymentDetail->remark = $salebill->remark;
                     $paymentDetail->rate_difference = '0';
                     $paymentDetail->save();
@@ -1021,7 +1021,7 @@ class PaymentsController extends Controller
 					$tot_agent_commission += 0;
 					$tot_bank_cpmmission += 0;
 					$tot_claim += 0;
-					$tot_good_returns += parseInt($salebill->goodreturn);
+					$tot_good_returns += (int)$salebill->goodreturn;
 					$tot_short += 0;
 					$tot_interest += 0;
 					$tot_rate_difference += 0;
@@ -1079,9 +1079,10 @@ class PaymentsController extends Controller
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
-                    $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
-
+                    $Pending = (int)$paymentDetail2->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
+                    //print_r($Pending);exit;
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first();
+                   
                     $bill2->pending_payment = $Pending;
                     $bill2->save();
 
@@ -1326,10 +1327,32 @@ class PaymentsController extends Controller
         }
         $data = $goodReturn;
         $data['products'] = $grItemData;
-
+        
         return $data;
     }
+    public function getGoodReturnView($id) {
+        $goodReturn = GoodsReturn::where('goods_return_id', $id)->first();
+        $goodReturnItem = GrSaleBillItem::where('goods_return_id', $id)->get();
+        $customer = Company::where('id', $goodReturn->company_id)->first();
+        $supplier = Company::where('id', $goodReturn->supplier_id)->first();
+        $grItemData = array();
+        foreach ($goodReturnItem as $Item){
 
+            $product_name = DB::table('products')->where('id', $Item->product_or_fabric_id)->first();
+                if ($product_name) {
+                    $productName = $product_name->product_name;
+                } else {
+                    $productName = $Item->product_or_fabric_id;
+                }
+            $Item['name'] = $productName;
+            array_push($grItemData, $Item);
+        }
+        $data['goodreturn'] = $goodReturn;
+        $data['item'] = $grItemData;
+        $data['customer'] = $customer;
+        $data['supplier'] = $supplier;
+        return $data;
+    }
     public function updatePaymentData(Request $request){
         $attachments = array();
         $user = Session::get('user');
@@ -1363,12 +1386,7 @@ class PaymentsController extends Controller
             $typeName = '';
         }
         $financialid = Session::get('user')->financial_year_id;
-        // $companyPerson = CompanyOwner::where('company_id', $request->session->get('customer'))->first();
-        // if($companyPerson) {
-        //     $personName = $companyPerson->name;
-        // } else {
-        //     $personName = '';
-        // }
+        
         $combo = Comboids::where('payment_id', $paymentData->id)->first();
         $personName = '';
         $ref_id = $paymentData->refrence_type;
@@ -1445,9 +1463,9 @@ class PaymentsController extends Controller
         $payment->trns = $paymentData->term;
         $payment->supplier_id = $companyName->id;
         $payment->customer_id = $cmpTypeName->id;
-        $payment->receipt_amount = $paymentData->reciptamount;
-        $payment->total_amount = $paymentData->totalamount;
-        $payment->tot_adjust_amount = $payment_tot_adjust_amount;
+        $payment->receipt_amount = $paymentData->reciptamount ?? 0;
+        $payment->total_amount = $paymentData->totalamount ?? 0;
+        $payment->tot_adjust_amount = $payment_tot_adjust_amount ?? 0;
         $payment->save();
         $p_increment_id = $paymentData->id;
         PaymentDetail::where('payment_id', $paymentData->id)->delete();
@@ -1477,15 +1495,15 @@ class PaymentsController extends Controller
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->status = '1';
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
-                    $paymentDetail->amount = $salebill->amount;
-                    $paymentDetail->adjust_amount = $salebill->adjustamount;
-                    $paymentDetail->goods_return = $salebill->goodreturn;
-                    $paymentDetail->remark = $salebill->remark;
+                    $paymentDetail->amount = $salebill->amount ?? 0;
+                    $paymentDetail->adjust_amount = $salebill->adjustamount ?? 0;
+                    $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
+                    $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first(1);
                     $bill->payment_status = '1';
-                    $bill->received_payment = parseInt($bill->received_payment) + parseInt($salebill->amount);
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first(1);
@@ -1504,9 +1522,9 @@ class PaymentsController extends Controller
                     $paymentDetail->status = '0';
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
-                    $paymentDetail->amount = $salebill->amount;
-                    $paymentDetail->goods_return = $salebill->goodreturn;
-                    $paymentDetail->remark = $salebill->remark;
+                    $paymentDetail->amount = $salebill->amount ?? 0;
+                    $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
+                    $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first(1);
@@ -1538,19 +1556,19 @@ class PaymentsController extends Controller
                     $paymentDetail->flag_sale_bill_sr_no = '1';
                     $paymentDetail->status = '1';
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
-                    $paymentDetail->discount = $salebill->discount;
-                    $paymentDetail->discount_amount = $salebill->discountamount;
-                    $paymentDetail->vatav = $salebill->vatav;
-                    $paymentDetail->agent_commission = $salebill->agentcommission;
-                    $paymentDetail->claim = $salebill->claim;
-                    $paymentDetail->bank_commission = $salebill->bankcommission;
-                    $paymentDetail->short = $salebill->short;
-                    $paymentDetail->interest = $salebill->interest;
-                    $paymentDetail->rate_difference = $salebill->ratedifference;
-                    $paymentDetail->amount = $salebill->amount;
-                    $paymentDetail->adjust_amount = $salebill->adjustamount;
-                    $paymentDetail->goods_return = $salebill->goodreturn;
-                    $paymentDetail->remark = $salebill->remark;
+                    $paymentDetail->discount = $salebill->discount ?? 0;
+                    $paymentDetail->discount_amount = $salebill->discountamount ?? 0;
+                    $paymentDetail->vatav = $salebill->vatav ?? 0;
+                    $paymentDetail->agent_commission = $salebill->agentcommission ?? 0;
+                    $paymentDetail->claim = $salebill->claim ?? 0;
+                    $paymentDetail->bank_commission = $salebill->bankcommission ?? 0;
+                    $paymentDetail->short = $salebill->short ?? 0;
+                    $paymentDetail->interest = $salebill->interest ?? 0;
+                    $paymentDetail->rate_difference = $salebill->ratedifference ?? 0;
+                    $paymentDetail->amount = $salebill->amount ?? 0;
+                    $paymentDetail->adjust_amount = $salebill->adjustamount ?? 0;
+                    $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
+                    $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
                     $tot_discount += $salebill->discountamount;
@@ -1564,9 +1582,9 @@ class PaymentsController extends Controller
 					$tot_rate_difference += $salebill->ratedifference;
 					$tot_adjust_amount += $salebill->adjustamount;
 
-                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first(1);
+                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
                     $bill->payment_status = '1';
-                    $bill->received_payment = parseInt($bill->received_payment) + parseInt($salebill->adjustamount);
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first(1);
@@ -1631,6 +1649,7 @@ class PaymentsController extends Controller
         $logs->save();
         $redirect_url = '';
     }
+    
     public function addGoodRetuen(Request $request) {
         $page_title = 'Add Good Return';
         $p_id = $request->id;
@@ -1988,6 +2007,18 @@ class PaymentsController extends Controller
         $employees['id'] = $id;
 
         return view('payment.viewvoucher',compact('financialYear', 'page_title'))->with('employees', $employees);
+    }
+
+    public function viewGoodReturn($id) {
+        $page_title = 'View Good Return';
+        $financialYear = FinancialYear::where('id',$id);
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+
+        $employees['id'] = $id;
+
+        return view('payment.viewgoodreturn',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchVoucher($id) {

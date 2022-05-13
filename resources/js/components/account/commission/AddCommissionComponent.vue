@@ -310,7 +310,7 @@
                                                         <td><input type="hidden" :readonly="true" class="form-control" v-model="commissioninvoice.id"><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.invoiceno"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.date"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.totalCommission"></td>
-                                                        <td><input type="text"  class="form-control" v-model="commissioninvoice.recivedCommission"></td>
+                                                        <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.recivedCommission.totalrecived"></td>
                                                         <td><multiselect v-model="commissioninvoice.status" :options="[{status: 'Complete', code: '1'},{status: 'Pending', code: '0'}]" placeholder="Select one" label="status" track-by="status"></multiselect></td>
                                                         <td><input type="text" class="form-control" v-model="commissioninvoice.amount"></td>
                                                         <td><input type="text" class="form-control" v-model="commissioninvoice.remark"></td>
@@ -696,18 +696,18 @@
                         self.form.commissionacc = gData.commission.commission_account;
                         self.form.commissionamount = gData.commission.commission_payment_amount;
                         gData.commissioninvoice.forEach((value,index) => {
-                                self.commissioninvoices[index].id = value.commission_invoice_id;
-                                self.commissioninvoices[index].invoiceno = value.bill_no;
-                                self.commissioninvoices[index].date = value.bill_date;
-                                self.commissioninvoices[index].totalCommission = value.bill_amount;
-                                self.commissioninvoices[index].recivedCommission = '0';
+                                self.commissioninvoices[index].id = value.commission_id;
+                                self.commissioninvoices[index].invoiceno = value.invoiceno;
+                                self.commissioninvoices[index].date = value.date;
+                                self.commissioninvoices[index].totalCommission = value.totalCommission;
+                                self.commissioninvoices[index].recivedCommission = value.recivedCommission;
                                 if (value.status == '1') {
                                    comm_status = {status: 'Complete', code: '1'};
                                 } else {
                                     comm_status = {status: 'Pending', code: '0'};
                                 }
                                 self.commissioninvoices[index].status = comm_status;
-                                self.commissioninvoices[index].amount = value.received_commission_amount;
+                                self.commissioninvoices[index].amount = value.amount;
                                 self.commissioninvoices[index].remark = value.remark;
                             });
                          let total = 0;

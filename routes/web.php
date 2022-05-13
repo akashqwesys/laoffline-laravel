@@ -677,8 +677,10 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:acces
         Route::get('/fetch-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchPayment']);
         Route::get('/view-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'viewPayment']);
         Route::get('/view-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'viewVoucher']);
+        Route::get('/view-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'viewGoodReturn']);
         Route::get('/fetch-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchVoucher']);
         Route::get('/fetch-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchGoodReturn']);
+        Route::get('/getgoodreturnview/{id}', [App\Http\Controllers\PaymentsController::class, 'getGoodReturnView']);
         Route::get('/getbasicdata', [App\Http\Controllers\PaymentsController::class, 'getBasicData']);
         Route::get('/getsalbillforadd', [App\Http\Controllers\PaymentsController::class, 'getSalbillforAdd']);
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\PaymentsController::class, 'getReferenceForSaleBill']);
