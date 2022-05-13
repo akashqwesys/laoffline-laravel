@@ -603,6 +603,9 @@ class InvoiceController extends Controller
 
     public function invoiceView(Request $request)
     {
+        if (!$request->session()->exists('commission_supplier')) {
+            return redirect('/account/commission/invoice');
+        }
         $page_title = 'Generate Commission Invoice';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
@@ -661,7 +664,7 @@ class InvoiceController extends Controller
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
             ->leftJoin('financial_year as fy', 'p.financial_year_id', '=', 'fy.id')
-            ->select('p.id', 'p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst' ) )
+            ->select('p.id', 'p.payment_id', 'p.financial_year_id', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst' ) )
             ->whereIn('p.payment_id', $p_ids)
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
@@ -763,7 +766,7 @@ class InvoiceController extends Controller
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
             ->leftJoin('financial_year as fy', 'p.financial_year_id', '=', 'fy.id')
-            ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst') )
+            ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'p.payment_id', 'p.financial_year_id', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst') )
             ->where('ipd.commission_invoice_id', $id)
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
@@ -779,14 +782,16 @@ class InvoiceController extends Controller
         $supplier = DB::table('companies as c')
             ->leftJoin('company_packaging_details as cpd', 'c.id', '=', 'cpd.company_id')
             ->leftJoin('company_addresses as ca', 'c.id', '=', 'ca.company_id')
-            ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address')
+            ->leftJoin('states as s', 'c.company_state', '=', 's.id')
+            ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address', 's.name as state_name')
             ->where('c.id', $invoice_details->supplier_id)
             ->first();
 
         $customer = DB::table('companies as c')
             ->leftJoin('company_packaging_details as cpd', 'c.id', '=', 'cpd.company_id')
             ->leftJoin('company_addresses as ca', 'c.id', '=', 'ca.company_id')
-            ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address')
+            ->leftJoin('states as s', 'c.company_state', '=', 's.id')
+            ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address', 's.name as state_name')
             ->where('c.id', $invoice_details->customer_id)
             ->first();
 
@@ -971,5 +976,23 @@ class InvoiceController extends Controller
         $data = array("new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount));
         echo json_encode($data);
         exit;
+    }
+
+    public function viewInvoiceDetails(Request $request, $id)
+    {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+        $employees['invoice_id'] = $id;
+        if ($request->is('account/commission/invoice/print-invoice/*')) {
+            $page_title = 'Print Invoice';
+            return view('account.commission.invoice.printInvoice', compact('financialYear', 'page_title', 'employees'));
+        } else {
+            $page_title = 'View Invoice Details';
+            return view('account.commission.invoice.viewInvoice', compact('financialYear', 'page_title', 'employees'));
+        }
     }
 }

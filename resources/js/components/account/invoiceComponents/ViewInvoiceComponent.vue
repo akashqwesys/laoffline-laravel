@@ -13,46 +13,8 @@
                     <div class="nk-block">
                         <div class="card card-bordered">
                             <div class="card-inner">
-                                <div class="row gy-4">
-                                    <div class="col-md-3"><b>Commission Invoice Details</b></div>
-                                    <div class="col-md-1">
-                                        <div class="custom-control custom-checkbox checked">
-                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_gst" id="comm_invoice_gst" true-value="1" false-value="0" checked @click="updateData">
-                                            <label class="custom-control-label" for="comm_invoice_gst"> GST</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <div class="custom-control custom-checkbox checked">
-                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_tds" id="comm_invoice_tds" true-value="1" false-value="0" checked @click="hideShowSelect_tax">
-                                            <label class="custom-control-label" for="comm_invoice_tds"> TDS</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select class="form-control" v-model="with_without_gst" id="with_without_gst" @change="changeGST(e)" required>
-                                            <option value="1">With GST</option>
-                                            <option value="2">Without GST</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select class="form-control" v-model="courier_agent" id="courier_agent" required @change="changeAgentForInvoice(e)">
-                                        <template v-for="(k, i) in agents" :key="i">
-                                            <option :value="{ id: k.id, name: k.name, pan_no: k.pan_no, gst_no: k.gst_no, inv_prefix: k.inv_prefix }" > {{ k.name }} </option>
-                                        </template>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <input type="number" v-model="payment_comm" id="payment_comm" class="form-control" @change="onPercentageChange(e)" step="any" >
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select class="form-control" v-model="select_tax" id="select_tax" @change="everyLoadChange(e)">
-                                            <option value="1">Amt - TDS</option>
-                                            <option value="2">[Amt + GST] - TDS</option>
-                                            <option value="3">[Amt - TDS] + GST</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                <div class=""><b>Commission Invoice Details</b></div>
                                 <hr>
-
                                 <div class="table-responsive" id="commission_invoice_print">
                                     <table style="border:2px solid #000;" class="table table-striped- table1">
                                         <thead>
@@ -103,14 +65,13 @@
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Period : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="bill_period_from" id="datepicker_transport" class="date-picker" data-date-format="dd-mm-yyyy">to &nbsp;&nbsp;
-                                                                    <input style="width: 80px;" type="text" v-model="bill_period_to" id="order_datepicker" class="date-picker" data-date-format="dd-mm-yyyy">
+                                                                    {{ bill_period_from }} to {{ bill_period_to }}
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Date : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker" class="date-picker" data-date-format="dd-mm-yyyy">
+                                                                    {{ invoice_bill_date }}
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -153,10 +114,8 @@
                                                 <td style="width:50%"></td>
                                                 <td class="text-left"><b>Others : </b></td>
                                                 <td class="text-right" >
-                                                    <span id="others_td"></span>
-                                                    <input style="width: 70px;" type="text" class="text-right" v-model="invoice_others" id="invoice_others" @blur="everyLoadChange()">
+                                                    <span id="others_td"></span> {{ invoice_others }}
                                                 </td>
-                                                <input type="hidden" name="hidden_invoice_others" id="hidden_invoice_others">
                                             </tr>
                                             <tr class="right-nonetd left-nonetd">
                                                 <td colspan="2"></td>
@@ -194,75 +153,35 @@
                                             </tr>
                                         </thead>
                                     </table>
-                                    <div class="mt-2 mb-2"><b>Payment Rec. Details</b></div>
-                                    <table class="table table-striped mb-0" border="1" id="paymentTable" v-if="scope == 'create'">
-                                        <thead>
-                                            <tr>
-                                                <th>Sr. No.</th>
-                                                <th>Date</th>
-                                                <th>Party Name</th>
-                                                <th>Rec. Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(k, i) in payments" :key="i">
-                                                <td> {{ i }} </td>
-                                                <td> {{ k.date }} </td>
-                                                <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
-                                                <td> {{ k.receipt_amount }} </td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td><b>Total Amount</b></td>
-                                                <td><b> {{ total_amount }} </b></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <table class="table table-striped mb-0" border="1" id="paymentTable" v-if="scope == 'edit'">
+                                    <div class="mt-5 mb-2 text-center"><b>PAYMENT RECEIVED DETAILS</b></div>
+                                    <table class="table table-striped mb-0" border="1" id="paymentTable">
                                         <thead>
                                             <tr>
                                                 <th>Sr. No.</th>
                                                 <th>Date</th>
                                                 <th>Party Name</th>
                                                 <th class="text-right">Rec. Amount</th>
-                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="(k, i) in payments" :key="i">
-                                                <td> {{ i }} </td>
-                                                <td> {{ k.payment_date }} </td>
+                                                <td> {{ i+1 }} </td>
+                                                <td> {{ k.date }} </td>
                                                 <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
-                                                <td class="text-right"> {{ k.received_amount }} </td>
-                                                <td>
-                                                    <template v-if="commission_details.length == 0">
-                                                        <a @click="delete_invoice_payment_detail(k.id)" class="btn btn-primary">x</a>
-						                				<button type="button" class="btn btn-primary" @click="refresh_invoice_payment_detail(k.id, k.payment_id, k.financial_year_id)"><em class="icon ni ni-reload"></em></button>
-                                                    </template>
-                                                    <template v-else>
-                                                        <a onclick="return alert('You can not delete this record?');" class="btn btn-primary">x</a>
-                                                    </template>
-                                                </td>
+                                                <td class="text-right"> {{ k.receipt_amount }} </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td></td>
                                                 <td><b>Total Amount</b></td>
-                                                <td><b> {{ total_amount }} </b></td>
-                                                <td></td>
+                                                <td class="text-right"><b> {{ total_amount }} </b></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="table-responsive text-center mt-3">
-                                    <template v-if="commission_details.length > 0">
-                                        You can't update this invoice because commission is made on this invoice <a href="">Click here</a> to view detail.
-                                        <br>
-                                    </template>
                                     <a href="/account/commission/invoice" class="btn btn-dark mr-2">Cancel</a>
-                                    <button class="btn btn-primary" @click="saveInvoice" v-if="scope == 'create'">Save</button>
-                                    <button class="btn btn-primary" @click="updateInvoice" v-if="scope == 'edit' && commission_details.length == 0">Update</button>
+                                    <a :href="'/account/commission/invoice/print-invoice/' + id" class="btn btn-primary" target="_blank">Print Preview</a>
                                 </div>
 
                             </div>
@@ -279,7 +198,7 @@
     import Multiselect from 'vue-multiselect';
 
     export default {
-        name: 'generateInvoice',
+        name: 'viewInvoice',
         components: {
             Multiselect
         },
@@ -499,10 +418,6 @@
 <style scoped>
     table {
         font-family: 'Roboto', 'Noto', sans-serif;
-    }
-    #commission_invoice_print input {
-        border: 0;
-        background: transparent;
     }
     .right-none th {
         border-right:0px !important;

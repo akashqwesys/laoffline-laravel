@@ -62,6 +62,7 @@ import InvoiceComponent from './components/account/invoiceComponents/InvoiceComp
 import CreateInvoiceComponent from './components/account/invoiceComponents/CreateInvoiceComponent.vue';
 import GenerateInvoiceComponent from './components/account/invoiceComponents/GenerateInvoiceComponent.vue';
 import ViewInvoiceComponent from './components/account/invoiceComponents/ViewInvoiceComponent.vue';
+import PrintInvoiceComponent from './components/account/invoiceComponents/PrintInvoiceComponent.vue';
 
 
 // Settings Menu
@@ -241,6 +242,7 @@ const routes = [
             { path: 'generate-invoice', component: GenerateInvoiceComponent },
             { path: 'edit-invoice/:id', component: GenerateInvoiceComponent },
             { path: 'view-invoice/:id', component: ViewInvoiceComponent },
+            { path: 'print-invoice/:id', component: PrintInvoiceComponent },
         ]
     },
     // Settings Menu
@@ -428,6 +430,7 @@ createApp({
         CreateInvoiceComponent,
         GenerateInvoiceComponent,
         ViewInvoiceComponent,
+        PrintInvoiceComponent,
 
         BankDetailsComponent,
         CreateBankDetailsComponent,

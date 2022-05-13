@@ -314,8 +314,8 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
     Route::group(['prefix' => 'commission/invoice'], function () {
         Route::get('/', [App\Http\Controllers\Account\InvoiceController::class, 'index']);
         Route::get('/list-data', [App\Http\Controllers\Account\InvoiceController::class, 'listInvoice']);
-        Route::get('/view-invoice', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoice']);
-        Route::get('/view-invoice-details/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceDetails']);
+        Route::get('/view-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoiceDetails']);
+        Route::get('/print-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoiceDetails']);
         Route::get('/list-company', [App\Http\Controllers\Account\InvoiceController::class, 'listCompany']);
         Route::get('/get-payments', [App\Http\Controllers\Account\InvoiceController::class, 'getPayments']);
         Route::get('/get-data', [App\Http\Controllers\Account\InvoiceController::class, 'getData']);

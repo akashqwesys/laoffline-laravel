@@ -1152,7 +1152,7 @@ class SaleBillController extends Controller
 
         $station = DB::table('cities')
             ->select('name')
-            ->where('id', intval($sale_bill_transports->station))
+            ->where('id', intval($sale_bill_transports->station ?? 0))
             ->first();
 
         return response()->json([
@@ -1170,8 +1170,8 @@ class SaleBillController extends Controller
             'subject' => $inward->subject ?? '- - -',
             'product_main' => $product_categories->name,
             'product_sub' => implode(' ,', $product_sub_categories),
-            'lr_mr_date' => date('d-m-Y', strtotime($sale_bill_transports->date)),
-            'station' => $station->name,
+            'lr_mr_date' => $sale_bill_transports ? date('d-m-Y', strtotime($sale_bill_transports->date)) : '',
+            'station' => $station->name ?? 0,
             'total_amount_words' => numberToString($sale_bill->total)
         ]);
     }
