@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -12,7 +12,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -514,7 +514,7 @@
                                                     <label class="form-label" for="fw-products">Products</label>
                                                     <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#AddFabric" title="Fabric Details"><span class="clipboard-text">Add New Fabric</span></button>
                                                     <div v-if="productWithSuppliers != ''">
-                                                        <multiselect v-model="form.product_with_suppliers" :options="productWithSuppliers" placeholder="Select one" label="name" track-by="name" :multiple="true" :taggable="true" @input="getSubProduct"></multiselect>                                                    
+                                                        <multiselect v-model="form.product_with_suppliers" :options="productWithSuppliers" placeholder="Select one" label="name" track-by="name" :multiple="true" :taggable="true" @input="getSubProduct"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -522,7 +522,7 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fw-products">Sub Products</label>
                                                     <div v-if="subProducts != ''">
-                                                        <multiselect v-model="form.sub_products" :options="subProducts" placeholder="Select one" label="supplier_code" track-by="supplier_code" :multiple="true" :taggable="true"></multiselect>                                                    
+                                                        <multiselect v-model="form.sub_products" :options="subProducts" placeholder="Select one" label="supplier_code" track-by="supplier_code" :multiple="true" :taggable="true"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -546,7 +546,7 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fw-products">Assign To</label>
                                                     <div>
-                                                        <multiselect v-model="form.assign_to" :options="assignTo" placeholder="Select one" label="name" track-by="name"></multiselect>                                                    
+                                                        <multiselect v-model="form.assign_to" :options="assignTo" placeholder="Select one" label="name" track-by="name"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -560,7 +560,7 @@
                                             </div>
                                         </div>
                                         <hr class="preview-hr">
-                                        <div class="row gy-4">                                        
+                                        <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
@@ -575,7 +575,7 @@
                     </div><!-- .nk-block -->
                 </div>
             </div>
-        </div>        
+        </div>
         <AddPerson></AddPerson>
         <div class="modal fade" id="addCompany">
             <div class="modal-dialog" role="document">
@@ -597,7 +597,7 @@
                                                 <multiselect v-model="form.company_type" :options="companyTypes" placeholder="Select one" label="name" track-by="name"></multiselect>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label" for="fv-name">Name</label>
@@ -730,14 +730,14 @@
 <script>
     import Multiselect from 'vue-multiselect';
     import Form from 'vform';
-    import AddPerson from '../inward/modal/AddNewPersonModelComponent';
+    import AddPerson from '../inward/Modal/AddNewPersonModelComponent';
 
     export default {
         name: 'inserInward',
         props: {
             type: Number,
         },
-        components: { 
+        components: {
             Multiselect,
             AddPerson,
         },
@@ -971,14 +971,14 @@
                 var mydate = new Date(createdDate);
                 var month = ["January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December"][mydate.getMonth()];
-                return mydate.getDate() + '-' + month + '-' + mydate.getFullYear() + " " + mydate.getHours() + ":" + mydate.getMinutes() + ":" + mydate.getSeconds();            
+                return mydate.getDate() + '-' + month + '-' + mydate.getFullYear() + " " + mydate.getHours() + ":" + mydate.getMinutes() + ":" + mydate.getSeconds();
             },
             getReferenceDataViaId(referenceId) {
                 if (referenceId != '') {
                     if (this.inwardType == 'sample') {
                         axios.get('/register/getOldReferenceDetails/'+referenceId+'/'+this.form.sample_via.name+'/'+this.inwardType)
                         .then(response => {
-                            
+
                         });
                     }
                 }
@@ -1002,7 +1002,7 @@
                     price: '',
                     quantity: '',
                 });
-            },                            
+            },
             deleteSampleDataRow: function(row) {
                 this.sampleData.pop(row);
             },
@@ -1025,7 +1025,7 @@
                         }
                         i++;
                     });
-                    
+
                     this.subjectProduct = productName;
                     if (productId != '') {
                         axios.get('/register/getSubProducts/'+productId)
@@ -1112,15 +1112,15 @@
             getSupplierFromName: function(event) {
                 this.inwardProductError = '';
                 if(event != null) {
-                    if (this.form.reference_via.name == 'Supplier') {                        
+                    if (this.form.reference_via.name == 'Supplier') {
                         this.subjectCompany = event.company_name;
                         axios.get('/register/from-name/'+event.id)
-                        .then(response => {         
+                        .then(response => {
                             this.form.from_name = response.data.contact_person_name;
                             this.form.from_number = response.data.contact_person_mobile;
                             this.subjectPerson = response.data.contact_person_name;
                         });
-                    } else {                        
+                    } else {
                         this.subjectCompany = '"company name"';
                         this.subjectPerson = '"person name"';
                     }
@@ -1130,7 +1130,7 @@
                 if(event != null) {
                     this.subjectCompany = event.company_name;
                     axios.get('/register/from-name/'+event.id)
-                    .then(response => {         
+                    .then(response => {
                         this.form.from_name = response.data.contact_person_name;
                         this.form.from_number = response.data.contact_person_mobile;
                         this.subjectPerson = response.data.contact_person_name;
@@ -1177,7 +1177,7 @@
                             comType.push(element);
                         }
                     });
-                    this.companyTypes = comType;          
+                    this.companyTypes = comType;
                 });
             },
             closeModel() {
@@ -1244,5 +1244,6 @@
         font-size: 11px;
         font-style: italic;
     }
-    
+
 </style>
+
