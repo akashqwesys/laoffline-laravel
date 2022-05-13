@@ -23,7 +23,7 @@
                                     </div>
                                     <div class="col-md-1">
                                         <div class="custom-control custom-checkbox checked">
-                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_tds" id="comm_invoice_tds" true-value="1" false-value="0" checked @click="hideShowSelect_tax">
+                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_tds" id="comm_invoice_tds" true-value="1" false-value="0" checked @click="updateData">
                                             <label class="custom-control-label" for="comm_invoice_tds"> TDS</label>
                                         </div>
                                     </div>
@@ -170,7 +170,7 @@
                                                 <td colspan="" class="text-left"><b>Total Commission</b></td>
                                                 <td id="totalAmount_td" class="text-right"> {{ total_commission }} </td>
                                             </tr>
-                                            <tr class="right-nonetd left-nonetd" id="tds_td_tr">
+                                            <tr class="right-nonetd left-nonetd" id="tds_td_tr" v-if="comm_invoice_tds == 1">
                                                 <td colspan="2"></td>
                                                 <td colspan="0" class="text-left"><b>Less : TDS Amount</b></td>
                                                 <td class="text-right"><span id="tds_td" > {{ tds_amount }} </span></td>
@@ -225,7 +225,7 @@
                                                 <td></td>
                                                 <td></td>
                                                 <td><b>Total Amount</b></td>
-                                                <td><b> {{ total_amount }} </b></td>
+                                                <td><b> {{ with_gst_amt }} </b></td>
                                                 <td></td>
                                             </tr>
                                         </tbody>
@@ -250,7 +250,7 @@
                                                 <td></td>
                                                 <td></td>
                                                 <td><b>Total Amount</b></td>
-                                                <td><b> {{ total_amount }} </b></td>
+                                                <td><b> {{ with_gst_amt }} </b></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -355,6 +355,7 @@
                     this.invoice_others = data.invoice_details.other_amount != 0 ? data.invoice_details.other_amount : 0;
                     this.rounded_off = data.invoice_details.rounded_off;
                     this.total_commission = parseFloat(this.comm_total_amount) + parseFloat(this.cgst_amount) + parseFloat(this.sgst_amount) + parseFloat(this.igst_amount) + parseFloat(this.invoice_others) + parseFloat(this.rounded_off);
+                    this.tds = data.tds;
                     this.tds_amount = data.invoice_details.tds_amount;
                     this.final_amount = data.invoice_details.final_amount;
                     $('#total_in_words').html('<b>' + this.inWords(this.final_amount) + '</b>');
@@ -374,8 +375,9 @@
                     this.bill_period_from = data.bill_period_from;
                     this.bill_period_to = data.bill_period_to;
                     this.invoice_bill_date = data.invoice_bill_date;
-                    this.with_gst_amt = this.total_amount = data.total_amount;
-                    this.without_gst_amt = this.without_gst_amt;
+                    this.total_amount = data.total_amount;
+                    this.with_gst_amt = data.with_gst_amt;
+                    this.without_gst_amt = data.without_gst_amt;
                     this.comm_total_amount = (data.total_amount * 2) / 100;
                     this.cgst = data.cgst;
                     this.sgst = data.sgst;
@@ -424,7 +426,6 @@
                     var total_commission = Math.ceil(result);
                     this.total_commission = total_commission;
                     if (this.comm_invoice_tds == 1) {
-                        $('#tds_td_tr').show();
                         if (select_tax == 1) {
                             tds = Math.round((commission_amount * session_tds) / 100);
                         } else if (select_tax == 2) {
@@ -433,7 +434,6 @@
                         this.tds_amount = tds;
                     } else {
                         this.tds_amount = 0;
-                        $('#tds_td_tr').hide();
                     }
                     net_commission = Math.ceil(total_commission - tds);
                     this.final_amount = net_commission;

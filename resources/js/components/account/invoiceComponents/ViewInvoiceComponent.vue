@@ -129,7 +129,7 @@
                                                 <td colspan="" class="text-left"><b>Total Commission</b></td>
                                                 <td id="totalAmount_td" class="text-right"> {{ total_commission }} </td>
                                             </tr>
-                                            <tr class="right-nonetd left-nonetd" id="tds_td_tr">
+                                            <tr class="right-nonetd left-nonetd" id="tds_td_tr" v-if="comm_invoice_tds == 1">
                                                 <td colspan="2"></td>
                                                 <td colspan="0" class="text-left"><b>Less : TDS Amount</b></td>
                                                 <td class="text-right"><span id="tds_td" > {{ tds_amount }} </span></td>
@@ -174,7 +174,7 @@
                                                 <td></td>
                                                 <td></td>
                                                 <td><b>Total Amount</b></td>
-                                                <td class="text-right"><b> {{ total_amount }} </b></td>
+                                                <td class="text-right"><b> {{ with_gst_amt }} </b></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -316,7 +316,6 @@
                     var total_commission = Math.ceil(result);
                     this.total_commission = total_commission;
                     if (this.comm_invoice_tds == 1) {
-                        $('#tds_td_tr').show();
                         if (select_tax == 1) {
                             tds = Math.round((commission_amount * session_tds) / 100);
                         } else if (select_tax == 2) {
@@ -325,7 +324,6 @@
                         this.tds_amount = tds;
                     } else {
                         this.tds_amount = 0;
-                        $('#tds_td_tr').hide();
                     }
                     net_commission = Math.ceil(total_commission - tds);
                     this.final_amount = net_commission;

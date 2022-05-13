@@ -659,7 +659,30 @@ class InvoiceController extends Controller
             $p_ids[] = $a[0];
             $total_amount += floatval($a[2]);
         }
+
+        $without_gst_amt = $with_gst_amt = 0;
         $payments = DB::table('payments as p')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->select('p.payment_id', 'p.financial_year_id', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id')
+            ->whereIn('p.payment_id', $p_ids)
+            ->get();
+        foreach ($payments as $v) {
+            $with_gst_amt += $v->receipt_amount;
+        }
+        $p_ids = collect($payments)->pluck('p_id')->toArray();
+
+        $pay_n_pay_det = DB::table('payments as p')
+            ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
+            ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
+            ->where('p.id', $p_ids)
+            ->where('p.is_deleted', 0)
+            ->where('pd.is_deleted', 0)
+            ->get();
+        foreach ($pay_n_pay_det as $v) {
+            $without_gst_amt += round((($v->adjust_amount * 100) / $v->gst), 2);
+        }
+        /* $payments = DB::table('payments as p')
             ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
@@ -673,7 +696,8 @@ class InvoiceController extends Controller
         foreach ($payments as $v) {
             $without_gst = round((($v->adjust_amount * 100) / $v->gst), 2);
             $without_gst_amt += $without_gst;
-        }
+        } */
+
         return response()->json([
             'agents' => $agents,
             'company' => $company,
@@ -686,6 +710,7 @@ class InvoiceController extends Controller
             'invoice_bill_date' => date('d-m-Y'),
             'total_amount' => $total_amount,
             'without_gst_amt' => $without_gst_amt,
+            'with_gst_amt' => $with_gst_amt,
             'cgst' => $user->cgst,
             'sgst' => $user->sgst,
             'igst' => $user->igst,
@@ -759,8 +784,31 @@ class InvoiceController extends Controller
             ->where('financial_year_id', $user->financial_year_id)
             ->first();
 
-        // $payment_details = DB::table('invoice_payment_details')->where('commission_invoice_id', $id)->get();
+        $without_gst_amt = $with_gst_amt = 0;
         $payment_details = DB::table('invoice_payment_details as ipd')
+            ->join('payments as p', 'ipd.payment_id', '=', 'p.payment_id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'ipd.payment_id','cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id')
+            ->where('commission_invoice_id', $id)
+            ->get();
+        foreach ($payment_details as $v) {
+            $with_gst_amt += $v->received_amount;
+        }
+        $p_ids = collect($payment_details)->pluck('p_id')->toArray();
+
+        $pay_n_pay_det = DB::table('payments as p')
+            ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
+            ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
+            ->where('p.id', $p_ids)
+            ->where('p.is_deleted', 0)
+            ->where('pd.is_deleted', 0)
+            ->get();
+        foreach ($pay_n_pay_det as $v) {
+            $without_gst_amt += round((($v->adjust_amount * 100) / $v->gst), 2);
+        }
+
+        /* $payment_details = DB::table('invoice_payment_details as ipd')
             ->join('payments as p', 'ipd.payment_id', '=', 'p.payment_id')
             ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
@@ -771,12 +819,12 @@ class InvoiceController extends Controller
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
-        $without_gst_amt = $with_gst_amt = 0;
         foreach ($payment_details as $v) {
             $without_gst = round((($v->adjust_amount * 100) / $v->gst), 2);
             $without_gst_amt += $without_gst;
             $with_gst_amt += $v->received_amount;
-        }
+        } */
+
         $agents = DB::table('agents')->select('id', 'name', 'gst_no', 'pan_no', 'inv_prefix')->where('is_delete', '0')->get();
 
         $supplier = DB::table('companies as c')
@@ -812,7 +860,11 @@ class InvoiceController extends Controller
             'bill_period_to' => date('d-m-Y', strtotime($invoice_details->bill_period_to)),
             'invoice_bill_date' => date('d-m-Y', strtotime($invoice_details->bill_date)),
             'without_gst_amt' => $without_gst_amt,
-            'with_gst_amt' => $with_gst_amt
+            'with_gst_amt' => $with_gst_amt,
+            'cgst' => $user->cgst,
+            'sgst' => $user->sgst,
+            'igst' => $user->igst,
+            'tds' => $user->tds,
         ]);
     }
 
