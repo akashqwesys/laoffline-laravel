@@ -115,6 +115,7 @@ import PaymentStatusComponent from './components/payment/PaymentStatusComponent.
 import GoodReturnComponent from './components/payment/GoodReturnComponent.vue';
 import ViewPaymentComponent from './components/payment/ViewPaymentComponent.vue';
 import ViewVoucherComponent from './components/payment/ViewVoucherComponent.vue';
+import ViewGoodReturnComponent from './components/payment/ViewGoodReturnComponent.vue';
 
 import CommissionComponent from './components/account/commission/CommissionComponent.vue';
 import CreateCommissionComponent from './components/account/commission/CreateCommissionComponent.vue';
@@ -363,6 +364,7 @@ const routes = [
             { path: 'goods_returns', component: GoodReturnComponent},
             { path: 'view-payment/:id', component: ViewPaymentComponent},
             { path: 'view-voucher/:id', component: ViewVoucherComponent},
+            { path: 'view-goodreturn/:id', component: ViewGoodReturnComponent},
 
         ]
     },
@@ -468,6 +470,7 @@ createApp({
         GoodReturnComponent,
         ViewPaymentComponent,
         ViewVoucherComponent,
+        ViewGoodReturnComponent,
 
         CommissionComponent,
         CreateCommissionComponent,

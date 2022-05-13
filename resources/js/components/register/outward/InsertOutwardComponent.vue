@@ -1204,7 +1204,7 @@
                 })
             },
             register () {
-                this.form.post('/settings/agent/create')
+                this.form.post('/register/insertourward/'+this.inwardType)
                     .then(( response ) => {
                         window.location.href = '/settings/agent';
                 })
