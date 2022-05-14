@@ -1079,6 +1079,7 @@ class SaleBillController extends Controller
             ->where('s.sale_bill_id', $id)
             ->where('s.financial_year_id', $user->financial_year_id)
             ->where('s.is_deleted', 0)
+            ->orderBy('s.created_at', 'desc')
             ->first();
         if (gettype($sale_bill->product_category_id) == 'string' && ($sale_bill->product_category_id == '"0"' || $sale_bill->product_category_id == '0')) {
             $product_category_id = [0];
