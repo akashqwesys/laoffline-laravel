@@ -922,6 +922,7 @@ class SaleBillController extends Controller
             ->where('sale_bill_id', $id)
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
+            ->orderBy('created_at', 'desc')
             ->first();
         $sale_bill_items = DB::table('sale_bill_items')
             ->where('sale_bill_id', $id)
@@ -997,7 +998,7 @@ class SaleBillController extends Controller
         }
         $supplier_group = $supplier_group_array;
 
-        if (gettype($sale_bill->product_category_id) == 'string' && $sale_bill->product_category_id == '"0"') {
+        if (gettype($sale_bill->product_category_id) == 'string' && ($sale_bill->product_category_id == '"0"' || $sale_bill->product_category_id == '0')) {
             $prodSubCate = [0];
         } else {
             $prodSubCate = json_decode($sale_bill->product_category_id);
@@ -1079,7 +1080,7 @@ class SaleBillController extends Controller
             ->where('s.financial_year_id', $user->financial_year_id)
             ->where('s.is_deleted', 0)
             ->first();
-        if (gettype($sale_bill->product_category_id) == 'string' && $sale_bill->product_category_id == '"0"') {
+        if (gettype($sale_bill->product_category_id) == 'string' && ($sale_bill->product_category_id == '"0"' || $sale_bill->product_category_id == '0')) {
             $product_category_id = [0];
         } else {
             $product_category_id = json_decode($sale_bill->product_category_id);
