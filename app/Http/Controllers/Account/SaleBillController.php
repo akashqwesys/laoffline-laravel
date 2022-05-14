@@ -997,7 +997,11 @@ class SaleBillController extends Controller
         }
         $supplier_group = $supplier_group_array;
 
-        $prodSubCate = json_decode($sale_bill->product_category_id);
+        if (gettype($sale_bill->product_category_id) == 'string' && $sale_bill->product_category_id == '"0"') {
+            $prodSubCate = [0];
+        } else {
+            $prodSubCate = json_decode($sale_bill->product_category_id);
+        }
 
         $product = $this->getProductFromSubCategoriesForUpdate($prodSubCate, $link_companies, $sale_bill->product_default_category_id);
 
@@ -1075,7 +1079,11 @@ class SaleBillController extends Controller
             ->where('s.financial_year_id', $user->financial_year_id)
             ->where('s.is_deleted', 0)
             ->first();
-        $product_category_id = json_decode($sale_bill->product_category_id);
+        if (gettype($sale_bill->product_category_id) == 'string' && $sale_bill->product_category_id == '"0"') {
+            $product_category_id = [0];
+        } else {
+            $product_category_id = json_decode($sale_bill->product_category_id);
+        }
 
         $product_categories = DB::table('product_categories')
             ->select('name')
