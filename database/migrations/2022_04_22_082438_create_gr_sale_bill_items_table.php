@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('gr_sale_bill_items', function (Blueprint $table) {
             $table->id();
-            $table->integer('gr_sale_bill_item_id')->default('0');
             $table->integer('gr_increment_id')->default('0');
             $table->integer('goods_return_id')->default('0');
             $table->integer('product_or_fabric_id')->default('0');

@@ -10,14 +10,14 @@ use App\Models\User;
 use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
 use App\Models\Comboids\Comboids;
-use App\Models\Commission\commission;
+use App\Models\Commission\Commission;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\ProductCategory;
 use App\Models\Settings\TransportDetails;
 use App\Models\Settings\TransportMultipleAddressDetails;
 use App\Models\Product;
-use App\Models\inwardOutward\inward;
-use App\Models\inwardOutward\outward;
+use App\Models\InwardOutward\Inward;
+use App\Models\InwardOutward\Outward;
 use App\Models\InwardOrderDetail;
 use App\Models\InwardOrderAction;
 use App\Models\InwardOrder;
@@ -62,7 +62,7 @@ use App\Models\linkCompanies;
 use App\Models\linkCompaniesLog;
 use App\Models\Reference\ReferenceId;
 use App\Models\Settings\Agent;
-use App\Models\settings\State;
+use App\Models\Settings\State;
 use App\Models\Settings\BankDetails;
 use App\Models\Settings\Designation;
 use App\Models\inwardOutward\inwardActions;
@@ -421,7 +421,7 @@ class ConnectionController extends Controller
             //         $OutwardList[$i]['connected_outward'] = $result['connected_outward'];
             //         $OutwardList[$i]['outward_date'] = $result['outward_date'];
             //         $OutwardList[$i]['subject'] = $result['subject'];
-            //         $OutwardList[$i]['employee_id'] = $result['employee_id'];
+            //         $OutwardList[$i]['employee_id'] = $result['employe_id'];
             //         $OutwardList[$i]['type_of_outward'] = $result['type_of_outward'];
             //         $OutwardList[$i]['receiver_number'] = $result['receiver_number'];
             //         $OutwardList[$i]['from_number'] = $result['from_number'];
@@ -450,7 +450,7 @@ class ConnectionController extends Controller
             //         $OutwardList[$i]['courier_agent'] = $result['courier_agent'];
             //         $OutwardList[$i]['mark_as_draft'] = $result['mark_as_draft'];
             //         $OutwardList[$i]['outward_courier_flag'] = $result['outward_courier_flag'];
-            //         $OutwardList[$i]['outward_employee_id'] = $result['outward_employee_id'];
+            //         $OutwardList[$i]['outward_employee_id'] = $result['outward_employe_id'];
             //         $OutwardList[$i]['is_deleted'] = $result['is_deleted'];
             //         $i++;
             //     }
@@ -591,7 +591,6 @@ class ConnectionController extends Controller
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($gritemquery)) {
             //         $GRItemList[$i]['id'] = $result['gr_sale_bill_item_id'];
-            //         $GRItemList[$i]['gr_sale_bill_item_id'] = $result['gr_sale_bill_item_id'];
             //         $GRItemList[$i]['gr_increment_id'] = $result['gr_increment_id'];
             //         $GRItemList[$i]['goods_return_id'] = $result['goods_return_id'];
             //         $GRItemList[$i]['product_or_fabric_id'] = $result['product_or_fabric_id'];
@@ -777,8 +776,8 @@ class ConnectionController extends Controller
             //         $OutwardOrderDetailList[$i]['id'] = $result['outward_order_for_details_id'];
             //         $OutwardOrderDetailList[$i]['outward_id'] = $result['outward_id'];
             //         $OutwardOrderDetailList[$i]['order_for'] = $result['order_for'];
-            //         $OutwardOrderDetailList[$i]['packing_id'] = $result['packing_id'];
-            //         $OutwardOrderDetailList[$i]['packing_date'] = $result['packing_date'];
+            //         $OutwardOrderDetailList[$i]['packing_id'] = $result['packin_id'];
+            //         $OutwardOrderDetailList[$i]['packing_date'] = ($result['packing_date'] == '0000-00-00') ? null : $result['packing_date'];
             //         $OutwardOrderDetailList[$i]['lump'] = $result['lump'];
             //         $OutwardOrderDetailList[$i]['cut'] = $result['cut'];
             //         $OutwardOrderDetailList[$i]['top'] = $result['top'];
@@ -836,7 +835,7 @@ class ConnectionController extends Controller
 
 
             // $incrementids = "SELECT * FROM increment_ids";
-            // $incrementidsquery = mysqli_query($conn, $country);
+            // $incrementidsquery = mysqli_query($conn, $incrementids);
             // if(mysqli_num_rows($incrementidsquery) != 0) {
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($incrementidsquery)) {
@@ -1315,52 +1314,37 @@ class ConnectionController extends Controller
             // if(mysqli_num_rows($comquery) != 0) {
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($comquery)) {
-            //         if(!empty($result['company_category_id'])) {
+            //         if (!empty($result['company_category_id'])) {
             //             $subCatId = unserialize($result['company_category_id']);
-            //             if($subCatId) {
-            //                 $countsubCatId = array_key_last($subCatId['company_category']) + 1;
-            //                 if ($countsubCatId == 1) {
-            //                     $result['company_category_id'] = json_encode($subCatId['company_category'][0]);
-            //                 } else {
-            //                     $result['company_category_id'] = json_encode($subCatId['company_category']);
-            //                 }
+            //             if ($subCatId) {
+            //                 $result['company_category_id'] = json_encode($subCatId['company_category']);
             //             } else {
-            //                 $result['company_category_id'] = 0;
+            //                 $result['company_category_id'] = json_encode([]);
             //             }
             //         } else {
-            //             $result['company_category_id'] = 0;
+            //             $result['company_category_id'] = json_encode([]);
             //         }
 
-            //         if(!empty($result['landline_no'])) {
+            //         if (!empty($result['landline_no'])) {
             //             $lno = @unserialize($result['landline_no']);
-            //             if($lno) {
-            //                 $countlno = array_key_last($lno) + 1;
-            //                 if ($countlno == 1) {
-            //                     $result['landline_no'] = json_encode($lno[0]);
-            //                 } else {
-            //                     $result['landline_no'] = json_encode($lno);
-            //                 }
+            //             if ($lno) {
+            //                 $result['landline_no'] = json_encode($lno);
             //             } else {
-            //                 $result['landline_no'] = 0;
+            //                 $result['landline_no'] = json_encode([]);
             //             }
             //         } else {
-            //             $result['landline_no'] = 0;
+            //             $result['landline_no'] = json_encode([]);
             //         }
 
-            //         if(!empty($result['mobile_no'])) {
+            //         if (!empty($result['mobile_no'])) {
             //             $lno = @unserialize($result['mobile_no']);
-            //             if($lno) {
-            //                 $countlno = array_key_last($lno) + 1;
-            //                 if ($countlno == 1) {
-            //                     $result['mobile_no'] = json_encode($lno[0]);
-            //                 } else {
-            //                     $result['mobile_no'] = json_encode($lno);
-            //                 }
+            //             if ($lno) {
+            //                 $result['mobile_no'] = json_encode($lno);
             //             } else {
-            //                 $result['mobile_no'] = 0;
+            //                 $result['mobile_no'] = json_encode([]);
             //             }
             //         } else {
-            //             $result['mobile_no'] = 0;
+            //             $result['mobile_no'] = json_encode([]);
             //         }
 
             //         if($result['verified_date'] == '0000-00-00 00:00:00') {
@@ -1372,8 +1356,30 @@ class ConnectionController extends Controller
             //         $companyData[$i]['companyData']['id'] = $result['company_id'];
             //         $companyData[$i]['companyData']['company_name'] = $result['name'];
             //         $companyData[$i]['companyData']['company_type'] = $result['company_type_id'];
-            //         $companyData[$i]['companyData']['company_country'] = !empty($result['country_name']) ? $result['country_name'] : 0;
-            //         $companyData[$i]['companyData']['company_state'] = !empty($result['state_id']) ? $result['state_id'] : 0;
+            //         if ($result['country_name'] == 'India') {
+            //             $companyData[$i]['companyData']['company_country'] = 105;
+            //         } else if ($result['country_name'] == 'United Kingdom') {
+            //             $companyData[$i]['companyData']['company_country'] = 77;
+            //         } else if ($result['country_name'] == 'Poland') {
+            //             $companyData[$i]['companyData']['company_country'] = 179;
+            //         } else if ($result['country_name'] == 'Singapore') {
+            //             $companyData[$i]['companyData']['company_country'] = 198;
+            //         } else if ($result['country_name'] == 'France') {
+            //             $companyData[$i]['companyData']['company_country'] = 75;
+            //         } else if ($result['country_name'] == 'Pakistan') {
+            //             $companyData[$i]['companyData']['company_country'] = 178;
+            //         } else if ($result['country_name'] == 'United Arab Emirates') {
+            //             $companyData[$i]['companyData']['company_country'] = 2;
+            //         } else if ($result['country_name'] == 'Japan') {
+            //             $companyData[$i]['companyData']['company_country'] = 114;
+            //         } else if ($result['country_name'] == 'Sri Lanka') {
+            //             $companyData[$i]['companyData']['company_country'] = 130;
+            //         } else if ($result['country_name'] == 'Turkey') {
+            //             $companyData[$i]['companyData']['company_country'] = 225;
+            //         } else {
+            //             $companyData[$i]['companyData']['company_country'] = 0;
+            //         }
+            //         $companyData[$i]['companyData']['company_state'] = !empty($result['state_id']) ? intval($result['state_id']) : 0;
             //         $companyData[$i]['companyData']['company_city'] = !empty($result['city_name']) ? $result['city_name'] : 0;
             //         $companyData[$i]['companyData']['company_website'] = $result['website'];
             //         $companyData[$i]['companyData']['company_landline'] = $result['landline_no'];
@@ -2277,7 +2283,6 @@ class ConnectionController extends Controller
         //     foreach($GRItemList as $gritem) {
         //         $grsalebillitem = new GrSaleBillItem();
         //         $grsalebillitem->id = $gritem['gr_sale_bill_item_id'];
-        //         $grsalebillitem->gr_sale_bill_item_id = $gritem['gr_sale_bill_item_id'];
         //         $grsalebillitem->gr_increment_id = $gritem['gr_increment_id'];
         //         $grsalebillitem->goods_return_id = $gritem['goods_return_id'];
         //         $grsalebillitem->product_or_fabric_id = $gritem['product_or_fabric_id'];
@@ -2312,6 +2317,7 @@ class ConnectionController extends Controller
         //         $incremeniddata->payment_id = $iid['payment_id'];
         //         $incremeniddata->commission_id = $iid['commission_id'];
         //         $incremeniddata->goods_return_id = $iid['goods_return_id'];
+        //         $incremeniddata->save();
         //     }
         // }
 
@@ -2431,7 +2437,7 @@ class ConnectionController extends Controller
 
         // if(!empty($OutwardList)) {
         //     foreach($OutwardList as $outward) {
-        //         $outwarddata = new outward();
+        //         $outwarddata = new Outward();
         //         $outwarddata->outward_id = $outward['outward_id'];
         //         $outwarddata->ouid = $outward['ouid'];
         //         $outwarddata->outward_ref_via = $outward['outward_ref_via'];
@@ -2440,7 +2446,7 @@ class ConnectionController extends Controller
         //         $outwarddata->connected_outward = $outward['connected_outward'];
         //         $outwarddata->outward_date = $outward['outward_date'];
         //         $outwarddata->subject = $outward['subject'];
-        //         $outwarddata->employee_id = $outward['employee_id'];
+        //         $outwarddata->employee_id = $outward['employe_id'];
         //         $outwarddata->type_of_outward = $outward['type_of_outward'];
         //         $outwarddata->receiver_number = $outward['receiver_number'];
         //         $outwarddata->from_number = $outward['from_number'];
@@ -2627,7 +2633,7 @@ class ConnectionController extends Controller
 
         // if(!empty($commissionList)) {
         //     foreach($commissionList as $commissionData) {
-        //         $commission = new commission();
+        //         $commission = new Commission();
         //         $commission->id = $commissionData['id'];
         //         $commission->commission_id = $commissionData['commission_id'];
         //         $commission->iuid = $commissionData['iuid'];
@@ -2638,9 +2644,9 @@ class ConnectionController extends Controller
         //         $commission->customer_id = $commissionData['customer_id'];
         //         $commission->supplier_id = $commissionData['supplier_id'];
         //         $commission->bill_no = $commissionData['bill_no'];
-        //         $commission->bill_date = $commissionData['bill_date'];
+        //         $commission->bill_date = ($commissionData['bill_date'] == '0000-00-00') ? null : $commissionData['bill_date'];
         //         $commission->deposite_bank = $commissionData['deposite_bank'];
-        //         $commission->cheque_date = $commissionData['cheque_date'];
+        //         $commission->cheque_date = ($commissionData['cheque_date'] == '0000-00-00') ? null : $commissionData['cheque_date'];
         //         $commission->cheque_dd_no = $commissionData['cheque_dd_no'];
         //         $commission->cheque_dd_bank = $commissionData['cheque_dd_bank'];
         //         $commission->bill_amount = $commissionData['bill_amount'];
@@ -2648,14 +2654,14 @@ class ConnectionController extends Controller
         //         $commission->tds = $commissionData['tds'];
         //         $commission->net_received_amount = $commissionData['net_received_amount'];
         //         $commission->received_commission_amount = $commissionData['received_commission_amount'];
-        //         $commission->commission_date = $commissionData['commission_date'];
+        //         $commission->commission_date = ($commissionData['commission_date'] == '0000-00-00') ? null : $commissionData['commission_date'];
         //         $commission->commission_account = $commissionData['commission_account'];
         //         $commission->remark = $commissionData['remark'];
         //         // $commission->required_followup = $commissionData['required_followup'];
         //         $commission->commission_reciept_mode = $commissionData['commission_reciept_mode'];
-        //         $commission->commission_payment_date = $commissionData['commission_payment_date'];
+        //         $commission->commission_payment_date = ($commissionData['commission_payment_date'] == '0000-00-00') ? null : $commissionData['commission_payment_date'];
         //         $commission->commission_deposite_bank = $commissionData['commission_deposite_bank'];
-        //         $commission->commission_cheque_date = $commissionData['commission_cheque_date'];
+        //         $commission->commission_cheque_date = ($commissionData['commission_cheque_date'] == '0000-00-00') ? null : $commissionData['commission_cheque_date'];
         //         $commission->commission_cheque_dd_no = $commissionData['commission_cheque_dd_no'];
         //         $commission->commission_cheque_dd_bank = $commissionData['commission_cheque_dd_bank'];
         //         $commission->commission_payment_amount = $commissionData['commission_payment_amount'];
@@ -2665,6 +2671,7 @@ class ConnectionController extends Controller
         //         $commission->is_invoice = $commissionData['is_invoice'];
         //         $commission->date_added = $commissionData['date_added'];
         //         $commission->is_deleted = $commissionData['is_deleted'];
+        //         $commission->save();
         //     }
         // }
         // if(!empty($commisionInvoiceList)) {

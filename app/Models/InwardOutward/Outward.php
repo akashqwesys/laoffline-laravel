@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class outward extends Model
 {
     use HasFactory;
-    protected $fillable =[
-        'outward_id',
+
+    protected $primaryKey = 'outward_id';
+
+    protected $fillable = [
         'ouid',
         'outward_ref_via',
         'general_output_ref_id',

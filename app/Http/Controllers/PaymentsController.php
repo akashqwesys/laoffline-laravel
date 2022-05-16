@@ -1322,7 +1322,7 @@ class PaymentsController extends Controller
                     $productName = $Item->product_or_fabric_id;
                 }
             $product = DB::table('products')->where('id', $Item->product_or_fabric_id)->first();
-            array_push($grItemData,array("id" => $Item->gr_sale_bill_item_id, "product_or_fabric_id" => $Item->product_or_fabric_id, "name" => $productName, "meter" => $Item->meters, "pieces" => $Item->peices, "pieces_meter" => $Item->peices_meters, "rate" => $Item->rate, "amount" => ''));
+            array_push($grItemData,array("id" => $Item->id, "product_or_fabric_id" => $Item->product_or_fabric_id, "name" => $productName, "meter" => $Item->meters, "pieces" => $Item->peices, "pieces_meter" => $Item->peices_meters, "rate" => $Item->rate, "amount" => ''));
         }
         $data = $goodReturn;
         $data['products'] = $grItemData;
@@ -1853,7 +1853,6 @@ class PaymentsController extends Controller
                 $gritemId = !empty($gritemLastid) ? $gritemLastid->id + 1 : 1;
                 $grsalebillitem = new GrSaleBillItem();
                 $grsalebillitem->id = $gritemId;
-                $grsalebillitem->gr_sale_bill_item_id = $gritemId;
                 $grsalebillitem->gr_increment_id = $goodreturnId;
                 $grsalebillitem->goods_return_id = $goods_return_id;
                 $grsalebillitem->product_or_fabric_id = $product->product_or_fabric_id;
@@ -1910,7 +1909,6 @@ class PaymentsController extends Controller
             $gritemId = !empty($gritemLastid) ? $gritemLastid->id + 1 : 1;
             $grsalebillitem = new GrSaleBillItem();
             $grsalebillitem->id = $gritemId;
-            $grsalebillitem->gr_sale_bill_item_id = $gritemId;
             $grsalebillitem->gr_increment_id = $goodreturnId->id;
             $grsalebillitem->goods_return_id = $salebilldata->id;
             $grsalebillitem->product_or_fabric_id = $product->product_or_fabric_id;
