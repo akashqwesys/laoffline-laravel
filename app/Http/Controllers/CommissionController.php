@@ -503,7 +503,7 @@ class CommissionController extends Controller
             $CommissionDetailLastId = CommissionDetail::orderBy('id', 'DESC')->first('id');
             $commissionDetailId = !empty($CommissionDetailLastId) ? $CommissionDetailLastId->id + 1 : 1;
             $commission_detail->id = $commissionDetailId;
-            $commission_detail->commission_details_id = $commissionDetailId;
+            // $commission_detail->commission_details_id = $commissionDetailId;
             $commission_detail->c_increment_id = $c_increment_id;
             $commission_detail->payment_id = '0';
             $commission_detail->financial_year_id = '7';
