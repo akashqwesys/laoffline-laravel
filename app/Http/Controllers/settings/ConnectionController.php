@@ -190,29 +190,39 @@ class ConnectionController extends Controller
             // if(mysqli_num_rows($salebillquery) != 0) {
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($salebillquery)) {
-            //         $SalebillList[$i]['id'] = $result['id'];
-            //         $SalebillList[$i]['sale_bill_id'] = $result['sale_bill_id'];
-            //         $SalebillList[$i]['iuid'] = $result['iuid'];
-            //         $SalebillList[$i]['sale_bill_via'] = $result['sale_bill_via'];
-            //         $SalebillList[$i]['attachment'] = $result['attachments'];
-            //         $SalebillList[$i]['financial_year_id'] = $result['financial_year_id'];
-            //         $SalebillList[$i]['general_ref_id'] = $result['general_ref_id'];
-            //         $SalebillList[$i]['new_or_old_reference'] = $result['new_or_old_reference'];
-            //         $SalebillList[$i]['sale_bill_for'] = $result['sale_bill_for'];
-            //         $SalebillList[$i]['product_default_category_id'] = $result['product_main_category_id'];
-            //         $SalebillList[$i]['product_category_id'] = json_encode(unserialize($result['product_sub_category_id']));
+                    // if (!empty($result['product_sub_category_id'])) {
+                    //     $prodSubCat = unserialize($result['product_sub_category_id']);
+                    //     if ($prodSubCat) {
+                    //         $result['product_sub_category_id'] = json_encode($prodSubCat);
+                    //     } else {
+                    //         $result['product_sub_category_id'] = json_encode([]);
+                    //     }
+                    // } else {
+                    //     $result['product_sub_category_id'] = json_encode([]);
+                    // }
+                    // $SalebillList[$i]['id'] = $result['id'];
+                    // $SalebillList[$i]['sale_bill_id'] = $result['sale_bill_id'];
+                    // $SalebillList[$i]['iuid'] = $result['iuid'];
+                    // $SalebillList[$i]['sale_bill_via'] = $result['sale_bill_via'];
+                    // $SalebillList[$i]['attachment'] = $result['attachments'];
+                    // $SalebillList[$i]['financial_year_id'] = $result['financial_year_id'];
+                    // $SalebillList[$i]['general_ref_id'] = $result['general_ref_id'];
+                    // $SalebillList[$i]['new_or_old_reference'] = $result['new_or_old_reference'];
+                    // $SalebillList[$i]['sale_bill_for'] = $result['sale_bill_for'];
+                    // $SalebillList[$i]['product_default_category_id'] = $result['product_main_category_id'];
+                    // $SalebillList[$i]['product_category_id'] = $result['product_sub_category_id'];
             //         $SalebillList[$i]['inward_id'] = $result['inward_id'];
             //         $SalebillList[$i]['company_id'] = $result['company_id'];
             //         $SalebillList[$i]['address'] = $result['address'];
             //         $SalebillList[$i]['supplier_id'] = $result['supplier_id'];
             //         $SalebillList[$i]['agent_id'] = $result['agent_id'];
             //         $SalebillList[$i]['supplier_invoice_no'] = $result['supplier_invoice_no'];
-            //         $SalebillList[$i]['select_date'] = $result['select_date'];
+                    // $SalebillList[$i]['select_date'] = $result['select_date'] == '0000-00-00' ? null : $result['select_date'];
             //         $SalebillList[$i]['change_in_amount'] = $result['change_in_amount'];
             //         $SalebillList[$i]['sign_change'] = $result['sign_change'];
             //         $SalebillList[$i]['total'] = $result['total'];
-            //         $SalebillList[$i]['total_peices'] = $result['total_peices'];
-            //         $SalebillList[$i]['total_meters'] = $result['total_meters'];
+                    // $SalebillList[$i]['total_peices'] = $result['total_peices'] ? $result['total_peices'] : 0;
+                    // $SalebillList[$i]['total_meters'] = $result['total_meters'] ? $result['total_meters'] : 0;
             //         $SalebillList[$i]['remark'] = $result['remark'];
             //         $SalebillList[$i]['sale_bill_flag'] = $result['sale_bill_flag'];
             //         $SalebillList[$i]['done_outward'] = $result['done_outward'];
@@ -232,19 +242,19 @@ class ConnectionController extends Controller
             // $salebilltransportquery = mysqli_query($conn, $salebilltransport);
             // if(mysqli_num_rows($salebilltransportquery) != 0) {
             //     $i = 0;
-            //     while($result = mysqli_fetch_assoc($salebilltransportquery)) {
-            //         $SalebillTransportList[$i]['id'] = $result['sale_bill_transport_id'];
-            //         $SalebillTransportList[$i]['sale_bill_id'] = $result['sale_bill_id'];
-            //         $SalebillTransportList[$i]['financial_year_id'] = $result['financial_year_id'];
-            //         $SalebillTransportList[$i]['transport_id'] = $result['transport_id'];
-            //         $SalebillTransportList[$i]['station'] = $result['station'];
-            //         $SalebillTransportList[$i]['lr_mr_no'] = $result['lr_mr_no'];
-            //         $SalebillTransportList[$i]['date'] = $result['date'];
-            //         $SalebillTransportList[$i]['cases'] = $result['cases'];
-            //         $SalebillTransportList[$i]['weight'] = empty($result['weight']) ? 0 : $result['weight'];
-            //         $SalebillTransportList[$i]['freight'] = empty($result['freight']) ? 0 : $result['freight'];
-            //         $SalebillTransportList[$i]['is_deleted'] = $result['is_deleted'];
-            //         $i++;
+                // while($result = mysqli_fetch_assoc($salebilltransportquery)) {
+                //     $SalebillTransportList[$i]['id'] = $result['sale_bill_transport_id'];
+                //     $SalebillTransportList[$i]['sale_bill_id'] = $result['sale_bill_id'];
+                //     $SalebillTransportList[$i]['financial_year_id'] = $result['financial_year_id'];
+                //     $SalebillTransportList[$i]['transport_id'] = $result['transport_id'];
+                //     $SalebillTransportList[$i]['station'] = $result['station'];
+                //     $SalebillTransportList[$i]['lr_mr_no'] = $result['lr_mr_no'];
+                //     $SalebillTransportList[$i]['date'] = $result['date'] == '0000-00-00' ? null : $result['date'];
+                //     $SalebillTransportList[$i]['cases'] = $result['cases'];
+                //     $SalebillTransportList[$i]['weight'] = empty($result['weight']) ? 0 : $result['weight'];
+                //     $SalebillTransportList[$i]['freight'] = empty($result['freight']) ? 0 : $result['freight'];
+                //     $SalebillTransportList[$i]['is_deleted'] = $result['is_deleted'];
+                //     $i++;
             //     }
             // }
 
@@ -258,21 +268,21 @@ class ConnectionController extends Controller
             //         $SalebillItemList[$i]['financial_year_id'] = $result['financial_year_id'];
             //         $SalebillItemList[$i]['product_or_fabric_id'] = $result['product_or_fabric_id'];
             //         $SalebillItemList[$i]['sub_product_id'] = $result['sub_product_id'];
-            //         $SalebillItemList[$i]['pieces'] = $result['peices'];
-            //         $SalebillItemList[$i]['cut'] = $result['cut'];
-            //         $SalebillItemList[$i]['meters'] = $result['meters'];
-            //         $SalebillItemList[$i]['pieces_meters'] = $result['peices_meters'];
-            //         $SalebillItemList[$i]['rate'] = $result['rate'];
-            //         $SalebillItemList[$i]['hsn_code'] = $result['hsn_code'];
-            //         $SalebillItemList[$i]['discount'] = $result['discount'];
-            //         $SalebillItemList[$i]['discount_amount'] = $result['discount_amount'];
-            //         $SalebillItemList[$i]['cgst'] = $result['cgst'];
-            //         $SalebillItemList[$i]['cgst_amount'] = $result['cgst_amount'];
-            //         $SalebillItemList[$i]['sgst'] = $result['sgst'];
-            //         $SalebillItemList[$i]['sgst_amount'] = $result['sgst_amount'];
-            //         $SalebillItemList[$i]['igst'] = $result['igst'];
-            //         $SalebillItemList[$i]['igst_amount'] = $result['igst_amount'];
-            //         $SalebillItemList[$i]['amount'] = $result['amount'];
+                    // $SalebillItemList[$i]['pieces'] = $result['peices'] ? $result['peices'] : 0;
+                    // $SalebillItemList[$i]['cut'] = $result['cut'] ? $result['cut'] : 0;
+                    // $SalebillItemList[$i]['meters'] = $result['meters'] ? $result['meters'] : 0;
+                    // $SalebillItemList[$i]['pieces_meters'] = $result['peices_meters'] ? $result['peices_meters'] : 0;
+                    // $SalebillItemList[$i]['rate'] = $result['rate'] ? $result['rate'] : 0;
+                    // $SalebillItemList[$i]['hsn_code'] = $result['hsn_code'];
+                    // $SalebillItemList[$i]['discount'] = $result['discount'] ? $result['discount'] : 0;
+                    // $SalebillItemList[$i]['discount_amount'] = $result['discount_amount'] ? $result['discount_amount'] : 0;
+                    // $SalebillItemList[$i]['cgst'] = $result['cgst'] ? $result['cgst'] : 0;
+                    // $SalebillItemList[$i]['cgst_amount'] = $result['cgst_amount'] ? $result['cgst_amount'] : 0;
+                    // $SalebillItemList[$i]['sgst'] = $result['sgst'] ? $result['sgst'] : 0;
+                    // $SalebillItemList[$i]['sgst_amount'] = $result['sgst_amount'] ? $result['sgst_amount'] : 0;
+                    // $SalebillItemList[$i]['igst'] = $result['igst'] ? $result['igst'] : 0;
+                    // $SalebillItemList[$i]['igst_amount'] = $result['igst_amount'] ? $result['igst_amount'] : 0;
+                    // $SalebillItemList[$i]['amount'] = $result['amount'] ? $result['amount'] : 0;
             //         $SalebillItemList[$i]['main_or_sub'] = $result['main_or_sub'];
             //         $SalebillItemList[$i]['inward_order_action_id'] = $result['inward_order_action_id'];
             //         $SalebillItemList[$i]['is_deleted'] = $result['is_deleted'];
@@ -370,14 +380,20 @@ class ConnectionController extends Controller
             //         $PaymentList[$i]['payment_id'] = $result['payment_id'];
             //         $PaymentList[$i]['iuid'] = $result['iuid'];
             //         $PaymentList[$i]['reference_id'] = $result['reference_id'];
-            //         $PaymentList[$i]['attachments'] = json_encode(unserialize($result['attachments']));
+                        // $array = @unserialize(trim($result['attachments']));
+                        // if ($array === false && trim($result['attachments']) !== 'b:0;') {
+                        //     // woops, that didn't appear to be anything serialized
+                        //     $PaymentList[$i]['attachments'] = json_encode([]);
+                        // } else {
+                        //     $PaymentList[$i]['attachments'] = json_encode(unserialize($result['attachments']));
+                        // }
             //         $PaymentList[$i]['letter_attachment'] = $result['letter_attachment'];
             //         $PaymentList[$i]['financial_year_id'] = $result['financial_year_id'];
             //         $PaymentList[$i]['reciept_mode'] = $result['reciept_mode'];
             //         $PaymentList[$i]['slip_no'] = $result['slip_no'];
-            //         $PaymentList[$i]['date'] = $result['date'];
+            //         $PaymentList[$i]['date'] = $result['date'] == '0000-00-00' ? null : $result['date'];
             //         $PaymentList[$i]['deposite_bank'] = $result['deposite_bank'];
-            //         $PaymentList[$i]['cheque_date'] = $result['cheque_date'];
+            //         $PaymentList[$i]['cheque_date'] = $result['cheque_date'] == '0000-00-00' ? null : $result['cheque_date'];
             //         $PaymentList[$i]['cheque_dd_no'] = $result['cheque_dd_no'];
             //         $PaymentList[$i]['cheque_dd_bank'] = $result['cheque_dd_bank'];
             //         $PaymentList[$i]['receipt_from'] = $result['receipt_from'];
@@ -430,17 +446,17 @@ class ConnectionController extends Controller
             //         $OutwardList[$i]['courier_name'] = $result['courier_name'];
             //         $OutwardList[$i]['weight_of_parcel'] = $result['weight_of_parcel'];
             //         $OutwardList[$i]['courier_receipt_no'] = $result['courier_receipt_no'];
-            //         $OutwardList[$i]['courier_received_time'] = $result['courier_received_time'];
+            // $OutwardList[$i]['courier_received_time'] = $result['courier_received_time'] == '0000-00-00 00:00:00' ? null : $result['courier_received_time'];
             //         $OutwardList[$i]['no_of_parcel'] = $result['no_of_parcel'];
             //         $OutwardList[$i]['from_name'] = $result['from_name'];
-            //         $OutwardList[$i]['attachments'] = $result['attachments'];
+            // $OutwardList[$i]['attachments'] = json_encode(unserialize($result['attachments']));
             //         $OutwardList[$i]['remarks'] = $result['remarks'];
             //         $OutwardList[$i]['latter_by_id'] = $result['latter_by_id'];
             //         $OutwardList[$i]['delivery_by'] = $result['delivery_by'];
             //         $OutwardList[$i]['receiver_email_id'] = $result['receiver_email_id'];
             //         $OutwardList[$i]['from_email_id'] = $result['from_email_id'];
             //         $OutwardList[$i]['product_main_id'] = $result['product_main_id'];
-            //         $OutwardList[$i]['product_image_id'] = $result['product_image_id'];
+            // $OutwardList[$i]['product_image_id'] = json_encode(unserialize($result['product_image_id']));
             //         $OutwardList[$i]['outward_link_with_id'] = $result['outward_link_with_id'];
             //         $OutwardList[$i]['enquiry_complain_for'] = $result['enquiry_complain_for'];
             //         $OutwardList[$i]['client_remark'] = $result['client_remark'];
@@ -566,8 +582,8 @@ class ConnectionController extends Controller
             // if(mysqli_num_rows($transportquery) != 0) {
             //     $i = 0;
             //     while($result = mysqli_fetch_assoc($transportquery)) {
-            //         $TransportList[$i]['id'] = $result['transport_details_id'];
-            //         $TransportList[$i]['name'] = $result['name'];
+            //         $TransportList[$i]['id'] = $result['transport_id'];
+            //         $TransportList[$i]['name'] = $result['transport_name'];
             //         $TransportList[$i]['gstin'] = $result['gstin'];
             //         $i++;
             //     }
@@ -812,7 +828,7 @@ class ConnectionController extends Controller
             //         $ReferenceList[$i]['inward_or_outward'] = $result['inward_or_outward'];
             //         $ReferenceList[$i]['type_of_inward'] = $result['type_of_inward'];
             //         $ReferenceList[$i]['company_id'] = $result['company_id'];
-            //         $ReferenceList[$i]['selection_date'] = $result['selection_date'];
+            // $ReferenceList[$i]['selection_date'] = $result['selection_date'] == '0000-00-00' ? null : $result['selection_date'];
             //         $ReferenceList[$i]['from_name'] = $result['from_name'];
             //         $ReferenceList[$i]['from_number'] = $result['from_number'];
             //         $ReferenceList[$i]['receiver_number'] = $result['receiver_number'];
@@ -822,7 +838,7 @@ class ConnectionController extends Controller
             //         $ReferenceList[$i]['courier_name'] = $result['courier_name'];
             //         $ReferenceList[$i]['weight_of_parcel'] = $result['weight_of_parcel'];
             //         $ReferenceList[$i]['courier_receipt_no'] = $result['courier_receipt_no'];
-            //         $ReferenceList[$i]['courier_received_time'] = $result['courier_received_time'];
+                    // $ReferenceList[$i]['courier_received_time'] = $result['courier_received_time'] == '0000-00-00 00:00:00' ? null : $result['courier_received_time'];
             //         $ReferenceList[$i]['delivery_by'] = $result['delivery_by'];
             //         $ReferenceList[$i]['mark_as_sample'] = $result['mark_as_sample'];
             //         $ReferenceList[$i]['gmail_mail_id'] = $result['gmail_mail_id'];
@@ -1147,19 +1163,16 @@ class ConnectionController extends Controller
             //     $i = 0;
             //     $companyId = [];
             //     while($result = mysqli_fetch_assoc($pquery)) {
-            //         if(!empty($result['company_id'])) {
-            //             $companyId = unserialize($result['company_id']);
-            //             if($companyId) {
-            //                 $countCompanyId = array_key_last($companyId) + 1;
-            //                 if ($countCompanyId == 1) {
-            //                     $result['company_id'] = json_encode($companyId[0]);
-            //                 } else {
-            //                     $result['company_id'] = json_encode($companyId);
-            //                 }
-            //             } else {
-            //                 $result['company_id'] = 0;
-            //             }
-            //         }
+            //         if (!empty($result['company_id'])) {
+            //     $companyId = unserialize($result['company_id']);
+            //     if ($companyId) {
+            //         $result['company_id'] = json_encode($companyId);
+            //     } else {
+            //         $result['company_id'] = json_encode([]);
+            //     }
+            // } else {
+            //     $result['company_id'] = json_encode([]);
+            // }
 
             //         $productCategoryData[$i]['id'] = $result['product_category_id'];
             //         $productCategoryData[$i]['product_default_category_id'] = $result['product_default_category_id'];
@@ -1184,17 +1197,16 @@ class ConnectionController extends Controller
 
             //         if(!empty($result['sub_category_id'])) {
             //             $subCatId = unserialize($result['sub_category_id']);
-            //             if($subCatId) {
-            //                 $countsubCatId = array_key_last($subCatId) + 1;
-            //                 if ($countsubCatId == 1) {
-            //                     $result['sub_category_id'] = json_encode($subCatId[0]);
-            //                 } else {
-            //                     $result['sub_category_id'] = json_encode($subCatId);
-            //                 }
-            //             } else {
-            //                 $result['sub_category_id'] = 0;
-            //             }
-            //         }
+                        // if (!empty($result['sub_category_id'])) {
+                        //     $subCatId = unserialize($result['sub_category_id']);
+                        //     if ($subCatId) {
+                        //         $result['sub_category_id'] = json_encode($subCatId);
+                        //     } else {
+                        //         $result['sub_category_id'] = json_encode([]);
+                        //     }
+                        // } else {
+                        //     $result['sub_category_id'] = json_encode([]);
+                        // }
 
             //         if($result['launch_date'] == '0000-00-00') {
             //             $result['launch_date'] = NULL;
@@ -1764,9 +1776,9 @@ class ConnectionController extends Controller
         // if(!empty($transports)) {
         //     foreach($transports as $transport) {
         //         $transportDetails = new TransportDetails;
-        //         $transportDetails->id = $transport['id'];
-        //         $transportDetails->name = $transport['name'];
-        //         $transportDetails->gstin = $transport['gstin'];
+        //         $transportDetails->id = $TransportList['id'];
+        //         $transportDetails->name = $TransportList['name'];
+        //         $transportDetails->gstin = $TransportList['gstin'];
         //         $transportDetails->save();
         //     }
         //     $transportMultipleAddressDetails = new TransportMultipleAddressDetails;
@@ -2122,6 +2134,7 @@ class ConnectionController extends Controller
         //         $payment->right_of_remark = $paymentdata['right_of_remark'];
         //         $payment->is_deleted = $paymentdata['is_deleted'];
         //         $payment->done_outward = $paymentdata['done_outward'];
+                // $payment->save();
         //     }
         // }
 
@@ -2446,7 +2459,7 @@ class ConnectionController extends Controller
         //         $outwarddata->connected_outward = $outward['connected_outward'];
         //         $outwarddata->outward_date = $outward['outward_date'];
         //         $outwarddata->subject = $outward['subject'];
-        //         $outwarddata->employee_id = $outward['employe_id'];
+        //         $outwarddata->employee_id = $outward['employee_id'];
         //         $outwarddata->type_of_outward = $outward['type_of_outward'];
         //         $outwarddata->receiver_number = $outward['receiver_number'];
         //         $outwarddata->from_number = $outward['from_number'];
