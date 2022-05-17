@@ -28,15 +28,15 @@
                     <li class="dropdown language-dropdown d-none d-sm-block mr-n1">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <div class="border-light">
-                                <span class="user-name dropdown-indicator">2021-2022</span>
+                                <span class="user-name dropdown-indicator">{{ session()->get('user')->financial_year }}</span>
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-s1">
                             <ul class="language-list">
                                 @foreach ( $financialYear as $data)
-                                <li>
-                                    <span class="language-item">{{ $data -> name }}</span>
-                                </li>
+                                <a href="/financialyear/update-current-financial-year/{{ $data->id }}">
+                                    <li class=""> <span class="language-item"> {{ $data->name }} </span> </li>
+                                </a>
                                 @endforeach
                             </ul>
                         </div>
