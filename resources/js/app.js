@@ -11,7 +11,7 @@ import DashboardComponent from './components/DashboardComponent.vue';
 import RegisterComponent from './components/register/RegisterComponent.vue';
 import CreateInwardComponent from './components/register/inward/CreateInwardComponent.vue';
 import InsertInwardComponent from './components/register/inward/InsertInwardComponent.vue';
-import InsertOutwardComponent from './components/register/outward/InsertOutwardComponent.vue';
+import InsertSalebillOutwardComponent from './components/register/outward/InsertSalebillOutwardComponent.vue';
 import CreateOutwardComponent from './components/register/outward/CreateOutwardComponent.vue';
 // Databank Menu
 import UserGroupComponent from './components/databank/userGroupComponents/UserGroupComponent.vue';
@@ -139,7 +139,7 @@ const routes = [
             { path: 'create-inward', component: CreateInwardComponent },
             { path: 'create-outward', component: CreateOutwardComponent },
             { path: 'inward/{type}', component: InsertInwardComponent },
-            { path: 'outward/{type}', component: InsertOutwardComponent },
+            { path: 'outward/salebill', component: InsertSalebillOutwardComponent },
         ]
     },
     {
@@ -413,7 +413,7 @@ createApp({
         CreateInwardComponent,
         InsertInwardComponent,
         CreateOutwardComponent,
-        InsertOutwardComponent,
+        InsertSalebillOutwardComponent,
 
         ReferenceIdComponent,
         CreateReferenceIdComponent,

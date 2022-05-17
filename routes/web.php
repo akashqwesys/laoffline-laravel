@@ -344,6 +344,8 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
 Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:access-register']], function () {
     Route::get('/', [App\Http\Controllers\register\RegisterController::class, 'index'])->name('register');
     Route::get('/list', [App\Http\Controllers\register\RegisterController::class, 'listRegister'])->name('list');
+    Route::get('/list-buyer', [App\Http\Controllers\register\RegisterController::class, 'listBuyer']);
+    Route::post('/searchsalebill', [App\Http\Controllers\register\RegisterController::class, 'searchSalebill']);
     Route::get('/list-suppliers', [App\Http\Controllers\register\RegisterController::class, 'listSuppliers'])->name('list-suppliers');
     Route::get('/list-inwardLinkWith', [App\Http\Controllers\register\RegisterController::class, 'listInwardLinkWith'])->name('list-inwardLinkWith');
     Route::get('/get-reference-details/{type}/{flag}/{refrenceVia}', [App\Http\Controllers\register\RegisterController::class, 'getReferenceDetails'])->name('get-reference-details');
@@ -361,8 +363,9 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::get('/create-inward', [App\Http\Controllers\register\RegisterController::class, 'createInward']);
     Route::get('/create-outward', [App\Http\Controllers\register\RegisterController::class, 'createOutward']);
     Route::get('/inward/{type}', [App\Http\Controllers\register\RegisterController::class, 'addInward']);
-    Route::get('/outward/{type}', [App\Http\Controllers\register\RegisterController::class, 'addOutward']);
+    Route::get('/outward/salebill', [App\Http\Controllers\register\RegisterController::class, 'addSalebillOutward']);
     Route::post('/insertoutward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertOutward']);
+    Route::post('/insertcourier', [App\Http\Controllers\register\RegisterController::class, 'insertCourier']);
     Route::post('/insertinward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertInward']);
     Route::post('/inward/{type}/add-fabrics-details', [App\Http\Controllers\register\RegisterController::class, 'addFabricDetails']);
 });
