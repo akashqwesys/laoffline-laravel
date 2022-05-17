@@ -776,9 +776,11 @@
                 if (data.sale_bill.is_moved == 1) { isProductSubCategoryDisabled = true; }
                 this.product_sub_category_options = data.subCategory;
                 var subCat = JSON.parse(data.sale_bill.product_category_id);
-                subCat.forEach((k, i) => {
-                    this.product_sub_category.push(this.product_sub_category_options.find( _ => _.id == k ));
-                });
+                if (!(typeof(subCat) == 'number' || typeof(subCat) == 'string')) {
+                    subCat.forEach((k, i) => {
+                        this.product_sub_category.push(this.product_sub_category_options.find( _ => _.id == k ));
+                    });
+                }
                 this.getProducts();
 
                 if (data.sale_bill.sale_bill_for == 1 && subCat.length > 0) {

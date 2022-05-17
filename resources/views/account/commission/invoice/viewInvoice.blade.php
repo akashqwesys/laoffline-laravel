@@ -2,7 +2,7 @@
 @section('title', $page_title)
 @section('content')
     <div id="app">
-        <invoice-component :invoice_id="{{ $employees['invoice_id'] }}"></invoice-component>
+        <view-invoice-component :id="{{ $employees['invoice_id'] }}"></view-invoice-component>
     </div>
     <script src="{{ asset('js/app.js') }}"></script>
 @endsection

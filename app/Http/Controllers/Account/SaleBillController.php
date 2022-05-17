@@ -613,9 +613,9 @@ class SaleBillController extends Controller
         $transport_detail->station = $transportDetails->station->id;
         $transport_detail->lr_mr_no = $transportDetails->lr_mr_no;
         $transport_detail->date = $transport_date;
-        $transport_detail->cases = $transportDetails->transport_cases;
-        $transport_detail->weight = $transportDetails->courier_weight;
-        $transport_detail->freight = $transportDetails->courier_freight;
+        $transport_detail->cases = $transportDetails->transport_cases ? $transportDetails->transport_cases : 0;
+        $transport_detail->weight = $transportDetails->courier_weight ? $transportDetails->courier_weight : 0;
+        $transport_detail->freight = $transportDetails->courier_freight ? $transportDetails->courier_freight : 0;
         $transport_detail->save();
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
@@ -922,6 +922,7 @@ class SaleBillController extends Controller
             ->where('sale_bill_id', $id)
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
+            ->orderBy('created_at', 'desc')
             ->first();
         $sale_bill_items = DB::table('sale_bill_items')
             ->where('sale_bill_id', $id)
@@ -997,7 +998,11 @@ class SaleBillController extends Controller
         }
         $supplier_group = $supplier_group_array;
 
-        $prodSubCate = json_decode($sale_bill->product_category_id);
+        if (gettype($sale_bill->product_category_id) == 'string' && ($sale_bill->product_category_id == '"0"' || $sale_bill->product_category_id == '0')) {
+            $prodSubCate = [0];
+        } else {
+            $prodSubCate = json_decode($sale_bill->product_category_id);
+        }
 
         $product = $this->getProductFromSubCategoriesForUpdate($prodSubCate, $link_companies, $sale_bill->product_default_category_id);
 
@@ -1074,8 +1079,13 @@ class SaleBillController extends Controller
             ->where('s.sale_bill_id', $id)
             ->where('s.financial_year_id', $user->financial_year_id)
             ->where('s.is_deleted', 0)
+            ->orderBy('s.created_at', 'desc')
             ->first();
-        $product_category_id = json_decode($sale_bill->product_category_id);
+        if (gettype($sale_bill->product_category_id) == 'string' && ($sale_bill->product_category_id == '"0"' || $sale_bill->product_category_id == '0')) {
+            $product_category_id = [0];
+        } else {
+            $product_category_id = json_decode($sale_bill->product_category_id);
+        }
 
         $product_categories = DB::table('product_categories')
             ->select('name')
@@ -1152,7 +1162,7 @@ class SaleBillController extends Controller
 
         $station = DB::table('cities')
             ->select('name')
-            ->where('id', intval($sale_bill_transports->station))
+            ->where('id', intval($sale_bill_transports->station ?? 0))
             ->first();
 
         return response()->json([
@@ -1170,8 +1180,8 @@ class SaleBillController extends Controller
             'subject' => $inward->subject ?? '- - -',
             'product_main' => $product_categories->name,
             'product_sub' => implode(' ,', $product_sub_categories),
-            'lr_mr_date' => date('d-m-Y', strtotime($sale_bill_transports->date)),
-            'station' => $station->name,
+            'lr_mr_date' => $sale_bill_transports ? date('d-m-Y', strtotime($sale_bill_transports->date)) : '',
+            'station' => $station->name ?? 0,
             'total_amount_words' => numberToString($sale_bill->total)
         ]);
     }
@@ -1651,9 +1661,9 @@ class SaleBillController extends Controller
         $transport_detail->station = $transportDetails->station->id;
         $transport_detail->lr_mr_no = $transportDetails->lr_mr_no;
         $transport_detail->date = $transport_date;
-        $transport_detail->cases = $transportDetails->transport_cases;
-        $transport_detail->weight = $transportDetails->courier_weight;
-        $transport_detail->freight = $transportDetails->courier_freight;
+        $transport_detail->cases = $transportDetails->transport_cases ? $transportDetails->transport_cases : 0;
+        $transport_detail->weight = $transportDetails->courier_weight ? $transportDetails->courier_weight : 0;
+        $transport_detail->freight = $transportDetails->courier_freight ? $transportDetails->courier_freight : 0;
         $transport_detail->save();
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');

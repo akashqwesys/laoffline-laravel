@@ -11,7 +11,7 @@ import DashboardComponent from './components/DashboardComponent.vue';
 import RegisterComponent from './components/register/RegisterComponent.vue';
 import CreateInwardComponent from './components/register/inward/CreateInwardComponent.vue';
 import InsertInwardComponent from './components/register/inward/InsertInwardComponent.vue';
-import InsertOutwardComponent from './components/register/outward/InsertOutwardComponent.vue';
+import InsertSalebillOutwardComponent from './components/register/outward/InsertSalebillOutwardComponent.vue';
 import CreateOutwardComponent from './components/register/outward/CreateOutwardComponent.vue';
 // Databank Menu
 import UserGroupComponent from './components/databank/userGroupComponents/UserGroupComponent.vue';
@@ -62,6 +62,7 @@ import InvoiceComponent from './components/account/invoiceComponents/InvoiceComp
 import CreateInvoiceComponent from './components/account/invoiceComponents/CreateInvoiceComponent.vue';
 import GenerateInvoiceComponent from './components/account/invoiceComponents/GenerateInvoiceComponent.vue';
 import ViewInvoiceComponent from './components/account/invoiceComponents/ViewInvoiceComponent.vue';
+import PrintInvoiceComponent from './components/account/invoiceComponents/PrintInvoiceComponent.vue';
 
 
 // Settings Menu
@@ -138,7 +139,7 @@ const routes = [
             { path: 'create-inward', component: CreateInwardComponent },
             { path: 'create-outward', component: CreateOutwardComponent },
             { path: 'inward/{type}', component: InsertInwardComponent },
-            { path: 'outward/{type}', component: InsertOutwardComponent },
+            { path: 'outward/salebill', component: InsertSalebillOutwardComponent },
         ]
     },
     {
@@ -242,6 +243,7 @@ const routes = [
             { path: 'generate-invoice', component: GenerateInvoiceComponent },
             { path: 'edit-invoice/:id', component: GenerateInvoiceComponent },
             { path: 'view-invoice/:id', component: ViewInvoiceComponent },
+            { path: 'print-invoice/:id', component: PrintInvoiceComponent },
         ]
     },
     // Settings Menu
@@ -411,7 +413,7 @@ createApp({
         CreateInwardComponent,
         InsertInwardComponent,
         CreateOutwardComponent,
-        InsertOutwardComponent,
+        InsertSalebillOutwardComponent,
 
         ReferenceIdComponent,
         CreateReferenceIdComponent,
@@ -430,6 +432,7 @@ createApp({
         CreateInvoiceComponent,
         GenerateInvoiceComponent,
         ViewInvoiceComponent,
+        PrintInvoiceComponent,
 
         BankDetailsComponent,
         CreateBankDetailsComponent,

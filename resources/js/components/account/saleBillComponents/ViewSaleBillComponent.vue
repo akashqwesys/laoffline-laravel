@@ -267,7 +267,7 @@
                 var data = response.data;
                 this.generated_by = data.generated_by.firstname + ' - ' + data.generated_by.lastname;
                 this.date_added = data.generated_at;
-                this.updated_by = data.updated_by.firstname + ' - ' + data.updated_by.lastname;
+                this.updated_by = data.updated_by ? (data.updated_by.firstname + ' - ' + data.updated_by.lastname) : '';
                 this.date_updated = data.updated_at;
                 this.subject = data.subject;
                 this.iuid = data.sale_bill.iuid;
@@ -298,13 +298,13 @@
                 this.product_category = data.product_main;
                 this.product_sub_category = data.product_sub;
                 this.change_in_amount = '(' + data.sale_bill.sign_change + ') ' + data.sale_bill.change_in_amount;
-                this.transport = data.sale_bill_transports.name;
+                this.transport = data.sale_bill_transports ? data.sale_bill_transports.name : '';
                 this.station = data.station;
                 this.lr_mr_date = data.lr_mr_date;
-                this.lr_mr_no = data.sale_bill_transports.lr_mr_no;
-                this.cases = data.sale_bill_transports.cases;
-                this.weight = data.sale_bill_transports.weight;
-                this.freight = data.sale_bill_transports.freight;
+                this.lr_mr_no = data.sale_bill_transports ? data.sale_bill_transports.lr_mr_no : '';
+                this.cases = data.sale_bill_transports ? data.sale_bill_transports.cases : '';
+                this.weight = data.sale_bill_transports ? data.sale_bill_transports.weight : '';
+                this.freight = data.sale_bill_transports ? data.sale_bill_transports.freight : '';
                 this.total_meters = data.sale_bill.total_meters;
                 this.total_peices = data.sale_bill.total_peices;
                 this.total_amount = toINR.format(data.sale_bill.total);

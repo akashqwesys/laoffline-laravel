@@ -1302,7 +1302,7 @@
                         $("#error-for-reference").text("Select Reference");
                         this.isValidate = false;
                     } else {
-                        if (this.form.refrencevia.name == 'Courier') {
+                        if (this.form.refrencevia && this.form.refrencevia.name == 'Courier') {
 
                             if (this.form.courrier == '') {
                                 $("#error-for-couurier").text("Select Courier");
@@ -1318,7 +1318,7 @@
                                 $("#error-for-recivedate").text("");
                                 this.isValidate = true;
                             }
-                        } else if (this.form.refrencevia.name == 'Hand') {
+                        } else if (this.form.refrencevia && this.form.refrencevia.name == 'Hand') {
                             if (this.form.recivedate == '') {
                                 $("#error-for-recivedate").text("Select Recive Date");
                                 this.isValidate = false;

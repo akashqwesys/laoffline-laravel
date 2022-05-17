@@ -800,15 +800,15 @@ class PaymentsController extends Controller
             if ($paymentData->refrencevia->name == 'Email') {
                 $courier_name = '';
                 $courier_receipt_no = '';
-                $courier_received_time = Carbon::now()->format('d-m-Y');
+                $courier_received_time = date('Y-m-d H:i:s');
             } else if ($paymentData->refrencevia->name == 'Hand') {
                 $courier_name = '';
                 $courier_receipt_no = '';
-                $courier_received_time = $paymentData->recivedate;
+                $courier_received_time = date('Y-m-d H:i:s', strtotime($paymentData->recivedate));
             } else {
                 $courier_name = $paymentData->courrier->name;
                 $courier_receipt_no = $paymentData->reciptno;
-                $courier_received_time = $paymentData->recivedate;
+                $courier_received_time = date('Y-m-d H:i:s', strtotime($paymentData->recivedate));
             }
 
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
@@ -823,7 +823,7 @@ class PaymentsController extends Controller
             $refence->inward_or_outward = '1';
             $refence->type_of_inward = $paymentData->refrencevia->name;
             $refence->company_id = $request->session()->get('customer');
-            $refence->selection_date = Carbon::now()->format('d-m-Y');
+            $refence->selection_date = Carbon::now()->format('Y-m-d');
             $refence->from_name = $paymentData->fromname;
             $refence->from_email_id = $paymentData->emailfrom;
             $refence->courier_name = $courier_name;
@@ -909,7 +909,6 @@ class PaymentsController extends Controller
         $comboids->mobile_flag = 0;
         $comboids->is_deleted = 0;
         $comboids->save();
-
 
         if ($paymentData->recipt_mode == 'cheque') {
             $cheque_date = $paymentData->reciptdate;
@@ -1082,7 +1081,7 @@ class PaymentsController extends Controller
                     $Pending = (int)$paymentDetail2->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
                     //print_r($Pending);exit;
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first();
-                   
+
                     $bill2->pending_payment = $Pending;
                     $bill2->save();
 
@@ -1323,11 +1322,11 @@ class PaymentsController extends Controller
                     $productName = $Item->product_or_fabric_id;
                 }
             $product = DB::table('products')->where('id', $Item->product_or_fabric_id)->first();
-            array_push($grItemData,array("id" => $Item->gr_sale_bill_item_id, "product_or_fabric_id" => $Item->product_or_fabric_id, "name" => $productName, "meter" => $Item->meters, "pieces" => $Item->peices, "pieces_meter" => $Item->peices_meters, "rate" => $Item->rate, "amount" => ''));
+            array_push($grItemData,array("id" => $Item->id, "product_or_fabric_id" => $Item->product_or_fabric_id, "name" => $productName, "meter" => $Item->meters, "pieces" => $Item->peices, "pieces_meter" => $Item->peices_meters, "rate" => $Item->rate, "amount" => ''));
         }
         $data = $goodReturn;
         $data['products'] = $grItemData;
-        
+
         return $data;
     }
     public function getGoodReturnView($id) {
@@ -1386,7 +1385,7 @@ class PaymentsController extends Controller
             $typeName = '';
         }
         $financialid = Session::get('user')->financial_year_id;
-        
+
         $combo = Comboids::where('payment_id', $paymentData->id)->first();
         $personName = '';
         $ref_id = $paymentData->refrence_type;
@@ -1649,7 +1648,7 @@ class PaymentsController extends Controller
         $logs->save();
         $redirect_url = '';
     }
-    
+
     public function addGoodRetuen(Request $request) {
         $page_title = 'Add Good Return';
         $p_id = $request->id;
@@ -1840,7 +1839,7 @@ class PaymentsController extends Controller
             $goodretun->tot_amount = (int)$salebill->totamount;
             $goodretun->sale_bill_for = $salebill2->sale_bill_for;
             $goodretun->is_deleted = '0';
-            $goodretun->date_added = Carbon::now()->format('d-m-Y');
+            $goodretun->date_added = date('Y-m-d H:i:s');
             $goodretun->save();
 
             $comboid1 = Comboids::where('comboid', $combo_id)->first();
@@ -1854,7 +1853,6 @@ class PaymentsController extends Controller
                 $gritemId = !empty($gritemLastid) ? $gritemLastid->id + 1 : 1;
                 $grsalebillitem = new GrSaleBillItem();
                 $grsalebillitem->id = $gritemId;
-                $grsalebillitem->gr_sale_bill_item_id = $gritemId;
                 $grsalebillitem->gr_increment_id = $goodreturnId;
                 $grsalebillitem->goods_return_id = $goods_return_id;
                 $grsalebillitem->product_or_fabric_id = $product->product_or_fabric_id;
@@ -1911,7 +1909,6 @@ class PaymentsController extends Controller
             $gritemId = !empty($gritemLastid) ? $gritemLastid->id + 1 : 1;
             $grsalebillitem = new GrSaleBillItem();
             $grsalebillitem->id = $gritemId;
-            $grsalebillitem->gr_sale_bill_item_id = $gritemId;
             $grsalebillitem->gr_increment_id = $goodreturnId->id;
             $grsalebillitem->goods_return_id = $salebilldata->id;
             $grsalebillitem->product_or_fabric_id = $product->product_or_fabric_id;

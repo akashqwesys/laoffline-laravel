@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('commission_details', function (Blueprint $table) {
             $table->id();
-            $table->integer('commission_details_id');
             $table->integer('c_increment_id')->defalut('0');
             $table->integer('commission_id')->default('0');
             $table->integer('commission_invoice_id')->defalut('0');

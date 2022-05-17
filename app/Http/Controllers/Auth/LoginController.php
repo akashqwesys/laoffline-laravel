@@ -68,7 +68,7 @@ class LoginController extends Controller
             $user['user_email'] = $employee->email_id;
             $user['financial_year'] = $financialYear->name;
             $user['service_tax'] = 15;
-            $user['tds'] = 3.75;
+            $user['tds'] = 5;
             $user['tax_limit'] = 0;
             $user['cgst'] = 9;
             $user['sgst'] = 9;
