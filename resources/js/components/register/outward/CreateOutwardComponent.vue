@@ -16,7 +16,7 @@
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <ul class="row g-gs preview-icon-svg">
-                            <li class="col-lg-4 col-6 col-sm-4">
+                            <li class="col-lg-3 col-6 col-sm-4">
                                 <div class="preview-icon-box card card-bordered">
                                     <a v-bind:href="outward_salebill">
                                         <div class="preview-icon-wrap">
@@ -49,7 +49,7 @@
                                     </a>
                                 </div><!-- .preview-icon-box -->
                             </li><!-- .col -->
-                            <li class="col-lg-4 col-6 col-sm-4">
+                            <li class="col-lg-3 col-6 col-sm-4">
                                 <div class="preview-icon-box card card-bordered">
                                     <a v-bind:href="outward_payment">
                                         <div class="preview-icon-wrap">
@@ -82,7 +82,7 @@
                                     </a>
                                 </div><!-- .preview-icon-box -->
                             </li><!-- .col -->
-                            <li class="col-lg-4 col-6 col-sm-4">
+                            <li class="col-lg-3 col-6 col-sm-4">
                                 <div class="preview-icon-box card card-bordered">
                                     <a v-bind:href="outward_commission">
                                         <div class="preview-icon-wrap">
@@ -115,7 +115,7 @@
                                     </a>
                                 </div><!-- .preview-icon-box -->
                             </li><!-- .col -->
-                            <li class="col-lg-4 col-6 col-sm-4">
+                            <li class="col-lg-3 col-6 col-sm-4">
                                 <div class="preview-icon-box card card-bordered">
                                     <a v-bind:href="outward_commission_invoice">
                                         <div class="preview-icon-wrap">
@@ -168,7 +168,7 @@
             return {
                 cancel_url: '/register',
                 outward_salebill: '/register/outward/salebill',
-                outward_payment: '/register/ourward/payment',
+                outward_payment: '/register/outward/payment',
                 outward_commission: '/register/outward/commission',
                 outward_commission_invoice: '/register/outward/commissioninvoice',
             }

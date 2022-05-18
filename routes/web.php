@@ -343,9 +343,15 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
 // Routes for Register
 Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:access-register']], function () {
     Route::get('/', [App\Http\Controllers\register\RegisterController::class, 'index'])->name('register');
+    Route::get('/outward', [App\Http\Controllers\register\RegisterController::class, 'outward']);
     Route::get('/list', [App\Http\Controllers\register\RegisterController::class, 'listRegister'])->name('list');
     Route::get('/list-buyer', [App\Http\Controllers\register\RegisterController::class, 'listBuyer']);
+    Route::get('/outwardlist', [App\Http\Controllers\register\RegisterController::class, 'outwardList']);
     Route::post('/searchsalebill', [App\Http\Controllers\register\RegisterController::class, 'searchSalebill']);
+    Route::post('/searchpayments', [App\Http\Controllers\register\RegisterController::class, 'searchPayment']);
+    Route::post('/searchcommission', [App\Http\Controllers\register\RegisterController::class, 'searchCommission']);
+    Route::post('/searchcommissioninvoice', [App\Http\Controllers\register\RegisterController::class, 'searchCommissionInvoice']);
+    Route::get('/list-agentcourier', [App\Http\Controllers\register\RegisterController::class, 'listAgentCourier']);
     Route::get('/list-suppliers', [App\Http\Controllers\register\RegisterController::class, 'listSuppliers'])->name('list-suppliers');
     Route::get('/list-inwardLinkWith', [App\Http\Controllers\register\RegisterController::class, 'listInwardLinkWith'])->name('list-inwardLinkWith');
     Route::get('/get-reference-details/{type}/{flag}/{refrenceVia}', [App\Http\Controllers\register\RegisterController::class, 'getReferenceDetails'])->name('get-reference-details');
@@ -364,8 +370,14 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::get('/create-outward', [App\Http\Controllers\register\RegisterController::class, 'createOutward']);
     Route::get('/inward/{type}', [App\Http\Controllers\register\RegisterController::class, 'addInward']);
     Route::get('/outward/salebill', [App\Http\Controllers\register\RegisterController::class, 'addSalebillOutward']);
+    Route::get('/outward/payment', [App\Http\Controllers\register\RegisterController::class, 'addPaymentOutward']);
+    Route::get('/outward/commission', [App\Http\Controllers\register\RegisterController::class, 'addCommissionOutward']);
+    Route::get('/outward/commissioninvoice', [App\Http\Controllers\register\RegisterController::class, 'addCommissionInvoiceOutward']);
     Route::post('/insertoutward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertOutward']);
     Route::post('/insertcourier', [App\Http\Controllers\register\RegisterController::class, 'insertCourier']);
+    Route::post('/insertpaymentoutward', [App\Http\Controllers\register\RegisterController::class, 'insertPaymentOutward']);
+    Route::post('/insertcommissionoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionOutward']);
+    Route::post('/insertcommissioninvoiceoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionInvoiceOutward']);
     Route::post('/insertinward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertInward']);
     Route::post('/inward/{type}/add-fabrics-details', [App\Http\Controllers\register\RegisterController::class, 'addFabricDetails']);
 });
