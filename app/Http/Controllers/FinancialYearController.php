@@ -44,7 +44,7 @@ class FinancialYearController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('financialyear.financialyear',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('financialyear.financialYear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
 
@@ -162,7 +162,7 @@ class FinancialYearController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('financialyear.editFinancialyear',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('financialyear.editFinancialYear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchFinancialYear($id) {
