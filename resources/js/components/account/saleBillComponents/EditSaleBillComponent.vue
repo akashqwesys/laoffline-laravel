@@ -1192,7 +1192,7 @@
                 }, 100);
             },
             getSubProductRate (i) {
-                if (i) {
+                if (i && typeof(i) == 'number') {
                     this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
                 }
             },
@@ -1215,6 +1215,12 @@
                     this.totals.amount = parseInt(this.totals.amount) + parseInt(k.amount);
                 });
                 this.getChangeAmount();
+                setTimeout(() => {
+                    this.totals.discount = this.totals.discount.toFixed(2);
+                    this.totals.cgst = this.totals.cgst.toFixed(2);
+                    this.totals.sgst = this.totals.sgst.toFixed(2);
+                    this.totals.igst = this.totals.igst.toFixed(2);
+                }, 100);
             },
             calculateTotalFabrics (i) {
                 var pd = this.fabricDetails[i];
@@ -1240,6 +1246,12 @@
                     this.totals.amount = parseInt(this.totals.amount) + parseInt(k.amount);
                 });
                 this.getChangeAmount();
+                setTimeout(() => {
+                    this.totals.discount = this.totals.discount.toFixed(2);
+                    this.totals.cgst = this.totals.cgst.toFixed(2);
+                    this.totals.sgst = this.totals.sgst.toFixed(2);
+                    this.totals.igst = this.totals.igst.toFixed(2);
+                }, 100);
             },
             getChangeAmount (e) {
                 if (this.change_in_sign.name == '+') {

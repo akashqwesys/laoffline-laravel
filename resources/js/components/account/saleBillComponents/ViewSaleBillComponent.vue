@@ -91,53 +91,53 @@
                                                 <tr>
                                                     <th>Name</th>
                                                     <th>HSN</th>
-                                                    <th>Pieces</th>
-                                                    <th class="meters_cols">Meters</th>
-                                                    <th>Rate</th>
-                                                    <th>Discount %</th>
-                                                    <th>Discount Amt</th>
-                                                    <th>CGST %</th>
-                                                    <th>CGST Amt</th>
-                                                    <th>SGST %</th>
-                                                    <th>SGST Amt</th>
-                                                    <th>IGST %</th>
-                                                    <th>IGST Amt</th>
-                                                    <th>Amount</th>
+                                                    <th class="text-right">Pieces</th>
+                                                    <th class="meters_cols text-right">Meters</th>
+                                                    <th class="text-right">Rate</th>
+                                                    <th class="text-right">Discount %</th>
+                                                    <th class="text-right">Discount Amt</th>
+                                                    <th class="text-right">CGST %</th>
+                                                    <th class="text-right">CGST Amt</th>
+                                                    <th class="text-right">SGST %</th>
+                                                    <th class="text-right">SGST Amt</th>
+                                                    <th class="text-right">IGST %</th>
+                                                    <th class="text-right">IGST Amt</th>
+                                                    <th class="text-right">Amount</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="(k, i) in itemDetails" :key="i">
                                                     <td> {{ k.item_name }} </td>
                                                     <td> {{ k.hsn }} </td>
-                                                    <td> {{ k.pieces }} </td>
-                                                    <td class="meters_cols"> {{ k.meters }} </td>
-                                                    <td> {{ k.rate }} </td>
-                                                    <td> {{ k.discount }} </td>
-                                                    <td> {{ k.discount_amount }} </td>
-                                                    <td> {{ k.cgst }} </td>
-                                                    <td> {{ k.cgst_amount }} </td>
-                                                    <td> {{ k.sgst }} </td>
-                                                    <td> {{ k.sgst_amount }} </td>
-                                                    <td> {{ k.igst }} </td>
-                                                    <td> {{ k.igst_amount }} </td>
-                                                    <td> {{ k.amount }} </td>
+                                                    <td class="text-right"> {{ k.pieces }} </td>
+                                                    <td class="meters_cols text-right"> {{ k.meters }} </td>
+                                                    <td class="text-right"> {{ k.rate }} </td>
+                                                    <td class="text-right"> {{ k.discount }} </td>
+                                                    <td class="text-right"> {{ k.discount_amount }} </td>
+                                                    <td class="text-right"> {{ k.cgst }} </td>
+                                                    <td class="text-right"> {{ k.cgst_amount }} </td>
+                                                    <td class="text-right"> {{ k.sgst }} </td>
+                                                    <td class="text-right"> {{ k.sgst_amount }} </td>
+                                                    <td class="text-right"> {{ k.igst }} </td>
+                                                    <td class="text-right"> {{ k.igst_amount }} </td>
+                                                    <td class="text-right"> {{ k.amount }} </td>
                                                 </tr>
                                             </tbody>
                                             <tfoot style="border-top: 1px solid lightgray;">
                                                 <tr>
                                                     <th colspan="2">Total</th>
-                                                    <th>{{ total_peices }}</th>
-                                                    <th class="meters_cols">{{ total_meters }}</th>
-                                                    <th></th>
-                                                    <th></th>
-                                                    <th>{{ total_discount }}</th>
-                                                    <th></th>
-                                                    <th>{{ total_cgst }}</th>
-                                                    <th></th>
-                                                    <th>{{ total_sgst }}</th>
-                                                    <th></th>
-                                                    <th>{{ total_igst }}</th>
-                                                    <th>{{ total_amount }}</th>
+                                                    <th class="text-right">{{ total_peices }}</th>
+                                                    <th class="meters_cols text-right">{{ total_meters }}</th>
+                                                    <th class="text-right"></th>
+                                                    <th class="text-right"></th>
+                                                    <th class="text-right">{{ total_discount }}</th>
+                                                    <th class="text-right"></th>
+                                                    <th class="text-right">{{ total_cgst }}</th>
+                                                    <th class="text-right"></th>
+                                                    <th class="text-right">{{ total_sgst }}</th>
+                                                    <th class="text-right"></th>
+                                                    <th class="text-right">{{ total_igst }}</th>
+                                                    <th class="text-right">{{ total_amount }}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -362,9 +362,9 @@
             // var today = new Date();
             // var dt = today.toJSON().slice(0, 10);
             // var nDate = dt.slice(0, 4) + '-' + dt.slice(5, 7) + '-' + dt.slice(8, 10);
-            if (this.sale_bill_for != 1) {
+            /* if (this.sale_bill_for == 1) {
                 $('.meters_cols').hide();
-            }
+            } */
             $(document).on('click', '#print-bill', function(e) {
                 var printContents = document.getElementById('printable-content').innerHTML;
                 var popupWin = window.open('', '_blank', 'width=900,height=900');

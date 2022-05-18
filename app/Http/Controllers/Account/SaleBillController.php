@@ -1108,7 +1108,7 @@ class SaleBillController extends Controller
             ->toArray();
 
         $sale_bill_items = DB::table('sale_bill_items as sbi')
-            ->join('products as p', 'sbi.product_or_fabric_id', '=', 'p.id')
+            ->leftJoin('products as p', 'sbi.product_or_fabric_id', '=', 'p.id')
             ->select('sbi.*', 'p.product_name')
             ->where('sbi.sale_bill_id', $id)
             ->where('sbi.financial_year_id', $user->financial_year_id)
