@@ -816,7 +816,7 @@
 
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
                         .then(response => {
-                            this.stations_options = response.data[0];
+                            this.station_options = response.data[0];
                             this.station = response.data[1];
 
                         });

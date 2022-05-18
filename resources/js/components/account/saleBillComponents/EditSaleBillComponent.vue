@@ -774,18 +774,18 @@
                 }
 
                 if (data.sale_bill.is_moved == 1) { isProductSubCategoryDisabled = true; }
-                this.product_sub_category_options = data.subCategory;
                 var subCat = JSON.parse(data.sale_bill.product_category_id);
                 if (!(typeof(subCat) == 'number' || typeof(subCat) == 'string')) {
+                    this.product_sub_category_options = data.subCategory;
                     subCat.forEach((k, i) => {
-                        this.product_sub_category.push(this.product_sub_category_options.find( _ => _.id == k ));
+                        this.product_sub_category.push(data.subCategory.find( _ => _.id == k ));
                     });
                 }
-                this.getProducts();
+                // this.getProducts();
 
                 if (data.sale_bill.sale_bill_for == 1 && subCat.length > 0) {
-                    $('#add_product_details').show();
                     if (data.sale_bill_items.length > 0) {
+                        this.product_options = data.product;
                         data.sale_bill_items.forEach((k, i) => {
                             this.productDetails[i] = {
                                 product_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
@@ -805,16 +805,19 @@
                             }
                         });
                         this.calculateTotalProducts(0);
+                        $('#item_details_div, .dynamic_items').slideDown();
                     }
+                    $('#add_product_details').show();
                 } else if (data.sale_bill.sale_bill_for == 2) {
-                    $('#add_fabric_details').show();
                     if (data.sale_bill_items.length > 0) {
+                        this.fabric_options = data.subCategory;
                         data.sale_bill_items.forEach((k, i) => {
                             this.fabricDetails[i] = {
-                                fabric_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
+                                fabric_name: data.subCategory.find( _ => _.id == k.product_or_fabric_id ),
                                 hsn_code: k.hsn_code,
+                                pieces_or_meters: k.pieces_meters == 1 ? ({ id: 1, name: 'Meters' }) : ({ id: 2, name: 'Pieces' }),
                                 pieces: parseInt(k.pieces),
-                                pieces_or_meters: k.pieces_meters,
+                                meters: parseFloat(k.meters),
                                 rate: parseInt(k.rate),
                                 discount: parseFloat(k.discount),
                                 discount_amount: parseFloat(k.discount_amount),
@@ -828,12 +831,14 @@
                             }
                         });
                         this.calculateTotalFabrics(0);
+                        $('#add_fabric_details, .dynamic_items_fabrics').show();
+                        $('#item_details_div').slideDown();
                     }
+                    $('#add_new_fabric').show();
                 }
                 // this.getProductSubCategory();
 
                 this.transport = this.transport_options.find( _ => _.id == data.sale_bill_transports.transport_id );
-                this.station = this.station_options.find( _ => _.id == data.sale_bill_transports.station );
                 this.lr_mr_no = data.sale_bill_transports.lr_mr_no;
                 this.transport_date = data.sale_bill_transports.date;
                 this.transport_cases = data.sale_bill_transports.cases;
@@ -1070,7 +1075,7 @@
 
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
                         .then(response => {
-                            this.stations_options = response.data[0];
+                            this.station_options = response.data[0];
                             this.station = response.data[1];
 
                         });
@@ -1177,15 +1182,19 @@
                 });
             },
             getSubProducts (i) {
-                if (this.productDetails[i].product_name.id) {
-                    axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
-                    .then(response => {
-                        this.sub_product_options[i] = response.data;
-                    });
-                }
+                setTimeout(() => {
+                    if (this.productDetails[i].product_name && this.productDetails[i].product_name.id) {
+                        axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
+                        .then(response => {
+                            this.sub_product_options[i] = response.data;
+                        });
+                    }
+                }, 100);
             },
             getSubProductRate (i) {
-                this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                if (i) {
+                    this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                }
             },
             calculateTotalProducts (i) {
                 var pd = this.productDetails[i];

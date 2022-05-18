@@ -265,7 +265,7 @@
             axios.get('/account/sale-bill/view-sale-bill-details/'+this.sale_bill_id)
             .then(response => {
                 var data = response.data;
-                this.generated_by = data.generated_by.firstname + ' - ' + data.generated_by.lastname;
+                this.generated_by = data.generated_by ? (data.generated_by.firstname + ' - ' + data.generated_by.lastname) : '';
                 this.date_added = data.generated_at;
                 this.updated_by = data.updated_by ? (data.updated_by.firstname + ' - ' + data.updated_by.lastname) : '';
                 this.date_updated = data.updated_at;
@@ -332,6 +332,15 @@
                     this.total_sgst += parseFloat(k.sgst_amount);
                     this.total_igst += parseFloat(k.igst_amount);
                 });
+                setTimeout(() => {
+                    this.total_discount = this.total_discount.toFixed(2);
+                    this.total_cgst = this.total_cgst.toFixed(2);
+                    this.total_sgst = this.total_sgst.toFixed(2);
+                    this.total_igst = this.total_igst.toFixed(2);
+                    if (data.sale_bill.sale_bill_for == 1) {
+                        $('.meters_cols').hide();
+                    }
+                }, 500);
             });
         },
         methods: {
