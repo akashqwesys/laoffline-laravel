@@ -27,6 +27,10 @@ td .ni-trash {
 td .ni-sign-inr {
     color: #ffe000;
 }
+.language-item.fy .ni-check-thick {
+    font-size: 1rem;
+    color: #00c100;
+}
 #referenceTable .ni-emails-fill,
 #referenceTable .ni-call,
 #referenceTable .ni-emails,
