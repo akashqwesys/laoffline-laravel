@@ -33,6 +33,8 @@ Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:
     Route::get('/list', [App\Http\Controllers\FinancialYearController::class, 'listFinancialYear'])->name('list');
     Route::get('/list-data', [App\Http\Controllers\FinancialYearController::class, 'listData'])->name('list-data');
     Route::get('/fetch-year/{id}', [App\Http\Controllers\FinancialYearController::class, 'fetchFinancialYear']);
+
+    Route::get('/update-current-financial-year/{id}', [App\Http\Controllers\FinancialYearController::class, 'updateCurrentFinancialYear']);
 });
 
 Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:modify-financial-year']], function () {
@@ -42,6 +44,7 @@ Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:
     Route::get('/edit-financialyear/{id}', [App\Http\Controllers\FinancialYearController::class, 'editFinancialYear']);
     Route::get('/delete/{id}', [App\Http\Controllers\FinancialYearController::class, 'deleteFinancialYear'])->name('delete');
 });
+
 // Routes for Databank / User Group
 Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:access-user-group']], function () {
     Route::group(['prefix' => 'users-group'], function () {

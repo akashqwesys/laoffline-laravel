@@ -44,7 +44,7 @@ class FinancialYearController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return view('financialyear.financialyear',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('financialyear.financialYear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
 
@@ -96,7 +96,7 @@ class FinancialYearController extends Controller
 
         $totalRecordswithFilter = FinancialYear::select('count(*) as allcount');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr, $searchValue) {
                 $q->orWhere('financial_year.name', 'ILIKE', '%' . $searchValue . '%');
             });
         }
@@ -162,7 +162,7 @@ class FinancialYearController extends Controller
         $employees['scope'] = 'edit';
         $employees['editedId'] = $id;
 
-        return view('financialyear.editFinancialyear',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('financialyear.editFinancialYear',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
     public function fetchFinancialYear($id) {
@@ -263,6 +263,14 @@ class FinancialYearController extends Controller
         $logs->save();
 
         return redirect()->route('financialyear');
+    }
+
+    public function updateCurrentFinancialYear($id)
+    {
+        $fy = FinancialYear::select('id', 'name')->where('id', $id)->first();
+        session()->get('user')->financial_year_id = $id;
+        session()->get('user')->financial_year = $fy->name;
+        return redirect()->back();
     }
 
 }

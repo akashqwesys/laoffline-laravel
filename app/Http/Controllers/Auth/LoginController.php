@@ -75,19 +75,14 @@ class LoginController extends Controller
             $user['sgst_per'] = 9;
             $user['igst'] = 18;
 
-
-
-            // FOR TESTING ==========
             $user['financial_year_id'] = $financialYear->id;
-            // $user['financial_year_id'] = 7;
-            // FOR TESTING ==========
-
-
-
 
             $user['extension_port_id'] = $employee->extension_port_id;
 
+            $all_fy = FinancialYear::orderBy('id', 'desc')->get();
+
             Session::put('user', $user);
+            Session::put('all_fy', $all_fy);
 
             $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
             $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
