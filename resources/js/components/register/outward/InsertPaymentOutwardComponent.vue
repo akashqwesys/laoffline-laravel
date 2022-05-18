@@ -6,7 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Insert Sale Bill Outward</h3>
+                                <h3 class="nk-block-title page-title">Insert Payment Outward</h3>
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
@@ -14,7 +14,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered">
                             <div class="card-header">
-                                <h6>Insert Sale bill Outward</h6>
+                                <h6>Insert Payment Outward</h6>
                             </div>
                             <div class="card-inner">
                                     
@@ -23,9 +23,9 @@
                                         <div class="row gy-4">
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-customer">Buyer</label>
+                                                    <label class="form-label" for="fv-customer">Supplier</label>
                                                     <div>
-                                                        <multiselect v-model="form.buyer" :options="buyer" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
+                                                        <multiselect v-model="form.supplier" :options="supplier" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -49,7 +49,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-seller"></label>
                                                     <div>
-                                                        <button class="btn btn-primary" @click="searchSalebills()">Search</button>
+                                                        <button class="btn btn-primary" @click="searchPayments()">Search</button>
                                                         <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
                                                     </div>
                                                 </div>
@@ -58,7 +58,7 @@
                                     </div>
                             </div>
                         </div><!-- .card -->
-                        <div class="card card-bordered salebill d-none">
+                        <div class="card card-bordered payment d-none">
                             <div class="card-header">
                                 <h6>Insert Courier Details</h6>
                             </div>
@@ -110,6 +110,14 @@
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
+                                        <label class="form-label" for="fv-fromname">From Name</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                       <input type="text" class="form-control" id="fv-fromname" v-model="form.fromname">
+                                    </div>
+                                </div>
+                                <div class="row gy-4">
+                                    <div class="col-sm-2 text-right">
                                         <label class="form-label" for="fv-refrencevia">By</label>
                                     </div>
                                     <div class="col-sm-4">
@@ -131,6 +139,14 @@
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno" >
                                        
+                                    </div>
+                                </div>
+                                <div class="row gy-4">
+                                    <div class="col-sm-2 text-right">
+                                        <label class="form-label" for="fv-weightparcel">Weight Of Parcel</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                       <input type="text" class="form-control" id="fv-weightparcel" v-model="form.weightparcel">
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -158,25 +174,24 @@
                                     <thead>
                                         <tr class="text-center">
                                             <th></th>
-				                            <th>Sall Bill Id</th>
+				                            <th>Payment Id</th>
                                             <th>IUID</th>
                                             <th>Refernce No</th>
-				                            <th>Supplier Invoice No</th>
-				                            <th>Date</th>
-				                            <th>Supplier</th>
+				                            <th>Payment Date</th>
+				                            <th>Customer</th>
+				                            <th>Voucher No</th>
                                             
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="itm in salebill" :key="itm.sale_bill_id" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sale_bill_id" :value="itm.sale_bill_id"  required></td>
-				                            <td>{{ itm.sale_bill_id }}</td>
+                                        <tr v-for="itm in payment" :key="itm.payment_id" class="text-center">
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.payment_id" :value="itm.payment_id"  required></td>
+				                            <td>{{ itm.payment_id }}</td>
                                             <td>{{ itm.iuid }}</td>
-                                            <td>{{ itm.general_ref_id }}</td>
-				                            <td>{{ itm.supplier_invoice_no}}</td>
-				                            <td>{{ itm.select_date}}</td>
-				                            <td>{{ itm.company_name }}</td>
-                                            
+                                            <td>{{ itm.reference_id }}</td>
+				                            <td>{{ itm.date}}</td>
+				                            <td>{{ itm.company_name}}</td>
+				                            <td>{{ itm.payment_id }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -208,7 +223,7 @@
     import Form from 'vform';
 
     export default {
-        name: 'createSalebillOutward',
+        name: 'createPaymentOutward',
         components: {
             Multiselect,
         },
@@ -219,14 +234,14 @@
         data() {
             return {
                 cancel_url: '/register/',
-                buyer: [],
+                supplier: [],
                 selected: [],
-                salebill: [],
+                payment: [],
                 agents: [],
                 courier: [],
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
-                    buyer: '',
+                    supplier: '',
                     fromdate: '',
                     todate: '',
                     refrence: 1,
@@ -236,6 +251,8 @@
                     referncevia: '',
                     courrier: '',
                     reciptno: '',
+                    fromname: '',
+                    weightparcel: '',
                     recivetime: '',
                     delivery: '',
                     agent: '',
@@ -243,12 +260,13 @@
             }
         },
         created() {
-            axios.get('/register/list-buyer')
+            axios.get('/register/list-suppliers')
             .then(response => {
-                this.buyer = response.data.buyer;
+                this.supplier = response.data;
             });
+
             axios.get('/register/list-agentcourier')
-            .then(responce => {
+            .then(response => {
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
@@ -265,26 +283,26 @@
             register (event) {
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
-                formdata.append("salebill", JSON.stringify(this.selected));
-                axios.post('/register/insertcourier/',formdata)
+                formdata.append("payment", JSON.stringify(this.selected));
+                axios.post('/register/insertpaymentoutward/',formdata)
                 .then(function (responce) {
 
                 }).catch(function (error) {
                 });
             },
-            searchSalebills(event) {
+            searchPayments(event) {
                 const self = this;
 
-                axios.post('/register/searchsalebill', {
-                    buyer: self.form.buyer.id,
+                axios.post('/register/searchpayments', {
+                    supplier: self.form.supplier.id,
                     fromdate: self.form.fromdate,
                     todate: self.form.todate
                 })
                 .then(function (response) {
-                    $(".salebill").removeClass("d-none");
+                    $(".payment").removeClass("d-none");
                     $(".generatepayment").removeClass('disabled');
                     setTimeout(() => {
-                        self.salebill = response.data.salebill;
+                        self.payment = response.data.payment;
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
                     }, 500);

@@ -15,13 +15,17 @@ use App\Models\Comboids\Comboids;
 use App\Models\Ouid;
 use App\Models\inwardOutward\outward;
 use App\Models\CompanyType;
+use App\Models\OutwardSaleBill;
 use App\Models\ProductsImages;
 use App\Models\InwardLinkWith;
 use App\Models\EnjayCallRecordsId;
 use App\Models\ProductCategory;
+use App\Models\Payment;
 use App\Models\settings\TransportDetails;
 use App\Models\settings\Agent;
 use App\Models\Company\Company;
+use App\Models\Commission\Commission;
+use App\Models\Commission\CommissionInvoice;
 use App\Models\Company\CompanyContactDetails;
 use App\Models\Reference\ReferenceId;
 use Illuminate\Support\Facades\Session;
@@ -110,6 +114,33 @@ class RegisterController extends Controller
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
         return view('register.outward.insertSalebillOutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function addPaymentOutward() {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+
+        return view('register.outward.insertPaymentOutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function addCommissionOutward() {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+
+        return view('register.outward.insertCommissionOutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function addCommissionInvoiceOutward() {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+
+        return view('register.outward.insertCommissioninvoiceOutward',compact('financialYear'))->with('employees', $employees);
     }
 
     public function listSuppliers() {
@@ -501,6 +532,8 @@ class RegisterController extends Controller
                 $action = '';
             } else if ($record->system_module_id == 7) {
                 $action = '';
+            } else {
+                $action = '';
             }
 
             $data_arr[] = array(
@@ -534,9 +567,26 @@ class RegisterController extends Controller
     
     public function listBuyer() {
         $buyer = Company::where('company_type', 2)->get();
+       
+        $data['buyer'] = $buyer;
+        
+        return $data;
+    }
+
+    public function listAgentCourier() {
         $courier = TransportDetails::where('is_delete', 0)->get();
         $agent = Agent::where('is_delete', 0)->get();
-        $data['buyer'] = $buyer;
+       
+        $data['courier'] = $courier;
+        $data['agent'] = $agent;
+        return $data;
+    }
+
+    public function listSupplier() {
+        $supplier = Company::where('company_type', 3)->get();
+        $courier = TransportDetails::where('is_delete', 0)->get();
+        $agent = Agent::where('is_delete', 0)->get();
+        $data['supplier'] = $supplier;
         $data['courier'] = $courier;
         $data['agent'] = $agent;
         return $data;
@@ -557,9 +607,50 @@ class RegisterController extends Controller
         $data['company'] = $company;
         return $data;
     }
+    public function searchPayment(Request $request) {
+        $user = Session::get('user');
+        $company = Company::where('id', $request->supplier)->first();
+        $payment = Payment::join('companies', 'companies.id', '=', 'payments.customer_id')
+                  ->where('payments.supplier_id', $request->supplier)
+                  ->where('payments.financial_year_id', $user->financial_year_id)
+                  ->whereBetween('payments.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                  ->whereNot('payments.done_outward', 1)
+                  ->select('payments.*', 'companies.company_name')
+                  ->get();
+        $data['payment'] = $payment;
+        $data['company'] = $company;
+        return $data;
+    }
+
+    public function searchCommission(Request $request) {
+        $user = Session::get('user');
+        $company = Company::where('id', $request->supplier)->first();
+        $commission = Commission::where('supplier_id', $request->supplier)
+                  ->where('financial_year_id', $user->financial_year_id)
+                  ->whereBetween('created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                  ->whereNot('done_outward', 1)
+                  ->get();
+        $data['commission'] = $commission;
+        $data['company'] = $company;
+        return $data;
+    }
+
+    public function searchCommissionInvoice(Request $request) {
+        $user = Session::get('user');
+        $company = Company::where('id', $request->supplier)->first();
+        $commissioninvoice = CommissionInvoice::where('supplier_id', $request->supplier)
+                  ->where('financial_year_id', $user->financial_year_id)
+                  ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
+                  ->whereNot('done_outward', 1)
+                  ->get();
+        $data['commissioninvoice'] = $commissioninvoice;
+        $data['company'] = $company;
+        return $data;
+    }
 
     public function insertCourier(Request $request) {
         $referncedata = json_decode($request->refenceform);
+        $salebilldata = json_decode($request->salebill);
         $reference = $referncedata->refrence;
         
         $user = Session::get('user');
@@ -569,6 +660,7 @@ class RegisterController extends Controller
         $from_name = '';
         if ($latter_by_id == 'Courier') {
             $ref_via = "Courier";
+            $letterid = 1;
             $courier_name = $referncedata->courrier->name;
             $weight_of_parcel = '';//$_POST['weight_of_parcel'];
             $courier_receipt_no = $referncedata->reciptno;
@@ -576,6 +668,7 @@ class RegisterController extends Controller
             $delivery_by =$referncedata->delivery;
         } else {
             $ref_via = "Hand";
+            $letterid = 0;
             $courier_name = '';
             $weight_of_parcel = '';//$_POST['weight_of_parcel'];
             $courier_receipt_no = '';
@@ -710,13 +803,13 @@ class RegisterController extends Controller
         $outward = new outward();
         $outward->outward_id = $outward_id;
         $outward->ouid = $ouid;
-        $outward->outward_ref_via = $ref_via;
+        $outward->outward_ref_via = 0;
         $outward->general_output_ref_id = $ref_id;
         $outward->new_or_old_outward = $reference;
-        $outward->connected_outward = '';
+        $outward->connected_outward = 0;
         $outward->outward_date = $referncedata->datetime;
         $outward->subject = 'Sale Bill Outward Details';
-        $outward->employe_id = Session::get('user')->employee_id;
+        $outward->employee_id = Session::get('user')->employee_id;
         $outward->type_of_outward = $ref_via;
         //$outward->receiver_number = '';
         $outward->from_number = '';
@@ -728,19 +821,811 @@ class RegisterController extends Controller
         $outward->courier_received_time = $courier_received_time;
         $outward->no_of_parcel = 0;
         $outward->from_name = $from_name;
-        $outward->attachments = '';
+        $outward->attachments = 0;
         $outward->remarks = '';
-        $outward->latter_by_id = $latter_by_id;
+        $outward->latter_by_id = $letterid;
         $outward->delivery_by = $delivery_by;
         $outward->receiver_email_id = '';
         $outward->from_email_id = '';
         $outward->courier_agent = $agent_id;
         $outward->outward_courier_flag = '0';
+        $outward->product_main_id = 0;
+        $outward->product_image_id = 0;
+        $outward->outward_link_with_id = 0;
+        $outward->enquiry_complain_for = 0;
+        $outward->client_remark = '';
+        $outward->notify_client = 0;
+        $outward->notify_md = 0;
+        $outward->mark_as_draft = 0;
+        $outward->outward_employee_id = 0;
+        $outward->is_deleted = 0;
         $outward->save();
 
         $comboids = Comboids::where('comboid', $combo_id)->first();
         $comboids->inward_or_outward_id = $outward_id;
         $comboids->save();
+        $saleBillDetails = '';
+        foreach ($salebilldata as $salebill) {
+            $outwardsalebillLastid = OutwardSaleBill::orderBy('id', 'DESC')->first('id');
+            $outwardsalebill_id = !empty($outwardsalebillLastid) ? $outwardsalebillLastid->id + 1 : 1;
+            $osb = new OutwardSaleBill();
+            $osb->id = $outwardsalebill_id;
+            $osb->outward_id = $outward_id;
+            $osb->sale_bill_id = $salebill;
+            $osb->payment_id = 0;
+            $osb->commission_id = 0;
+            $osb->commission_invoice_id = 0;
+            $osb->is_deleted = 0;
+            $osb->save();
 
+            $sb = SaleBill::where('sale_bill_id', $salebill)
+                ->where('financial_year_id', $financialid)
+                ->first();
+            $sb->done_outward = 1;
+            $sb->save();
+        }
+    }
+
+    public function insertPaymentOutward(Request $request) {
+        $referncedata = json_decode($request->refenceform);
+        $paymentdata = json_decode($request->payment);
+        $reference = $referncedata->refrence;
+        
+        $user = Session::get('user');
+        $financialid = Session::get('user')->financial_year_id;
+        $agent_id = $referncedata->agent->id;
+        $latter_by_id = $referncedata->referncevia->name;
+        $from_name = $referncedata->fromname;
+        if ($latter_by_id == 'Courier') {
+            $ref_via = "Courier";
+            $letterid = 1;
+            $courier_name = $referncedata->courrier->name;
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = $referncedata->reciptno;
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        } else {
+            $ref_via = "Hand";
+            $letterid = 0;
+            $courier_name = '';
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = '';
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        }
+
+        if ($reference == '1') {
+            
+            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
+            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
+
+            if ($increment_id_details) {
+                $ref_id = $increment_id_details->reference_id + 1;
+                $ouid = $increment_id_details->ouid + 1;
+                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+                $increment_id->reference_id = $ref_id;
+                $increment_id->ouid = $ouid;
+                $increment_id->save();
+            } else {
+                $ref_id = '1';
+                $ouid = '1';
+                $increment_id = new IncrementId();
+                $increment_id->reference_id = $ref_id;
+                $increment_id->id = $Incrementids;
+                $increment_id->ouid = $ouid;
+                $increment_id->financial_year_id = $financialid;
+                $increment_id->save();
+            }
+
+            $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
+            $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
+
+            
+            $refence = new ReferenceId();
+            $refence->id = $refrenceid;
+            $refence->reference_id = $ref_id;
+            $refence->financial_year_id = $financialid;
+            $refence->employee_id = $user->employee_id;
+            $refence->inward_or_outward = '0';
+            $refence->type_of_inward = $ref_via;
+            $refence->company_id = $referncedata->companyid;
+            $refence->selection_date = $referncedata->datetime;
+            $refence->from_name = $from_name;
+            $refence->courier_name = $courier_name;
+            $refence->weight_of_parcel = $weight_of_parcel;
+            $refence->courier_receipt_no = $courier_receipt_no;
+            $refence->courier_received_time = $courier_received_time;
+            $refence->delivery_by = $delivery_by;
+            $refence->save();
+        }
+
+        $ouids = Ouid::orderBy('id', 'DESC')->first('id');
+        $nextAutoID = !empty($ouids) ? $ouids->id + 1 : 1;
+        $ouid_ids = new Ouid();
+        $ouid_ids->id = $nextAutoID;
+        $ouid_ids->ouid = $ouid;
+        $ouid_ids->financial_year_id = $financialid;
+        $ouid_ids->save();
+
+        $color_flag_id = 1;
+        
+        $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
+
+        if ($cmpTypeName && $cmpTypeName->company_type != 0) {
+            $companyTypeName = CompanyType::where('id', $cmpTypeName->company_type)->first();
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+        $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
+        $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
+
+        $comboids = new Comboids();
+        $comboids->comboid = $combo_id;
+        $comboids->payment_id = 0;
+        $comboids->iuid = 0;
+        $comboids->ouid = $ouid;
+        $comboids->system_module_id = '17';
+        $comboids->general_ref_id = $ref_id;
+        $comboids->generated_by = $user->employee_id;
+        $comboids->assigned_to = $user->employee_id;
+        $comboids->company_id = 0;
+        $comboids->supplier_id =  $referncedata->companyid;
+        $comboids->company_type = $typeName;
+        $comboids->followup_via = $ref_via;
+        $comboids->inward_or_outward_via = $ref_via;
+        $comboids->selection_date = $referncedata->datetime;
+        $comboids->from_name = $from_name;
+        $comboids->receipt_mode = 0;
+        $comboids->receipt_amount = 0;
+        $comboids->total = 0;
+        $comboids->subject = 'Payment Outward Details';
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = '';
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 0;
+        $comboids->inward_or_outward_id = 0;
+        $comboids->sale_bill_id = 0;
+        $comboids->goods_return_id = 0;
+        $comboids->commission_id = 0;
+        $comboids->commission_invoice_id = 0;
+        $comboids->is_invoice = 0;
+        $comboids->sample_id = 0;
+        $comboids->inward_ref_via = 0;
+        $comboids->new_or_old_inward_or_outward = 0;
+        $comboids->outward_employe_id = 0;
+        $comboids->default_category_id = 0;
+        $comboids->main_category_id = 0;
+        $comboids->agent_id = 0;
+        $comboids->sale_bill_flag = 0;
+        $comboids->tds = 0;
+        $comboids->net_received_amount = 0;
+        $comboids->received_commission_amount = 0;
+        $comboids->is_completed = 0;
+        $comboids->mark_as_draft = 0;
+        $comboids->color_flag_id = $color_flag_id;
+        $comboids->product_qty = 0;
+        $comboids->fabric_meters = 0;
+        $comboids->sample_return_qty = 0;
+        $comboids->mobile_flag = 0;
+        $comboids->is_deleted = 0;
+        $comboids->save();
+
+        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
+        $outward = new outward();
+        $outward->outward_id = $outward_id;
+        $outward->ouid = $ouid;
+        $outward->outward_ref_via = 0;
+        $outward->general_output_ref_id = $ref_id;
+        $outward->new_or_old_outward = $reference;
+        $outward->connected_outward = 0;
+        $outward->outward_date = $referncedata->datetime;
+        $outward->subject = 'Payment Outward Details';
+        $outward->employee_id = Session::get('user')->employee_id;
+        $outward->type_of_outward = $ref_via;
+        //$outward->receiver_number = '';
+        $outward->from_number = '';
+        $outward->company_id = 0;
+        $outward->supplier_id =  $referncedata->companyid;
+        $outward->courier_name = $courier_name;
+        $outward->weight_of_parcel = $weight_of_parcel;
+        $outward->courier_receipt_no = $courier_receipt_no;
+        $outward->courier_received_time = $courier_received_time;
+        $outward->no_of_parcel = 0;
+        $outward->from_name = $from_name;
+        $outward->attachments = 0;
+        $outward->remarks = '';
+        $outward->latter_by_id = $letterid;
+        $outward->delivery_by = $delivery_by;
+        $outward->receiver_email_id = '';
+        $outward->from_email_id = '';
+        $outward->courier_agent = $agent_id;
+        $outward->outward_courier_flag = '1';
+        $outward->product_main_id = 0;
+        $outward->product_image_id = 0;
+        $outward->outward_link_with_id = 0;
+        $outward->enquiry_complain_for = 0;
+        $outward->client_remark = '';
+        $outward->notify_client = 0;
+        $outward->notify_md = 0;
+        $outward->mark_as_draft = 0;
+        $outward->outward_employee_id = 0;
+        $outward->is_deleted = 0;
+        $outward->save();
+
+        $comboids = Comboids::where('comboid', $combo_id)->first();
+        $comboids->inward_or_outward_id = $outward_id;
+        $comboids->save();
+        $saleBillDetails = '';
+        foreach ($paymentdata as $payment) {
+            $outwardpaymentLastid = OutwardSaleBill::orderBy('id', 'DESC')->first('id');
+            $outwardpayment_id = !empty($outwardpaymentLastid) ? $outwardpaymentLastid->id + 1 : 1;
+            $osb = new OutwardSaleBill();
+            $osb->id = $outwardpayment_id;
+            $osb->outward_id = $outward_id;
+            $osb->sale_bill_id = 0;
+            $osb->payment_id = $payment;
+            $osb->commission_id = 0;
+            $osb->commission_invoice_id = 0;
+            $osb->is_deleted = 0;
+            $osb->save();
+
+            $sb = Payment::where('payment_id', $payment)
+                ->where('financial_year_id', $financialid)
+                ->first();
+            $sb->done_outward = 1;
+            $sb->save();
+        }
+    }
+
+    public function insertCommissionOutward(Request $request) {
+        $referncedata = json_decode($request->refenceform);
+        $commissondata = json_decode($request->commission);
+        $reference = $referncedata->refrence;
+        
+        $user = Session::get('user');
+        $financialid = Session::get('user')->financial_year_id;
+        $agent_id = $referncedata->agent->id;
+        $latter_by_id = $referncedata->referncevia->name;
+        $from_name = $referncedata->fromname;
+        if ($latter_by_id == 'Courier') {
+            $ref_via = "Courier";
+            $letterid = 1;
+            $courier_name = $referncedata->courrier->name;
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = $referncedata->reciptno;
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        } else {
+            $ref_via = "Hand";
+            $letterid = 0;
+            $courier_name = '';
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = '';
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        }
+
+        if ($reference == '1') {
+            
+            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
+            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
+
+            if ($increment_id_details) {
+                $ref_id = $increment_id_details->reference_id + 1;
+                $ouid = $increment_id_details->ouid + 1;
+                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+                $increment_id->reference_id = $ref_id;
+                $increment_id->ouid = $ouid;
+                $increment_id->save();
+            } else {
+                $ref_id = '1';
+                $ouid = '1';
+                $increment_id = new IncrementId();
+                $increment_id->reference_id = $ref_id;
+                $increment_id->id = $Incrementids;
+                $increment_id->ouid = $ouid;
+                $increment_id->financial_year_id = $financialid;
+                $increment_id->save();
+            }
+
+            $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
+            $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
+
+            
+            $refence = new ReferenceId();
+            $refence->id = $refrenceid;
+            $refence->reference_id = $ref_id;
+            $refence->financial_year_id = $financialid;
+            $refence->employee_id = $user->employee_id;
+            $refence->inward_or_outward = '0';
+            $refence->type_of_inward = $ref_via;
+            $refence->company_id = $referncedata->companyid;
+            $refence->selection_date = $referncedata->datetime;
+            $refence->from_name = $from_name;
+            $refence->courier_name = $courier_name;
+            $refence->weight_of_parcel = $weight_of_parcel;
+            $refence->courier_receipt_no = $courier_receipt_no;
+            $refence->courier_received_time = $courier_received_time;
+            $refence->delivery_by = $delivery_by;
+            $refence->save();
+        }
+
+        $ouids = Ouid::orderBy('id', 'DESC')->first('id');
+        $nextAutoID = !empty($ouids) ? $ouids->id + 1 : 1;
+        $ouid_ids = new Ouid();
+        $ouid_ids->id = $nextAutoID;
+        $ouid_ids->ouid = $ouid;
+        $ouid_ids->financial_year_id = $financialid;
+        $ouid_ids->save();
+
+        $color_flag_id = 1;
+        
+        $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
+
+        if ($cmpTypeName && $cmpTypeName->company_type != 0) {
+            $companyTypeName = CompanyType::where('id', $cmpTypeName->company_type)->first();
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+        $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
+        $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
+
+        $comboids = new Comboids();
+        $comboids->comboid = $combo_id;
+        $comboids->payment_id = 0;
+        $comboids->iuid = 0;
+        $comboids->ouid = $ouid;
+        $comboids->system_module_id = '18';
+        $comboids->general_ref_id = $ref_id;
+        $comboids->generated_by = $user->employee_id;
+        $comboids->assigned_to = $user->employee_id;
+        $comboids->company_id = 0;
+        $comboids->supplier_id =  $referncedata->companyid;
+        $comboids->company_type = $typeName;
+        $comboids->followup_via = $ref_via;
+        $comboids->inward_or_outward_via = $ref_via;
+        $comboids->selection_date = $referncedata->datetime;
+        $comboids->from_name = $from_name;
+        $comboids->receipt_mode = 0;
+        $comboids->receipt_amount = 0;
+        $comboids->total = 0;
+        $comboids->subject = 'Commission Outward Details';
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = '';
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 0;
+        $comboids->inward_or_outward_id = 0;
+        $comboids->sale_bill_id = 0;
+        $comboids->goods_return_id = 0;
+        $comboids->commission_id = 0;
+        $comboids->commission_invoice_id = 0;
+        $comboids->is_invoice = 0;
+        $comboids->sample_id = 0;
+        $comboids->inward_ref_via = 0;
+        $comboids->new_or_old_inward_or_outward = 0;
+        $comboids->outward_employe_id = 0;
+        $comboids->default_category_id = 0;
+        $comboids->main_category_id = 0;
+        $comboids->agent_id = 0;
+        $comboids->sale_bill_flag = 0;
+        $comboids->tds = 0;
+        $comboids->net_received_amount = 0;
+        $comboids->received_commission_amount = 0;
+        $comboids->is_completed = 0;
+        $comboids->mark_as_draft = 0;
+        $comboids->color_flag_id = $color_flag_id;
+        $comboids->product_qty = 0;
+        $comboids->fabric_meters = 0;
+        $comboids->sample_return_qty = 0;
+        $comboids->mobile_flag = 0;
+        $comboids->is_deleted = 0;
+        $comboids->save();
+
+        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
+        $outward = new outward();
+        $outward->outward_id = $outward_id;
+        $outward->ouid = $ouid;
+        $outward->outward_ref_via = 0;
+        $outward->general_output_ref_id = $ref_id;
+        $outward->new_or_old_outward = $reference;
+        $outward->connected_outward = 0;
+        $outward->outward_date = $referncedata->datetime;
+        $outward->subject = 'Commission Outward Details';
+        $outward->employee_id = Session::get('user')->employee_id;
+        $outward->type_of_outward = $ref_via;
+        //$outward->receiver_number = '';
+        $outward->from_number = '';
+        $outward->company_id = 0;
+        $outward->supplier_id =  $referncedata->companyid;
+        $outward->courier_name = $courier_name;
+        $outward->weight_of_parcel = $weight_of_parcel;
+        $outward->courier_receipt_no = $courier_receipt_no;
+        $outward->courier_received_time = $courier_received_time;
+        $outward->no_of_parcel = 0;
+        $outward->from_name = $from_name;
+        $outward->attachments = 0;
+        $outward->remarks = '';
+        $outward->latter_by_id = $letterid;
+        $outward->delivery_by = $delivery_by;
+        $outward->receiver_email_id = '';
+        $outward->from_email_id = '';
+        $outward->courier_agent = $agent_id;
+        $outward->outward_courier_flag = '1';
+        $outward->product_main_id = 0;
+        $outward->product_image_id = 0;
+        $outward->outward_link_with_id = 0;
+        $outward->enquiry_complain_for = 0;
+        $outward->client_remark = '';
+        $outward->notify_client = 0;
+        $outward->notify_md = 0;
+        $outward->mark_as_draft = 0;
+        $outward->outward_employee_id = 0;
+        $outward->is_deleted = 0;
+        $outward->save();
+
+        $comboids = Comboids::where('comboid', $combo_id)->first();
+        $comboids->inward_or_outward_id = $outward_id;
+        $comboids->save();
+        $saleBillDetails = '';
+        foreach ($commissondata as $commission) {
+            $outwardcommissionLastid = OutwardSaleBill::orderBy('id', 'DESC')->first('id');
+            $outwardcommission_id = !empty($outwardcommissionLastid) ? $outwardcommissionLastid->id + 1 : 1;
+            $osb = new OutwardSaleBill();
+            $osb->id = $outwardcommission_id;
+            $osb->outward_id = $outward_id;
+            $osb->sale_bill_id = 0;
+            $osb->payment_id = 0;
+            $osb->commission_id = $commission;
+            $osb->commission_invoice_id = 0;
+            $osb->is_deleted = 0;
+            $osb->save();
+
+            $sb = Commission::where('commission_id', $commission)
+                ->where('financial_year_id', $financialid)
+                ->first();
+            $sb->done_outward = 1;
+            $sb->save();
+        }
+    }
+
+    public function insertCommissionInvoiceOutward(Request $request) {
+        $referncedata = json_decode($request->refenceform);
+        $commissoninvoicedata = json_decode($request->commissioninvoice);
+        $reference = $referncedata->refrence;
+        $company_supplier = Company::where('id', $referncedata->companyid)->first()->company_type_id;
+        if ($company_supplier == 3) {
+			$company_type_outward = "Supplier";
+        } else {
+			$company_type_outward = "Customer";
+        }
+        $user = Session::get('user');
+        $financialid = Session::get('user')->financial_year_id;
+        $agent_id = $referncedata->agent->id;
+        $latter_by_id = $referncedata->referncevia->name;
+        $from_name = $referncedata->fromname;
+        if ($latter_by_id == 'Courier') {
+            $ref_via = "Courier";
+            $letterid = 1;
+            $courier_name = $referncedata->courrier->name;
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = $referncedata->reciptno;
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        } else {
+            $ref_via = "Hand";
+            $letterid = 0;
+            $courier_name = '';
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = '';
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        }
+
+        if ($reference == '1') {
+            
+            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
+            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
+
+            if ($increment_id_details) {
+                $ref_id = $increment_id_details->reference_id + 1;
+                $ouid = $increment_id_details->ouid + 1;
+                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+                $increment_id->reference_id = $ref_id;
+                $increment_id->ouid = $ouid;
+                $increment_id->save();
+            } else {
+                $ref_id = '1';
+                $ouid = '1';
+                $increment_id = new IncrementId();
+                $increment_id->reference_id = $ref_id;
+                $increment_id->id = $Incrementids;
+                $increment_id->ouid = $ouid;
+                $increment_id->financial_year_id = $financialid;
+                $increment_id->save();
+            }
+
+            $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
+            $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
+
+            
+            $refence = new ReferenceId();
+            $refence->id = $refrenceid;
+            $refence->reference_id = $ref_id;
+            $refence->financial_year_id = $financialid;
+            $refence->employee_id = $user->employee_id;
+            $refence->inward_or_outward = '0';
+            $refence->type_of_inward = $ref_via;
+            $refence->company_id = $referncedata->companyid;
+            $refence->selection_date = $referncedata->datetime;
+            $refence->from_name = $from_name;
+            $refence->courier_name = $courier_name;
+            $refence->weight_of_parcel = $weight_of_parcel;
+            $refence->courier_receipt_no = $courier_receipt_no;
+            $refence->courier_received_time = $courier_received_time;
+            $refence->delivery_by = $delivery_by;
+            $refence->save();
+        }
+
+        $ouids = Ouid::orderBy('id', 'DESC')->first('id');
+        $nextAutoID = !empty($ouids) ? $ouids->id + 1 : 1;
+        $ouid_ids = new Ouid();
+        $ouid_ids->id = $nextAutoID;
+        $ouid_ids->ouid = $ouid;
+        $ouid_ids->financial_year_id = $financialid;
+        $ouid_ids->save();
+
+        $color_flag_id = 1;
+        
+        $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
+
+        if ($cmpTypeName && $cmpTypeName->company_type != 0) {
+            $companyTypeName = CompanyType::where('id', $cmpTypeName->company_type)->first();
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+        $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
+        $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
+
+        $comboids = new Comboids();
+        if ($company_supplier == 3) {
+            $comboids->supplier_id = $referncedata->companyid;
+            $comboids->company_id = 0;
+        } else {
+            $comboids->supplier_id = 0;
+            $comboids->company_id = $referncedata->companyid;
+        }
+
+        $comboids->comboid = $combo_id;
+        $comboids->payment_id = 0;
+        $comboids->iuid = 0;
+        $comboids->ouid = $ouid;
+        $comboids->system_module_id = '21';
+        $comboids->general_ref_id = $ref_id;
+        $comboids->generated_by = $user->employee_id;
+        $comboids->assigned_to = $user->employee_id;
+        $comboids->company_type = $typeName;
+        $comboids->followup_via = $ref_via;
+        $comboids->inward_or_outward_via = $ref_via;
+        $comboids->selection_date = $referncedata->datetime;
+        $comboids->from_name = $from_name;
+        $comboids->receipt_mode = 0;
+        $comboids->receipt_amount = 0;
+        $comboids->total = 0;
+        $comboids->subject = 'Commission Invoice Outward Details';
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = '';
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 0;
+        $comboids->inward_or_outward_id = 0;
+        $comboids->sale_bill_id = 0;
+        $comboids->goods_return_id = 0;
+        $comboids->commission_id = 0;
+        $comboids->commission_invoice_id = 0;
+        $comboids->is_invoice = 0;
+        $comboids->sample_id = 0;
+        $comboids->inward_ref_via = 0;
+        $comboids->new_or_old_inward_or_outward = 0;
+        $comboids->outward_employe_id = 0;
+        $comboids->default_category_id = 0;
+        $comboids->main_category_id = 0;
+        $comboids->agent_id = 0;
+        $comboids->sale_bill_flag = 0;
+        $comboids->tds = 0;
+        $comboids->net_received_amount = 0;
+        $comboids->received_commission_amount = 0;
+        $comboids->is_completed = 0;
+        $comboids->mark_as_draft = 0;
+        $comboids->color_flag_id = $color_flag_id;
+        $comboids->product_qty = 0;
+        $comboids->fabric_meters = 0;
+        $comboids->sample_return_qty = 0;
+        $comboids->mobile_flag = 0;
+        $comboids->is_deleted = 0;
+        $comboids->save();
+
+        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
+        $outward = new outward();
+        $outward->outward_id = $outward_id;
+        $outward->ouid = $ouid;
+        $outward->outward_ref_via = 0;
+        $outward->general_output_ref_id = $ref_id;
+        $outward->new_or_old_outward = $reference;
+        $outward->connected_outward = 0;
+        $outward->outward_date = $referncedata->datetime;
+        $outward->subject = 'Commission Invoice Outward Details';
+        $outward->employee_id = Session::get('user')->employee_id;
+        $outward->type_of_outward = $ref_via;
+        //$outward->receiver_number = '';
+        $outward->from_number = '';
+        $outward->company_id = 0;
+        $outward->supplier_id =  $referncedata->companyid;
+        $outward->courier_name = $courier_name;
+        $outward->weight_of_parcel = $weight_of_parcel;
+        $outward->courier_receipt_no = $courier_receipt_no;
+        $outward->courier_received_time = $courier_received_time;
+        $outward->no_of_parcel = 0;
+        $outward->from_name = $from_name;
+        $outward->attachments = 0;
+        $outward->remarks = '';
+        $outward->latter_by_id = $letterid;
+        $outward->delivery_by = $delivery_by;
+        $outward->receiver_email_id = '';
+        $outward->from_email_id = '';
+        $outward->courier_agent = $agent_id;
+        $outward->outward_courier_flag = '1';
+        $outward->product_main_id = 0;
+        $outward->product_image_id = 0;
+        $outward->outward_link_with_id = 0;
+        $outward->enquiry_complain_for = 0;
+        $outward->client_remark = '';
+        $outward->notify_client = 0;
+        $outward->notify_md = 0;
+        $outward->mark_as_draft = 0;
+        $outward->outward_employee_id = 0;
+        $outward->is_deleted = 0;
+        $outward->save();
+
+        $comboids = Comboids::where('comboid', $combo_id)->first();
+        $comboids->inward_or_outward_id = $outward_id;
+        $comboids->save();
+        $saleBillDetails = '';
+        foreach ($commissoninvoicedata as $invoice) {
+            $outwardcommissioninvoiceLastid = OutwardSaleBill::orderBy('id', 'DESC')->first('id');
+            $outwardcommissioninvoice_id = !empty($outwardcommissioninvoiceLastid) ? $outwardcommissioninvoiceLastid->id + 1 : 1;
+            $osb = new OutwardSaleBill();
+            $osb->id = $outwardcommissioninvoice_id;
+            $osb->outward_id = $outward_id;
+            $osb->sale_bill_id = 0;
+            $osb->payment_id = 0;
+            $osb->commission_id = 0;
+            $osb->commission_invoice_id = $invoice;
+            $osb->is_deleted = 0;
+            $osb->save();
+
+            $sb = CommissionInvoice::where('id', $invoice)
+                ->where('financial_year_id', $financialid)
+                ->first();
+            $sb->done_outward = 1;
+            $sb->save();
+        }
+    }
+     
+    public function outward() {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['excelAccess'] = $user->excel_access;
+        return view('register.outward.outward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function outwardList(Request $request) {
+        $user = Session::get('user');
+
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+        if($columnName == 'active') {
+            $columnName = 'users.is_active';
+        } else {
+            $columnName = 'outwards.'.$columnName;
+        }
+
+        $totalRecords = outward::where('is_deleted', '0')->select('count(*) as count')->count();
+
+        $totalRecordswithFilter = outward::where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('subject', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('employe_id', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('type_of_outward', '=', $columnName_arr[4]['search']['value']);
+        }
+        
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
+
+
+        $records = outward::where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $records = $records->where('ouid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $records = $records->where('created_at', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $records = $records->where('subject', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $records = $records->where('employe_id', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $records = $records->where('type_of_outward', '=', $columnName_arr[4]['search']['value']);
+        }
+        
+        // Fetch records
+        $records = $records->select('*');
+
+        $records = $records->orderBy($columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
+            ->get();
+
+        $data_arr = array();
+        foreach($records as $record){
+            $outward_id = $record->outward_id;
+            $ouid = $record->ouid;
+            $date = date_format($record->created_at, 'Y/m/d H:i:s');
+            $subject = $record->subject;
+            $generatedby = Employee::where('id', $record->employee_id)->first()->firstname;
+            $type = $record->type_of_outward;
+            $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+
+            $data_arr[] = array(
+                "outward_id" => $outward_id,
+                "ouid" => $ouid,
+                "date" => $date,
+                "subject" => $subject,
+                "generatedby" => $generatedby,
+                "type" => $type,
+                "action" => $action
+            );
+        }
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "aaData" => $data_arr
+        );
+
+        echo json_encode($response);
+        exit;
     }
 }

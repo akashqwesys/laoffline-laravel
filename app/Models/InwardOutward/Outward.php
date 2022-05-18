@@ -19,7 +19,7 @@ class outward extends Model
         'connected_outward',
         'outward_date',
         'subject',
-        'employe_id',
+        'employee_id',
         'type_of_outward',
         //'receiver_number',
         'from_number',

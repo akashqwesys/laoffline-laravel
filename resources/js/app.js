@@ -12,7 +12,11 @@ import RegisterComponent from './components/register/RegisterComponent.vue';
 import CreateInwardComponent from './components/register/inward/CreateInwardComponent.vue';
 import InsertInwardComponent from './components/register/inward/InsertInwardComponent.vue';
 import InsertSalebillOutwardComponent from './components/register/outward/InsertSalebillOutwardComponent.vue';
+import InsertPaymentOutwardComponent from './components/register/outward/InsertPaymentOutwardComponent.vue';
+import InsertCommissionOutwardComponent from './components/register/outward/InsertCommissionOutwardComponent.vue';
+import InsertCommissionInvoiceOutwardComponent from './components/register/outward/InsertCommissionInvoiceOutwardComponent.vue';
 import CreateOutwardComponent from './components/register/outward/CreateOutwardComponent.vue';
+import OutwardComponent from './components/register/outward/OutwardComponent.vue';
 // Databank Menu
 import UserGroupComponent from './components/databank/userGroupComponents/UserGroupComponent.vue';
 import CreateUserGroupComponent from './components/databank/userGroupComponents/CreateUserGroupComponent.vue';
@@ -139,7 +143,11 @@ const routes = [
             { path: 'create-inward', component: CreateInwardComponent },
             { path: 'create-outward', component: CreateOutwardComponent },
             { path: 'inward/{type}', component: InsertInwardComponent },
+            { path: 'outward', component: OutwardComponent},
             { path: 'outward/salebill', component: InsertSalebillOutwardComponent },
+            { path: 'outward/payment', component: InsertPaymentOutwardComponent },
+            { path: 'outward/commission', component: InsertCommissionOutwardComponent },
+            { path: 'outward/commissioninvoice', component: InsertCommissionInvoiceOutwardComponent },
         ]
     },
     {
@@ -410,10 +418,14 @@ createApp({
         CreateLinkCompaniesComponent,
 
         RegisterComponent,
+        OutwardComponent,
         CreateInwardComponent,
         InsertInwardComponent,
         CreateOutwardComponent,
         InsertSalebillOutwardComponent,
+        InsertPaymentOutwardComponent,
+        InsertCommissionOutwardComponent,
+        InsertCommissionInvoiceOutwardComponent,
 
         ReferenceIdComponent,
         CreateReferenceIdComponent,

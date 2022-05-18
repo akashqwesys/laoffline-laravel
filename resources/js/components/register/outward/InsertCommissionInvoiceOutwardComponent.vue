@@ -6,7 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Insert Sale Bill Outward</h3>
+                                <h3 class="nk-block-title page-title">Insert Commission Invoice Outward</h3>
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
@@ -14,7 +14,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered">
                             <div class="card-header">
-                                <h6>Insert Sale bill Outward</h6>
+                                <h6>Insert Commission Invoice Outward</h6>
                             </div>
                             <div class="card-inner">
                                     
@@ -23,33 +23,26 @@
                                         <div class="row gy-4">
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-customer">Buyer</label>
+                                                    <label class="form-label" for="fv-customer">Supplier</label>
                                                     <div>
-                                                        <multiselect v-model="form.buyer" :options="buyer" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
+                                                        <multiselect v-model="form.supplier" :options="supplier" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-from">From Date</label>
+                                                    <label class="form-label" for="fv-from">Date</label>
                                                     <div>
-                                                        <input type="date" v-model="form.fromdate" class="form-control">
+                                                        <input type="date" v-model="form.date" class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="fv-to">To Date</label>
-                                                    <div>
-                                                        <input type="date" v-model="form.todate" class="form-control">
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-seller"></label>
                                                     <div>
-                                                        <button class="btn btn-primary" @click="searchSalebills()">Search</button>
+                                                        <button class="btn btn-primary" @click="searchCommissioninvoices()">Search</button>
                                                         <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
                                                     </div>
                                                 </div>
@@ -58,7 +51,7 @@
                                     </div>
                             </div>
                         </div><!-- .card -->
-                        <div class="card card-bordered salebill d-none">
+                        <div class="card card-bordered commissioninvoice d-none">
                             <div class="card-header">
                                 <h6>Insert Courier Details</h6>
                             </div>
@@ -110,6 +103,14 @@
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
+                                        <label class="form-label" for="fv-fromname">From Name</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                       <input type="text" class="form-control" id="fv-fromname" v-model="form.fromname">
+                                    </div>
+                                </div>
+                                <div class="row gy-4">
+                                    <div class="col-sm-2 text-right">
                                         <label class="form-label" for="fv-refrencevia">By</label>
                                     </div>
                                     <div class="col-sm-4">
@@ -131,6 +132,14 @@
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno" >
                                        
+                                    </div>
+                                </div>
+                                <div class="row gy-4">
+                                    <div class="col-sm-2 text-right">
+                                        <label class="form-label" for="fv-weightparcel">Weight Of Parcel</label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                       <input type="text" class="form-control" id="fv-weightparcel" v-model="form.weightparcel">
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -158,26 +167,18 @@
                                     <thead>
                                         <tr class="text-center">
                                             <th></th>
-				                            <th>Sall Bill Id</th>
-                                            <th>IUID</th>
-                                            <th>Refernce No</th>
-				                            <th>Supplier Invoice No</th>
-				                            <th>Date</th>
-				                            <th>Supplier</th>
-                                            
+				                            <th>Comm. Inv. Id</th>
+                                            <th>Date Added</th>
+				                            <th>Bill Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="itm in salebill" :key="itm.sale_bill_id" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sale_bill_id" :value="itm.sale_bill_id"  required></td>
-				                            <td>{{ itm.sale_bill_id }}</td>
-                                            <td>{{ itm.iuid }}</td>
-                                            <td>{{ itm.general_ref_id }}</td>
-				                            <td>{{ itm.supplier_invoice_no}}</td>
-				                            <td>{{ itm.select_date}}</td>
-				                            <td>{{ itm.company_name }}</td>
-                                            
-                                        </tr>
+                                        <tr v-for="itm in commissioninvoice" :key="itm.id" class="text-center">
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.id" :value="itm.id"  required></td>
+				                            <td>{{ itm.bill_no }}</td>
+                                            <td>{{ itm.created_at }}</td>
+                                            <td>{{ itm.bill_date }}</td>
+	                                     </tr>
                                     </tbody>
                                 </table>
                                 <div class="row gy-4">
@@ -208,7 +209,7 @@
     import Form from 'vform';
 
     export default {
-        name: 'createSalebillOutward',
+        name: 'createPaymentOutward',
         components: {
             Multiselect,
         },
@@ -219,16 +220,15 @@
         data() {
             return {
                 cancel_url: '/register/',
-                buyer: [],
+                supplier: [],
                 selected: [],
-                salebill: [],
+                commissioninvoice: [],
                 agents: [],
                 courier: [],
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
-                    buyer: '',
-                    fromdate: '',
-                    todate: '',
+                    supplier: '',
+                    date: '',
                     refrence: 1,
                     datetime: '',
                     company: '',
@@ -236,6 +236,8 @@
                     referncevia: '',
                     courrier: '',
                     reciptno: '',
+                    fromname: '',
+                    weightparcel: '',
                     recivetime: '',
                     delivery: '',
                     agent: '',
@@ -243,12 +245,13 @@
             }
         },
         created() {
-            axios.get('/register/list-buyer')
+            axios.get('/register/list-suppliers')
             .then(response => {
-                this.buyer = response.data.buyer;
+                this.supplier = response.data;
             });
+
             axios.get('/register/list-agentcourier')
-            .then(responce => {
+            .then(response => {
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
@@ -265,26 +268,25 @@
             register (event) {
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
-                formdata.append("salebill", JSON.stringify(this.selected));
-                axios.post('/register/insertcourier/',formdata)
+                formdata.append("commissioninvoice", JSON.stringify(this.selected));
+                axios.post('/register/insertcommissioninvoiceoutward/',formdata)
                 .then(function (responce) {
 
                 }).catch(function (error) {
                 });
             },
-            searchSalebills(event) {
+            searchCommissioninvoices(event) {
                 const self = this;
 
-                axios.post('/register/searchsalebill', {
-                    buyer: self.form.buyer.id,
-                    fromdate: self.form.fromdate,
-                    todate: self.form.todate
+                axios.post('/register/searchcommissioninvoice', {
+                    supplier: self.form.supplier.id,
+                    date: self.form.date
                 })
                 .then(function (response) {
-                    $(".salebill").removeClass("d-none");
+                    $(".commissioninvoice").removeClass("d-none");
                     $(".generatepayment").removeClass('disabled');
                     setTimeout(() => {
-                        self.salebill = response.data.salebill;
+                        self.commissioninvoice = response.data.commissioninvoice;
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
                     }, 500);
