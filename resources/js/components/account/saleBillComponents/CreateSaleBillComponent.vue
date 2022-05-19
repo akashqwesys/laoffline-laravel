@@ -934,7 +934,9 @@
                 }
             },
             getSubProductRate (i) {
-                this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                if (i && typeof(i) == 'number') {
+                    this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                }
             },
             calculateTotalProducts (i) {
                 var pd = this.productDetails[i];

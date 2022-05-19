@@ -788,9 +788,13 @@
                     if (data.sale_bill_items.length > 0) {
                         this.product_options = data.product;
                         data.sale_bill_items.forEach((k, i) => {
+                            var sub_prod = data.subProducts.find( _ => _.id == k.sub_product_id );
+                            if (sub_prod == undefined) {
+                                sub_prod = {id: 0, name: 'Full Catalogue'};
+                            }
                             this.productDetails[i] = {
                                 product_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
-                                sub_product_name: data.subProducts.find( _ => _.id == k.sub_product_id ),
+                                sub_product_name: sub_prod,
                                 hsn_code: k.hsn_code,
                                 pieces: parseInt(k.pieces),
                                 rate: parseInt(k.rate),
