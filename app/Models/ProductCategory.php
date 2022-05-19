@@ -17,5 +17,6 @@ class ProductCategory extends Model
         'sort_order',
         'multiple_company',
         'rate',
+        'is_delete',
     ];
 }

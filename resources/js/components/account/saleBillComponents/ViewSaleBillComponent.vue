@@ -313,7 +313,7 @@
                 data.sale_bill_items.forEach((k, i) => {
                     this.itemDetails[i] = {
                         item_name: k.product_name,
-                        hsn: k.hsn,
+                        hsn: k.hsn_code,
                         pieces: k.pieces,
                         meters: k.meters,
                         rate: k.rate,

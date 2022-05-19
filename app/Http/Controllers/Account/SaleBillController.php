@@ -9,6 +9,8 @@ use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Settings\TransportDetails;
 use App\Models\Comboids\Comboids;
+use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\SaleBill;
 use App\Models\SaleBillTransport;
 use Illuminate\Support\Facades\Session;
@@ -1013,7 +1015,7 @@ class SaleBillController extends Controller
         } else {
             $prodSubCate = json_decode($sale_bill->product_category_id);
         }
-
+        array_push($link_companies, $main_cmp_id);
         $product = $this->getProductFromSubCategoriesForUpdate($prodSubCate, $link_companies, $sale_bill->product_default_category_id);
 
         $product_ids = collect($sale_bill_items)->pluck('product_or_fabric_id')->toArray();
@@ -1107,10 +1109,15 @@ class SaleBillController extends Controller
             ->pluck('name')
             ->toArray();
 
-        $sale_bill_items = DB::table('sale_bill_items as sbi')
-            ->leftJoin('products as p', 'sbi.product_or_fabric_id', '=', 'p.id')
-            ->select('sbi.*', 'p.product_name')
-            ->where('sbi.sale_bill_id', $id)
+        $sale_bill_items = DB::table('sale_bill_items as sbi');
+        if ($sale_bill->sale_bill_for == 1) {
+            $sale_bill_items = $sale_bill_items->leftJoin('products as p', 'sbi.product_or_fabric_id', '=', 'p.id')
+                ->select('sbi.*', 'p.product_name');
+        } else {
+            $sale_bill_items = $sale_bill_items->leftJoin('product_categories as pc', 'sbi.product_or_fabric_id', '=', 'pc.id')
+                ->select('sbi.*', 'pc.name as product_name');
+        }
+        $sale_bill_items = $sale_bill_items->where('sbi.sale_bill_id', $id)
             ->where('sbi.financial_year_id', $user->financial_year_id)
             ->where('sbi.is_deleted', 0)
             ->get();
@@ -2075,6 +2082,33 @@ class SaleBillController extends Controller
             return response()->json(['flag' => 1]);
         else
             return response()->json(['flag' => 0]);
+    }
+
+    public function addFabricsDetails(Request $request)
+    {
+        $fabric = ProductCategory::where('name', $request->fabric_name)->where('main_category_id', $request->mainCategory_id)->first();
+        if ($fabric) {
+            $companies = json_decode($fabric->company_id);
+            if (!in_array($request->supplier_id, $companies)) {
+                array_push($companies, $request->supplier_id);
+                $fabric->company_id = json_encode($companies);
+                $fabric->save();
+            }
+            return response()->json(['refresh_data' => 0]);
+        } else {
+            $fabric = new ProductCategory();
+            $fabric->id = (getLastID('product_categories', 'id') + 1);
+            $fabric->main_category_id = $request->mainCategory_id;
+            $fabric->product_default_category_id = 2;
+            $fabric->company_id = json_encode([$request->supplier_id]);
+            $fabric->product_fabric_id = 0;
+            $fabric->sort_order = 0;
+            $fabric->multiple_company = 0;
+            $fabric->rate = 0;
+            $fabric->is_delete = 0;
+            $fabric->save();
+            return response()->json(['refresh_data' => 1]);
+        }
     }
 
 }
