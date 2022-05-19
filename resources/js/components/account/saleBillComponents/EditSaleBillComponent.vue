@@ -1083,7 +1083,6 @@
                         .then(response => {
                             this.station_options = response.data[0];
                             this.station = response.data[1];
-
                         });
                     });
                 }

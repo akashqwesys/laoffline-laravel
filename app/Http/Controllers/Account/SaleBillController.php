@@ -366,6 +366,13 @@ class SaleBillController extends Controller
             } else {
                 $ref_id = 1;
                 $data_ref = array(
+                    'id' => (getLastID('increment_ids', 'id') + 1),
+                    'iuid' => 0,
+                    'ouid' => 0,
+                    'sale_bill_id' => 0,
+                    'payment_id' => 0,
+                    'commission_id' => 0,
+                    'goods_return_id' => 0,
                     'reference_id' => $ref_id,
                     'financial_year_id' => $user->financial_year_id,
                     'created_at' => $dateAdded,
@@ -406,6 +413,13 @@ class SaleBillController extends Controller
         } else {
             $iuid = 1;
             $data_iuid = array(
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'ouid' => 0,
+                'sale_bill_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
+                'reference_id' => 0,
                 'iuid' => $iuid,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -512,7 +526,13 @@ class SaleBillController extends Controller
         } else {
             $sale_bill_id = 1;
             $data_sale_bill_id = array(
-                'id' => (getLastID('iuids', 'id') + 1),
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'iuid' => 0,
+                'ouid' => 0,
+                'reference_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
                 'sale_bill_id' => $sale_bill_id,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -690,6 +710,13 @@ class SaleBillController extends Controller
         } else {
             $iuid = 1;
             $data_iuid = array(
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'reference_id' => 0,
+                'ouid' => 0,
+                'sale_bill_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
                 'iuid' => $iuid,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -785,6 +812,13 @@ class SaleBillController extends Controller
         } else {
             $sale_bill_id = 1;
             $data_sale_bill_id = array(
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'iuid' => 0,
+                'ouid' => 0,
+                'reference_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
                 'sale_bill_id' => $sale_bill_id,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -1210,7 +1244,7 @@ class SaleBillController extends Controller
         $combo_id = DB::table('comboids')
             ->where('sale_bill_id', $id)
             ->where('is_deleted', 0)
-            ->first();
+            ->get();
         $sale_bill_ids = $iuids = $ouids = [];
         foreach ($combo_id as $v) {
             $sale_bill_ids[] = $v->sale_bill_id;
@@ -1275,7 +1309,7 @@ class SaleBillController extends Controller
             ->first();
 
         if ($request->hasFile('extra_attachment')) {
-            unlink(public_path('upload/sale_bill/' . $sale_bill->attachment));
+            @unlink(public_path('upload/sale_bill/' . $sale_bill->attachment));
             $extra_attachment = date('YmdHis') . "_." . $request->extra_attachment->getClientOriginalExtension();
             $request->extra_attachment->move(public_path('upload/sale_bill'), $extra_attachment);
         } else {
@@ -1373,6 +1407,13 @@ class SaleBillController extends Controller
             } else {
                 $ref_id = 1;
                 $data_ref = array(
+                    'id' => (getLastID('increment_ids', 'id') + 1),
+                    'iuid' => 0,
+                    'ouid' => 0,
+                    'sale_bill_id' => 0,
+                    'payment_id' => 0,
+                    'commission_id' => 0,
+                    'goods_return_id' => 0,
                     'reference_id' => $ref_id,
                     'financial_year_id' => $user->financial_year_id,
                     'created_at' => $dateAdded,
@@ -1464,6 +1505,13 @@ class SaleBillController extends Controller
                     } else {
                         $ref_id = 1;
                         $data_ref = array(
+                            'id' => (getLastID('increment_ids', 'id') + 1),
+                            'iuid' => 0,
+                            'ouid' => 0,
+                            'sale_bill_id' => 0,
+                            'payment_id' => 0,
+                            'commission_id' => 0,
+                            'goods_return_id' => 0,
                             'reference_id' => $ref_id,
                             'financial_year_id' => $user->financial_year_id,
                             'created_at' => $dateAdded,
@@ -1520,6 +1568,13 @@ class SaleBillController extends Controller
                 } else {
                     $iuid = 1;
                     $data_iuid = array(
+                        'id' => (getLastID('increment_ids', 'id') + 1),
+                        'reference_id' => 0,
+                        'ouid' => 0,
+                        'sale_bill_id' => 0,
+                        'payment_id' => 0,
+                        'commission_id' => 0,
+                        'goods_return_id' => 0,
                         'iuid' => $iuid,
                         'financial_year_id' => $user->financial_year_id,
                         'created_at' => $dateAdded,
