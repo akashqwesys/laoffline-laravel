@@ -100,7 +100,7 @@
                                                     <label class="form-label" for="customer">Customer</label>
                                                     <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Customer" @click="setCustomer"><span class="clipboard-text">Add New</span></button>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @close="getCustomerAddress"></multiselect>
+                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @select="getCustomerAddress"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -835,7 +835,9 @@
                         $('#from_email_section').hide();
                     }
                     if (this.new_old_sale_bill == 0) {
-                        this.getOldReferences();
+                        setTimeout(() => {
+                            this.getOldReferences();
+                        }, 100);
                     }
                 }
             },

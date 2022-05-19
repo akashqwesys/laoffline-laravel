@@ -143,7 +143,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="customer">Customer</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @close="getCustomerAddress" :disabled="isCustomerDisabled"></multiselect>
+                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @select="getCustomerAddress" :disabled="isCustomerDisabled"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -804,6 +804,7 @@
                                 igst_amount: parseFloat(k.igst_amount),
                                 amount: parseFloat(k.amount)
                             }
+                            this.sub_product_options[i] = [{id: 0, name: 'Full Catalogue'}];
                         });
                         this.calculateTotalProducts(0);
                         $('#item_details_div, .dynamic_items').slideDown();
@@ -1094,7 +1095,9 @@
                         $('#from_email_section').hide();
                     }
                     if (this.new_old_sale_bill == 0) {
-                        this.getOldReferences();
+                        setTimeout(() => {
+                            this.getOldReferences();
+                        }, 100);
                     }
                 }
             },
