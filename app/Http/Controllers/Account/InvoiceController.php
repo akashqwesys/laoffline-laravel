@@ -653,11 +653,12 @@ class InvoiceController extends Controller
         }
 
         $paymentIds = json_decode(session()->get('commission_payment_id'));
-        $p_ids = [];
+        $p_ids = $fy_ids = [];
         $total_amount = 0;
         foreach ($paymentIds as $v) {
             $a = explode('-', $v);
             $p_ids[] = $a[0];
+            $fy_ids[] = $a[1];
             $total_amount += floatval($a[2]);
         }
 
@@ -666,6 +667,7 @@ class InvoiceController extends Controller
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
             ->select('p.payment_id', 'p.financial_year_id', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id')
+            ->whereIn('p.financial_year_id', $fy_ids)
             ->whereIn('p.payment_id', $p_ids)
             ->get();
         foreach ($payments as $v) {
