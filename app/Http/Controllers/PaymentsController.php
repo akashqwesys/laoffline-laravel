@@ -977,8 +977,8 @@ class PaymentsController extends Controller
                     $paymentDetail->p_increment_id = $p_increment_id;
                     $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
-                    $paymentDetail->flag_sale_bill_sr_no = '1';
-                    $paymentDetail->status = '1';
+                    $paymentDetail->flag_sale_bill_sr_no = 1;
+                    $paymentDetail->status = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
                     $paymentDetail->adjust_amount = (int)$salebill->amount - (int)$salebill->goodreturn;
