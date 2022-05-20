@@ -354,7 +354,7 @@ class SaleBillController extends Controller
                 $from_email_id = null;
                 $latter_by_id = 0;
                 $courier_name = null;
-                $courier_weight_of_parcel = $transportDetails->courier_weight;
+                $weight_of_parcel = $transportDetails->courier_weight;
                 $courier_receipt_no = null;
                 $courier_received_time = $transport_date;
                 $delivery_by = $referenceDetails->delivery_by;
