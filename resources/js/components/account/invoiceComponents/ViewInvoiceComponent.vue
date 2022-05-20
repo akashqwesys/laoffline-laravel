@@ -126,7 +126,7 @@
                                             </tr>
                                             <tr class="right-nonetd left-nonetd">
                                                 <td colspan="2"></td>
-                                                <td colspan="" class="text-left"><b>Total Commission</b></td>
+                                                <td colspan="" class="text-left"><b>Total Commission :</b></td>
                                                 <td id="totalAmount_td" class="text-right"> {{ total_commission }} </td>
                                             </tr>
                                             <tr class="right-nonetd left-nonetd" id="tds_td_tr" v-if="comm_invoice_tds == 1">
@@ -272,7 +272,7 @@
                 this.igst_amount = data.invoice_details.igst_amount;
                 this.invoice_others = data.invoice_details.other_amount != 0 ? data.invoice_details.other_amount : 0;
                 this.rounded_off = data.invoice_details.rounded_off;
-                this.total_commission = this.comm_total_amount + this.cgst_amount + this.sgst_amount + this.igst_amount + this.invoice_others + this.rounded_off;
+                this.total_commission = parseFloat(this.comm_total_amount) + parseFloat(this.cgst_amount) + parseFloat(this.sgst_amount) + parseFloat(this.igst_amount) + parseFloat(this.invoice_others) + parseFloat(this.rounded_off);
                 this.tds_amount = data.invoice_details.tds_amount;
                 this.final_amount = data.invoice_details.final_amount;
                 $('#total_in_words').html('<b>' + this.inWords(this.final_amount) + '</b>');
