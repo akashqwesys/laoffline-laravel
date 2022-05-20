@@ -167,7 +167,7 @@
                                             <tr v-for="(k, i) in payments" :key="i">
                                                 <td> {{ i+1 }} </td>
                                                 <td> {{ k.date }} </td>
-                                                <td> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
+                                                <td> {{ k.company_name }} </td>
                                                 <td class="text-right"> {{ k.received_amount }} </td>
                                             </tr>
                                             <tr>
@@ -276,7 +276,7 @@
                 this.tds_amount = data.invoice_details.tds_amount;
                 this.final_amount = data.invoice_details.final_amount;
                 $('#total_in_words').html('<b>' + this.inWords(this.final_amount) + '</b>');
-                this.payments = data.payment_details;
+                this.payments = data.invoice_payment_details;
             });
         },
         methods: {

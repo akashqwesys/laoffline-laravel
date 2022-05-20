@@ -391,6 +391,7 @@ class InvoiceController extends Controller
             $tds_amt  = $new_req['tds_amount'];
         }
         $invoice = new CommissionInvoice;
+        $invoice->id                 = (getLastID('commission_invoices', 'id') + 1);
         $invoice->financial_year_id  = $user->financial_year_id;
         $invoice->generated_by       = $user->employee_id;
         $invoice->bill_no            = $new_req['full_bill_no'];
@@ -436,8 +437,10 @@ class InvoiceController extends Controller
         }
 
         $dataentry_payment = [];
+        $ipd_id = (getLastID('invoice_payment_details', 'id') + 1);
         foreach ($new_req['payments'] as $p) {
             $dataentry_payment[] = array(
+                'id'                    => $ipd_id++,
                 'commission_invoice_id' => $commission_invoice_id,
                 'payment_id'            => $p['payment_id'],
                 'financial_year_id'     => $p['financial_year_id'],
@@ -683,7 +686,7 @@ class InvoiceController extends Controller
             ->where('pd.is_deleted', 0)
             ->get();
         foreach ($pay_n_pay_det as $v) {
-            $without_gst_amt += round((($v->adjust_amount * 100) / $v->gst), 2);
+            $without_gst_amt += round((($v->adjust_amount * 100) / ($v->gst == 0 ? 1 : $v->gst)), 2);
         }
         /* $payments = DB::table('payments as p')
             ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
@@ -788,17 +791,32 @@ class InvoiceController extends Controller
             ->first();
 
         $without_gst_amt = $with_gst_amt = 0;
-        $payment_details = DB::table('invoice_payment_details as ipd')
+        /* $payment_details = DB::table('invoice_payment_details as ipd')
             ->join('payments as p', 'ipd.payment_id', '=', 'p.payment_id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
             ->select('ipd.payment_date', 'ipd.id', 'ipd.received_amount', 'ipd.commission_invoice_id', 'ipd.payment_id','cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id', 'p.financial_year_id')
             ->where('commission_invoice_id', $id)
+            ->get(); */
+        $invoice_payment_details = DB::table('invoice_payment_details')
+            ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id')
+            ->where('commission_invoice_id', $id)
             ->get();
-        foreach ($payment_details as $v) {
+        $p_ids = collect($invoice_payment_details)->pluck('payment_id')->toArray();
+
+        $payment_details = DB::table('payments as p')
+            ->leftJoin('companies as c', function ($j) {
+                $j->on('p.receipt_from', '=', 'c.id')
+                ->orOn('p.supplier_id', '=', 'c.id');
+            })
+            ->select('c.id as company_id', 'c.company_name')
+            ->whereIn('p.payment_id', $p_ids)
+            ->get();
+
+        foreach ($invoice_payment_details as $v) {
             $with_gst_amt += $v->received_amount;
+            $v->company_name = collect($payment_details)->where('company_id', $v->company_id)->pluck('company_name')->first();
         }
-        $p_ids = collect($payment_details)->pluck('p_id')->toArray();
 
         $pay_n_pay_det = DB::table('payments as p')
             ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
@@ -808,7 +826,7 @@ class InvoiceController extends Controller
             ->where('pd.is_deleted', 0)
             ->get();
         foreach ($pay_n_pay_det as $v) {
-            $without_gst_amt += round((($v->adjust_amount * 100) / $v->gst), 2);
+            $without_gst_amt += round((($v->adjust_amount * 100) / ($v->gst == 0 ? 1 : $v->gst)), 2);
         }
 
         /* $payment_details = DB::table('invoice_payment_details as ipd')
@@ -854,7 +872,8 @@ class InvoiceController extends Controller
 
         return response()->json([
             'invoice_details' => $invoice_details,
-            'payment_details' => $payment_details,
+            'invoice_payment_details' => $invoice_payment_details,
+            // 'payment_details' => $payment_details,
             'agents' => $agents,
             'supplier' => $supplier,
             'customer' => $customer,
