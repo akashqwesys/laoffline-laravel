@@ -1466,7 +1466,7 @@
                                 self.salebills[index].interest = value.interest;
                                 self.salebills[index].ratedifference = value.rate_difference;
                                 self.salebills[index].remark = value.remark;
-                                self.salebills[index].remark = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
+                                self.salebills[index].status = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
                             });
                         }, 500);
 
