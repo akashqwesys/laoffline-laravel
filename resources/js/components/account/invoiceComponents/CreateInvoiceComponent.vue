@@ -221,10 +221,11 @@
                             self.payment_remark = '';
                             $(".custom-control-input").each(function(index, el) {
                                 if ($(this).prop('checked') == true) {
-                                    $(this).closest('tr').remove();
+                                    // $(this).closest('tr').remove();
                                     self.paymentData.splice(index, 1);
                                 }
                             });
+                            $(".custom-control-input").prop('checked', false);
                             $('#payment-remark-div').slideUp();
                             $('#total_amount, #total_selected').text(0);
                             $('#generate-invoice-btn').attr('disabled', true);

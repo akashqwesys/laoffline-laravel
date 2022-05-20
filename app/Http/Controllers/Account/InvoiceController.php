@@ -573,7 +573,7 @@ class InvoiceController extends Controller
                 ->select('cc.commission_percentage')
                 ->where('p.payment_id', $payment_id)
                 ->where('p.financial_year_id', $financial_year_id)
-                ->pluck('commission')
+                ->pluck('commission_percentage')
                 ->first();
             if ($percentage) {
                 $right_of_amount = round((($final_amount * $percentage) / 100), 2);
@@ -587,7 +587,8 @@ class InvoiceController extends Controller
             ->update([
                 "right_of_amount"   => $right_of_amount,
                 "right_of_remark"   => $right_of_remark,
-                "payment_ok_or_not" => 1
+                "payment_ok_or_not" => 1,
+                "updated_at"        => date('Y-m-d H:i:s')
             ]);
         }
         return response()->json(['success' => 1]);
