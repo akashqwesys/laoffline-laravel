@@ -494,7 +494,12 @@
             .then(response => {
                 this.banks = response.data;
             });
-            axios.get('/payments/getbasicdata')
+            if (this.scope == 'edit') {
+                var getbasicdata_url = '/payments/getbasicdata?payment_id=' + this.id;
+            } else {
+                var getbasicdata_url = '/payments/getbasicdata';
+            }
+            axios.get(getbasicdata_url)
             .then(responce => {
                 this.salebills = responce.data.salebill;
                 this.salebilldata = responce.data.salebilldata;
