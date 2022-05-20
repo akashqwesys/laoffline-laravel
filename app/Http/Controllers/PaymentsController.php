@@ -1038,6 +1038,7 @@ class PaymentsController extends Controller
 
                 } else {
                     $paymentDetail = new PaymentDetail();
+                    $paymentDetail->id = (getLastID('payment_details', 'id') + 1);
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->p_increment_id = $p_increment_id;
@@ -1046,19 +1047,19 @@ class PaymentsController extends Controller
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->status = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
-                    $paymentDetail->discount = $salebill->discount ?? 0;
-                    $paymentDetail->discount_amount = $salebill->discountamount ?? 0;
-                    $paymentDetail->vatav = $salebill->vatav ?? 0;
-                    $paymentDetail->agent_commission = $salebill->agentcommission ?? 0;
-                    $paymentDetail->claim = $salebill->claim ?? 0;
-                    $paymentDetail->bank_commission = $salebill->bankcommission ?? 0;
-                    $paymentDetail->short = $salebill->short ?? 0;
-                    $paymentDetail->interest = $salebill->interest ?? 0;
-                    $paymentDetail->rate_difference = $salebill->ratedifference ?? 0;
-                    $paymentDetail->amount = $salebill->amount ?? 0;
-                    $paymentDetail->adjust_amount = $salebill->adjustamount ?? 0;
-                    $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
-                    $paymentDetail->remark = $salebill->remark ?? 0;
+                    $paymentDetail->discount = isset($salebill->discount) ? intval($salebill->discount) : 0;
+                    $paymentDetail->discount_amount = isset($salebill->discountamount) ? intval($salebill->discountamount) : 0;
+                    $paymentDetail->vatav = isset($salebill->vatav) ? intval($salebill->vatav) : 0;
+                    $paymentDetail->agent_commission = isset($salebill->agentcommission) ? intval($salebill->agentcommission) : 0;
+                    $paymentDetail->claim = isset($salebill->claim) ? intval($salebill->claim) : 0;
+                    $paymentDetail->bank_commission = isset($salebill->bankcommission) ? intval($salebill->bankcommission) : 0;
+                    $paymentDetail->short = isset($salebill->short) ? intval($salebill->short) : 0;
+                    $paymentDetail->interest = isset($salebill->interest) ? intval($salebill->interest) : 0;
+                    $paymentDetail->rate_difference = isset($salebill->ratedifference) ? intval($salebill->ratedifference) : 0;
+                    $paymentDetail->amount = isset($salebill->amount) ? intval($salebill->amount) : 0;
+                    $paymentDetail->adjust_amount = isset($salebill->adjustamount) ? intval($salebill->adjustamount) : 0;
+                    $paymentDetail->goods_return = isset($salebill->goodreturn) ? intval($salebill->goodreturn) : 0;
+                    $paymentDetail->remark = isset($salebill->remark) ? intval($salebill->remark) : 0;
                     $paymentDetail->save();
 
                     $tot_discount += $paymentDetail->discountamount;
@@ -1297,10 +1298,11 @@ class PaymentsController extends Controller
     }
 
     public function fetchPayment($id) {
-        $payment = Payment::where('payment_id', $id)->first();
+        $user = session()->get('user');
+        $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
-        $salebill = PaymentDetail::where('payment_id', $payment->payment_id)->get();
+        $salebill = PaymentDetail::where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->get();
 
         $data['paymentData'] = $payment;
         $data['created_at'] = date_format($payment->created_at,"Y/m/d H:i:s");
