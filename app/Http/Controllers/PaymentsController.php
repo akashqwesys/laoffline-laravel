@@ -1045,7 +1045,7 @@ class PaymentsController extends Controller
                     $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
-                    $paymentDetail->status = 1;
+                    $paymentDetail->status = $salebill->status->code;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->discount = isset($salebill->discount) ? intval($salebill->discount) : 0;
                     $paymentDetail->discount_amount = isset($salebill->discountamount) ? intval($salebill->discountamount) : 0;

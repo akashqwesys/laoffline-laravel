@@ -1454,7 +1454,7 @@
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
                                 self.salebills[index].amount = value.amount;
-                                self.salebills[index].adjamount = value.adjust_amount;
+                                self.salebills[index].adjustamount = value.adjust_amount;
                                 self.salebills[index].discount = value.discount;
                                 self.salebills[index].discountamount = value.discount_amount;
                                 self.salebills[index].vatav = value.vatav;
@@ -1466,6 +1466,7 @@
                                 self.salebills[index].interest = value.interest;
                                 self.salebills[index].ratedifference = value.rate_difference;
                                 self.salebills[index].remark = value.remark;
+                                self.salebills[index].remark = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
                             });
                         }, 500);
 
