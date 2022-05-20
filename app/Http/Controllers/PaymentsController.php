@@ -1007,13 +1007,13 @@ class PaymentsController extends Controller
                     $paymentDetail->p_increment_id = $p_increment_id;
                     $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
-                    $paymentDetail->status = '0';
-                    $paymentDetail->flag_sale_bill_sr_no = '1';
+                    $paymentDetail->status = 0;
+                    $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
                     $paymentDetail->remark = $salebill->remark;
-                    $paymentDetail->rate_difference = '0';
+                    $paymentDetail->rate_difference = 0;
                     $paymentDetail->save();
                     $tot_discount += 0;
 					$tot_vatav += 0;
@@ -1043,8 +1043,8 @@ class PaymentsController extends Controller
                     $paymentDetail->p_increment_id = $p_increment_id;
                     $paymentDetail->financial_year_id = $financialid;
                     $paymentDetail->sr_no = $salebill->id;
-                    $paymentDetail->flag_sale_bill_sr_no = '1';
-                    $paymentDetail->status = '1';
+                    $paymentDetail->flag_sale_bill_sr_no = 1;
+                    $paymentDetail->status = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->discount = $salebill->discount ?? 0;
                     $paymentDetail->discount_amount = $salebill->discountamount ?? 0;
