@@ -1158,6 +1158,8 @@ class PaymentsController extends Controller
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
         $salebills = DB::table('sale_bills')
+            ->where('company_id', $customer_id)
+            ->where('supplier_id', $seller_id)
             ->where('financial_year_id', Session::get('user')->financial_year_id)
             ->whereIn('sale_bill_id', $salebill_ids)
             ->where('payment_status', 0)
