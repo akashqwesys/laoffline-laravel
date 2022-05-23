@@ -628,15 +628,51 @@ class PaymentsController extends Controller
 
         foreach($records as $record){
             $customer_company = Company::where('id', $record->customer_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->customer_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->customer_id)
+                            ->get();
+
             $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+
+
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $payment_date = $record->date;
-            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
-            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+            if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                $customer_color = '';
+            } else {
+                $customer_color = ' text-danger ';
+            }
+
+            if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                $seller_color = '';
+            } else {
+                $seller_color = ' text-danger ';
+            }
+            $customer = '<a href="#" class="view-details ' . $customer_color . '"  data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
             $scs = 0;

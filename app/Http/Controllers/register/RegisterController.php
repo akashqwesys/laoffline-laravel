@@ -1605,7 +1605,7 @@ class RegisterController extends Controller
             $subject = $record->subject;
             $generatedby = Employee::where('id', $record->employee_id)->first()->firstname;
             $type = $record->type_of_outward;
-            $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            $action = '<a href="/register/view-outward/'.$record->outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
 
             $data_arr[] = array(
                 "outward_id" => $outward_id,
@@ -1627,5 +1627,9 @@ class RegisterController extends Controller
 
         echo json_encode($response);
         exit;
+    }
+
+    public function viewOutward($id) {
+        
     }
 }

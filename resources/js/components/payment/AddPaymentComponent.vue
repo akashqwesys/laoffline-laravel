@@ -212,7 +212,7 @@
                                                     <label class="form-label" for="fv-end-date">Cheque Attachment</label>
                                                     <div class="form-control-wrap">
                                                        <div class="custom-file">
-                                                            <input type="file" name="chequeattechment" accept="image/*" class="custom-file-input" @change="uploadChequeImage">
+                                                            <input type="file" name="chequeattechment" class="custom-file-input" @change="uploadChequeImage">
                                                             <label class="custom-file-label" for="fv-chequeattechment">Choose photo</label>
                                                             <span v-if="errors.chequeattechment" class="invalid">{{errors.chequeattechment}}</span>
                                                         </div>
@@ -281,7 +281,7 @@
                                                     <label class="form-label" for="fv-end-date">Letter Attachment</label>
                                                     <div class="form-control-wrap">
                                                         <div class="custom-file">
-                                                            <input type="file" name="letterattechment"  accept="image/*" class="custom-file-input" @change="uploadLetterImage">
+                                                            <input type="file" name="letterattechment"  class="custom-file-input" @change="uploadLetterImage">
                                                             <label class="custom-file-label" for="fv-letterattechment">Choose photo</label>
                                                             <span v-if="errors.letterattechment" class="invalid">{{errors.letterattechment}}</span>
                                                         </div>
@@ -292,7 +292,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-Recipt-amount">Recipt Amount</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" class="form-control" id="fv-recipt-amount" v-model="form.reciptamount">
+                                                        <input type="text" class="form-control" id="fv-recipt-amount" v-model="form.reciptamount" @change="changeReciptAmount">
                                                         <span v-if="errors.reciptamount" class="invalid">{{errors.reciptamount}}</span>
                                                     </div>
                                                 </div>
@@ -302,7 +302,8 @@
                                             <div class="col-sm-9">
                                                 <label class="form-label" for="fv-sale-bill-detail">Sale Bill Details</label>
                                             </div>
-                                            <div class="col-sm-3 text-right">
+                                            <div v-if="scope == 'edit'" class="col-sm-3 text-right"></div>
+                                            <div v-else class="col-sm-3 text-right">
                                                 <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addSalebill" title="Add new company"><span class="clipboard-text">Add New</span></button>
                                             </div>
                                         </div>
@@ -373,6 +374,9 @@
                                                 </tfoot>
                                             </table>
                                         </div>
+                                        <div class="row gy-4 text-center">
+                                            <label class="form-label" for="fv-extraamount" style="margin:0px auto">Extra Amount : {{ extraAmount }}</label>
+                                        </div>
                                         <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
@@ -420,6 +424,7 @@
                 cancel_url: '/payments/',
                 userGroups: [],
                 banks:[],
+                extraAmount: '',
                 salebilldata :[],
                 isValidate: false,
                 // salebill :[
@@ -438,7 +443,7 @@
                         sup_inv: '',
                         amount: '',
                         adjustamount: '',
-                        status: '',
+                        status: {status: 'Complete', code: '1'},
                         discount: '',
                         discountamount: '',
                         goodreturn: '',
@@ -474,7 +479,7 @@
                     chequeno: '',
                     chequebank: '',
                     term: '',
-                    reciptamount: '',
+                    reciptamount: 0,
                     discountamount: '',
                     goodreturn: '',
                     ratedifference: '',
@@ -494,26 +499,30 @@
             .then(response => {
                 this.banks = response.data;
             });
-            axios.get('/payments/getbasicdata')
-            .then(responce => {
-                this.salebills = responce.data.salebill;
-                this.salebilldata = responce.data.salebilldata;
-                if (this.scope != 'edit') {
-                    this.form.reciptfrom = responce.data.customer.company_name;
-                    this.form.supplier = responce.data.seller.company_name;
-                }
-                this.form.depositebank = 'Cheque in Hand';
-                let totalamount = 0;
-                let totalAdjustamount = 0;
-                this.salebills.forEach(value => {
-                    totalAdjustamount += parseInt(value.adjustamount);
-                    totalamount += parseInt(value.amount);
-                });
-                this.form.totalamount = totalamount;
-                this.form.totaladjustamount = totalAdjustamount;
-            })
-            //this.form.refrence = 'new';
-            this.form.recipt_mode = 'cheque';
+            if (this.scope != 'edit') {
+                axios.get('/payments/getbasicdata')
+                .then(responce => {
+                    this.salebills = responce.data.salebill;
+                    this.salebilldata = responce.data.salebilldata;
+                    if (this.scope != 'edit') {
+                        this.form.reciptfrom = responce.data.customer.company_name;
+                        this.form.supplier = responce.data.seller.company_name;
+                    }
+                    this.form.depositebank = 'Cheque in Hand';
+                    let totalamount = 0;
+                    let totalAdjustamount = 0;
+                    this.salebills.forEach(value => {
+                        totalAdjustamount += parseInt(value.adjustamount);
+                        totalamount += parseInt(value.amount);
+                    });
+                    this.form.totalamount = totalamount;
+                    this.form.totaladjustamount = totalAdjustamount;
+                    this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
+                })
+                this.form.refrence = 'new';
+                
+                this.form.recipt_mode = 'cheque';
+            }
         },
         methods: {
             removeSalebill (event) {
@@ -570,6 +579,14 @@
                     });
                 }
             },
+
+            changeReciptAmount (event) {
+                setTimeout(() => {
+                    this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
+                }, 1000);
+                
+            },
+
             changeInterest (event) {
                 let totalInterst = 0;
                 let totalRateDifference = 0;
@@ -614,7 +631,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
@@ -678,7 +695,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
@@ -741,7 +758,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
@@ -804,7 +821,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
@@ -867,7 +884,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
 
@@ -931,7 +948,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
 
@@ -994,7 +1011,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
@@ -1057,7 +1074,7 @@
                 if (!discount_amount) {
                     discount_amount = 0;
                 }
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 let discount = parseInt(discount_amount) / parseInt(amount) * 100 ;
@@ -1122,7 +1139,7 @@
                 let discount_amount = parseInt(discount) * parseInt(amount) / 100 ;
                 this.salebills[index-1].discountamount = discount_amount;
 
-                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim));
+                let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
 
@@ -1158,7 +1175,7 @@
                 let amount = this.salebills[index-1].amount;
                 let adjamount = this.salebills[index-1].adjustamount;
 
-
+                
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -1198,7 +1215,7 @@
                     }, 500);
                 }
 
-                let diff1 = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) + parseInt(interest) + parseInt(claim);
+                let diff1 = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim);
                 let rateDiff = rateDifference - diff1;
                 this.salebills[index-1].ratedifference = rateDiff;
                 this.salebills.forEach((value,index) => {
@@ -1218,8 +1235,8 @@
                      this.form.totaladjustamount = totalAdjustamount;
                      this.form.discountamount = totaldiscount;
                      this.form.ratedifference = totalRateDifference;
+                     this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
                 }, 1000);
-
             },
 
             uploadChequeImage (event) {
@@ -1381,6 +1398,8 @@
             this.form.claim = 0;
             this.form.short = 0;
             this.form.interest = 0;
+            let todaytime = new Date().toJSON().slice(0,19);
+            self.form.recivedate = todaytime;
             $(document).on('change', '.old-reference', function () {
                 self.form.refrence_type = this.value;
                 console.log(self.form);
@@ -1449,7 +1468,7 @@
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
                                 self.salebills[index].amount = value.amount;
-                                self.salebills[index].adjamount = value.adjust_amount;
+                                self.salebills[index].adjustamount = value.adjust_amount;
                                 self.salebills[index].discount = value.discount;
                                 self.salebills[index].discountamount = value.discount_amount;
                                 self.salebills[index].vatav = value.vatav;
