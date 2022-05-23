@@ -202,7 +202,7 @@ class ReferenceController extends Controller
                 $type_of_inward = '<em class="icon ni ni-cards" title="Letter"></em>';
             }
             elseif ($type_of_inward == 'Courier') {
-                $type_of_inward = '<em class="icon ni ni-emails-fill" title="Courier"></em>';
+                $type_of_inward = '<em class="icon ni ni-inbox-out-fill" title="Courier"></em>';
             }
             $company_name = '<a href="#" class="view-details" data-id="'.$record->company_id.'">'.$record->company_name.'</a>';
             $firstname = $record->firstname . ' - ' . $record->lastname;
@@ -246,7 +246,7 @@ class ReferenceController extends Controller
 
     public function getCompany()
     {
-        $company = Company::all();
+        $company = Company::select('id', 'company_name', 'company_type')->get();
 
         return $company;
     }

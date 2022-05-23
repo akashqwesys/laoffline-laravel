@@ -196,7 +196,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="bill_date">Bill Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" v-model="bill_date" id="bill_date" class="form-control">
+                                                        <input type="date" v-model="bill_date" id="bill_date" class="form-control" @focus="showDatePicker()">
                                                         <div v-if="v$.bill_date.$error" class="invalid mt-1">Select Bill Date</div>
                                                     </div>
                                                 </div>
@@ -452,7 +452,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="transport_date">LR / MR Date</label>
                                                         <div class="form-control-wrap">
-                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control">
+                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control" @focus="showDatePicker()">
                                                             <div v-if="v$.transport_date.$error" class="invalid mt-1">Select Transport Date</div>
                                                         </div>
                                                     </div>
@@ -891,7 +891,7 @@
                     $('#new_reference_details_div').slideDown();
                     $('#show-references').slideUp();
                     this.bill_date = '';
-                    $('#bill_date').attr('disabled', false);
+                    // $('#bill_date').attr('disabled', false);
                 }
             },
             resetSupplier (event) {
@@ -900,12 +900,12 @@
                 this.old_reference_data = '';
                 this.is_from_name_required = this.is_reference_via_required = true;
                 this.bill_date = '';
-                $('#bill_date').attr('disabled', false);
+                // $('#bill_date').attr('disabled', false);
                 this.customer = '';
                 $('#customer').attr('readonly', false);
                 this.supplier = '';
                 this.isSupplierDisabled = false;
-                $('#transport_date').attr('readonly', false);
+                // $('#transport_date').attr('readonly', false);
                 this.transport_date = '';
             },
             getOldReferences (event) {
@@ -942,13 +942,13 @@
                         $('#allhiddenfield_div').html(response2.data);
                         if ($('#hidden_sale_bill_date').val() != '') {
                             this.bill_date = $('#hidden_sale_bill_date').val();
-                            $('#bill_date').attr('disabled', true);
+                            // $('#bill_date').attr('disabled', true);
                         }
                         this.reference_id = $('input[name="reference_id_sale_bill"]:checked').val();
                         this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
                         this.isSupplierDisabled = true;
                         if (this.reference_via.name != "Email") {
-                            $('#transport_date').attr('readonly', true);
+                            // $('#transport_date').attr('readonly', true);
                             this.transport_date = $('#hidden_courier_received_time').val();
                         }
                     } else {
@@ -1300,6 +1300,16 @@
                     }
                 });
             },
+            showDatePicker () {
+                // document.querySelector('input[type=date]').addEventListener("focus", () => {
+                    document.querySelector('input[type=date]').showPicker();
+                // });
+            },
+            showDateTimePicker () {
+                // document.querySelector('input[type=datetime-local]').addEventListener("focus", () => {
+                    document.querySelector('input[type=datetime-local]').showPicker();
+                // });
+            },
 
             register () {
                 var formData = new FormData();
@@ -1381,13 +1391,13 @@
                         $('#allhiddenfield_div').html(response2.data);
                         if($('#hidden_sale_bill_date').val() != '') {
                             this.bill_date = $('#hidden_sale_bill_date').val();
-                            $('#bill_date').attr('disabled', true);
+                            // $('#bill_date').attr('disabled', true);
                         }
                         $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
                         this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
                         this.isSupplierDisabled = true;
                         $('#show-references tr input[type="radio"]').last().prop('checked', true);
-                        $('#transport_date').attr('readonly', true);
+                        // $('#transport_date').attr('readonly', true);
                         this.transport_date = $('#hidden_courier_received_time').val();
                         this.reference_id = $('input[name="reference_id_sale_bill"]:checked').val();
                     } else {

@@ -53,7 +53,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-first-name">Date/Time</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-Reference-date" v-model="form.Date_Time">
+                                                        <input type="date" class="form-control" id="fv-Reference-date" v-model="form.Date_Time" @focus="showDatePicker()">
                                                     </div>
                                                 </div>
                                             </div>
@@ -62,14 +62,14 @@
                                                         <label class="form-label" for="fv-company">Company</label>
                                                         <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#addCompany" title="Company Inserts"><span class="clipboard-text">Add New</span></button>
                                                         <div>
-                                                            <multiselect v-model="form.companyName" :options="company" placeholder="Select one" label="company_name" track-by="id" @input="getFromName"></multiselect>
+                                                            <multiselect v-model="form.companyName" :options="company" placeholder="Select one" label="company_name" track-by="id" @select="getFromName"></multiselect>
                                                         </div>
                                                     </div>
                                                 </div>
                                             <div class="col-md-4">
                                                 <div v-if="form.Reference_via.name == 'Hand' || form.Reference_via.name == 'Courier'">
-                                                            <input type="checkbox" id="checkbox" v-model="form.markssample" />
-                                                            <label for="checkbox">Mark As Sample</label>
+                                                    <input type="checkbox" id="checkbox" v-model="form.markssample" />
+                                                    <label for="checkbox">Mark As Sample</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -81,27 +81,26 @@
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-from-name">From Name</label>
                                                         <label v-else class="form-label" for="fv-from-name">To Name</label>
                                                         <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#AddPerson" title="Person Detail"><span class="clipboard-text">Add New</span></button>
-                                                            <div class="form-control-wrap">
-                                                                <!-- <multiselect v-model="form.from_name" :options="fromNames" placeholder="Select one" label="contact_person_name" track-by="contact_person_name"></multiselect> -->
-                                                                <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-from-number">From Number</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-from_number" v-model="form.from_number" placeholder="Enter From Number">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-from_number" v-model="form.from_number" placeholder="Enter From Number">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-receiver-number">Receiver Number</label>
                                                         <label v-else class="form-label" for="fv-receiver-number">Receiver Number</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-receiver_number" v-model="form.receiver_number">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-receiver_number" v-model="form.receiver_number">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -115,7 +114,6 @@
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-from-name">From Name</label>
                                                         <label v-else class="form-label" for="fv-from-name-email">To Name</label>
                                                             <div class="form-control-wrap">
-                                                                <!-- <multiselect v-model="form.from_name" :options="fromNames" placeholder="Select one" label="contact_person_name" track-by="contact_person_name"></multiselect> -->
                                                                 <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
                                                             </div>
                                                         </form>
@@ -124,17 +122,17 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-from-email">From Email Id</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-from_email" v-model="form.from_email" placeholder="Enter From email">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-from_email" v-model="form.from_email" placeholder="Enter From email">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-receiver-email">Receiver Email Id</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-receiver_email" v-model="form.receiver_email" placeholder="Enter Receiver email">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-receiver_email" v-model="form.receiver_email" placeholder="Enter Receiver email">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -146,35 +144,34 @@
                                                     <div class="form-group">
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-from-name">From Name</label>
                                                         <label v-else class="form-label" for="fv-from-name-hand">To Name</label>
-                                                            <div class="form-control-wrap">
-                                                                <!-- <multiselect v-model="form.from_name" :options="fromNames" placeholder="Select one" label="contact_person_name" track-by="contact_person_name"></multiselect> -->
-                                                                <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-parcel-weight-hand">Weight of Parcel</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-parcel_weight" v-model="form.parcel_weight" placeholder="Enter Parcel Weight">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-parcel_weight" v-model="form.parcel_weight" placeholder="Enter Parcel Weight">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div v-if="InwardOrOutward" class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-received-date-time-hand">Received Date Time</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="datetime-local" class="form-control" id="fv-received_date_time" v-model="form.received_date_time" placeholder="Enter Received Date and Time">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="datetime-local" class="form-control" id="fv-received_date_time" v-model="form.received_date_time" placeholder="Enter Received Date and Time" @focus="showDateTimePicker()">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-delivery-by-hand">Delivery By</label>
                                                         <label v-else class="form-label" for="fv-delivered-by-hand">Delivered By</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-delivery_by_hand" v-model="form.delivery_by" placeholder="Enter Person Name">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-delivery_by_hand" v-model="form.delivery_by" placeholder="Enter Person Name">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -186,10 +183,9 @@
                                                     <div class="form-group">
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-from-name-courier">From Name</label>
                                                         <label v-else class="form-label" for="fv-from-name-courier">To Name</label>
-                                                            <div class="form-control-wrap">
-                                                                <!-- <multiselect v-model="form.from_name" :options="fromNames" placeholder="Select one" label="contact_person_name" track-by="contact_person_name"></multiselect> -->
-                                                                <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-from_number" v-model="form.from_name" placeholder="Enter From Name">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -202,35 +198,35 @@
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="form-label" for="fv-courier-recepit-no">Courier Recepit No</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-courier_recepit_no" v-model="form.courier_recepit_no" placeholder="Enter From Courier Receipt No">
-                                                            </div>
-                                                    </div>
+                                                        <label class="form-label" for="fv-courier-recepit-no">Courier Receipt No</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-courier_recepit_no" v-model="form.courier_recepit_no" placeholder="Enter From Courier Receipt No">
+                                                        </div>
+                                                </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-parcel-weight-courier">Weight of Parcel</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-parcel_weight" v-model="form.parcel_weight" placeholder="Enter Parcel Weight">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-parcel_weight" v-model="form.parcel_weight" placeholder="Enter Parcel Weight">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div v-if="InwardOrOutward" class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="fv-received-date-time">Received Date Time</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="datetime-local" class="form-control" id="fv-received_date_time" v-model="form.received_date_time" placeholder="Enter Received Date and Time">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="datetime-local" class="form-control" id="fv-received_date_time" v-model="form.received_date_time" placeholder="Enter Received Date and Time" @focus="showDateTimePicker()">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label v-if="InwardOrOutward" class="form-label" for="fv-delivery-by-courier">Delivery By</label>
                                                         <label v-else class="form-label" for="fv-delivered-by">Delivered By</label>
-                                                            <div class="form-control-wrap">
-                                                                <input type="text" class="form-control" id="fv-delivery_by_courier" v-model="form.delivery_by" placeholder="Enter Person Name">
-                                                            </div>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" class="form-control" id="fv-delivery_by_courier" v-model="form.delivery_by" placeholder="Enter Person Name">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -258,6 +254,7 @@
 </template>
 
 <script>
+import $ from 'jquery';
 import Form from 'vform';
 import Multiselect from 'vue-multiselect';
 import AddCompany from './modal/AddNewCompanyModelComponent';
@@ -354,9 +351,19 @@ export default {
         },
         register() {
             this.form.post('/reference/create-reference/create')
-                .then(( response ) => {
-                    window.location.href = '/reference/create-reference';
+            .then(( response ) => {
+                window.location.href = '/reference/create-reference';
             });
+        },
+        showDatePicker () {
+            // document.querySelector('input[type=date]').addEventListener("focus", () => {
+                document.querySelector('input[type=date]').showPicker();
+            // });
+        },
+        showDateTimePicker () {
+            // document.querySelector('input[type=datetime-local]').addEventListener("focus", () => {
+                document.querySelector('input[type=datetime-local]').showPicker();
+            // });
         },
     },
     mounted(){
@@ -376,99 +383,5 @@ export default {
     }
     .form-group.code-block .clipboard-init:hover {
         border-color: #6576ff;
-    }
-    .multiselect {
-        height: calc(2.125rem + 2px);
-        font-family: Roboto,sans-serif;
-        font-size: 13px;
-        font-weight: 400;
-        background-color: #fff;
-        border: none;
-        border-radius: 4px;
-        box-shadow: none;
-        transition: all 0.3s;
-        min-height: 36px;
-        display: inline-flex;
-        flex-wrap: wrap;
-    }
-    .multiselect__tag-icon:after {
-        color: #526484;
-    }
-    .multiselect__tag {
-        color: #526484;
-        background: #ebeef2;
-        font-size: 13px;
-        font-family: Roboto,sans-serif;
-    }
-    .multiselect__tags {
-        padding: 7px 16px;
-        font-size: 13px;
-        min-height: 36px;
-        border: 1px solid #dbdfea;
-        width: 100%;
-    }
-    .multiselect__placeholder {
-        margin-bottom: 0;
-        padding-top: 0;
-    }
-    .multiselect__select {
-        height: calc(2.125rem + 2px);
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: calc(2.125rem + 2px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .multiselect__select:before {
-        display: none;
-    }
-    .multiselect .multiselect__select:after {
-        font-family: "Nioicon";
-        content: "";
-        line-height: 1;
-    }
-    .multiselect.multiselect--active .multiselect__input, .multiselect__single {
-        font-size: 13px;
-        padding: 0;
-        margin-bottom: 0;
-        width: 98% !important;
-    }
-    .multiselect__content-wrapper {
-        border-top: 1px solid #dbdfea;
-        padding: 6px;
-        top: 36px;
-    }
-    .multiselect__option--highlight {
-        background: #ebeef2;
-        border-radius: 4px;
-        color: #526484;
-    }
-    .multiselect__element {
-        margin-bottom: 0.125rem;
-    }
-    .multiselect__option--highlight:after, .multiselect__option:after {
-        display: none;
-    }
-    .multiselect__option--selected.multiselect__option--highlight {
-        background: #f3f3f3;
-        color: #35495e;
-    }
-    .multiselect__option--selected {
-        font-weight: 500;
-    }
-    .multiselect__tags-wrap {
-        display: inline-flex;
-    }
-    .multiselect--above .multiselect__content-wrapper {
-        border: 1px solid #e8e8e8;
-        position: unset;
-    }
-    .multiselect__tag-icon:focus, .multiselect__tag-icon:hover {
-        background: #ebeef2;
-    }
-    .multiselect__tag-icon:focus:after, .multiselect__tag-icon:hover:after {
-        color: #526484;
     }
 </style>

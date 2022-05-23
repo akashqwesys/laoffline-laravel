@@ -2,6 +2,7 @@ window._ = require('lodash');
 
 try {
     require('bootstrap');
+    window.$ = window.jQuery = require('jquery');
 } catch (e) {}
 
 /**
@@ -32,6 +33,15 @@ axios.interceptors.response.use((response) => {
     // trigger 'loading=false' event here
     document.getElementById('overlay').style.display = 'none';
     return Promise.reject(error);
+});
+
+$(document).on('keydown', '.multiselect', function (event) {
+    // watch for keydown events on elements with class multiselect
+    if (event.which === 9) { // if event is tab
+        var e = $.Event('click'); // create click event
+        $(event.target).parent().siblings().find('.multiselect__option--highlight:not(.multiselect__option--selected)').trigger(e); // trigger click event to select the focused option
+        // event.preventDefault(); // prevent tab default action, because we already did tabNext
+    }
 });
 
 /**
