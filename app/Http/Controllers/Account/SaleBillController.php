@@ -9,6 +9,8 @@ use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Settings\TransportDetails;
 use App\Models\Comboids\Comboids;
+use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\SaleBill;
 use App\Models\SaleBillTransport;
 use Illuminate\Support\Facades\Session;
@@ -70,7 +72,7 @@ class SaleBillController extends Controller
             ->where('is_deleted', 0)
             ->count();
         $totalRecordswithFilter = SaleBill::selectRaw('count(id) as allcount')
-            ->where('financial_year_id', $user->financial_year_id);
+        ->where('financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('sale_bill_id', $columnName_arr[0]['search']['value']);
         }
@@ -97,16 +99,16 @@ class SaleBillController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         $SaleBill = DB::table('sale_bills as s')
-            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
-            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
-            ->leftJoin('payment_details as pd', 's.sale_bill_id', '=', 'pd.sr_no')
-            ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
-            // ->joinSub('SELECT "is_completed", "color_flag_id", MAX(comboid) FROM comboids group by "sale_bill_id"', 'cid', function ($join) {
-            //     $join->on('cid.sale_bill_id', '=', 's.sale_bill_id');
-            // })
-            // ->leftJoin('comboids as cid', 's.sale_bill_id', '=', 'cid.sale_bill_id')
-            ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'p.payment_id', 'pd.sr_no', DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "sale_bill_id" = "s"."sale_bill_id" ORDER BY "id" DESC LIMIT 1) as outward_id')/* , 'cid.is_completed', 'cid.color_flag_id' */)
-            ->where('s.financial_year_id', $user->financial_year_id);
+        ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+        ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+        // ->leftJoin('payment_details as pd', 's.sale_bill_id', '=', 'pd.sr_no')
+        // ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
+        // ->joinSub('SELECT "is_completed", "color_flag_id", MAX(comboid) FROM comboids group by "sale_bill_id"', 'cid', function ($join) {
+        //     $join->on('cid.sale_bill_id', '=', 's.sale_bill_id');
+        // })
+        // ->leftJoin('comboids as cid', 's.sale_bill_id', '=', 'cid.sale_bill_id')
+        ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', /* 'p.payment_id', 'pd.sr_no', */ DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "sale_bill_id" = "s"."sale_bill_id" ORDER BY "id" DESC LIMIT 1) as outward_id')/* , 'cid.is_completed', 'cid.color_flag_id' */)
+        ->where('s.financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $SaleBill = $SaleBill->where('s.sale_bill_id', $columnName_arr[0]['search']['value']);
         }
@@ -141,34 +143,44 @@ class SaleBillController extends Controller
         $supplier_ids = collect($SaleBill)->pluck('supplier_id')->toArray();
         $company_ids = array_unique(array_merge($customer_ids, $supplier_ids));
         $companies = DB::table('companies')
-            ->select('id')
+        ->select('id')
             ->where('is_delete', 0)
             ->whereRaw("(company_name is not null or company_name <> '') and company_type <> 0 and company_country <> 0 and (company_city is not null or company_city <> '') and company_landline @> '0'")
             ->whereIn('id', $company_ids)
             ->get();
         $company_addresses = DB::table('company_addresses')
-            ->select('id', 'company_id')
-            ->whereRaw("(address is not null or address <> '')")
-            ->whereIn('company_id', $company_ids)
+        ->select('id', 'company_id')
+        ->whereRaw("(address is not null or address <> '')")
+        ->whereIn('company_id', $company_ids)
             ->get();
         $company_owners = DB::table('company_address_owners as cao')
-            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
-            ->select('cao.id', 'ca.company_id')
-            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
-            ->whereIn('ca.company_id', $company_ids)
+        ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+        ->select('cao.id', 'ca.company_id')
+        ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+        ->whereIn('ca.company_id', $company_ids)
             ->get();
 
+        $sr_nos = DB::table('payment_details')->select('sr_no')->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
+
         $sale_bill_ids = collect($SaleBill)->pluck('sale_bill_id')->toArray();
+
+        $payment_status_ids = DB::table('payment_details as pd')
+        ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
+        ->select('p.payment_id', 'pd.sr_no')
+        ->whereIn('pd.sr_no', $sale_bill_ids)
+            ->where('pd.financial_year_id', $user->financial_year_id)
+            ->get();
+
         $combo_ids = DB::table('comboids')
-            ->select('is_completed', 'color_flag_id', 'sale_bill_id')
-            ->whereIn('sale_bill_id', $sale_bill_ids)
+        ->select('is_completed', 'color_flag_id', 'sale_bill_id')
+        ->whereIn('sale_bill_id', $sale_bill_ids)
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
             ->orderBy('comboid', 'desc')
             ->get();
         foreach ($SaleBill as $s) {
-            $updated_at = date('d-m-Y H:i A', strtotime($s->updated_at));
-            $select_date = date('d-m-Y', strtotime($s->select_date));
+            $updated_at = $s->updated_at ? date('d-m-Y H:i A', strtotime($s->updated_at)) : 0;
+            $select_date = $s->select_date ? date('d-m-Y', strtotime($s->select_date)) : 0;
 
             if ($s->done_outward == 0) {
                 $outward_status = '<em class="icon ni ni-cross" title="No"></em>';
@@ -176,23 +188,24 @@ class SaleBillController extends Controller
                 $outward_status = '<a href="' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             }
 
-            $ref_id = '<a href="/reference/view-reference/'.$s->general_ref_id.'" class="" target="_blank">' . $s->general_ref_id . '</a>';
+            $ref_id = '<a href="/reference/view-reference/' . $s->general_ref_id . '" class="" target="_blank">' . $s->general_ref_id . '</a>';
 
-            if ($s->payment_id) {
-                $payment_status = '<a href="' . $s->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
+            $payment_id = collect($payment_status_ids)->where('sr_no', $s->sale_bill_id)->values();
+            if (count($payment_id)) {
+                $payment_status = '<a href="' . $payment_id[0]->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             } else {
                 $payment_status = '<em class="icon ni ni-cross" title="No"></em>';
             }
 
             $action = null;
             if ($s->sale_bill_flag == 0) {
-                $action .= '<a href="/account/sale-bill/view-sale-bill/' . $s->sale_bill_id . '/'. $user->financial_year_id .'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> ';
+                $action .= '<a href="/account/sale-bill/view-sale-bill/' . $s->sale_bill_id . '/' . $user->financial_year_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> ';
             }
 
-            $comboid = collect($combo_ids)->where('sale_bill_id', $s->sale_bill_id)->toArray();
-            if ((count($comboid) < 1 || (count($comboid) > 0 && isset($comboid[0]->is_completed) && $comboid[0]->is_completed == 0)) && empty($s->payment_id)) {
+            $comboid = collect($combo_ids)->where('sale_bill_id', $s->sale_bill_id)->values();
+            if ((count($comboid) == 0 || (count($comboid) && isset($comboid[0]->is_completed) && $comboid[0]->is_completed == 0)) && count($payment_id) == 0) {
                 $action .= '<a href="/account/sale-bill/edit-sale-bill/' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a> ';
-                if ($s->sale_bill_id != $s->sr_no) {
+                if (!in_array($s->sale_bill_id, $sr_nos)) {
                     $action .= '<a href="javascript:void(0)" data-id="' . $s->sale_bill_id . '" class="btn btn-trigger btn-icon delete-salebill" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a> ';
                 }
             }
@@ -201,8 +214,7 @@ class SaleBillController extends Controller
             if ($comboid) {
                 if (isset($comboid[0]->is_completed) && $comboid[0]->is_completed == 1) {
                     $sale_bill_row = '<div class="color-flag" data-color_flag="#FFFFC8">' . $s->sale_bill_id . '</div>';
-                }
-                else if (isset($comboid[0]->is_completed) && $comboid[0]->is_completed == 2) {
+                } else if (isset($comboid[0]->is_completed) && $comboid[0]->is_completed == 2) {
                     $sale_bill_row = '<div class="color-flag" data-color_flag="#F2DEDE">' . $s->sale_bill_id . '</div>';
                 } else {
                     $sale_bill_row = '<div class="color-flag" data-color_flag="">' . $s->sale_bill_id . '</div>';
@@ -342,7 +354,7 @@ class SaleBillController extends Controller
                 $from_email_id = null;
                 $latter_by_id = 0;
                 $courier_name = null;
-                $courier_weight_of_parcel = $transportDetails->courier_weight;
+                $weight_of_parcel = $transportDetails->courier_weight;
                 $courier_receipt_no = null;
                 $courier_received_time = $transport_date;
                 $delivery_by = $referenceDetails->delivery_by;
@@ -354,6 +366,13 @@ class SaleBillController extends Controller
             } else {
                 $ref_id = 1;
                 $data_ref = array(
+                    'id' => (getLastID('increment_ids', 'id') + 1),
+                    'iuid' => 0,
+                    'ouid' => 0,
+                    'sale_bill_id' => 0,
+                    'payment_id' => 0,
+                    'commission_id' => 0,
+                    'goods_return_id' => 0,
                     'reference_id' => $ref_id,
                     'financial_year_id' => $user->financial_year_id,
                     'created_at' => $dateAdded,
@@ -394,6 +413,13 @@ class SaleBillController extends Controller
         } else {
             $iuid = 1;
             $data_iuid = array(
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'ouid' => 0,
+                'sale_bill_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
+                'reference_id' => 0,
                 'iuid' => $iuid,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -500,7 +526,13 @@ class SaleBillController extends Controller
         } else {
             $sale_bill_id = 1;
             $data_sale_bill_id = array(
-                'id' => (getLastID('iuids', 'id') + 1),
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'iuid' => 0,
+                'ouid' => 0,
+                'reference_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
                 'sale_bill_id' => $sale_bill_id,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -678,6 +710,13 @@ class SaleBillController extends Controller
         } else {
             $iuid = 1;
             $data_iuid = array(
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'reference_id' => 0,
+                'ouid' => 0,
+                'sale_bill_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
                 'iuid' => $iuid,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -773,6 +812,13 @@ class SaleBillController extends Controller
         } else {
             $sale_bill_id = 1;
             $data_sale_bill_id = array(
+                'id' => (getLastID('increment_ids', 'id') + 1),
+                'iuid' => 0,
+                'ouid' => 0,
+                'reference_id' => 0,
+                'payment_id' => 0,
+                'commission_id' => 0,
+                'goods_return_id' => 0,
                 'sale_bill_id' => $sale_bill_id,
                 'financial_year_id' => $user->financial_year_id,
                 'created_at' => $dateAdded,
@@ -952,7 +998,7 @@ class SaleBillController extends Controller
             ->orderBy('subject', 'asc')
             ->get();
         // $cities = DB::table('cities')->select('id', 'name')->get();
-        $products = DB::table('products')
+        /* $products = DB::table('products')
             ->select('id', 'product_name as name')
             ->orderBy('product_name', 'asc')
             ->get();
@@ -960,7 +1006,7 @@ class SaleBillController extends Controller
             ->select('id', 'name')
             ->where('main_category_id', 7)
             ->orderBy('name', 'asc')
-            ->get();
+            ->get(); */
         $product_default_categories = DB::table('product_default_categories')
             ->select('id', 'name')
             ->orderBy('id', 'asc')
@@ -1003,7 +1049,7 @@ class SaleBillController extends Controller
         } else {
             $prodSubCate = json_decode($sale_bill->product_category_id);
         }
-
+        array_push($link_companies, $main_cmp_id);
         $product = $this->getProductFromSubCategoriesForUpdate($prodSubCate, $link_companies, $sale_bill->product_default_category_id);
 
         $product_ids = collect($sale_bill_items)->pluck('product_or_fabric_id')->toArray();
@@ -1039,9 +1085,9 @@ class SaleBillController extends Controller
             'sale_bill_agents' => $sale_bill_agents,
             'cities' => $cities */
             'inwards' => $inwards,
-            'products' => $products,
+            // 'products' => $products,
             'subProducts' => $subProducts,
-            'fabrics' => $fabrics,
+            // 'fabrics' => $fabrics,
             'product_default_categories' => $product_default_categories,
             'product_categories' => $product_categories,
             'supplier_group' => $supplier_group,
@@ -1097,10 +1143,15 @@ class SaleBillController extends Controller
             ->pluck('name')
             ->toArray();
 
-        $sale_bill_items = DB::table('sale_bill_items as sbi')
-            ->join('products as p', 'sbi.product_or_fabric_id', '=', 'p.id')
-            ->select('sbi.*', 'p.product_name')
-            ->where('sbi.sale_bill_id', $id)
+        $sale_bill_items = DB::table('sale_bill_items as sbi');
+        if ($sale_bill->sale_bill_for == 1) {
+            $sale_bill_items = $sale_bill_items->leftJoin('products as p', 'sbi.product_or_fabric_id', '=', 'p.id')
+                ->select('sbi.*', 'p.product_name');
+        } else {
+            $sale_bill_items = $sale_bill_items->leftJoin('product_categories as pc', 'sbi.product_or_fabric_id', '=', 'pc.id')
+                ->select('sbi.*', 'pc.name as product_name');
+        }
+        $sale_bill_items = $sale_bill_items->where('sbi.sale_bill_id', $id)
             ->where('sbi.financial_year_id', $user->financial_year_id)
             ->where('sbi.is_deleted', 0)
             ->get();
@@ -1120,7 +1171,7 @@ class SaleBillController extends Controller
             ->first();
         $updated_by = DB::table('employees')
             ->select('id', 'firstname', 'lastname', 'email_id', 'mobile')
-            ->where('id', $generated_by->updated_by)
+            ->where('id', $generated_by->updated_by ?? 0)
             ->first();
         $inward = DB::table('inwards')
             ->select('inward_id', 'subject')
@@ -1171,8 +1222,8 @@ class SaleBillController extends Controller
             'sale_bill_items' => $sale_bill_items,
             'sale_bill_transports' => $sale_bill_transports,
             'generated_by' => $generated_by,
-            'generated_at' => date('d-m-Y H:i A', strtotime($generated_by->created_at)),
-            'updated_at' => date('d-m-Y H:i A', strtotime($generated_by->updated_at)),
+            'generated_at' => $generated_by ? date('d-m-Y H:i A', strtotime($generated_by->created_at)) : '',
+            'updated_at' => $generated_by ? date('d-m-Y H:i A', strtotime($generated_by->updated_at)) : '',
             'customer' => $customer_row,
             'address' => $final_address[0] ?? '- - -',
             'supplier' => $supplier_row,
@@ -1193,7 +1244,7 @@ class SaleBillController extends Controller
         $combo_id = DB::table('comboids')
             ->where('sale_bill_id', $id)
             ->where('is_deleted', 0)
-            ->first();
+            ->get();
         $sale_bill_ids = $iuids = $ouids = [];
         foreach ($combo_id as $v) {
             $sale_bill_ids[] = $v->sale_bill_id;
@@ -1258,7 +1309,7 @@ class SaleBillController extends Controller
             ->first();
 
         if ($request->hasFile('extra_attachment')) {
-            unlink(public_path('upload/sale_bill/' . $sale_bill->attachment));
+            @unlink(public_path('upload/sale_bill/' . $sale_bill->attachment));
             $extra_attachment = date('YmdHis') . "_." . $request->extra_attachment->getClientOriginalExtension();
             $request->extra_attachment->move(public_path('upload/sale_bill'), $extra_attachment);
         } else {
@@ -1356,6 +1407,13 @@ class SaleBillController extends Controller
             } else {
                 $ref_id = 1;
                 $data_ref = array(
+                    'id' => (getLastID('increment_ids', 'id') + 1),
+                    'iuid' => 0,
+                    'ouid' => 0,
+                    'sale_bill_id' => 0,
+                    'payment_id' => 0,
+                    'commission_id' => 0,
+                    'goods_return_id' => 0,
                     'reference_id' => $ref_id,
                     'financial_year_id' => $user->financial_year_id,
                     'created_at' => $dateAdded,
@@ -1447,6 +1505,13 @@ class SaleBillController extends Controller
                     } else {
                         $ref_id = 1;
                         $data_ref = array(
+                            'id' => (getLastID('increment_ids', 'id') + 1),
+                            'iuid' => 0,
+                            'ouid' => 0,
+                            'sale_bill_id' => 0,
+                            'payment_id' => 0,
+                            'commission_id' => 0,
+                            'goods_return_id' => 0,
                             'reference_id' => $ref_id,
                             'financial_year_id' => $user->financial_year_id,
                             'created_at' => $dateAdded,
@@ -1503,6 +1568,13 @@ class SaleBillController extends Controller
                 } else {
                     $iuid = 1;
                     $data_iuid = array(
+                        'id' => (getLastID('increment_ids', 'id') + 1),
+                        'reference_id' => 0,
+                        'ouid' => 0,
+                        'sale_bill_id' => 0,
+                        'payment_id' => 0,
+                        'commission_id' => 0,
+                        'goods_return_id' => 0,
                         'iuid' => $iuid,
                         'financial_year_id' => $user->financial_year_id,
                         'created_at' => $dateAdded,
@@ -2065,6 +2137,33 @@ class SaleBillController extends Controller
             return response()->json(['flag' => 1]);
         else
             return response()->json(['flag' => 0]);
+    }
+
+    public function addFabricsDetails(Request $request)
+    {
+        $fabric = ProductCategory::where('name', $request->fabric_name)->where('main_category_id', $request->mainCategory_id)->first();
+        if ($fabric) {
+            $companies = json_decode($fabric->company_id);
+            if (!in_array($request->supplier_id, $companies)) {
+                array_push($companies, $request->supplier_id);
+                $fabric->company_id = json_encode($companies);
+                $fabric->save();
+            }
+            return response()->json(['refresh_data' => 0]);
+        } else {
+            $fabric = new ProductCategory();
+            $fabric->id = (getLastID('product_categories', 'id') + 1);
+            $fabric->main_category_id = $request->mainCategory_id;
+            $fabric->product_default_category_id = 2;
+            $fabric->company_id = json_encode([$request->supplier_id]);
+            $fabric->product_fabric_id = 0;
+            $fabric->sort_order = 0;
+            $fabric->multiple_company = 0;
+            $fabric->rate = 0;
+            $fabric->is_delete = 0;
+            $fabric->save();
+            return response()->json(['refresh_data' => 1]);
+        }
     }
 
 }

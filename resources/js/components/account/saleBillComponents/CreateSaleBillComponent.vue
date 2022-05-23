@@ -100,7 +100,7 @@
                                                     <label class="form-label" for="customer">Customer</label>
                                                     <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Customer" @click="setCustomer"><span class="clipboard-text">Add New</span></button>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @close="getCustomerAddress"></multiselect>
+                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @select="getCustomerAddress"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -189,14 +189,14 @@
                                                                     <div class="row">
                                                                         <label class="col-sm-2">Name</label>
                                                                         <div class="col-sm-10">
-                                                                            <input type="text" value="" name="add_fabric_name" id="add_fabric_name" class="form-control">
+                                                                            <input type="text" v-model="add_fabric_name" id="add_fabric_name" class="form-control">
                                                                         </div>
                                                                     </div>
                                                                     <br>
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                                    <button type="button" id="save_modal_data_fabric" class="btn btn-primary">Submit</button>
+                                                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="closeFabricModalBtn">Close</button>
+                                                                    <button type="button" id="save_modal_data_fabric" class="btn btn-primary" @click="addUpdateFabricName" >Submit</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -344,7 +344,7 @@
                                         <hr>
                                         <div class="transport_details">
                                             <!-- Modal -->
-                                            <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <!-- <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -365,7 +365,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <label class=""><b>Transport Details</b></label>
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
@@ -600,6 +600,7 @@
                 is_delivery_by_required: false,
                 is_reference_via_required: false,
                 isSubmitDisabled: false,
+                add_fabric_name: '',
             }
         },
         validations () {
@@ -816,9 +817,8 @@
 
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
                         .then(response => {
-                            this.stations_options = response.data[0];
+                            this.station_options = response.data[0];
                             this.station = response.data[1];
-
                         });
                     });
                 }
@@ -834,7 +834,9 @@
                         $('#from_email_section').hide();
                     }
                     if (this.new_old_sale_bill == 0) {
-                        this.getOldReferences();
+                        setTimeout(() => {
+                            this.getOldReferences();
+                        }, 100);
                     }
                 }
             },
@@ -931,7 +933,9 @@
                 }
             },
             getSubProductRate (i) {
-                this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                if (i && typeof(i) == 'number') {
+                    this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                }
             },
             calculateTotalProducts (i) {
                 var pd = this.productDetails[i];
@@ -984,6 +988,20 @@
                 } else {
                     this.final_total = parseInt(this.totals.amount) - parseInt(this.change_in_amount);
                 }
+            },
+            addUpdateFabricName () {
+                axios.post('/account/sale-bill/addFabricsDetails', {
+                    fabric_name: this.add_fabric_name,
+                    supplier_id: this.supplier.id,
+                    mainCategory_id: this.product_category.id
+                })
+                .then(response => {
+                    $('#closeFabricModalBtn').trigger('click');
+                    this.add_fabric_name = '';
+                    if (response.data.refresh_data == 1) {
+                        this.getProductSubCategory();
+                    }
+                });
             },
 
             register () {

@@ -499,30 +499,31 @@
             .then(response => {
                 this.banks = response.data;
             });
-            if (this.scope != 'edit') {
-                axios.get('/payments/getbasicdata')
-                .then(responce => {
-                    this.salebills = responce.data.salebill;
-                    this.salebilldata = responce.data.salebilldata;
-                    if (this.scope != 'edit') {
-                        this.form.reciptfrom = responce.data.customer.company_name;
-                        this.form.supplier = responce.data.seller.company_name;
-                    }
-                    this.form.depositebank = 'Cheque in Hand';
-                    let totalamount = 0;
-                    let totalAdjustamount = 0;
-                    this.salebills.forEach(value => {
-                        totalAdjustamount += parseInt(value.adjustamount);
-                        totalamount += parseInt(value.amount);
-                    });
-                    this.form.totalamount = totalamount;
-                    this.form.totaladjustamount = totalAdjustamount;
-                    this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
-                })
-                this.form.refrence = 'new';
-                
-                this.form.recipt_mode = 'cheque';
+            if (this.scope == 'edit') {
+                var getbasicdata_url = '/payments/getbasicdata?payment_id=' + this.id;
+            } else {
+                var getbasicdata_url = '/payments/getbasicdata';
             }
+            axios.get(getbasicdata_url)
+            .then(responce => {
+                this.salebills = responce.data.salebill;
+                this.salebilldata = responce.data.salebilldata;
+                if (this.scope != 'edit') {
+                    this.form.reciptfrom = responce.data.customer.company_name;
+                    this.form.supplier = responce.data.seller.company_name;
+                }
+                this.form.depositebank = 'Cheque in Hand';
+                let totalamount = 0;
+                let totalAdjustamount = 0;
+                this.salebills.forEach(value => {
+                    totalAdjustamount += parseInt(value.adjustamount);
+                    totalamount += parseInt(value.amount);
+                });
+                this.form.totalamount = totalamount;
+                this.form.totaladjustamount = totalAdjustamount;
+            })
+            //this.form.refrence = 'new';
+            this.form.recipt_mode = 'cheque';
         },
         methods: {
             removeSalebill (event) {
@@ -1480,6 +1481,7 @@
                                 self.salebills[index].interest = value.interest;
                                 self.salebills[index].ratedifference = value.rate_difference;
                                 self.salebills[index].remark = value.remark;
+                                self.salebills[index].status = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
                             });
                         }, 500);
 

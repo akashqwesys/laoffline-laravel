@@ -143,7 +143,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="customer">Customer</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @close="getCustomerAddress" :disabled="isCustomerDisabled"></multiselect>
+                                                        <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @select="getCustomerAddress" :disabled="isCustomerDisabled"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -248,14 +248,14 @@
                                                                     <div class="row">
                                                                         <label class="col-sm-2">Name</label>
                                                                         <div class="col-sm-10">
-                                                                            <input type="text" value="" name="add_fabric_name" id="add_fabric_name" class="form-control">
+                                                                            <input type="text" v-model="add_fabric_name" id="add_fabric_name" class="form-control">
                                                                         </div>
                                                                     </div>
                                                                     <br>
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                                    <button type="button" id="save_modal_data_fabric" class="btn btn-primary">Submit</button>
+                                                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="closeFabricModalBtn">Close</button>
+                                                                    <button type="button" id="save_modal_data_fabric" class="btn btn-primary" @click="addUpdateFabricName" >Submit</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -403,7 +403,7 @@
                                         <hr>
                                         <div class="transport_details">
                                             <!-- Modal -->
-                                            <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <!-- <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -424,7 +424,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <label class=""><b>Transport Details</b></label>
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
@@ -664,6 +664,7 @@
                 sale_bill_id: '',
                 isProductSubCategoryDisabled: false,
                 isSubmitDisabled: false,
+                add_fabric_name: '',
             }
         },
         validations () {
@@ -774,22 +775,26 @@
                 }
 
                 if (data.sale_bill.is_moved == 1) { isProductSubCategoryDisabled = true; }
-                this.product_sub_category_options = data.subCategory;
                 var subCat = JSON.parse(data.sale_bill.product_category_id);
                 if (!(typeof(subCat) == 'number' || typeof(subCat) == 'string')) {
+                    this.product_sub_category_options = data.subCategory;
                     subCat.forEach((k, i) => {
-                        this.product_sub_category.push(this.product_sub_category_options.find( _ => _.id == k ));
+                        this.product_sub_category.push(data.subCategory.find( _ => _.id == k ));
                     });
                 }
-                this.getProducts();
+                // this.getProducts();
 
                 if (data.sale_bill.sale_bill_for == 1 && subCat.length > 0) {
-                    $('#add_product_details').show();
                     if (data.sale_bill_items.length > 0) {
+                        this.product_options = data.product;
                         data.sale_bill_items.forEach((k, i) => {
+                            var sub_prod = data.subProducts.find( _ => _.id == k.sub_product_id );
+                            if (sub_prod == undefined) {
+                                sub_prod = {id: 0, name: 'Full Catalogue'};
+                            }
                             this.productDetails[i] = {
                                 product_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
-                                sub_product_name: data.subProducts.find( _ => _.id == k.sub_product_id ),
+                                sub_product_name: sub_prod,
                                 hsn_code: k.hsn_code,
                                 pieces: parseInt(k.pieces),
                                 rate: parseInt(k.rate),
@@ -803,18 +808,22 @@
                                 igst_amount: parseFloat(k.igst_amount),
                                 amount: parseFloat(k.amount)
                             }
+                            this.sub_product_options[i] = [{id: 0, name: 'Full Catalogue'}];
                         });
                         this.calculateTotalProducts(0);
+                        $('#item_details_div, .dynamic_items').slideDown();
                     }
+                    $('#add_product_details').show();
                 } else if (data.sale_bill.sale_bill_for == 2) {
-                    $('#add_fabric_details').show();
                     if (data.sale_bill_items.length > 0) {
+                        this.fabric_options = data.subCategory;
                         data.sale_bill_items.forEach((k, i) => {
                             this.fabricDetails[i] = {
-                                fabric_name: data.product.find( _ => _.id == k.product_or_fabric_id ),
+                                fabric_name: data.subCategory.find( _ => _.id == k.product_or_fabric_id ),
                                 hsn_code: k.hsn_code,
+                                pieces_or_meters: k.pieces_meters == 1 ? ({ id: 1, name: 'Meters' }) : ({ id: 2, name: 'Pieces' }),
                                 pieces: parseInt(k.pieces),
-                                pieces_or_meters: k.pieces_meters,
+                                meters: parseFloat(k.meters),
                                 rate: parseInt(k.rate),
                                 discount: parseFloat(k.discount),
                                 discount_amount: parseFloat(k.discount_amount),
@@ -828,12 +837,14 @@
                             }
                         });
                         this.calculateTotalFabrics(0);
+                        $('#add_fabric_details, .dynamic_items_fabrics').show();
+                        $('#item_details_div').slideDown();
                     }
+                    $('#add_new_fabric').show();
                 }
                 // this.getProductSubCategory();
 
                 this.transport = this.transport_options.find( _ => _.id == data.sale_bill_transports.transport_id );
-                this.station = this.station_options.find( _ => _.id == data.sale_bill_transports.station );
                 this.lr_mr_no = data.sale_bill_transports.lr_mr_no;
                 this.transport_date = data.sale_bill_transports.date;
                 this.transport_cases = data.sale_bill_transports.cases;
@@ -1070,9 +1081,8 @@
 
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
                         .then(response => {
-                            this.stations_options = response.data[0];
+                            this.station_options = response.data[0];
                             this.station = response.data[1];
-
                         });
                     });
                 }
@@ -1088,7 +1098,9 @@
                         $('#from_email_section').hide();
                     }
                     if (this.new_old_sale_bill == 0) {
-                        this.getOldReferences();
+                        setTimeout(() => {
+                            this.getOldReferences();
+                        }, 100);
                     }
                 }
             },
@@ -1177,15 +1189,19 @@
                 });
             },
             getSubProducts (i) {
-                if (this.productDetails[i].product_name.id) {
-                    axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
-                    .then(response => {
-                        this.sub_product_options[i] = response.data;
-                    });
-                }
+                setTimeout(() => {
+                    if (this.productDetails[i].product_name && this.productDetails[i].product_name.id) {
+                        axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
+                        .then(response => {
+                            this.sub_product_options[i] = response.data;
+                        });
+                    }
+                }, 100);
             },
             getSubProductRate (i) {
-                this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                if (i && typeof(i) == 'number') {
+                    this.productDetails[i].rate = this.productDetails[i].sub_product_name.price;
+                }
             },
             calculateTotalProducts (i) {
                 var pd = this.productDetails[i];
@@ -1206,6 +1222,12 @@
                     this.totals.amount = parseInt(this.totals.amount) + parseInt(k.amount);
                 });
                 this.getChangeAmount();
+                setTimeout(() => {
+                    this.totals.discount = this.totals.discount.toFixed(2);
+                    this.totals.cgst = this.totals.cgst.toFixed(2);
+                    this.totals.sgst = this.totals.sgst.toFixed(2);
+                    this.totals.igst = this.totals.igst.toFixed(2);
+                }, 100);
             },
             calculateTotalFabrics (i) {
                 var pd = this.fabricDetails[i];
@@ -1231,6 +1253,12 @@
                     this.totals.amount = parseInt(this.totals.amount) + parseInt(k.amount);
                 });
                 this.getChangeAmount();
+                setTimeout(() => {
+                    this.totals.discount = this.totals.discount.toFixed(2);
+                    this.totals.cgst = this.totals.cgst.toFixed(2);
+                    this.totals.sgst = this.totals.sgst.toFixed(2);
+                    this.totals.igst = this.totals.igst.toFixed(2);
+                }, 100);
             },
             getChangeAmount (e) {
                 if (this.change_in_sign.name == '+') {
@@ -1257,6 +1285,20 @@
                         }
                     });
                 }
+            },
+            addUpdateFabricName () {
+                axios.post('/account/sale-bill/addFabricsDetails', {
+                    fabric_name: this.add_fabric_name,
+                    supplier_id: this.supplier.id,
+                    mainCategory_id: this.product_category.id
+                })
+                .then(response => {
+                    $('#closeFabricModalBtn').trigger('click');
+                    this.add_fabric_name = '';
+                    if (response.data.refresh_data == 1) {
+                        this.getProductSubCategory();
+                    }
+                });
             },
 
             register () {

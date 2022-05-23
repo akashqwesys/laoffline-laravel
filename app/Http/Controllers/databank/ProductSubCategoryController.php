@@ -359,7 +359,7 @@ class ProductSubCategoryController extends Controller
             $productCategory->id = $productCategoryId;
             $productCategory->multiple_company = $request->multiple_company;
             $productCategory->product_default_category_id = 0;
-            $productCategory->main_category_id = $request->main_category['category_id'];
+            $productCategory->main_category_id = $request->main_category['id'];
             if ($request->fabric_group != null) {
                 $productCategory->product_fabric_id = $request->fabric_group['id'];
             } else {
@@ -422,7 +422,7 @@ class ProductSubCategoryController extends Controller
             $productCategory = ProductCategory::where('id', $id)->first();
             $productCategory->multiple_company = $request->multiple_company;
             $productCategory->product_default_category_id = 0;
-            $productCategory->main_category_id = $request->main_category['category_id'];
+            $productCategory->main_category_id = $request->main_category['id'];
             if ($request['fabric_group'] != null) {
                 $productCategory->product_fabric_id = $request['fabric_group']['id'];
             } else {
