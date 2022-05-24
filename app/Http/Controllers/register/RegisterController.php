@@ -28,8 +28,10 @@ use App\Models\Commission\Commission;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\Company\CompanyContactDetails;
 use App\Models\Reference\ReferenceId;
+use App\Models\Settings\BankDetails;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class RegisterController extends Controller
 {
@@ -1630,6 +1632,106 @@ class RegisterController extends Controller
     }
 
     public function viewOutward($id) {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['excelAccess'] = $user->excel_access;
+        $employees['id'] = $id;
+        return view('register.outward.viewoutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function fetchOutward($id) {
+        $user = Session::get('user');
+        $outward = outward::where('outward_id', $id)
+                ->first();
+        $created_at = $date = date_format($outward->created_at, 'Y/m/d H:i:s');
+        $employee = Employee::where('id', $outward->employee_id)->first()->firstname;
+        $agent = Agent::where('id', $outward->courier_agent)->first();
+        if ($outward->subject == 'Sale Bill Outward Details') {
+            $type = 1;
+        } else if ($outward->subject == 'Payment Outward Details') {
+            $type = 2;
+        } else if ($outward->subject == 'Commission Outward Details') {
+            $type = 3;
+        } else if ($outward->subject == 'Commission Invoice Outward Details') {
+            $type = 4;
+        }
         
+
+        if ($outward->company_id) {
+            $company = Company::where('id', $outward->company_id)->first()->company_name;
+        } else {
+            $company = Company::where('id', $outward->supplier_id)->first()->company_name;
+        }
+        $outwardSalebill = OutwardSaleBill::where('outward_id', $id)->get();
+        $salebilldata = array();
+        foreach ($outwardSalebill as $salebill) {
+            if ($type == 1) {
+                $transport = DB::table('sale_bill_transports as a')
+                            ->join('transport_details as b', 'a.transport_id', '=', 'b.id')
+                            ->where('a.sale_bill_id', $salebill->sale_bill_id)
+                            ->where('a.financial_year_id', $user->financial_year_id)
+                            ->where('a.is_deleted', 0)
+                            ->select('a.*', 'b.name as name')
+                            ->first();
+                $salebilldetail = DB::table('sale_bills')
+                                ->where('sale_bill_id', $salebill->sale_bill_id)
+                                ->where('financial_year_id', $user->financial_year_id)
+                                ->where('is_deleted', 0)
+                                ->first();
+                $supplier = Company::where('id', $salebilldetail->supplier_id)->first();
+                $salebill['salebilldetail'] = $salebilldetail;
+                $salebill['company_name'] = $supplier->company_name;
+                $salebill['transport'] = $transport;
+                array_push($salebilldata, $salebill);
+                
+            } else if ($type == 2) {
+                $paymentDetail = DB::table('payments')
+                                ->where('payment_id', $salebill->payment_id)
+                                ->where('financial_year_id', $user->financial_year_id)
+                                ->where('is_deleted', 0)
+                                ->first();
+                $customer = Company::where('id', $paymentDetail->receipt_from)->first();
+                $salebill['paymentdetail'] = $paymentDetail;
+                $salebill['company_name'] = $customer->company_name;
+                array_push($salebilldata, $salebill);
+            
+            } else if ($type == 3) {
+                $commissionDetail = DB::table('commissions')
+                                ->where('commission_id', $salebill->commission_id)
+                                ->where('financial_year_id', $user->financial_year_id)
+                                ->where('is_deleted', 0)
+                                ->first();
+                $agent = Agent::where('id', $commissionDetail->commission_account)->first();
+                if ($commissionDetail->cheque_dd_bank) {
+                    $bank = BankDetails::where('id', $commissionDetail->cheque_dd_bank)->first();
+                    $salebill['bank'] = $bank->name;
+                } else {
+                    $salebill['bank'] = '-';
+                }
+                $salebill['commissionDetail'] = $commissionDetail;
+                $salebill['account'] = $agent->name;
+                
+                array_push($salebilldata, $salebill);
+
+            } else if ($type == 4) {
+
+            }
+            
+        }
+         
+        $data['salebill'] = $salebilldata;
+        $data['outward'] = $outward;
+        $data['agent'] = $agent;
+        $data['outward_type'] = $type;
+        $data['outward']['todaydate'] = Carbon::now()->format('Y-m-d');
+
+        $data['outward']['generatedate'] = $created_at;
+        $data['outward']['generateby'] = $employee;
+        $data['outward']['company'] = $company;
+        return $data;
+        
+
     }
 }

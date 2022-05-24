@@ -348,7 +348,9 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
 Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:access-register']], function () {
     Route::get('/', [App\Http\Controllers\register\RegisterController::class, 'index'])->name('register');
     Route::get('/outward', [App\Http\Controllers\register\RegisterController::class, 'outward']);
-    Route::get('/view-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'viewOutward']);    
+    Route::get('/view-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'viewOutward']);
+    Route::get('/fetch-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'fetchOutward']);
+    Route::get('/edit-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'editOutward']);    
     Route::get('/list', [App\Http\Controllers\register\RegisterController::class, 'listRegister'])->name('list');
     Route::get('/list-buyer', [App\Http\Controllers\register\RegisterController::class, 'listBuyer']);
     Route::get('/outwardlist', [App\Http\Controllers\register\RegisterController::class, 'outwardList']);
