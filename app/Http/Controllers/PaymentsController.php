@@ -820,9 +820,9 @@ class PaymentsController extends Controller
             $increment_id->iuid = $iuid;
             $increment_id->save();
         } else {
-            $ref_id = '1';
-            $payment_id = '1';
-            $iuid = '1';
+            $ref_id = 1;
+            $payment_id = 1;
+            $iuid = 1;
             $increment_id = new IncrementId();
             $increment_id->reference_id = $ref_id;
             $increment_id->payment_id = $payment_id;
@@ -856,7 +856,7 @@ class PaymentsController extends Controller
             $refence->reference_id = $ref_id;
             $refence->financial_year_id = $financialid;
             $refence->employee_id = $user->employee_id;
-            $refence->inward_or_outward = '1';
+            $refence->inward_or_outward = 1;
             $refence->type_of_inward = $paymentData->refrencevia->name;
             $refence->company_id = $request->session()->get('customer');
             $refence->selection_date = Carbon::now()->format('Y-m-d');
@@ -900,8 +900,8 @@ class PaymentsController extends Controller
         $comboids->payment_id = $payment_id;
         $comboids->iuid = $iuid;
         $comboids->ouid = 0;
-        $comboids->system_module_id = '6';
-        $comboids->general_ref_id = $ref_id;
+        $comboids->system_module_id = 6;
+        $comboids->general_ref_id = intval($ref_id);
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
         $comboids->company_id = $request->session()->get('customer');
@@ -1020,7 +1020,7 @@ class PaymentsController extends Controller
                     $paymentDetail->adjust_amount = (int)$salebill->amount - (int)$salebill->goodreturn;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
                     $paymentDetail->remark = $salebill->remark ?? 0;
-                    $paymentDetail->rate_difference = '0';
+                    $paymentDetail->rate_difference = 0;
                     $paymentDetail->save();
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first();
@@ -1110,7 +1110,7 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += $paymentDetail->adjustamount;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
-                    $bill->payment_status = '1';
+                    $bill->payment_status = 1;
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
                     $bill->save();
 
@@ -1218,7 +1218,10 @@ class PaymentsController extends Controller
 
         $salebill_data = array();
         foreach ($salebills as $bill) {
-            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total);
+            $status_c = new \stdClass;
+            $status_c->code = 1;
+            $status_c->status = 'Complete';
+            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total, 'status' => $status_c);
             array_push($salebill_data, $salebill);
         }
         $salebill_data2 = array();

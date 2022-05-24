@@ -29,11 +29,11 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="" :class="new_old_sale_bill == 1 ? 'col-md-4' : 'col-md-8'">
                                                 <div class="preview-block">
                                                     <label class="form-label">Reference</label>
                                                     <ul class="custom-control-group g-3 align-center" id="validate-reference-div">
-                                                        <li class="w-25">
+                                                        <li class="mr-5">
                                                             <div class="custom-control custom-radio">
                                                                 <input v-model="new_old_sale_bill" type="radio" class="custom-control-input"  id="fv-reference_new" value="1" @click="reference_new = true" @change="resetSupplier">
                                                                 <label class="custom-control-label" for="fv-reference_new">NEW</label>
@@ -69,6 +69,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="sale_bill_for">Sale Bill For</label>
@@ -77,7 +78,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-12 text-center hidden" id="show-references" v-html="old_reference_data"></div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="product_category">Product Main Category</label>
@@ -87,14 +87,14 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <!-- <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="reference_inward">Inward</label>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="reference_inward" :options="reference_inward_options" placeholder="Select One" label="name" track-by="id" id="reference_inward" @change="getInwardCustomers"></multiselect>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="customer">Customer</label>
@@ -145,7 +145,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="bill_date">Bill Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" v-model="bill_date" id="bill_date" class="form-control">
+                                                        <input type="date" v-model="bill_date" id="bill_date" class="form-control" onfocus="this.showPicker()">
                                                         <div v-if="v$.bill_date.$error" class="invalid mt-1">Select Bill Date</div>
                                                     </div>
                                                 </div>
@@ -393,7 +393,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="transport_date">LR / MR Date</label>
                                                         <div class="form-control-wrap">
-                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control">
+                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control" onfocus="this.showPicker()">
                                                             <div v-if="v$.transport_date.$error" class="invalid mt-1">Select Transport Date</div>
                                                         </div>
                                                     </div>
@@ -544,7 +544,7 @@
                 extra_attachment: '',
                 productDetails : [{
                     product_name: '',
-                    sub_product_name: '',
+                    sub_product_name: {id: 0, name: 'Full Catalogue'},
                     hsn_code: '',
                     pieces: 0,
                     rate: 0,
@@ -560,7 +560,7 @@
                 }],
                 fabricDetails : [{
                     fabric_name: '',
-                    pieces_or_meters: '',
+                    pieces_or_meters: { id: 1, name: 'Meters' },
                     hsn_code: '',
                     meters: 0,
                     pieces: 0,
@@ -637,8 +637,8 @@
             });
             axios.get('/account/sale-bill/list-sale-bill-agents')
             .then(response => {
-                this.agent = '';
                 this.agent_options = response.data;
+                this.agent = response.data.find( _ => _.default == 1 );
             });
         },
         methods: {
@@ -648,12 +648,12 @@
                 this.old_reference_data = '';
                 // $('#reference_via').attr('required', true);
                 this.bill_date = '';
-                $('#bill_date').attr('disabled', false);
+                // $('#bill_date').attr('disabled', false);
                 this.customer = '';
                 $('#customer').attr('readonly', false);
                 this.supplier = '';
                 this.isSupplierDisabled = false;
-                $('#transport_date').attr('readonly', false);
+                // $('#transport_date').attr('readonly', false);
                 this.transport_date = '';
             },
             getOldReferences (event) {
@@ -690,13 +690,13 @@
                         $('#allhiddenfield_div').html(response2.data);
                         if($('#hidden_sale_bill_date').val() != '') {
                             this.bill_date = $('#hidden_sale_bill_date').val();
-                            $('#bill_date').attr('disabled', true);
+                            // $('#bill_date').attr('disabled', true);
                         }
                         this.reference_id = $('input[name="reference_id_sale_bill"]:checked').val();
                         this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
                         this.isSupplierDisabled = true;
                         if (this.reference_via.name != "Email") {
-                            $('#transport_date').attr('readonly', true);
+                            // $('#transport_date').attr('readonly', true);
                             this.transport_date = $('#hidden_courier_received_time').val();
                         }
                     } else {
@@ -722,7 +722,7 @@
             resetProductAndFabrics () {
                 this.productDetails = [{
                     product_name: '',
-                    sub_product_name: '',
+                    sub_product_name: {id: 0, name: 'Full Catalogue'},
                     hsn_code: '',
                     pieces: 0,
                     rate: 0,
@@ -738,7 +738,7 @@
                 }];
                 this.fabricDetails = [{
                     fabric_name: '',
-                    pieces_or_meters: '',
+                    pieces_or_meters: { id: 1, name: 'Meters' },
                     hsn_code: '',
                     meters: 0,
                     pieces: 0,
@@ -867,7 +867,7 @@
                 this.sub_product_options[this.productDetails.length] = [];
                 this.productDetails.push({
                     product_name: '',
-                    sub_product_name: '',
+                    sub_product_name: {id: 0, name: 'Full Catalogue'},
                     pieces: 0,
                     rate: 0,
                     discount: 0,
@@ -887,7 +887,7 @@
             addFabricDetailsRow () {
                 this.fabricDetails.push({
                     fabric_name: '',
-                    pieces_or_meters: '',
+                    pieces_or_meters: { id: 1, name: 'Meters' },
                     hsn_code: '',
                     meters: 0,
                     pieces: 0,
@@ -1082,13 +1082,13 @@
                         $('#allhiddenfield_div').html(response2.data);
                         if($('#hidden_sale_bill_date').val() != '') {
                             this.bill_date = $('#hidden_sale_bill_date').val();
-                            $('#bill_date').attr('disabled', true);
+                            // $('#bill_date').attr('disabled', true);
                         }
                         $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
                         this.supplier = { id: $('#hidden_cmp_id').val(), name: $('#hidden_cmp_name').val() };
                         this.isSupplierDisabled = true;
                         $('#show-references tr input[type="radio"]').last().prop('checked', true);
-                        $('#transport_date').attr('readonly', true);
+                        // $('#transport_date').attr('readonly', true);
                         this.transport_date = $('#hidden_courier_received_time').val();
                         this.reference_id = $('input[name="reference_id_sale_bill"]:checked').val();
                     } else {

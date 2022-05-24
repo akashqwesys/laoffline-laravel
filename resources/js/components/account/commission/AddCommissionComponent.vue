@@ -127,7 +127,7 @@
                                         <label class="form-label" for="fv-recivedate">Received Date Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" >
+                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" onfocus="this.showPicker()">
                                         <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
                                     </div>
                                     <div id="error-for-recivedate" class="mt-2 text-danger"></div>
@@ -151,7 +151,7 @@
                                         <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno" >
                                         <span v-if="errors.reciptno" class="invalid">{{errors.reciptno}}</span>
                                     </div>
-                                    
+
                                 </div>
                                 </div>
                                 <div class="email d-none">
@@ -223,7 +223,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-cheque-date">Cheque Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-cheque-date" v-model="form.chequedate">
+                                                        <input type="date" class="form-control" id="fv-cheque-date" v-model="form.chequedate" onfocus="this.showPicker()">
                                                         <span v-if="errors.chequedate" class="invalid">{{errors.chequedate}}</span>
                                                     </div>
                                                     <div id="error-for-chequedate" class="mt-2 text-danger"></div>
@@ -247,7 +247,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                         </div>
                                     </div>
                                     </div>
@@ -257,14 +257,14 @@
                                                 <h5>Insert Commission Details</h5>
                                         </div>
                                         <div class="card-inner">
-                                    
+
                                         <div class="preview-block">
                                         <div class="row py-1 my-2">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-commissiondate">Commission Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-commissiondate" v-model="form.commissiondate">
+                                                        <input type="date" class="form-control" id="fv-commissiondate" v-model="form.commissiondate" onfocus="this.showPicker()">
                                                         <span v-if="errors.commissiondate" class="invalid">{{errors.commissiondate}}</span>
                                                     </div>
                                                 </div>
@@ -290,7 +290,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                         </div>
                                         <div class="row py-1 my-2 salebilldetail">
                                             <table class="table mb-2 table-hover table-responsive commissioninvoicetable">
@@ -346,7 +346,7 @@
                 </div>
             </div>
         </div>
-        
+
     </div>
 </template>
 
@@ -354,7 +354,7 @@
     import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
-    
+
     var items = [];
     var referncevia = [];
     var salebilldata = [];
@@ -379,7 +379,7 @@
                 agent:[],
                 salebilldata :[],
                 isValidate: false,
-               
+
 
                 referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'}],
 
@@ -397,7 +397,7 @@
                         amount: '',
                         remark: '',
                 }],
-            
+
                 extraimage: [],
                 form: new Form({
                     id: '',
@@ -431,7 +431,7 @@
             .then(response => {
                 this.banks = response.data;
             });
-            
+
             if (this.scope != 'edit') {
             axios.get('/commission/getbasicdata')
             .then(responce => {
@@ -446,11 +446,11 @@
                 this.form.totalCommission = total;
             });
             }
-                
+
         },
         methods: {
             getOldReferences: function (event) {
-                
+
                 if (this.form.refrencevia == '') {
                     setTimeout(() => {
                         this.form.refrence = 1;
@@ -499,20 +499,20 @@
                     });
                 }
             },
-            
+
             uploadExtraAttechment (event) {
                 this.extraimage = event.target.files[0];
             },
             typePayment(event) {
                 let paymentType = event.target.value;
-                
+
                 if (paymentType == 'cash') {
                     $(".cash").removeClass("d-none");
                     $(".cheque").addClass("d-none");
                 } else if(paymentType == 'cheque') {
                     $(".cash").removeClass("d-none");
                     $(".cheque").removeClass("d-none");
-                } 
+                }
             },
             getRefenceForm(option, id) {
                 let refernceby = option.name;
@@ -544,10 +544,10 @@
                 $("#error-for-recivedate").text("");
                 $("#error-for-chequedate").text("");
                 $("#error-for-emailfrom").text("");
-                
+
                 var commissiondata = new FormData();
                 if (this.scope == 'edit') {
-                
+
                     commissiondata.append('invoicedata', JSON.stringify(this.commissioninvoices));
                     commissiondata.append('formdata', JSON.stringify(this.form));
                     commissiondata.append('extraimage', this.extraimage);
@@ -560,12 +560,12 @@
                         var validationError = error.response.data.errors;
                     })
                 } else {
-                    
+
                     if (this.form.refrence == '') {
                         console.log('refernce');
                         $("#error-for-reference").text("Select Reference");
                         this.isValidate = false;
-                    } else { 
+                    } else {
                         if (this.form.refrencevia.name == 'Courier') {
                             console.log('courrier');
                             if (this.form.courrier == '') {
@@ -605,7 +605,7 @@
                             }
                         }
                     }
-                    
+
                     if (this.form.recipt_mode == 'cheque') {
                         console.log('cheque');
                         if (this.form.chequedate == '') {
@@ -617,7 +617,7 @@
                             this.isValidate = true;
                         }
                     }
-                    
+
 
                     commissiondata.append('invoicedata', JSON.stringify(this.commissioninvoices));
                     commissiondata.append('formdata', JSON.stringify(this.form));
@@ -681,7 +681,7 @@
                             $(".cheque").removeClass("d-none");
                             $(".table-responsive").addClass("commissioninvoicetable");
                         }
-                       
+
                         self.form.id = this.id;
                         if(gData.commission.supplier_id == '0') {
                             self.form.company = gData.customer.company_name;
@@ -727,7 +727,7 @@
 </script>
 
 <style scoped>
-    
+
     .commissioninvoicetable >tfoot >tr >td >input{
         border:0px;
     }
@@ -742,5 +742,5 @@
         width: 85%;
         float: right;
     }
-    
+
 </style>

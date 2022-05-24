@@ -137,7 +137,7 @@
                                                     <th class="text-right">{{ total_sgst }}</th>
                                                     <th class="text-right"></th>
                                                     <th class="text-right">{{ total_igst }}</th>
-                                                    <th class="text-right">{{ total_amount }}</th>
+                                                    <th class="text-right pr-2">{{ total_amount }}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
