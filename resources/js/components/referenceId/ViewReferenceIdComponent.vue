@@ -142,7 +142,7 @@
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="form-label" for="fv-first-name">Courrier Name :</label> {{ referenceID.courier_name }}
+                                                        <label class="form-label" for="fv-first-name">Courier Name :</label> {{ referenceID.courier_name }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -370,6 +370,7 @@ var references = [];
                 references = response.data;
 
                 this.referenceID = references.Reference;
+                this.referenceID.courier_name = references.Courier.name;
                 this.user = references.User;
                 this.company = references.Company;
                 this.inward_outward = references.inward_outward;
