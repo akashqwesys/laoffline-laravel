@@ -352,7 +352,7 @@ export default {
         register() {
             this.form.post('/reference/create-reference/create')
             .then(( response ) => {
-                window.location.href = '/reference/create-reference';
+                window.location.href = '/reference';
             });
         },
         showDatePicker () {
