@@ -1218,7 +1218,10 @@ class PaymentsController extends Controller
 
         $salebill_data = array();
         foreach ($salebills as $bill) {
-            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total);
+            $status_c = new \stdClass;
+            $status_c->code = 1;
+            $status_c->status = 'Complete';
+            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total, 'status' => $status_c);
             array_push($salebill_data, $salebill);
         }
         $salebill_data2 = array();

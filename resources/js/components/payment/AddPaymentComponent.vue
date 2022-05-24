@@ -27,7 +27,7 @@
                             <div class="card-inner">
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-refrencevia">Refrence via</label>
+                                        <label class="form-label" for="fv-refrencevia">Reference via</label>
                                     </div>
                                     <div class="col-sm-4">
                                         <multiselect v-model="form.refrencevia" :options="referncevia" placeholder="Select one" label="name" track-by="name" @select="getRefenceForm"></multiselect>
@@ -35,7 +35,7 @@
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-refrence">Refrence</label>
+                                        <label class="form-label" for="fv-refrence">Reference</label>
                                     </div>
                                     <div class="col-sm-4" style="z-index:0">
                                         <div class="preview-block">
@@ -93,7 +93,7 @@
                                         <label class="form-label" for="fv-recivedate">Received Date Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" >
+                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" onfocus="this.showPicker()">
                                         <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
                                     </div>
                                     <div id="error-for-recivedate" class="mt-2 text-danger"></div>
@@ -146,7 +146,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-reciptmode">Recipt mode</label>
+                                                    <label class="form-label" for="fv-reciptmode">Receipt mode</label>
                                                     <div class="form-control-wrap">
                                                         <ul class="custom-control-group g-3 align-center">
                                                         <li>
@@ -180,9 +180,9 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-recive-date">Recive Date</label>
+                                                    <label class="form-label" for="fv-recive-date">Receive Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-recive-date" v-model="form.reciptdate">
+                                                        <input type="date" class="form-control" id="fv-recive-date" v-model="form.reciptdate" onfocus="this.showPicker()">
                                                         <span v-if="errors.reciptdate" class="invalid">{{errors.reciptdate}}</span>
                                                     </div>
                                                     <div id="error-for-reciptdate" class="mt-2 text-danger"></div>
@@ -190,7 +190,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-end-date">Recipt From</label>
+                                                    <label class="form-label" for="fv-end-date">Receipt From</label>
                                                     <div class="form-control-wrap">
                                                         <input type="text" :readonly="true" class="form-control" id="fv-recipt-from" v-model="form.reciptfrom" >
                                                         <span v-if="errors.reciptfrom" class="invalid">{{errors.reciptfrom}}</span>
@@ -232,7 +232,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-cheque-date">Cheque Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-cheque-date" v-model="form.chequedate">
+                                                        <input type="date" class="form-control" id="fv-cheque-date" v-model="form.chequedate" onfocus="this.showPicker()">
                                                         <span v-if="errors.chequedate" class="invalid">{{errors.chequedate}}</span>
                                                     </div>
                                                     <div id="error-for-chequedate" class="mt-2 text-danger"></div>
@@ -290,7 +290,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-Recipt-amount">Recipt Amount</label>
+                                                    <label class="form-label" for="fv-Recipt-amount">Receipt Amount</label>
                                                     <div class="form-control-wrap">
                                                         <input type="text" class="form-control" id="fv-recipt-amount" v-model="form.reciptamount" @change="changeReciptAmount">
                                                         <span v-if="errors.reciptamount" class="invalid">{{errors.reciptamount}}</span>
@@ -585,7 +585,7 @@
                 setTimeout(() => {
                     this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
                 }, 1000);
-                
+
             },
 
             changeInterest (event) {
@@ -1176,7 +1176,7 @@
                 let amount = this.salebills[index-1].amount;
                 let adjamount = this.salebills[index-1].adjustamount;
 
-                
+
                 let rateDifference = 0;
                 let goodreturn = this.salebills[index-1].goodreturn;
                 if (!goodreturn) {
@@ -1330,7 +1330,7 @@
                                 this.isValidate = true;
                             }
                             if (this.form.recivedate == '') {
-                                $("#error-for-recivedate").text("Select Recive Date");
+                                $("#error-for-recivedate").text("Select Receive Date");
                                 this.isValidate = false;
                             } else {
                                 $("#error-for-recivedate").text("");
@@ -1338,7 +1338,7 @@
                             }
                         } else if (this.form.refrencevia && this.form.refrencevia.name == 'Hand') {
                             if (this.form.recivedate == '') {
-                                $("#error-for-recivedate").text("Select Recive Date");
+                                $("#error-for-recivedate").text("Select Receive Date");
                                 this.isValidate = false;
                             } else {
                                 $("#error-for-recivedate").text("");
