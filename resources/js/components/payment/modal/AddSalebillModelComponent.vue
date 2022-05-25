@@ -58,6 +58,50 @@
             }
         },
         created() {
+            // var main_url = location.href.split('/');
+            // if (main_url[main_url.length - 2] == 'edit-payment') {
+            //     var getsalbillforadd_url = '/payments/getsalbillforadd?payment_id=' + this.$parent.id ;
+            // } else {
+            //     var getsalbillforadd_url = '/payments/getsalbillforadd';
+            // }
+            // axios.get(getsalbillforadd_url)
+            // .then(responce => {
+            //     this.items = responce.data.salebilldata;
+            // });
+        },
+        methods: {
+            selectSalebill(event){
+                this.selected.forEach(value => {
+                for(var i = 0; i < this.items.length; i++) {
+                    if (this.items[i].sallbillid && this.items[i].sallbillid === value) { 
+                        this.items.splice(i, 1);
+                        break;
+                }
+                }
+                });
+                
+                axios.post('/payments/selectsalebills', {
+                    salebill: this.selected
+                })
+                .then(responce => {
+                    $.merge(this.$parent.salebills,responce.data.salebill);
+                    let totalamount = 0;
+                    let totalAdjustamount = 0;
+                    this.$parent.salebills.forEach(value => {
+                        totalAdjustamount += parseInt(value.adjustamount);
+                        totalamount += parseInt(value.amount);
+                    });
+                    this.$parent.form.totalamount = totalamount;
+                    this.$parent.form.totaladjustamount = totalAdjustamount;
+                    
+                    $('#addSalebill').hide();
+                    $('.modal-backdrop').remove();
+                    this.selected = [];
+                    //window.location.href = '/payments/addpayment';
+                })
+            }
+        },
+        mounted() {
             var main_url = location.href.split('/');
             if (main_url[main_url.length - 2] == 'edit-payment') {
                 var getsalbillforadd_url = '/payments/getsalbillforadd?payment_id=' + this.$parent.id ;
@@ -68,17 +112,7 @@
             .then(responce => {
                 this.items = responce.data.salebilldata;
             });
-        },
-        methods: {
-            selectSalebill(event){
-               axios.post('/payments/selectsalebills', {
-                    salebill: this.selected
-                })
-                .then(responce => {
-                    window.location.href = '/payments/addpayment';
-                })
-            }
-        },
+        }
     };
 </script>
 <style>

@@ -752,6 +752,7 @@ class PaymentsController extends Controller
                     ->where('supplier_id', $supplier_id)
                     ->where('financial_year_id', $user->financial_year_id)
                     ->where('payment_status', 0)
+                    ->where('is_deleted', 0)
                     ->orderBy('sale_bill_id', 'desc')
                     ->get();
         $salebills = array();
@@ -774,11 +775,30 @@ class PaymentsController extends Controller
         return true;
     }
     public function selectSaleBills(Request $request){
+        $customer_id = $request->session()->get('customer');
+        $seller_id = $request->session()->get('seller');
         $newSalebill = $request->input('salebill');
+        $salebills = DB::table('sale_bills')
+            ->where('company_id', $customer_id)
+            ->where('supplier_id', $seller_id)
+            ->where('financial_year_id', Session::get('user')->financial_year_id)
+            ->whereIn('sale_bill_id', $newSalebill)
+            ->where('payment_status', 0)
+            ->get();
+        $salebill_data = array();
+        foreach ($salebills as $bill) {
+            $status_c = new \stdClass;
+            $status_c->code = 1;
+            $status_c->status = 'Complete';
+            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total, 'status' => $status_c);
+            array_push($salebill_data, $salebill);
+        }
+        $data['salebill'] = $salebill_data;
         $oldSalebill = $request->session()->get('saleBill');
         $salebills = array_merge($oldSalebill,$newSalebill);
         $request->session()->forget('saleBill');
         $request->session()->put('saleBill', $salebills);
+        return $data;
     }
     public function insertPaymentData(Request $request) {
 
@@ -1006,8 +1026,12 @@ class PaymentsController extends Controller
             foreach($paymentSalebill as $salebill) {
                 $paymentDetailLastid = PaymentDetail::orderBy('payment_details_id', 'DESC')->first('payment_details_id');
                 $paymentDetailId = !empty($paymentDetailLastid) ? $paymentDetailLastid->payment_details_id + 1 : 1;
+
+                $lastid = PaymentDetail::orderBy('id', 'DESC')->first('id');
+                $Id = !empty($lastid) ? $lastid->id + 1 : 1;
                 if ($paymentData->recipt_mode == 'partreturn') {
                     $paymentDetail = new PaymentDetail();
+                    $paymentDetail->id = $Id;
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
@@ -1038,6 +1062,7 @@ class PaymentsController extends Controller
                     $tot_good_returns += $salebill->goodreturn;
                 } else if ($paymentData->recipt_mode == 'fullreturn') {
                     $paymentDetail = new PaymentDetail();
+                    $paymentDetail->id = $Id;
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
@@ -1074,7 +1099,7 @@ class PaymentsController extends Controller
 
                 } else {
                     $paymentDetail = new PaymentDetail();
-                    $paymentDetail->id = (getLastID('payment_details', 'id') + 1);
+                    $paymentDetail->id = $Id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->p_increment_id = $p_increment_id;
@@ -1115,10 +1140,10 @@ class PaymentsController extends Controller
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
-                    $Pending = (int)$paymentDetail2->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
+                    $Pending = (int)$bill->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
                     //print_r($Pending);exit;
-                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first();
-
+                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', 0)->first();
+                    
                     $bill2->pending_payment = $Pending;
                     $bill2->save();
 
@@ -1245,6 +1270,45 @@ class PaymentsController extends Controller
 
         return view('payment.addPayment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
+    public function removeSalebill(Request $request) {
+        $user = session()->get('user');
+        if ($request->session()->has('saleBill')) {
+            $customer_id = $request->session()->get('customer');
+            $seller_id = $request->session()->get('seller');
+        } else {
+            $payment = Payment::where('payment_id', $request->payment_id)->where('financial_year_id', $user->financial_year_id)->first();
+            $customer_id = $payment->receipt_from;
+            $seller_id = $payment->supplier_id;
+            $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
+        }
+        $customer = Company::where('id', $customer_id)->first();
+        $seller = Company::where('id', $seller_id)->first();
+        $salebillid = $request->salebill;
+        $salebill_ids = $request->session()->get('saleBill');
+        $salebill_array = array_diff($salebill_ids, array($salebillid));
+        $request->session()->forget('saleBill');
+        $request->session()->put('saleBill', $salebill_array);
+        $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
+                        ->where('supplier_id', $seller_id)
+                        ->where('financial_year_id', Session::get('user')->financial_year_id)
+                        ->where('payment_status', 0)
+                        ->where('is_deleted', 0)
+                        ->whereNotIn('sale_bill_id', $salebill_array)
+                        ->orderBy('sale_bill_id', 'desc')
+                        ->get();
+
+        $salebill_data2 = array();
+        foreach($salebills2 as $bill) {
+            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $bill->financial_year_id, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => "60");
+            array_push($salebill_data2, $salebill2);
+        }
+
+        $data['customer'] = $customer;
+        $data['seller'] = $seller;
+        $data['salebilldata'] = $salebill_data2;
+        return $data;
+
+    }
 
     public function getSalbillforAdd(Request $request) {
         $user = session()->get('user');
@@ -1264,6 +1328,7 @@ class PaymentsController extends Controller
                         ->where('supplier_id', $seller_id)
                         ->where('financial_year_id', Session::get('user')->financial_year_id)
                         ->where('payment_status', 0)
+                        ->where('is_deleted', 0)
                         ->whereNotIn('sale_bill_id', $salebill_ids)
                         ->orderBy('sale_bill_id', 'desc')
                         ->get();

@@ -393,7 +393,51 @@
                 </div>
             </div>
         </div>
-        <addSalebill></addSalebill>
+        <div class="modal fade" id="addSalebill">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Salebills</h5>
+                    <a href="#" class="close" data-dismiss="modal" aria-label="Close">
+                        <em class="icon ni ni-cross"></em>
+                    </a>
+                </div>
+                <div class="modal-body">
+                        <div class="preview-block">
+                                <table id="salebills" class="table mb-2 table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Select</th>
+				                            <th>Sall Bill Id</th>
+				                            <th>Financial Year</th>
+				                            <th>Supplier Invoice No</th>
+				                            <th>Date</th>
+				                            <th>Supplier</th>
+                                            <th>Bill Amount</th>
+                                            <th>Overdue</th>
+				                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="itm in items" :key="itm.sallbillid" class="text-center">
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
+				                            <td>{{ itm.sallbillid}}</td>
+				                            <td>{{ itm.financialyear }}</td>
+				                            <td>{{ itm.invoiceid}}</td>
+				                            <td>{{ itm.date}}</td>
+				                            <td>{{ itm.supplier }}</td>
+                                            <td>{{ itm.amount }}</td>
+                                            <td>{{ itm.overdue }}</td>
+				                            <td><em class="icon ni ni-eye"></em></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button class="btn btn-primary generatepayment float-right" @click="selectSalebill($event)">Select Salebill</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 </template>
 
@@ -401,9 +445,8 @@
     import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
-    import addSalebill from './modal/AddSalebillModelComponent.vue';
+    //import addSalebill from './modal/AddSalebillModelComponent.vue';
 
-    var items = [];
     var referncevia = [];
     var salebilldata = [];
     var salebill = [];
@@ -412,7 +455,7 @@
     export default {
         name: 'addPayment',
         components: {
-            Multiselect,addSalebill,
+            Multiselect,
         },
         props: {
             scope: String,
@@ -424,6 +467,8 @@
                 cancel_url: '/payments/',
                 userGroups: [],
                 banks:[],
+                items :[],
+                selected: [],
                 extraAmount: '',
                 salebilldata :[],
                 isValidate: false,
@@ -526,9 +571,55 @@
             this.form.recipt_mode = 'cheque';
         },
         methods: {
+            selectSalebill(event){
+                this.selected.forEach(value => {
+                for(var i = 0; i < this.items.length; i++) {
+                    if (this.items[i].sallbillid && this.items[i].sallbillid === value) { 
+                        this.items.splice(i, 1);
+                        break;
+                    }
+                }
+                });
+                
+                axios.post('/payments/selectsalebills', {
+                    salebill: this.selected
+                })
+                .then(responce => {
+                    $.merge(this.salebills,responce.data.salebill);
+                    let totalamount = 0;
+                    let totalAdjustamount = 0;
+                    this.salebills.forEach(value => {
+                        totalAdjustamount += parseInt(value.adjustamount);
+                        totalamount += parseInt(value.amount);
+                    });
+                    this.form.totalamount = totalamount;
+                    this.form.totaladjustamount = totalAdjustamount;
+                    
+                    $('#addSalebill').hide();
+                    $('.modal-backdrop').remove();
+                    this.selected = [];
+                    //window.location.href = '/payments/addpayment';
+                })
+            },
             removeSalebill (event) {
+                event.preventDefault();
                 let index = event.target.parentElement.parentElement.rowIndex;
+                let salebillid = this.salebills[index-1].id;
                 this.salebills.splice(index-1, 1);
+
+                let totalamount = 0;
+                let totalAdjustamount = 0;
+                this.salebills.forEach(value => {
+                    totalAdjustamount += parseInt(value.adjustamount);
+                    totalamount += parseInt(value.amount);
+                });
+                this.form.totalamount = totalamount;
+                this.form.totaladjustamount = totalAdjustamount;
+                axios.post('/payments/removesalebill', {
+                    salebill : salebillid
+                }).then(responce =>{
+                    this.items = responce.data.salebilldata;
+                })
             },
             getOldReferences: function (event) {
 
@@ -1388,6 +1479,16 @@
             },
         },
         mounted() {
+            var main_url = location.href.split('/');
+            if (main_url[main_url.length - 2] == 'edit-payment') {
+                var getsalbillforadd_url = '/payments/getsalbillforadd?payment_id=' + this.id ;
+            } else {
+                var getsalbillforadd_url = '/payments/getsalbillforadd';
+            }
+            axios.get(getsalbillforadd_url)
+            .then(responce => {
+                this.items = responce.data.salebilldata;
+            });
             const self = this;
             //this.form.refrencevia = {name: 'Courier', code: '1'};
             this.form.discountamount = 0;
@@ -1497,6 +1598,9 @@
 <style scoped>
     .salebilltable >tbody >tr >td >input, .salebilltable >tbody >tr >td .multiselect{
         width:100px;
+    }
+    #addSalebill .modal-dialog{
+        max-width: 920px;
     }
     .salebilltable >tfoot >tr >td >input{
         border:0px;

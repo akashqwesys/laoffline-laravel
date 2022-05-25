@@ -705,6 +705,7 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:acces
         Route::get('/getgoodreturnview/{id}', [App\Http\Controllers\PaymentsController::class, 'getGoodReturnView']);
         Route::get('/getbasicdata', [App\Http\Controllers\PaymentsController::class, 'getBasicData']);
         Route::get('/getsalbillforadd', [App\Http\Controllers\PaymentsController::class, 'getSalbillforAdd']);
+        Route::post('/removesalebill', [App\Http\Controllers\PaymentsController::class, 'removeSalebill']);
         Route::get('/getReferenceForSaleBill', [App\Http\Controllers\PaymentsController::class, 'getReferenceForSaleBill']);
         Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\PaymentsController::class, 'getOldReferenceForSaleBill']);
         Route::get('/getsalebillwithproduct', [App\Http\Controllers\PaymentsController::class, 'getSalebillWithProduct']);
