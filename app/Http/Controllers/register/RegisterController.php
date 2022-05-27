@@ -663,7 +663,7 @@ class RegisterController extends Controller
         if ($latter_by_id == 'Courier') {
             $ref_via = "Courier";
             $letterid = 1;
-            $courier_name = $referncedata->courrier->name;
+            $courier_name = $referncedata->courrier->id;
             $weight_of_parcel = '';//$_POST['weight_of_parcel'];
             $courier_receipt_no = $referncedata->reciptno;
             $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
@@ -711,7 +711,7 @@ class RegisterController extends Controller
             $refence->reference_id = $ref_id;
             $refence->financial_year_id = $financialid;
             $refence->employee_id = $user->employee_id;
-            $refence->inward_or_outward = '0';
+            $refence->inward_or_outward = 0;
             $refence->type_of_inward = $ref_via;
             $refence->company_id = $referncedata->companyid;
             $refence->selection_date = $referncedata->datetime;
@@ -772,7 +772,7 @@ class RegisterController extends Controller
         $comboids->financial_year_id = $financialid;
         $comboids->attachments = '';
         $comboids->updated_by = Session::get('user')->employee_id;
-        $comboids->inward_or_outward_flag = 0;
+        $comboids->inward_or_outward_flag = 2;
         $comboids->inward_or_outward_id = 0;
         $comboids->sale_bill_id = 0;
         $comboids->goods_return_id = 0;
@@ -881,7 +881,7 @@ class RegisterController extends Controller
         if ($latter_by_id == 'Courier') {
             $ref_via = "Courier";
             $letterid = 1;
-            $courier_name = $referncedata->courrier->name;
+            $courier_name = $referncedata->courrier->id;
             $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
             $courier_receipt_no = $referncedata->reciptno;
             $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
@@ -1095,7 +1095,7 @@ class RegisterController extends Controller
         if ($latter_by_id == 'Courier') {
             $ref_via = "Courier";
             $letterid = 1;
-            $courier_name = $referncedata->courrier->name;
+            $courier_name = $referncedata->courrier->id;
             $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
             $courier_receipt_no = $referncedata->reciptno;
             $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
@@ -1314,7 +1314,7 @@ class RegisterController extends Controller
         if ($latter_by_id == 'Courier') {
             $ref_via = "Courier";
             $letterid = 1;
-            $courier_name = $referncedata->courrier->name;
+            $courier_name = $referncedata->courrier->id;
             $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
             $courier_receipt_no = $referncedata->reciptno;
             $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
@@ -1716,22 +1716,146 @@ class RegisterController extends Controller
                 array_push($salebilldata, $salebill);
 
             } else if ($type == 4) {
-
+                
             }
             
         }
-         
+        
+        $courier = TransportDetails::where('id', $outward->courier_name)->first();
+        $agent = Agent::where('id', $outward->courier_agent)->first();
         $data['salebill'] = $salebilldata;
         $data['outward'] = $outward;
-        $data['agent'] = $agent;
+        $data['outward']['courier_agent'] = $agent;
         $data['outward_type'] = $type;
+        $data['outward']['courier'] = $courier;
         $data['outward']['todaydate'] = Carbon::now()->format('Y-m-d');
+        $data['outward']['recivedate'] = substr($outward->courier_received_time,0,10);
 
         $data['outward']['generatedate'] = $created_at;
         $data['outward']['generateby'] = $employee;
         $data['outward']['company'] = $company;
         return $data;
+    }
+
+    public function editOutward($id){
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['editedId'] = $id;
+        return view('register.outward.editoutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function updateOutward(Request $request) {
         
+        $referncedata = json_decode($request->refenceform);
+        $outwarddata = outward::where('outward_id', $referncedata->id)->first();
+        
+        $reference = $referncedata->refrence;
+        $company_supplier = Company::where('id', $referncedata->companyid)->first()->company_type_id;
+        if ($company_supplier == 3) {
+			$company_type_outward = "Supplier";
+        } else {
+			$company_type_outward = "Customer";
+        }
+        $user = Session::get('user');
+        $financialid = Session::get('user')->financial_year_id;
+        $agent_id = $referncedata->agent->id;
+        $latter_by_id = $referncedata->referncevia->name;
+        $from_name = $referncedata->fromname;
+        if ($latter_by_id == 'Courier') {
+            $ref_via = "Courier";
+            $letterid = 1;
+            $courier_name = $referncedata->courrier->id;
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = $referncedata->reciptno;
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        } else {
+            $ref_via = "Hand";
+            $letterid = 0;
+            $courier_name = '';
+            $weight_of_parcel = $referncedata->weightparcel;//$_POST['weight_of_parcel'];
+            $courier_receipt_no = '';
+            $courier_received_time = date('Y-m-d',strtotime($referncedata->recivetime));
+            $delivery_by =$referncedata->delivery;
+        }
+        $refence = ReferenceId::where('reference_id', $outwarddata->general_output_ref_id)
+                    ->where('financial_year_id', $user->financial_year_id)
+                    ->first();
+        
+        $refence->employee_id = $user->employee_id;
+        $refence->inward_or_outward = '0';
+        $refence->type_of_inward = $ref_via;
+        $refence->company_id = $referncedata->companyid;
+        $refence->selection_date = $referncedata->datetime;
+        $refence->from_name = $from_name;
+        $refence->courier_name = $courier_name;
+        $refence->weight_of_parcel = $weight_of_parcel;
+        $refence->courier_receipt_no = $courier_receipt_no;
+        $refence->courier_received_time = $courier_received_time;
+        $refence->delivery_by = $delivery_by;
+        $refence->save();
+
+        $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
+
+        if ($cmpTypeName && $cmpTypeName->company_type != 0) {
+            $companyTypeName = CompanyType::where('id', $cmpTypeName->company_type)->first();
+            $typeName = $companyTypeName->name;
+        } else {
+            $typeName = '';
+        }
+
+        $comboids = Comboids::where('ouid', $outwarddata->ouid)->first();
+        $outward = outward::where('outward_id', $referncedata->id)->first();
+        if ($company_supplier == 3) {
+            $comboids->supplier_id = $referncedata->companyid;
+            $comboids->company_id = 0;
+            $outward->company_id = 0;
+            $outward->supplier_id =  $referncedata->companyid;
+        } else {
+            $comboids->supplier_id = 0;
+            $comboids->company_id = $referncedata->companyid;
+            $outward->company_id = $referncedata->companyid;
+            $outward->supplier_id = 0;
+        }
+
+        
+        $comboids->generated_by = $user->employee_id;
+        $comboids->assigned_to = $user->employee_id;
+        $comboids->company_type = $typeName;
+        $comboids->followup_via = $ref_via;
+        $comboids->inward_or_outward_via = $ref_via;
+        $comboids->selection_date = $referncedata->datetime;
+        $comboids->from_name = $from_name;
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 2;
+        $comboids->save();
+
+        
+        $outward->new_or_old_outward = $reference;
+        $outward->connected_outward = 0;
+        $outward->outward_date = $referncedata->datetime;
+        $outward->employee_id = Session::get('user')->employee_id;
+        $outward->type_of_outward = $ref_via;
+        //$outward->receiver_number = '';
+        $outward->from_number = '';
+        
+        $outward->courier_name = $courier_name;
+        $outward->weight_of_parcel = $weight_of_parcel;
+        $outward->courier_receipt_no = $courier_receipt_no;
+        $outward->courier_received_time = $courier_received_time;
+        $outward->no_of_parcel = 0;
+        $outward->from_name = $from_name;
+        $outward->attachments = 0;
+        $outward->remarks = '';
+        $outward->latter_by_id = $letterid;
+        $outward->delivery_by = $delivery_by;
+        $outward->receiver_email_id = '';
+        $outward->from_email_id = '';
+        $outward->courier_agent = $agent_id;
+        $outward->outward_courier_flag = '1';
+        $outward->save();
 
     }
 }

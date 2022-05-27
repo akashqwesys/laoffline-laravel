@@ -472,14 +472,9 @@
                 extraAmount: '',
                 salebilldata :[],
                 isValidate: false,
-                // salebill :[
-                //     {id: 101, sup_inv: 1025, amount: 5000},
-                //     {id: 103, sup_inv: 1028, amount: 150000}
-                // ],
-
                 referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'}],
 
-                courier:[{name: "KOMAL ROADWAYS"},{name: "DELHI RAJASTHAN TRANSPORT"}, {name: "Dart Air"}],
+                courier:[],
                 errors: {
                     name: ''
                 },
@@ -544,15 +539,13 @@
             .then(response => {
                 this.banks = response.data;
             });
-            if (this.scope == 'edit') {
-                var getbasicdata_url = '/payments/getbasicdata?payment_id=' + this.id;
-            } else {
-                var getbasicdata_url = '/payments/getbasicdata';
-            }
+            var getbasicdata_url = '/payments/getbasicdata';
+            if (this.scope != 'edit') {
             axios.get(getbasicdata_url)
             .then(responce => {
                 this.salebills = responce.data.salebill;
                 this.salebilldata = responce.data.salebilldata;
+                this.courier = responce.data.courier;
                 if (this.scope != 'edit') {
                     this.form.reciptfrom = responce.data.customer.company_name;
                     this.form.supplier = responce.data.seller.company_name;
@@ -567,6 +560,7 @@
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount;
             })
+            }
             //this.form.refrence = 'new';
             this.form.recipt_mode = 'cheque';
         },
@@ -1567,6 +1561,7 @@
                             self.form.short = gData.paymentData.tot_short;
                             self.form.interest = gData.paymentData.tot_interest;
                             gData.salebill.forEach((value,index) => {
+                                
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
                                 self.salebills[index].amount = value.amount;
@@ -1584,7 +1579,7 @@
                                 self.salebills[index].remark = value.remark;
                                 self.salebills[index].status = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
                             });
-                        }, 500);
+                        }, 1000);
 
                     });
                     break;

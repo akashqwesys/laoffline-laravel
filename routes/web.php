@@ -382,6 +382,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::get('/outward/commissioninvoice', [App\Http\Controllers\register\RegisterController::class, 'addCommissionInvoiceOutward']);
     Route::post('/insertoutward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertOutward']);
     Route::post('/insertcourier', [App\Http\Controllers\register\RegisterController::class, 'insertCourier']);
+    Route::post('/updateoutward', [App\Http\Controllers\register\RegisterController::class, 'updateOutward']);
     Route::post('/insertpaymentoutward', [App\Http\Controllers\register\RegisterController::class, 'insertPaymentOutward']);
     Route::post('/insertcommissionoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionOutward']);
     Route::post('/insertcommissioninvoiceoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionInvoiceOutward']);

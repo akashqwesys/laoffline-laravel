@@ -142,6 +142,25 @@ class CommissionController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+            $supplier_company = Company::where('id', $record->supplier_id)->first();
+            $supplier_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $supplier_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+
+            if ((count($supplier_address) == 0 || count($supplier_owners) == 0)) {
+                $supplier_color = '';
+            } else {
+                $supplier_color = ' text-danger ';
+            }
+
             $iscompleted = Comboids::where('commission_id', $record->commission_id)->where('financial_year_id', $user->financial_year_id)
                             ->where('is_deleted', 0)->select('is_completed','commission_id','color_flag_id')->first();
             $id = $record->commission_id;
@@ -149,7 +168,7 @@ class CommissionController extends Controller
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $seller = Company::where('id', $record->supplier_id)->first();
-            $seller_id = '<a href="#" class="view-details text-danger" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
+            $seller_id = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
             $paid_amount = $record->commission_payment_amount;
             if ($iscompleted && $iscompleted->is_completed == '1') {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';

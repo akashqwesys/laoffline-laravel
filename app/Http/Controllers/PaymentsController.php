@@ -20,6 +20,7 @@ use App\Models\Goods\GrSaleBillItem;
 use App\Models\Settings\BankDetails;
 use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
+use App\Models\settings\TransportDetails;
 use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -102,7 +103,7 @@ class PaymentsController extends Controller
         $user = Session::get('user');
 
         // Total records
-        $totalRecords = DB::table('goods_returns')
+        $totalRecords = DB::table('goods_returns')  
                         ->select('count(*) as count')
                         ->count();
         $totalRecordswithFilter = DB::table('goods_returns')
@@ -166,13 +167,47 @@ class PaymentsController extends Controller
 
         foreach($records as $record){
             $customer_company = Company::where('id', $record->company_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->company_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->company_id)
+                            ->get();
+
             $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+            if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                $customer_color = '';
+            } else {
+                $customer_color = ' text-danger ';
+            }
+
+            if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                $seller_color = '';
+            } else {
+                $seller_color = ' text-danger ';
+            }
             $id = $record->goods_return_id;
             $iuid = $record->iuid;
             $ref_id = $record->reference_id;
             $date_add = $record->created_at;
-            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
-            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+            $customer = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $gramount = $record->goods_return;
 
             $action = '<a href="/payments/view-goodreturn/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
@@ -306,16 +341,51 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+
             $customer_company = Company::where('id', $record->customer_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->customer_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->customer_id)
+                            ->get();
+
             $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+            if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                $customer_color = '';
+            } else {
+                $customer_color = ' text-danger ';
+            }
+
+            if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                $seller_color = '';
+            } else {
+                $seller_color = ' text-danger ';
+            }
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $payment_date = $record->date;
-            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
-            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+            $customer = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
             $scs = 0;
@@ -468,15 +538,50 @@ class PaymentsController extends Controller
 
         foreach($records as $record){
             $customer_company = Company::where('id', $record->customer_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->customer_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->customer_id)
+                            ->get();
+
             $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+            if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                $customer_color = '';
+            } else {
+                $customer_color = ' text-danger ';
+            }
+
+            if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                $seller_color = '';
+            } else {
+                $seller_color = ' text-danger ';
+            }
+
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $payment_date = $record->date;
-            $customer = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
-            $seller = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+            $customer = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
             $scs = 0;
@@ -1218,12 +1323,7 @@ class PaymentsController extends Controller
             $customer_id = $request->session()->get('customer');
             $seller_id = $request->session()->get('seller');
             $salebill_ids = $request->session()->get('saleBill');
-        } else {
-            $payment = Payment::where('payment_id', $request->payment_id)->where('financial_year_id', $user->financial_year_id)->first();
-            $customer_id = $payment->receipt_from;
-            $seller_id = $payment->supplier_id;
-            $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
-        }
+        } 
 
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
@@ -1254,9 +1354,10 @@ class PaymentsController extends Controller
             $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $bill->financial_year_id, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => "60");
             array_push($salebill_data2, $salebill2);
         }
-
+        $courier = TransportDetails::where('is_delete', 0)->get();
         $data['customer'] = $customer;
         $data['seller'] = $seller;
+        $data['courier'] = $courier;
         $data['salebill'] = $salebill_data;
         $data['salebilldata'] = $salebill_data2;
         return $data;
@@ -1578,7 +1679,7 @@ class PaymentsController extends Controller
         $payment->attachments = $ChequeImage;
         $payment->letter_attachment = $LetterImage;
         $payment->date = $payment_date;
-        $payment->deposite_bank = '4';
+        $payment->deposite_bank = 4;
         $payment->cheque_date = $cheque_date;
         $payment->cheque_dd_no = $cheque_dd_no;
         $payment->cheque_dd_bank = (int)$cheque_dd_bank;
@@ -1615,8 +1716,8 @@ class PaymentsController extends Controller
                     $paymentDetail->p_increment_id = $p_increment_id;
                     $paymentDetail->financial_year_id = $payment->financial_year_id;
                     $paymentDetail->sr_no = $salebill->id;
-                    $paymentDetail->flag_sale_bill_sr_no = '1';
-                    $paymentDetail->status = '1';
+                    $paymentDetail->flag_sale_bill_sr_no = 1;
+                    $paymentDetail->status = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
                     $paymentDetail->adjust_amount = $salebill->adjustamount ?? 0;
@@ -1642,8 +1743,8 @@ class PaymentsController extends Controller
                     $paymentDetail->p_increment_id = $p_increment_id;
                     $paymentDetail->financial_year_id = $payment->financial_year_id;
                     $paymentDetail->sr_no = $salebill->id;
-                    $paymentDetail->status = '0';
-                    $paymentDetail->flag_sale_bill_sr_no = '1';
+                    $paymentDetail->status = 0;
+                    $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
@@ -1676,8 +1777,8 @@ class PaymentsController extends Controller
                     $paymentDetail->p_increment_id = $p_increment_id;
                     $paymentDetail->financial_year_id = $payment->financial_year_id;
                     $paymentDetail->sr_no = $salebill->id;
-                    $paymentDetail->flag_sale_bill_sr_no = '1';
-                    $paymentDetail->status = '1';
+                    $paymentDetail->flag_sale_bill_sr_no = 1;
+                    $paymentDetail->status = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->discount = $salebill->discount ?? 0;
                     $paymentDetail->discount_amount = $salebill->discountamount ?? 0;
@@ -1706,7 +1807,7 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += $salebill->adjustamount;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
-                    $bill->payment_status = '1';
+                    $bill->payment_status = 1;
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
                     $bill->save();
 
