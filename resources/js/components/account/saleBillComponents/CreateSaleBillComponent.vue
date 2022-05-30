@@ -145,7 +145,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="bill_date">Bill Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" v-model="bill_date" id="bill_date" class="form-control" onfocus="this.showPicker()">
+                                                        <input type="date" v-model="bill_date" id="bill_date" class="form-control" onfocus="this.showPicker()" :min="global_fy_start_date" :max="global_fy_end_date">
                                                         <div v-if="v$.bill_date.$error" class="invalid mt-1">Select Bill Date</div>
                                                     </div>
                                                 </div>
@@ -393,7 +393,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="transport_date">LR / MR Date</label>
                                                         <div class="form-control-wrap">
-                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control" onfocus="this.showPicker()">
+                                                            <input type="date" v-model="transport_date" id="transport_date" class="form-control" onfocus="this.showPicker()" :min="global_fy_start_date" :max="global_fy_end_date">
                                                             <div v-if="v$.transport_date.$error" class="invalid mt-1">Select Transport Date</div>
                                                         </div>
                                                     </div>
@@ -485,6 +485,8 @@
             AddCompany
         },
         props: {
+            global_fy_start_date: String,
+            global_fy_end_date: String,
             scope: String,
             id: Number,
         },

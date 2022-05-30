@@ -267,9 +267,11 @@ class FinancialYearController extends Controller
 
     public function updateCurrentFinancialYear($id)
     {
-        $fy = FinancialYear::select('id', 'name')->where('id', $id)->first();
+        $fy = FinancialYear::select('id', 'name', 'start_date', 'end_date')->where('id', $id)->first();
         session()->get('user')->financial_year_id = $id;
         session()->get('user')->financial_year = $fy->name;
+        session()->get('user')->financial_year_start_date = $fy->start_date;
+        session()->get('user')->financial_year_end_date = $fy->end_date;
         return redirect()->back();
     }
 

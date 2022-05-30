@@ -69,6 +69,23 @@
                                                             </div><!-- data-item -->
                                                             <div class="data-item">
                                                                 <div class="data-col">
+                                                                    <span class="data-label">GST No.</span>
+                                                                    <span v-if="packagingDetail.gst_no" class="data-value">{{ packagingDetail.gst_no }}</span>
+                                                                    <span v-else class="data-value text-soft">N/A</span>
+                                                                </div>
+                                                            </div><!-- data-item -->
+                                                            <div class="data-item">
+                                                                <div class="data-col">
+                                                                    <span class="data-label">Address</span>
+                                                                    <span v-if="multipleAddress.length" class="data-value">
+                                                                        <template v-for="(address, index) in multipleAddress" :key="index">
+                                                                        {{ address.address }}<br>
+                                                                        </template>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="data-item">
+                                                                <div class="data-col">
                                                                     <span class="data-label">Website</span>
                                                                     <span v-if="companyDetails.company_website != ''" class="data-value">{{ companyDetails.company_website }}</span>
                                                                     <span v-else class="data-value text-soft">N/A</span>
@@ -121,7 +138,7 @@
                                                         <div id="accordion" class="accordion">
                                                             <div class="accordion-item" v-for="(address, index) in multipleAddress" :key="index">
                                                                 <a href="#" class="accordion-head" data-toggle="collapse" :data-target="'#accordion-item-'+index">
-                                                                    <h6 class="title" >Address Type - "{{ address.address_type_name }}"</h6>
+                                                                    <h6 class="title" >Address Type - {{ address.address_type_name ? address.address_type_name : '' }}</h6>
                                                                     <span class="accordion-icon"></span>
                                                                 </a>
                                                                 <div v-bind:class="(index == 0)?'accordion-body collapse show':'accordion-body collapse'" :id="'accordion-item-'+index" data-parent="#accordion">
@@ -401,7 +418,6 @@
                     this.bankDetail = response.data.bank_details ?? {};
                     this.packagingDetail = response.data.packaging_details;
                     this.referenceDetail = response.data.references_details ?? {};
-                    window.$('#overlay').hide();
                 });
             }
         },
