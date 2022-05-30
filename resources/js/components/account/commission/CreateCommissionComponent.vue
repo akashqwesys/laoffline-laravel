@@ -56,14 +56,14 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="itm in commission_invoice" :key="itm.commission_id" class="text-center">
+                                        <tr v-for="itm in commission_invoice" :key="itm.commission_id" :class="itm.overdue > 90 ? 'text-danger' : ''" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.commission_id" :value="itm.commission_id"  required></td>
 				                            <td>{{ itm.invoiceno }}</td>
 				                            <td>{{ itm.financialyear }}</td>
 				                            <td>{{ itm.date}}</td>
                                             <td>{{ itm.amount }}</td>
-                                            <td>{{ itm.overdue }}</td>
-				                            <td><em class="icon ni ni-eye"></em></td>
+                                            <td v-if="itm.overdue > 90" class="text-danger">{{ itm.overdue }}</td><td v-else>{{ itm.overdue }}</td>
+				                            <td><a :href="'/account/commission/invoice/view-invoice/'+itm.commission_id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -112,6 +112,10 @@
         },
         methods: {
             generateCommission(event){
+               if (this.selected.length == 0) {
+                   alert('please select commission invoice');
+                   return false;
+               }
                axios.post('/commission/generate-commission', {
                     commissioninvoice: this.selected,
                     company: this.form.company.id,

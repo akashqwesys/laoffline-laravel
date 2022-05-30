@@ -852,6 +852,7 @@ class PaymentsController extends Controller
         $user = Session::get('user');
         $customer_id = $request->input('customer');
         $supplier_id = $request->input('seller');
+        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $supplier =  Company::where('id', $supplier_id)->first();
         $salebill = DB::table('sale_bills')->where('company_id', $customer_id)
                     ->where('supplier_id', $supplier_id)
@@ -862,7 +863,8 @@ class PaymentsController extends Controller
                     ->get();
         $salebills = array();
         foreach($salebill as $bill) {
-            $salebill = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $bill->financial_year_id, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $supplier->company_name, 'amount' => $bill->total, 'overdue' => "60");
+            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
+            $salebill = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $supplier->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
             array_push($salebills, $salebill);
         }
         $data['salebill'] = $salebills;
@@ -1324,7 +1326,7 @@ class PaymentsController extends Controller
             $seller_id = $request->session()->get('seller');
             $salebill_ids = $request->session()->get('saleBill');
         }
-
+        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
         $salebills = DB::table('sale_bills')
@@ -1349,9 +1351,11 @@ class PaymentsController extends Controller
             $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total, 'status' => $status_c);
             array_push($salebill_data, $salebill);
         }
+
         $salebill_data2 = array();
         foreach($salebills2 as $bill) {
-            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $bill->financial_year_id, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => "60");
+            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
+            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
         }
         $courier = TransportDetails::where('is_delete', 0)->get();
@@ -1360,6 +1364,7 @@ class PaymentsController extends Controller
         $data['courier'] = $courier;
         $data['salebill'] = $salebill_data;
         $data['salebilldata'] = $salebill_data2;
+        $data['financialyear'] = $financialyear;
         return $data;
     }
     public function addPayment(Request $request){
@@ -1382,6 +1387,7 @@ class PaymentsController extends Controller
             $seller_id = $payment->supplier_id;
             $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
         }
+        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
         $salebillid = $request->salebill;
@@ -1400,7 +1406,8 @@ class PaymentsController extends Controller
 
         $salebill_data2 = array();
         foreach($salebills2 as $bill) {
-            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $bill->financial_year_id, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => "60");
+            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
+            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
         }
 
@@ -1423,6 +1430,7 @@ class PaymentsController extends Controller
             $seller_id = $payment->supplier_id;
             $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
         }
+        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
         $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
@@ -1436,7 +1444,8 @@ class PaymentsController extends Controller
 
         $salebill_data2 = array();
         foreach($salebills2 as $bill) {
-            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $bill->financial_year_id, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => "60");
+            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
+            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
         }
 

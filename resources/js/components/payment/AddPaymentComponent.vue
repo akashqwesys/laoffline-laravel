@@ -93,7 +93,7 @@
                                         <label class="form-label" for="fv-recivedate">Received Date Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" onfocus="this.showPicker()">
+                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" :min="min" :max="max" onfocus="this.showPicker()">
                                         <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
                                     </div>
                                     <div id="error-for-recivedate" class="mt-2 text-danger"></div>
@@ -182,7 +182,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-recive-date">Receive Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-recive-date" v-model="form.reciptdate" onfocus="this.showPicker()">
+                                                        <input type="date" class="form-control" id="fv-recive-date" v-model="form.reciptdate" :min="min" :max="max" onfocus="this.showPicker()">
                                                         <span v-if="errors.reciptdate" class="invalid">{{errors.reciptdate}}</span>
                                                     </div>
                                                     <div id="error-for-reciptdate" class="mt-2 text-danger"></div>
@@ -415,20 +415,20 @@
 				                            <th>Supplier</th>
                                             <th>Bill Amount</th>
                                             <th>Overdue</th>
-				                            <th>Action</th>
+				                        
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in items" :key="itm.sallbillid" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
 				                            <td>{{ itm.sallbillid}}</td>
-				                            <td>{{ itm.financialyear }}</td>
+				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
 				                            <td>{{ itm.supplier }}</td>
                                             <td>{{ itm.amount }}</td>
-                                            <td>{{ itm.overdue }}</td>
-				                            <td><em class="icon ni ni-eye"></em></td>
+                                            <td :class="itm.overdue > 90 ? 'text-danger' : ''">{{ itm.overdue }}</td>
+				                            
                                         </tr>
                                     </tbody>
                                 </table>
@@ -478,6 +478,8 @@
                 errors: {
                     name: ''
                 },
+                min: '',
+                max: '',
                 salebills: [{
                         id: '',
                         sup_inv: '',
@@ -559,6 +561,8 @@
                 });
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount;
+                this.min = responce.data.financialyear.start_date;
+                this.max = responce.data.financialyear.end_date;
             })
             }
             //this.form.refrence = 'new';
@@ -1494,8 +1498,6 @@
             this.form.claim = 0;
             this.form.short = 0;
             this.form.interest = 0;
-            let todaytime = new Date().toJSON().slice(0,19);
-            self.form.recivedate = todaytime;
             $(document).on('change', '.old-reference', function () {
                 self.form.refrence_type = this.value;
                 console.log(self.form);

@@ -127,7 +127,7 @@
                                         <label class="form-label" for="fv-recivedate">Received Date Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" onfocus="this.showPicker()">
+                                        <input type="datetime-local" class="form-control" id="fv-recivedate" v-model="form.recivedate" :min="min" :max="max" onfocus="this.showPicker()">
                                         <span v-if="errors.recivedate" class="invalid">{{errors.recivedate}}</span>
                                     </div>
                                     <div id="error-for-recivedate" class="mt-2 text-danger"></div>
@@ -179,7 +179,7 @@
                                     <input type="hidden" id="user_group_id" v-model="form.user_group">
                                     <div class="preview-block">
                                         <div class="row gy-6">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 my-1">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-reciptmode">Recipt mode</label>
                                                     <div class="form-control-wrap">
@@ -201,7 +201,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 my-1">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-commission-amount">Commission Payment Amount</label>
                                                     <div class="form-control-wrap">
@@ -210,7 +210,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 cheque">
+                                            <div class="col-md-6 my-1 cheque">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-deposit-bank">Deposite Bank</label>
                                                     <div class="form-control-wrap">
@@ -219,7 +219,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 cheque">
+                                            <div class="col-md-6 my-1 cheque">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-cheque-date">Cheque Date</label>
                                                     <div class="form-control-wrap">
@@ -229,7 +229,7 @@
                                                     <div id="error-for-chequedate" class="mt-2 text-danger"></div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 cheque">
+                                            <div class="col-md-6 my-1 cheque">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-chequeno">Cheque / DD No</label>
                                                     <div class="form-control-wrap">
@@ -238,7 +238,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 cheque">
+                                            <div class="col-md-6 my-1 cheque">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-cheque-bank">Cheque / DD's Bank</label>
                                                     <div class="form-control-wrap">
@@ -259,17 +259,17 @@
                                         <div class="card-inner">
 
                                         <div class="preview-block">
-                                        <div class="row py-1 my-2">
-                                            <div class="col-md-6">
+                                        <div class="row py-1">
+                                            <div class="col-md-6 my-1">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-commissiondate">Commission Date</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-commissiondate" v-model="form.commissiondate" onfocus="this.showPicker()">
+                                                        <input type="date" class="form-control" id="fv-commissiondate" :min="min" :max="max" v-model="form.commissiondate" onfocus="this.showPicker()">
                                                         <span v-if="errors.commissiondate" class="invalid">{{errors.commissiondate}}</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 my-1">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-commissionaccount">Commission Account</label>
                                                     <div class="form-control-wrap">
@@ -283,7 +283,7 @@
                                                     <label class="form-label" for="fv-commissionaccount">Extra Attechment</label>
                                                     <div class="form-control-wrap">
                                                         <div class="custom-file">
-                                                            <input type="file" name="extraattechment"  accept="image/*" class="custom-file-input" @change="uploadExtraAttechment">
+                                                            <input type="file" name="extraattechment"  class="custom-file-input" @change="uploadExtraAttechment">
                                                             <label class="custom-file-label" for="fv-extraattechment">Choose photo</label>
                                                             <span v-if="errors.extraattechment" class="invalid">{{errors.extraattechment}}</span>
                                                         </div>
@@ -397,7 +397,8 @@
                         amount: '',
                         remark: '',
                 }],
-
+                min: '',
+                max: '',
                 extraimage: [],
                 form: new Form({
                     id: '',
@@ -444,6 +445,8 @@
                     total += parseInt(value.totalCommission);
                 });
                 this.form.totalCommission = total;
+                this.min = responce.data.financialyear.start_date;
+                this.max= responce.data.financialyear.end_date;
             });
             }
 
@@ -693,7 +696,7 @@
 
                         self.form.refrence_type = gData.commission.reference_id;
                         self.form.commissiondate = gData.commission.commission_date;
-                        self.form.commissionacc = gData.commission.commission_account;
+                        self.form.commissionacc = gData.commission.commissionaccount;
                         self.form.commissionamount = gData.commission.commission_payment_amount;
                         gData.commissioninvoice.forEach((value,index) => {
                                 self.commissioninvoices[index].id = value.commission_id;

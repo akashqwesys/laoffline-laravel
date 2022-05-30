@@ -69,17 +69,17 @@
                                         <tr v-for="itm in salebill" :key="itm.sallbillid" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
 				                            <td>{{ itm.sallbillid }}</td>
-				                            <td>{{ itm.financialyear }}</td>
+				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
 				                            <td>{{ itm.supplier }}</td>
                                             <td>{{ itm.amount }}</td>
-                                            <td>{{ itm.overdue }}</td>
-				                            <td><em class="icon ni ni-eye"></em></td>
+                                            <td v-if="itm.overdue > 90" class="text-danger">{{ itm.overdue }}</td><td v-else>{{ itm.overdue }}</td>
+				                            <td><a :href="'/account/sale-bill/view-sale-bill/'+ itm.sallbillid + '/' + itm.financialyear.id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <button class="btn btn-primary generatepayment float-right disabled" @click="generatePayment($event)">Generate Payment</button>
+                                <button class="btn btn-primary generatepayment float-right" @click="generatePayment($event)">Generate Payment</button>
 
                             </div>
                         </div><!-- .card -->
@@ -130,6 +130,10 @@
         },
         methods: {
             generatePayment(event){
+               if (this.selected.length == 0) {
+                    alert('please select Sale Bill');
+                    return false;
+                }
                axios.post('/payments/generatepayment', {
                     salebill: this.selected,
                     customer: this.form.customer.id,
@@ -148,7 +152,6 @@
                 })
                 .then(function (response) {
                     $(".salebill").removeClass("d-none");
-                    $(".generatepayment").removeClass('disabled');
                     setTimeout(() => {
                         self.salebill = response.data.salebill;
                     }, 500);
@@ -158,6 +161,9 @@
                 });
             },
         },
+        mounted(){
+            
+        }
     };
 </script>
 

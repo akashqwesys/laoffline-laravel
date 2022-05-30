@@ -135,6 +135,7 @@ class CommissionController extends Controller
         $records = $records->select('*');
 
         $records = $records->orderBy($columnName,$columnSortOrder)
+            ->orderBy('commission_id', 'DESC')
             ->skip($start)
             ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
@@ -228,15 +229,15 @@ class CommissionController extends Controller
         $user = Session::get('user');
         $commissioninvoice = DB::table('commission_invoices')
                     ->where('supplier_id', $company_id)
-                    ->where('financial_year_id', $user->financial_year_id)
                     ->where('commission_status', 0)
                     ->orderBy('id', 'desc')
                     ->get();
         $commissioninvoices = array();
 
         foreach($commissioninvoice as $invoice) {
+            $overdue = floor((time() - strtotime($invoice->bill_date)) / (60 * 60 * 24));
             $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
-            $invoice = array('commission_id' => $invoice->id, 'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => "60");
+            $invoice = array('commission_id' => $invoice->id, 'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => $overdue);
             array_push($commissioninvoices, $invoice);
         }
         $data['commissioninvoice'] = $commissioninvoices;
@@ -261,6 +262,7 @@ class CommissionController extends Controller
     }
 
     public function getBasicData(Request $request) {
+        $user = Session::get('user');
         $company_id = $request->session()->get('company');
         $commissioninvoice_id = $request->session()->get('commissioninvoice');
 
@@ -268,7 +270,7 @@ class CommissionController extends Controller
         $agent = Agent::where('is_delete', '0')->get();
 
         $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('id', $commissioninvoice_id)->get();
-
+        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $commissioninvoice_data = array();
         foreach ($commissioninvoice as $invoice) {
             $commission_invoice = array('commission_id' => $invoice->id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'totalCommission' => $invoice->final_amount);
@@ -282,6 +284,7 @@ class CommissionController extends Controller
         }
         $data['company'] = $company;
         $data['agent'] = $agent;
+        $data['financialyear'] = $financialyear;
         $data['commissioninvoice'] = $commissioninvoice_data;
         return $data;
     }
@@ -318,9 +321,9 @@ class CommissionController extends Controller
             $increment_id->iuid = $iuid;
             $increment_id->save();
         } else {
-            $ref_id = '1';
-            $commission_id = '1';
-            $iuid = '1';
+            $ref_id = 1;
+            $commission_id = 1;
+            $iuid = 1;
             $increment_id = new IncrementId();
             $increment_id->reference_id = $ref_id;
             $increment_id->commission_id = $commission_id;
@@ -329,7 +332,7 @@ class CommissionController extends Controller
             $increment_id->financial_year_id = $financialid;
             $increment_id->save();
         }
-        if ($commissionData->refrence == '1') {
+        if ($commissionData->refrence == 1) {
             if ($commissionData->refrencevia->name == 'Email') {
                 $courier_name = '';
                 $courier_receipt_no = '';
@@ -352,7 +355,7 @@ class CommissionController extends Controller
             $refence->reference_id = $ref_id;
             $refence->financial_year_id = $financialid;
             $refence->employee_id = $user->employee_id;
-            $refence->inward_or_outward = '1';
+            $refence->inward_or_outward = 1;
             $refence->type_of_inward = $commissionData->refrencevia->name;
             $refence->company_id = $request->session()->get('company');
             $refence->selection_date = Carbon::now()->format('Y-m-d');
@@ -403,7 +406,7 @@ class CommissionController extends Controller
         $comboids->payment_id = 0;
         $comboids->iuid = $iuid;
         $comboids->ouid = 0;
-        $comboids->system_module_id = '7';
+        $comboids->system_module_id = 7;
         $comboids->general_ref_id = $ref_id;
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
@@ -416,7 +419,7 @@ class CommissionController extends Controller
         $comboids->receipt_amount = 0;
         $comboids->subject = 'For '. $companyName->name .' RS '.$commissionData->commissionamount .'/-';
         $comboids->financial_year_id = $financialid;
-        $comboids->attachments = serialize($attachments);
+        $comboids->attachments = json_encode($attachments);
         $comboids->updated_by = Session::get('user')->employee_id;
         $comboids->inward_or_outward_flag = 0;
         $comboids->inward_or_outward_id = 0;
@@ -456,9 +459,9 @@ class CommissionController extends Controller
         $commissions = new Commission();
         if ($typeName == "Supplier") {
             $commissions->supplier_id = $request->session()->get('company');
-            $commissions->customer_id = '0';
+            $commissions->customer_id = 0;
         } else {
-            $commissions->supplier_id = '0';
+            $commissions->supplier_id = 0;
             $commissions->customer_id = $request->session()->get('company');
         }
         if ($commissionData->recipt_mode == 'cheque') {
@@ -467,20 +470,20 @@ class CommissionController extends Controller
             $chequebank = $commissionData->chequebank->id;
             $chequeno = $commissionData->chequeno;
         } else {
-            $depositebank = '0';
+            $depositebank = 0;
             $chequedate = Carbon::now()->format('Y-m-d');
-            $chequebank = '0';
+            $chequebank = 0;
             $chequeno = '';
         }
         $commissions->id = $commissionId;
         $commissions->commission_id = $commission_id;
         $commissions->iuid = $iuid;
         $commissions->reference_id = $ref_id;
-        $commissions->payment_id = '0';
-        $commissions->bill_no = '0';
-        $commissions->bill_amount = '0';
-        $commissions->received_amount = '0';
-        $commissions->attachments = serialize($attachments);
+        $commissions->payment_id = 0;
+        $commissions->bill_no = 0;
+        $commissions->bill_amount = 0;
+        $commissions->received_amount = 0;
+        $commissions->attachments = json_encode($attachments);
         $commissions->deposite_bank = (int)$depositebank;
         $commissions->cheque_date = $chequedate;
         $commissions->cheque_dd_no = (int)$chequeno;
@@ -494,14 +497,14 @@ class CommissionController extends Controller
         $commissions->commission_cheque_dd_no = (int)$chequeno;
         $commissions->commission_cheque_dd_bank = (int)$chequebank;
         $commissions->commission_payment_amount = $commissionData->commissionamount;
-        $commissions->tds = '0';
-        $commissions->net_received_amount = '0';
-        $commissions->received_commission_amount = '0';
-        $commissions->done_outward = '0';
-        $commissions->normal_amt_flag = '3';
+        $commissions->tds = 0;
+        $commissions->net_received_amount = 0;
+        $commissions->received_commission_amount = 0;
+        $commissions->done_outward = 0;
+        $commissions->normal_amt_flag = 3;
         $commissions->date_added = Carbon::now()->format('Y-m-d H:i:s');
-        $commissions->is_deleted = '0';
-        $commissions->is_invoice = '1';
+        $commissions->is_deleted = 0;
+        $commissions->is_invoice = 1;
         $commissions->save();
 
         $c_increment_id = $commissionId;
@@ -524,27 +527,27 @@ class CommissionController extends Controller
             $commission_detail->id = $commissionDetailId;
             // $commission_detail->commission_details_id = $commissionDetailId;
             $commission_detail->c_increment_id = $c_increment_id;
-            $commission_detail->payment_id = '0';
-            $commission_detail->financial_year_id = '7';
+            $commission_detail->payment_id = 0;
+            $commission_detail->financial_year_id = 7;
             $commission_detail->commission_id = $commission_id;
             $commission_detail->commission_invoice_id = $invoice->commission_id;
             $commission_detail->bill_date = $invoice->date;
-            $commission_detail->deposite_bank = '0';
+            $commission_detail->deposite_bank = 0;
             $commission_detail->cheque_date = $cheque_date;
-            $commission_detail->cheque_dd_bank = '0';
+            $commission_detail->cheque_dd_bank = 0;
             $commission_detail->cheque_dd_no = '';
             $commission_detail->percentage = '';
             $commission_detail->bill_amount = $invoice->totalCommission;
-            $commission_detail->received_amount = '0';
-            $commission_detail->service_tax = '0';
-            $commission_detail->tds = '0';
+            $commission_detail->received_amount = 0;
+            $commission_detail->service_tax = 0;
+            $commission_detail->tds = 0;
             $commission_detail->commission_date = $commissiondate;
             $commission_detail->commission_account = $commissionData->commissionacc->id;
             $commission_detail->net_received_amount = $commission_pay_amount;
             $commission_detail->received_commission_amount = $commission_pay_amount;
             $commission_detail->status = $commission_status;
             $commission_detail->remark = $remark;
-            $commission_detail->is_deleted = '0';
+            $commission_detail->is_deleted = 0;
             $commission_detail->save();
 
         }
@@ -610,7 +613,7 @@ class CommissionController extends Controller
             $data['commission']['chequebank'] = '';
         }
 
-        $data['commission']['commissionaccount'] = $commissionacc->name;
+        $data['commission']['commissionaccount'] = $commissionacc;
         $data['created_at'] = date_format($commission->created_at,"Y/m/d H:i:s");
         $data['commissioninvoice'] = $commissioninvoice_data;
         $data['customer'] = $customer;
@@ -660,8 +663,8 @@ class CommissionController extends Controller
                 $increment_id->reference_id = $ref_id;
                 $increment_id->save();
             } else {
-                $ref_id = '1';
-                $iuid = '1';
+                $ref_id = 1;
+                $iuid = 1;
                 $increment_id = new IncrementId();
                 $increment_id->reference_id = $ref_id;
                 $increment_id->id = $Incrementids;
@@ -691,7 +694,7 @@ class CommissionController extends Controller
                 $refence->reference_id = $ref_id;
                 $refence->financial_year_id = $financialid;
                 $refence->employee_id = $user->employee_id;
-                $refence->inward_or_outward = '1';
+                $refence->inward_or_outward = 1;
                 $refence->type_of_inward = $commissionData->refrencevia->name;
                 $refence->company_id = $request->session()->get('company');
                 $refence->selection_date = Carbon::now()->format('Y-m-d');
@@ -713,7 +716,7 @@ class CommissionController extends Controller
             } else {
                 $ref_id = $commissionData->refrence_type;
                 $comboids->general_ref_id = $ref_id;
-                $comboids->attachments = serialize($attachments);
+                $comboids->attachments = json_encode($attachments);
                 $comboids->subject = 'For '. $companyName->name .' RS '.$commissionData->commissionamount .'/-';
                 $comboids->save();
             }
@@ -732,9 +735,9 @@ class CommissionController extends Controller
 
         if ($typeName == "Supplier") {
             $commissions->supplier_id = $request->session()->get('company');
-            $commissions->customer_id = '0';
+            $commissions->customer_id = 0;
         } else {
-            $commissions->supplier_id = '0';
+            $commissions->supplier_id = 0;
             $commissions->customer_id = $request->session()->get('company');
         }
         if ($commissionData->recipt_mode == 'cheque') {
@@ -743,14 +746,14 @@ class CommissionController extends Controller
             $chequebank = $commissionData->chequebank->id;
             $chequeno = $commissionData->chequeno;
         } else {
-            $depositebank = '0';
+            $depositebank = 0;
             $chequedate = Carbon::now()->format('Y-m-d');
-            $chequebank = '0';
+            $chequebank = 0;
             $chequeno = '';
         }
 
         $commissions->reference_id = $ref_id;
-        $commissions->attachments = serialize($attachments);
+        $commissions->attachments = json_encode($attachments);
         $commissions->deposite_bank = (int)$depositebank;
         $commissions->cheque_date = $chequedate;
         $commissions->cheque_dd_no = (int)$chequeno;
@@ -764,7 +767,7 @@ class CommissionController extends Controller
         $commissions->commission_cheque_dd_no = (int)$chequeno;
         $commissions->commission_cheque_dd_bank = (int)$chequebank;
         $commissions->commission_payment_amount = $commissionData->commissionamount;
-        $commissions->normal_amt_flag = '3';
+        $commissions->normal_amt_flag = 3;
         $commissions->save();
 
         foreach ($invoiceData as $invoice) {
@@ -775,9 +778,9 @@ class CommissionController extends Controller
 
             $commission_detail->bill_date = $invoice->date;
             $commission_detail->bill_amount = $invoice->totalCommission;
-            $commission_detail->received_amount = '0';
-            $commission_detail->service_tax = '0';
-            $commission_detail->tds = '0';
+            $commission_detail->received_amount = 0;
+            $commission_detail->service_tax = 0;
+            $commission_detail->tds = 0;
             $commission_detail->commission_date = $commissiondate;
             $commission_detail->commission_account = $commissionData->commissionacc;
             $commission_detail->net_received_amount = $commission_pay_amount;
@@ -809,5 +812,10 @@ class CommissionController extends Controller
         return view('commission.viewcommission',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
+    public function deleteCommission($id){
+        $commissions = commission::where('commission_id', $id)->first();
+        $commissions->is_deleted = 1;
+        $commissions->save();
+    }
 
 }

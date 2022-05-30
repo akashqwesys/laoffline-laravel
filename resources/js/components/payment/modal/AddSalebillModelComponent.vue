@@ -21,20 +21,20 @@
 				                            <th>Supplier</th>
                                             <th>Bill Amount</th>
                                             <th>Overdue</th>
-				                            <th>Action</th>
+				                            
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in items" :key="itm.sallbillid" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
 				                            <td>{{ itm.sallbillid}}</td>
-				                            <td>{{ itm.financialyear }}</td>
+				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
 				                            <td>{{ itm.supplier }}</td>
                                             <td>{{ itm.amount }}</td>
                                             <td>{{ itm.overdue }}</td>
-				                            <td><em class="icon ni ni-eye"></em></td>
+				                            
                                         </tr>
                                     </tbody>
                                 </table>
