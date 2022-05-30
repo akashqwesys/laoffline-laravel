@@ -64,27 +64,27 @@
                                                         <th>Received Commission	</th>
                                                         <th>Status</th>
                                                         <th>Remark</th>
-                                                        <th>Action</th>
+                                                        
 							        		        </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr class="salebillrow" v-for="(commission_invoice,index) in commissioninvoice" :key="index">
-                                                        <td>{{ commission_invoice.bill_no }}</td>
-                                                        <td>{{ commission_invoice.bill_date}}</td>
-                                                        <td>{{ commission_invoice.received_commission_amount}}</td>
+                                                        <td>{{ commission_invoice.commission_id }}</td>
+                                                        <td>{{ commission_invoice.date}}</td>
+                                                        <td>{{ commission_invoice.recivedCommission.totalrecived}}</td>
                                                         <td v-if="commission_invoice.status = '1'">Completed</td><td v-else>Pending</td>
                                                         <td>{{ commission_invoice.remark}}</td>
-                                                        <td></td>
+                                                       
                                                     </tr>
                                                 </tbody>
                                                 <tfoot class="total">
                                                     <tr>
                                                         <td><b>Grand Total :</b></td>
                                                         <td></td>
-                                                        <td><b>{{ commission.commission_payment_amount }}</b></td>
+                                                        <td><b>{{ totalrecivedcommission }}</b></td>
                                                         <td></td>
                                                         <td></td>
-                                                        <td></td>
+                                                        
                                                         
                                                     </tr>
                                                 </tfoot>
@@ -122,7 +122,8 @@
                 commissioninvoice: [],
                 customer: [],
                 supplier: [],
-                created_at: '', 
+                created_at: '',
+                totalrecivedcommission: '', 
             }
         },
         created() {
@@ -130,12 +131,16 @@
                 .then(response => {
                         
                         gData = response.data;
-                        
+                        let total = 0;
                         this.commission = gData.commission;
                         this.commissioninvoice = gData.commissioninvoice;
                         this.customer = gData.customer;
                         this.supplier = gData.supplier;
                         this.created_at = gData.created_at;
+                        this.commissioninvoice.forEach( value => {
+                            total += value.amount;
+                        })
+                        this.totalrecivedcommission = total;
                 });    
         },
         methods: {

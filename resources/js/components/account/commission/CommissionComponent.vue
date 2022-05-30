@@ -14,7 +14,8 @@
                                         <h3 class="nk-block-title page-title">Commission List</h3>
                                     </div>
                                     <div class="col-md-8 text-right">
-                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
+                                        <a v-bind:href="commissionivoicelink" class="dropdown-toggle btn btn-icon btn-warning px-2">Commission Invoice</a>
+                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>                                        
 				                    </div>
                                 </div>
                                 
@@ -69,6 +70,7 @@
         data() {
             return {
                 create_commission: '/commission/create-commission',
+                commissionivoicelink: '/account/commission/invoice',
             }
         },
         methods: {
