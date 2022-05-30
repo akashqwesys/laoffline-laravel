@@ -20,7 +20,7 @@ use App\Models\Goods\GrSaleBillItem;
 use App\Models\Settings\BankDetails;
 use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
-use App\Models\settings\TransportDetails;
+use App\Models\Settings\TransportDetails;
 use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -103,7 +103,7 @@ class PaymentsController extends Controller
         $user = Session::get('user');
 
         // Total records
-        $totalRecords = DB::table('goods_returns')  
+        $totalRecords = DB::table('goods_returns')
                         ->select('count(*) as count')
                         ->count();
         $totalRecordswithFilter = DB::table('goods_returns')
@@ -1248,7 +1248,7 @@ class PaymentsController extends Controller
                     $Pending = (int)$bill->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
                     //print_r($Pending);exit;
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', 0)->first();
-                    
+
                     $bill2->pending_payment = $Pending;
                     $bill2->save();
 
@@ -1323,7 +1323,7 @@ class PaymentsController extends Controller
             $customer_id = $request->session()->get('customer');
             $seller_id = $request->session()->get('seller');
             $salebill_ids = $request->session()->get('saleBill');
-        } 
+        }
 
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
