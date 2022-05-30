@@ -1095,12 +1095,12 @@ class PaymentsController extends Controller
         $payment->payment_id = $payment_id;
         $payment->reciept_mode = $paymentData->recipt_mode;
         $payment->iuid = $iuid;
-        $payment->reference_id = $ref_id;
+        $payment->reference_id = intval($ref_id);
         $payment->attachments = $ChequeImage;
         $payment->letter_attachment = $LetterImage;
         $payment->financial_year_id = $financialid;
         $payment->date = $payment_date;
-        $payment->deposite_bank = '4';
+        $payment->deposite_bank = 4;
         $payment->cheque_date = $cheque_date;
         $payment->cheque_dd_no = $cheque_dd_no;
         $payment->cheque_dd_bank = (int)$cheque_dd_bank;
@@ -1153,7 +1153,7 @@ class PaymentsController extends Controller
                     $paymentDetail->save();
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first();
-                    $bill->payment_status = '1';
+                    $bill->payment_status = 1;
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
                     $bill->save();
 
@@ -1193,7 +1193,7 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += 0;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
-                    $bill->payment_status = '0';
+                    $bill->payment_status = 0;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
