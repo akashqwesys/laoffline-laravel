@@ -165,11 +165,11 @@
                     columns: [
                         { data: 'id' },
                         { data: 'iuid' },
-                        { data: 'refeenceid' },
-                        { data: 'dateadd' },
-                        { data: 'customer' },
-                        { data: 'supplier' },
-                        { data: 'gramount' },
+                        { data: 'reference_id' },
+                        { data: 'created_at' },
+                        { data: 'customer', orderable: false },
+                        { data: 'supplier', orderable: false },
+                        { data: 'goods_return' },
                         { data: 'action', orderable: false },
                     ],
                     search: {

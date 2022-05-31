@@ -512,21 +512,68 @@ class RegisterController extends Controller
             }
             $iodetail = $record->subject;
             $customer_company = Company::where('id', $record->company_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->company_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->company_id)
+                            ->get();
+
             $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+
+
             if (empty($customer_company)) {
                 $company = '';  
             } else {
-                $company = '<a href="#" class="view-details text-danger" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+                if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                    $customer_color = '';
+                } else {
+                    $customer_color = ' text-danger ';
+                }
+                $company = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
             }
             if (empty($seller_company)) {
                 $supplier = '';  
             } else {
-                $supplier = '<a href="#" class="view-details text-danger" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+                if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                    $seller_color = '';
+                } else {
+                    $seller_color = ' text-danger ';
+                }
+                $supplier = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             }
            
             $cmptype = $record->company_type;
-            $genrateby = Employee::where('id', $record->generated_by)->first()->firstname;
-            $assignto = Employee::where('id', $record->assigned_to)->first()->firstname;
+            $genrateby = Employee::where('id', $record->generated_by)->first();
+            $assignto = Employee::where('id', $record->assigned_to)->first();
+
+            if (!empty($genrateby)) {
+                $genratebyname =  $genrateby->firstname;
+            } else {
+                $genratebyname = '';
+            }
+
+            if (!empty($assignto)) {
+                $assigntoname =  $assignto->firstname;
+            } else {
+                $assigntoname = '';
+            }
             
             if ($record->system_module_id == 5) {
                 $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
@@ -537,12 +584,33 @@ class RegisterController extends Controller
             } else {
                 $action = '';
             }
+            $timecompleted = 00;
+            if ($record->color_flag_id == 3 && $record->inward_or_outward_flag == 1 ) {
+                $complete = Comboids::where('inward_or_outward_id', $record->inward_or_outward_id)
+                            ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
+                            ->first();
+                if ($complete) {
+                    $date_add = DB::table('inwards')->where('is_deleted', 0)->where('inward_id', $record->inward_or_outward_id)
+                                ->where('financial_year_id', $user->financial_year_id)->first();
+                    $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
+                } 
+            } else if ($record->color_flag_id == 3 && $record->sale_bill_id != 0 ) {
+                $complete = Comboids::where('sale_bill_id', $record->sale_bill_id)
+                            ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
+                            ->first();
+                if ($complete) {
+                    $date_add = DB::table('sale_bills')->where('is_deleted', 0)->where('sale_bill_id', $record->sale_bill_id)
+                                ->where('financial_year_id', $user->financial_year_id)->first();
+                    $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
+                }
+            }
+
 
             $data_arr[] = array(
                 "iuid" => $iuid,
                 "ouid" => $ouid,
-                "referenceid" => $ref_id,
-                "date" => $date,
+                "reference_id" => $ref_id,
+                "created_at" => $date,
                 "timecompleted" => $timecompleted,
                 "iotype" => $iotype,
                 "iomedium" => $iomedium,
@@ -550,8 +618,8 @@ class RegisterController extends Controller
                 "company" => $company,
                 "supplier" => $supplier,
                 "cmptype" => $cmptype,
-                "genby" => $genrateby,
-                "assignto" => $assignto,
+                "genby" => $genratebyname,
+                "assignto" => $assigntoname,
                 "action" => $action
             );
         }

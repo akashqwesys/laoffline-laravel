@@ -162,12 +162,12 @@
                     columns: [
                         { data: 'id' },
                         { data: 'iuid' },
-                        { data: 'referenceid' },
-                        { data: 'dateadd' },
-                        { data: 'company' },
-                        { data: 'Recivecommission' },
-                        { data: 'completed' },
-                        { data: 'outward_status' },
+                        { data: 'reference_id' },
+                        { data: 'created_at' },
+                        { data: 'company', orderable: false },
+                        { data: 'commission_payment_amount' },
+                        { data: 'completed', orderable: false },
+                        { data: 'outward_status', orderable: false },
                         { data: 'action', orderable: false },
                     ],
                     search: {

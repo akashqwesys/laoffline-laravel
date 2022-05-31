@@ -267,6 +267,9 @@
             });
         },
         methods: {
+            getOldReferences: function (event) {
+                this.form.refrence = 1;
+            },
             getRefencevia (option, id) {
                 let refernceby = option.name;
                 if (refernceby == 'Hand') {

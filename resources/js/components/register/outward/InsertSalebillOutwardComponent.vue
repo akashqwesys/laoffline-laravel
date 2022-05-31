@@ -248,12 +248,15 @@
                 this.buyer = response.data.buyer;
             });
             axios.get('/register/list-agentcourier')
-            .then(responce => {
+            .then(response => {
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
         },
         methods: {
+            getOldReferences: function (event) {
+                this.form.refrence = 1;
+            },
             getRefencevia (option, id) {
                 let refernceby = option.name;
                 if (refernceby == 'Hand') {

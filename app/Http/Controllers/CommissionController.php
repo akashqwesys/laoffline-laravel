@@ -188,10 +188,10 @@ class CommissionController extends Controller
             $data_arr[] = array(
                 "id" => $id,
                 "iuid" => $iuid,
-                "referenceid" => $ref_id,
-                "dateadd" => $date_add,
+                "reference_id" => $ref_id,
+                "created_at" => $date_add,
                 "company" => $seller_id,
-                "Recivecommission" => $paid_amount,
+                "commission_payment_amount" => $paid_amount,
                 "completed" => $completed,
                 "outward_status" => $outward,
                 "action" => $action
