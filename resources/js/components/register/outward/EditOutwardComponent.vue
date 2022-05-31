@@ -10,7 +10,7 @@
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
-                    
+
                     <div class="nk-block">
                         <div class="card card-bordered">
                         <div class="card card-bordered salebill">
@@ -22,7 +22,7 @@
                                 <input type="hidden" v-model="form.id" class="form-control">
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-refrence">Refrence</label>
+                                        <label class="form-label" for="fv-refrence">Reference</label>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="preview-block">
@@ -50,8 +50,7 @@
                                         <label class="form-label" for="fv-datetime">Date / Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                       <input type="date" class="form-control" id="fv-datetime" v-model="form.datetime" >
-                                        
+                                       <input type="date" class="form-control" id="fv-datetime" v-model="form.datetime" onfocus="this.showPicker()">
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -61,7 +60,6 @@
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-company" v-model="form.company">
                                        <input type="hidden" class="form-control" v-model="form.companyid" >
-                                       
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -82,7 +80,7 @@
                                 </div>
                                 <div class="row gy-4 courrier">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-courrier">Courrier Name</label>
+                                        <label class="form-label" for="fv-courrier">Courier Name</label>
                                     </div>
                                     <div class="col-sm-4">
                                         <multiselect v-model="form.courrier" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
@@ -90,19 +88,19 @@
                                 </div>
                                 <div class="row gy-4 courrier">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-reciptno">Courrier Receipt No</label>
+                                        <label class="form-label" for="fv-reciptno">Courier Receipt No</label>
                                     </div>
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno">
-                                       
+
                                     </div>
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-recivetime">Recive Date time</label>
+                                        <label class="form-label" for="fv-recivetime">Receive Date time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                       <input type="date" class="form-control" id="fv-recivetime" v-model="form.recivetime">
+                                       <input type="date" class="form-control" id="fv-recivetime" v-model="form.recivetime" onfocus="this.showPicker()">
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -119,7 +117,7 @@
                                     </div>
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-delivery" v-model="form.delivery" >
-                                        
+
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -128,15 +126,15 @@
                                     </div>
                                     <div class="col-sm-4">
                                        <multiselect v-model="form.agent" :options="agents" placeholder="Select one" label="name" track-by="name"></multiselect>
-                                        
+
                                     </div>
                                 </div>
                                 <button class="btn btn-primary generatepayment mb-2 float-right">Update</button>
-                                <a v-bind:href="cancel_url" class="mx-2 btn btn-dim float-right btn-secondary">Cancel</a>        
+                                <a v-bind:href="cancel_url" class="mx-2 btn btn-dim float-right btn-secondary">Cancel</a>
                             </div>
                             </form>
                         </div><!-- .card -->
-                        
+
                     </div><!-- .nk-block -->
                     </div>
                 </div>
@@ -237,14 +235,14 @@
                 this.form.fromname = gData.outward.from_name;
                 this.form.weightparcel = gData.outward.weight_of_parcel;
                 this.form.agent = gData.outward.courier_agent;
-                
+
             });
         },
     };
 </script>
 
 <style>
-   
+
     input[type=checkbox] + label {
         display: block;
         margin: 0.2em;

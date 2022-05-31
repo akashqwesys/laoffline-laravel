@@ -10,14 +10,14 @@
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
-                    
+
                     <div class="nk-block">
                         <div class="card card-bordered">
                             <div class="card-header">
                                 <h6>Insert Commission Invoice Outward</h6>
                             </div>
                             <div class="card-inner">
-                                    
+
                                     <input type="hidden" v-if="scope == 'edit'" id="fv-group-id" v-model="form.id">
                                     <div class="preview-block">
                                         <div class="row gy-4">
@@ -33,11 +33,11 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-from">Date</label>
                                                     <div>
-                                                        <input type="date" v-model="form.date" class="form-control">
+                                                        <input type="date" v-model="form.date" class="form-control" onfocus="this.showPicker()">
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-seller"></label>
@@ -59,7 +59,7 @@
                             <div class="card-inner salebilldata">
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-refrence">Refrence</label>
+                                        <label class="form-label" for="fv-refrence">Reference</label>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="preview-block">
@@ -87,8 +87,7 @@
                                         <label class="form-label" for="fv-datetime">Date / Time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                       <input type="date" class="form-control" id="fv-datetime" v-model="form.datetime" >
-                                        
+                                       <input type="date" class="form-control" id="fv-datetime" v-model="form.datetime" onfocus="this.showPicker()">
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -98,7 +97,7 @@
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-company" v-model="form.company">
                                        <input type="hidden" class="form-control" v-model="form.companyid" >
-                                       
+
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -127,11 +126,11 @@
                                 </div>
                                 <div class="row gy-4 courrier">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-reciptno">Courrier Receipt No</label>
+                                        <label class="form-label" for="fv-reciptno">Courier Receipt No</label>
                                     </div>
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno" >
-                                       
+
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -144,11 +143,10 @@
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-recivetime">Recive Date time</label>
+                                        <label class="form-label" for="fv-recivetime">Receive Date time</label>
                                     </div>
                                     <div class="col-sm-4">
-                                       <input type="date" class="form-control" id="fv-recivetime" v-model="form.recivetime" >
-                                       
+                                       <input type="date" class="form-control" id="fv-recivetime" v-model="form.recivetime" onfocus="this.showPicker()">
                                     </div>
                                 </div>
                                 <div class="row gy-4">
@@ -157,7 +155,7 @@
                                     </div>
                                     <div class="col-sm-4">
                                        <input type="text" class="form-control" id="fv-delivery" v-model="form.delivery" >
-                                        
+
                                     </div>
                                 </div>
                                 <div class="my-3">
@@ -187,17 +185,17 @@
                                     </div>
                                     <div class="col-sm-4">
                                        <multiselect v-model="form.agent" :options="agents" placeholder="Select one" label="name" track-by="name"></multiselect>
-                                        
+
                                     </div>
                                 </div>
                                 <button class="btn btn-primary generatepayment mb-2 float-right disabled">Save Changes</button>
-                                <a v-bind:href="cancel_url" class="mx-2 btn btn-dim float-right btn-secondary">Cancel</a>        
+                                <a v-bind:href="cancel_url" class="mx-2 btn btn-dim float-right btn-secondary">Cancel</a>
                             </div>
                             </form>
                         </div><!-- .card -->
-                        
+
                     </div><!-- .nk-block -->
-                    
+
                 </div>
             </div>
         </div>
@@ -293,7 +291,7 @@
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
                     }, 500);
-                    
+
                 })
                 .catch(function (error) {
                 });
@@ -303,7 +301,7 @@
 </script>
 
 <style>
-   
+
     input[type=checkbox] + label {
         display: block;
         margin: 0.2em;

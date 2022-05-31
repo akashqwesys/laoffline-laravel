@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -11,7 +11,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -45,7 +45,7 @@
                                                 <polyline points="57.43 68.5 51.51 64.99 51.51 64.99" fill="none" stroke="#c4cefe" stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </div>
-                                        <span class="preview-icon-name">SaleBill OurWard</span>
+                                        <span class="preview-icon-name">Sale Bill Outward</span>
                                     </a>
                                 </div><!-- .preview-icon-box -->
                             </li><!-- .col -->
@@ -208,3 +208,4 @@
         },
     };
 </script>
+

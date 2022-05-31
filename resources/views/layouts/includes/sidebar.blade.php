@@ -102,9 +102,9 @@
                             <li class="nk-menu-item">
                                 <a href="/commission" class="nk-menu-link"><span class="nk-menu-text">Commision</span></a>
                             </li>
-                            <li class="nk-menu-item">
+                            {{-- <li class="nk-menu-item">
                                 <a href="/account/commission/invoice" class="nk-menu-link"><span class="nk-menu-text">Commision Invoice</span></a>
-                            </li>
+                            </li> --}}
                         </ul><!-- .nk-menu-sub -->
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item has-sub">

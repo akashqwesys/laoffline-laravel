@@ -1,9 +1,9 @@
 <div class="nk-footer">
     <div class="container-fluid">
         <div class="nk-footer-wrap">
-            <div class="nk-footer-copyright"> &copy; 2021 Laoffline. Template by <a href="https://softnio.com" target="_blank">Softnio</a>
+            <div class="nk-footer-copyright"> &copy; 2022 LAoffline. Created by <a href="https://qwesys.com" target="_blank">Qwesys Digital Solutions</a>
             </div>
-            <div class="nk-footer-links">
+            {{-- <div class="nk-footer-links">
                 <ul class="nav nav-sm">
                     <li class="nav-item dropup">
                         <a herf="#" class="dropdown-toggle dropdown-indicator has-indicator nav-link" data-toggle="dropdown" data-offset="0,10"><span>English</span></a>
@@ -36,7 +36,7 @@
                         <a href="#" data-toggle="modal" data-target="#region" class="nav-link"><em class="icon ni ni-globe"></em><span class="ml-1">Select Region</span></a>
                     </li>
                 </ul>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>
