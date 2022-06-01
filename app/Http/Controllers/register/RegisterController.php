@@ -13,7 +13,7 @@ use App\Models\Product;
 use App\Models\SaleBill;
 use App\Models\Comboids\Comboids;
 use App\Models\Ouid;
-use App\Models\InwardOutward\outward;
+use App\Models\InwardOutward\Outward;
 use App\Models\CompanyType;
 use App\Models\OutwardSaleBill;
 use App\Models\ProductsImages;
@@ -868,9 +868,9 @@ class RegisterController extends Controller
         $comboids->is_deleted = 0;
         $comboids->save();
 
-        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outwardLastid = Outward::orderBy('outward_id', 'DESC')->first('outward_id');
         $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
-        $outward = new outward();
+        $outward = new Outward();
         $outward->outward_id = $outward_id;
         $outward->ouid = $ouid;
         $outward->outward_ref_via = 0;
@@ -1082,9 +1082,9 @@ class RegisterController extends Controller
         $comboids->is_deleted = 0;
         $comboids->save();
 
-        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outwardLastid = Outward::orderBy('outward_id', 'DESC')->first('outward_id');
         $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
-        $outward = new outward();
+        $outward = new Outward();
         $outward->outward_id = $outward_id;
         $outward->ouid = $ouid;
         $outward->outward_ref_via = 0;
@@ -1296,9 +1296,9 @@ class RegisterController extends Controller
         $comboids->is_deleted = 0;
         $comboids->save();
 
-        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outwardLastid = Outward::orderBy('outward_id', 'DESC')->first('outward_id');
         $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
-        $outward = new outward();
+        $outward = new Outward();
         $outward->outward_id = $outward_id;
         $outward->ouid = $ouid;
         $outward->outward_ref_via = 0;
@@ -1521,9 +1521,9 @@ class RegisterController extends Controller
         $comboids->is_deleted = 0;
         $comboids->save();
 
-        $outwardLastid = outward::orderBy('outward_id', 'DESC')->first('outward_id');
+        $outwardLastid = Outward::orderBy('outward_id', 'DESC')->first('outward_id');
         $outward_id = !empty($outwardLastid) ? $outwardLastid->outward_id + 1 : 1;
-        $outward = new outward();
+        $outward = new Outward();
         $outward->outward_id = $outward_id;
         $outward->ouid = $ouid;
         $outward->outward_ref_via = 0;
@@ -1620,9 +1620,9 @@ class RegisterController extends Controller
             $columnName = 'outwards.'.$columnName;
         }
 
-        $totalRecords = outward::where('is_deleted', '0')->select('count(*) as count')->count();
+        $totalRecords = Outward::where('is_deleted', '0')->select('count(*) as count')->count();
 
-        $totalRecordswithFilter = outward::where('is_deleted', '0');
+        $totalRecordswithFilter = Outward::where('is_deleted', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[0]['search']['value']);
         }
@@ -1642,7 +1642,7 @@ class RegisterController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
-        $records = outward::where('is_deleted', '0');
+        $records = Outward::where('is_deleted', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $records = $records->where('ouid', '=', $columnName_arr[0]['search']['value']);
         }
@@ -1711,7 +1711,7 @@ class RegisterController extends Controller
 
     public function fetchOutward($id) {
         $user = Session::get('user');
-        $outward = outward::where('outward_id', $id)
+        $outward = Outward::where('outward_id', $id)
                 ->first();
         $created_at = $date = date_format($outward->created_at, 'Y/m/d H:i:s');
         $employee = Employee::where('id', $outward->employee_id)->first()->firstname;
@@ -1817,7 +1817,7 @@ class RegisterController extends Controller
     public function updateOutward(Request $request) {
 
         $referncedata = json_decode($request->refenceform);
-        $outwarddata = outward::where('outward_id', $referncedata->id)->first();
+        $outwarddata = Outward::where('outward_id', $referncedata->id)->first();
 
         $reference = $referncedata->refrence;
         $company_supplier = Company::where('id', $referncedata->companyid)->first()->company_type_id;
@@ -1875,7 +1875,7 @@ class RegisterController extends Controller
         }
 
         $comboids = Comboids::where('ouid', $outwarddata->ouid)->first();
-        $outward = outward::where('outward_id', $referncedata->id)->first();
+        $outward = Outward::where('outward_id', $referncedata->id)->first();
         if ($company_supplier == 3) {
             $comboids->supplier_id = $referncedata->companyid;
             $comboids->company_id = 0;
