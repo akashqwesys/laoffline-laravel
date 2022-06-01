@@ -14,7 +14,7 @@
                 <div class="nk-news-list">
                     <div class="form-control-wrap">
                         <div class="input-group">
-                            <input type="text" class="form-control" name="main_search_input" id="main_search_input"  autocomplete="off" style="width: 20vw;">
+                            <input type="text" class="form-control" id="global_search_input" autocomplete="off" style="width: 20vw;">
                             <div class="input-group-btn">
                                 <div class="input-group-append">
                                     <span class="input-group-text dropdown-toggle dropdown-indicator " data-toggle="dropdown"><i class="icon ni ni-search" style="font-size: 20px;"></i></span>

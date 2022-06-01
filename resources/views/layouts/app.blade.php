@@ -182,6 +182,20 @@
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <script src="{{ asset('assets/js/charts/gd-default.js') }}"></script>
     <script src="{{ asset('assets/js/libs/datatable-btns.js') }}"></script>
+    <script>
+        function globalModuleSearch(module_name) {
+            var main_search_text = $('#global_search_input').val();
+            if (main_search_text) {
+                var product_category_id = "";
+                if ($('#search_product_cate').val()) {
+                    product_category_id = "&product_category_id="+$('#search_product_cate').val();
+                }
+                window.location.href = '/'+module_name+'?main_search='+main_search_text+product_category_id;
+            } else {
+                alert('Please enter some value!');
+            }
+        }
+    </script>
     @yield('js')
 </body>
 
