@@ -4,7 +4,7 @@
             <div class="nk-content-inner">
                 <div class="nk-content-body">
                     <div class="nk-block-head nk-block-head-sm">
-                        
+
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
@@ -19,18 +19,18 @@
 				                        </a>
 				                        <a href="/payments/status/0" class="btn btn-danger mx-1">
 				                            Incomplete
-				                        </a> 
-										
+				                        </a>
+
 										<a href="/payments/goods_returns" class="btn btn-primary mx-1">
 				                            Goods Return
-				                        </a> 
+				                        </a>
 										<a href="/payments/" class="btn btn-dark mx-1">
 				                            Clear All
 				                        </a>
                                         <a v-bind:href="create_payment" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner">
                                 <div class="table-responsive">
@@ -196,6 +196,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: "Blrtip",
+                    order: [[ 0, "desc" ]],
                     columns: [
                         { data: 'id' },
                         { data: 'iuid' },

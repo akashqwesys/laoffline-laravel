@@ -105,7 +105,7 @@
         },
         data() {
             return {
-                cancel_url: '/payments/',
+                cancel_url: '/payments',
                 seller: [],
                 customer: [],
                 selected: [],
@@ -155,20 +155,20 @@
                     setTimeout(() => {
                         self.salebill = response.data.salebill;
                     }, 500);
-                    
+
                 })
                 .catch(function (error) {
                 });
             },
         },
         mounted(){
-            
+
         }
     };
 </script>
 
 <style scoped>
-   
+
     input[type=checkbox] + label {
         display: block;
         margin: 0.2em;

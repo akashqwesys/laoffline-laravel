@@ -231,7 +231,7 @@
         },
         data() {
             return {
-                cancel_url: '/register/',
+                cancel_url: '/register',
                 supplier: [],
                 selected: [],
                 payment: [],
@@ -285,7 +285,7 @@
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
                 formdata.append("payment", JSON.stringify(this.selected));
-                axios.post('/register/insertpaymentoutward/',formdata)
+                axios.post('/register/insertpaymentoutward',formdata)
                 .then(function (responce) {
                     window.location.href = '/register';
                 }).catch(function (error) {
