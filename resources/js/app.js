@@ -128,6 +128,8 @@ import CreateCommissionComponent from './components/account/commission/CreateCom
 import AddCommissionComponent from './components/account/commission/AddCommissionComponent.vue';
 import ViewCommissionComponent from './components/account/commission/ViewCommissionComponent.vue';
 
+import LogsComponent from './components/LogsComponent.vue';
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -137,6 +139,10 @@ const routes = [
     {
         path: '/home',
         component: DashboardComponent
+    },
+    {
+        path: '/logs',
+        component: LogsComponent
     },
     {
         path: '/register',
@@ -401,6 +407,7 @@ createApp({
     components: {
         VueLoader,
         DashboardComponent,
+        LogsComponent,
         UserGroupComponent,
         CreateUserGroupComponent,
         EmployeeComponent,
