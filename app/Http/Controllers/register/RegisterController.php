@@ -13,7 +13,7 @@ use App\Models\Product;
 use App\Models\SaleBill;
 use App\Models\Comboids\Comboids;
 use App\Models\Ouid;
-use App\Models\inwardOutward\outward;
+use App\Models\InwardOutward\outward;
 use App\Models\CompanyType;
 use App\Models\OutwardSaleBill;
 use App\Models\ProductsImages;
@@ -21,8 +21,8 @@ use App\Models\InwardLinkWith;
 use App\Models\EnjayCallRecordsId;
 use App\Models\ProductCategory;
 use App\Models\Payment;
-use App\Models\settings\TransportDetails;
-use App\Models\settings\Agent;
+use App\Models\Settings\TransportDetails;
+use App\Models\Settings\Agent;
 use App\Models\Company\Company;
 use App\Models\Commission\Commission;
 use App\Models\Commission\CommissionInvoice;
@@ -47,12 +47,12 @@ class RegisterController extends Controller
 
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+
         $employees['excelAccess'] = $user->excel_access;
-        
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-        
+
         $logs = new Logs;
         $logs->id = $logsId;
         $logs->employee_id = Session::get('user')->employee_id;
@@ -60,19 +60,19 @@ class RegisterController extends Controller
         $logs->log_subject = 'User Group view page visited.';
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
-        
+
         return view('register.register',compact('financialYear'))->with('employees', $employees);
     }
-    
+
     public function createInward(Request $request) {
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
         join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
-        
+
         return view('register.inward.createInward',compact('financialYear'))->with('employees', $employees);
     }
-    
+
     public function createOutward(Request $request) {
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
@@ -164,9 +164,9 @@ class RegisterController extends Controller
         return $fromNameNumber;
     }
 
-    public function getReferenceDetails($type, $flag, $refrenceVia) {
+    /* public function getReferenceDetails($type, $flag, $refrenceVia) {
         $user = Session::get('user');
-        echo "<pre>"; 
+        echo "<pre>";
         print_r($flag); echo "<br><br>";
         print_r($refrenceVia);
 
@@ -180,7 +180,7 @@ class RegisterController extends Controller
                                        orderBy('reference_ids.reference_id', 'DESC')->
                                        take('5')->
                                        get();
-                                       
+
             $enjayDetails = EnjayCallRecordsId::join('reference_ids', 'reference_ids.reference_id', '=', 'enjay_call_records_ids.reference_id')->
                                                 where('reference_ids.financial_year_id', $user->financial_year_id)->
                                                 where('enjay_call_records_ids.reference_id', '!=', 0)->
@@ -198,7 +198,7 @@ class RegisterController extends Controller
         $fromNameNumber = CompanyContactDetails::where('company_id', $id)->first(['contact_person_name', 'contact_person_mobile']);
 
         return $fromNameNumber;
-    }
+    } */
 
     public function getProductWithSupplier($id) {
         $company = Company::where('id', $id)->first();
@@ -212,7 +212,7 @@ class RegisterController extends Controller
         }
 
         $mainCompanyId = $company->id;
-        
+
         $products = Product::query();
         if ($mainCompanyId) {
             $products = $products->orwhere('company', $mainCompanyId);
@@ -228,7 +228,7 @@ class RegisterController extends Controller
         if ($fabricMainCategory) {
             $sqlVar = "(";
             foreach($fabricMainCategory as $fabricCategory) {
-                $sqlVar .= "main_category_id=".$fabricCategory->id." OR ";                
+                $sqlVar .= "main_category_id=".$fabricCategory->id." OR ";
             }
             $sqlVar .= "0>1)";
         }
@@ -270,10 +270,10 @@ class RegisterController extends Controller
 
         return $mainCategories;
     }
-    
+
     public function addFabricDetails(Request $request) {
         $fabricName = ProductCategory::where('name', $request->name)->first();
-        
+
         if ($fabricName) {
             $companyId = json_decode($fabricName->company_id);
             if (!in_array($request->supplierId['id'],$companyId)) {
@@ -350,10 +350,10 @@ class RegisterController extends Controller
         print_r($typeOfInward); echo "<br><br>";
         print_r($inwardType); echo "<br><br>";
 
-        
+
         dd("HELLO");
     }
-    
+
     public function listRegister(Request $request) {
         $user = Session::get('user');
 
@@ -539,7 +539,7 @@ class RegisterController extends Controller
 
 
             if (empty($customer_company)) {
-                $company = '';  
+                $company = '';
             } else {
                 if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
                     $customer_color = '';
@@ -549,7 +549,7 @@ class RegisterController extends Controller
                 $company = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
             }
             if (empty($seller_company)) {
-                $supplier = '';  
+                $supplier = '';
             } else {
                 if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
                     $seller_color = '';
@@ -558,7 +558,7 @@ class RegisterController extends Controller
                 }
                 $supplier = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             }
-           
+
             $cmptype = $record->company_type;
             $genrateby = Employee::where('id', $record->generated_by)->first();
             $assignto = Employee::where('id', $record->assigned_to)->first();
@@ -574,7 +574,7 @@ class RegisterController extends Controller
             } else {
                 $assigntoname = '';
             }
-            
+
             if ($record->system_module_id == 5) {
                 $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 6) {
@@ -593,7 +593,7 @@ class RegisterController extends Controller
                     $date_add = DB::table('inwards')->where('is_deleted', 0)->where('inward_id', $record->inward_or_outward_id)
                                 ->where('financial_year_id', $user->financial_year_id)->first();
                     $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
-                } 
+                }
             } else if ($record->color_flag_id == 3 && $record->sale_bill_id != 0 ) {
                 $complete = Comboids::where('sale_bill_id', $record->sale_bill_id)
                             ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
@@ -634,19 +634,19 @@ class RegisterController extends Controller
         echo json_encode($response);
         exit;
     }
-    
+
     public function listBuyer() {
         $buyer = Company::where('company_type', 2)->get();
-       
+
         $data['buyer'] = $buyer;
-        
+
         return $data;
     }
 
     public function listAgentCourier() {
         $courier = TransportDetails::where('is_delete', 0)->get();
         $agent = Agent::where('is_delete', 0)->get();
-       
+
         $data['courier'] = $courier;
         $data['agent'] = $agent;
         return $data;
@@ -722,7 +722,7 @@ class RegisterController extends Controller
         $referncedata = json_decode($request->refenceform);
         $salebilldata = json_decode($request->salebill);
         $reference = $referncedata->refrence;
-        
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -747,7 +747,7 @@ class RegisterController extends Controller
         }
 
         if ($reference == '1') {
-            
+
             $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
             $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
             $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
@@ -773,7 +773,7 @@ class RegisterController extends Controller
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
 
-            
+
             $refence = new ReferenceId();
             $refence->id = $refrenceid;
             $refence->reference_id = $ref_id;
@@ -805,7 +805,7 @@ class RegisterController extends Controller
         } else {
             $color_flag_id = 3;
         }
-        
+
         $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
 
         if ($cmpTypeName && $cmpTypeName->company_type != 0) {
@@ -940,7 +940,7 @@ class RegisterController extends Controller
         $referncedata = json_decode($request->refenceform);
         $paymentdata = json_decode($request->payment);
         $reference = $referncedata->refrence;
-        
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -965,7 +965,7 @@ class RegisterController extends Controller
         }
 
         if ($reference == '1') {
-            
+
             $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
             $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
             $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
@@ -991,7 +991,7 @@ class RegisterController extends Controller
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
 
-            
+
             $refence = new ReferenceId();
             $refence->id = $refrenceid;
             $refence->reference_id = $ref_id;
@@ -1019,7 +1019,7 @@ class RegisterController extends Controller
         $ouid_ids->save();
 
         $color_flag_id = 1;
-        
+
         $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
 
         if ($cmpTypeName && $cmpTypeName->company_type != 0) {
@@ -1154,7 +1154,7 @@ class RegisterController extends Controller
         $referncedata = json_decode($request->refenceform);
         $commissondata = json_decode($request->commission);
         $reference = $referncedata->refrence;
-        
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -1179,7 +1179,7 @@ class RegisterController extends Controller
         }
 
         if ($reference == '1') {
-            
+
             $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
             $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
             $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
@@ -1205,7 +1205,7 @@ class RegisterController extends Controller
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
 
-            
+
             $refence = new ReferenceId();
             $refence->id = $refrenceid;
             $refence->reference_id = $ref_id;
@@ -1233,7 +1233,7 @@ class RegisterController extends Controller
         $ouid_ids->save();
 
         $color_flag_id = 1;
-        
+
         $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
 
         if ($cmpTypeName && $cmpTypeName->company_type != 0) {
@@ -1398,7 +1398,7 @@ class RegisterController extends Controller
         }
 
         if ($reference == '1') {
-            
+
             $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
             $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
             $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
@@ -1424,7 +1424,7 @@ class RegisterController extends Controller
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
 
-            
+
             $refence = new ReferenceId();
             $refence->id = $refrenceid;
             $refence->reference_id = $ref_id;
@@ -1452,7 +1452,7 @@ class RegisterController extends Controller
         $ouid_ids->save();
 
         $color_flag_id = 1;
-        
+
         $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
 
         if ($cmpTypeName && $cmpTypeName->company_type != 0) {
@@ -1588,7 +1588,7 @@ class RegisterController extends Controller
             $sb->save();
         }
     }
-     
+
     public function outward() {
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
@@ -1638,7 +1638,7 @@ class RegisterController extends Controller
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('type_of_outward', '=', $columnName_arr[4]['search']['value']);
         }
-        
+
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
@@ -1658,7 +1658,7 @@ class RegisterController extends Controller
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $records = $records->where('type_of_outward', '=', $columnName_arr[4]['search']['value']);
         }
-        
+
         // Fetch records
         $records = $records->select('*');
 
@@ -1725,7 +1725,7 @@ class RegisterController extends Controller
         } else if ($outward->subject == 'Commission Invoice Outward Details') {
             $type = 4;
         }
-        
+
 
         if ($outward->company_id) {
             $company = Company::where('id', $outward->company_id)->first()->company_name;
@@ -1753,7 +1753,7 @@ class RegisterController extends Controller
                 $salebill['company_name'] = $supplier->company_name;
                 $salebill['transport'] = $transport;
                 array_push($salebilldata, $salebill);
-                
+
             } else if ($type == 2) {
                 $paymentDetail = DB::table('payments')
                                 ->where('payment_id', $salebill->payment_id)
@@ -1764,7 +1764,7 @@ class RegisterController extends Controller
                 $salebill['paymentdetail'] = $paymentDetail;
                 $salebill['company_name'] = $customer->company_name;
                 array_push($salebilldata, $salebill);
-            
+
             } else if ($type == 3) {
                 $commissionDetail = DB::table('commissions')
                                 ->where('commission_id', $salebill->commission_id)
@@ -1780,15 +1780,15 @@ class RegisterController extends Controller
                 }
                 $salebill['commissionDetail'] = $commissionDetail;
                 $salebill['account'] = $agent->name;
-                
+
                 array_push($salebilldata, $salebill);
 
             } else if ($type == 4) {
-                
+
             }
-            
+
         }
-        
+
         $courier = TransportDetails::where('id', $outward->courier_name)->first();
         $agent = Agent::where('id', $outward->courier_agent)->first();
         $data['salebill'] = $salebilldata;
@@ -1815,10 +1815,10 @@ class RegisterController extends Controller
     }
 
     public function updateOutward(Request $request) {
-        
+
         $referncedata = json_decode($request->refenceform);
         $outwarddata = outward::where('outward_id', $referncedata->id)->first();
-        
+
         $reference = $referncedata->refrence;
         $company_supplier = Company::where('id', $referncedata->companyid)->first()->company_type_id;
         if ($company_supplier == 3) {
@@ -1851,7 +1851,7 @@ class RegisterController extends Controller
         $refence = ReferenceId::where('reference_id', $outwarddata->general_output_ref_id)
                     ->where('financial_year_id', $user->financial_year_id)
                     ->first();
-        
+
         $refence->employee_id = $user->employee_id;
         $refence->inward_or_outward = '0';
         $refence->type_of_inward = $ref_via;
@@ -1888,7 +1888,7 @@ class RegisterController extends Controller
             $outward->supplier_id = 0;
         }
 
-        
+
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
         $comboids->company_type = $typeName;
@@ -1900,7 +1900,7 @@ class RegisterController extends Controller
         $comboids->inward_or_outward_flag = 2;
         $comboids->save();
 
-        
+
         $outward->new_or_old_outward = $reference;
         $outward->connected_outward = 0;
         $outward->outward_date = $referncedata->datetime;
@@ -1908,7 +1908,7 @@ class RegisterController extends Controller
         $outward->type_of_outward = $ref_via;
         //$outward->receiver_number = '';
         $outward->from_number = '';
-        
+
         $outward->courier_name = $courier_name;
         $outward->weight_of_parcel = $weight_of_parcel;
         $outward->courier_receipt_no = $courier_receipt_no;
