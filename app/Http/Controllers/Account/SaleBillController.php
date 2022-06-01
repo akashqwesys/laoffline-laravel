@@ -72,7 +72,8 @@ class SaleBillController extends Controller
             ->where('is_deleted', 0)
             ->count();
         $totalRecordswithFilter = SaleBill::selectRaw('count(id) as allcount')
-        ->where('financial_year_id', $user->financial_year_id);
+            ->where('financial_year_id', $user->financial_year_id)
+            ->where('is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('sale_bill_id', $columnName_arr[0]['search']['value']);
         }
@@ -108,7 +109,8 @@ class SaleBillController extends Controller
         // })
         // ->leftJoin('comboids as cid', 's.sale_bill_id', '=', 'cid.sale_bill_id')
         ->select('s.id', 's.sale_bill_id', 's.select_date', 's.iuid', 's.general_ref_id', 's.updated_at', 's.company_id', 's.supplier_id', 's.supplier_invoice_no', 's.total', 's.financial_year_id', 's.done_outward', 's.sale_bill_flag', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', /* 'p.payment_id', 'pd.sr_no', */ DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "sale_bill_id" = "s"."sale_bill_id" ORDER BY "id" DESC LIMIT 1) as outward_id')/* , 'cid.is_completed', 'cid.color_flag_id' */)
-        ->where('s.financial_year_id', $user->financial_year_id);
+        ->where('s.financial_year_id', $user->financial_year_id)
+        ->where('is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $SaleBill = $SaleBill->where('s.sale_bill_id', $columnName_arr[0]['search']['value']);
         }
@@ -143,21 +145,21 @@ class SaleBillController extends Controller
         $supplier_ids = collect($SaleBill)->pluck('supplier_id')->toArray();
         $company_ids = array_unique(array_merge($customer_ids, $supplier_ids));
         $companies = DB::table('companies')
-        ->select('id')
+            ->select('id')
             ->where('is_delete', 0)
             ->whereRaw("(company_name is not null or company_name <> '') and company_type <> 0 and company_country <> 0 and (company_city is not null or company_city <> '') and company_landline @> '0'")
             ->whereIn('id', $company_ids)
             ->get();
         $company_addresses = DB::table('company_addresses')
-        ->select('id', 'company_id')
-        ->whereRaw("(address is not null or address <> '')")
-        ->whereIn('company_id', $company_ids)
+            ->select('id', 'company_id')
+            ->whereRaw("(address is not null or address <> '')")
+            ->whereIn('company_id', $company_ids)
             ->get();
         $company_owners = DB::table('company_address_owners as cao')
-        ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
-        ->select('cao.id', 'ca.company_id')
-        ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
-        ->whereIn('ca.company_id', $company_ids)
+            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+            ->select('cao.id', 'ca.company_id')
+            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+            ->whereIn('ca.company_id', $company_ids)
             ->get();
 
         $sr_nos = DB::table('payment_details')->select('sr_no')->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
@@ -165,15 +167,15 @@ class SaleBillController extends Controller
         $sale_bill_ids = collect($SaleBill)->pluck('sale_bill_id')->toArray();
 
         $payment_status_ids = DB::table('payment_details as pd')
-        ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
-        ->select('p.payment_id', 'pd.sr_no')
-        ->whereIn('pd.sr_no', $sale_bill_ids)
+            ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
+            ->select('p.payment_id', 'pd.sr_no')
+            ->whereIn('pd.sr_no', $sale_bill_ids)
             ->where('pd.financial_year_id', $user->financial_year_id)
             ->get();
 
         $combo_ids = DB::table('comboids')
-        ->select('is_completed', 'color_flag_id', 'sale_bill_id')
-        ->whereIn('sale_bill_id', $sale_bill_ids)
+            ->select('is_completed', 'color_flag_id', 'sale_bill_id')
+            ->whereIn('sale_bill_id', $sale_bill_ids)
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
             ->orderBy('comboid', 'desc')
@@ -672,6 +674,7 @@ class SaleBillController extends Controller
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
             ->first();
+
         $getsalebillcombo = DB::table('comboids')
             ->select('inward_or_outward_via')
             ->where('sale_bill_id', $id)
@@ -679,9 +682,10 @@ class SaleBillController extends Controller
             ->where('financial_year_id', $user->financial_year_id)
             ->where('is_deleted', 0)
             ->first();
+
         $getsalebillTransport = DB::table('sale_bill_transports')
-            ->where('sale_bill_id', $id)
-            ->where('financial_year_id', $user->financial_year_id)
+            ->where('sale_bill_id', $getsalebill->sale_bill_id)
+            ->where('financial_year_id', $getsalebill->financial_year_id)
             ->where('is_deleted', 0)
             ->first();
 
@@ -689,15 +693,16 @@ class SaleBillController extends Controller
 
         $companyName = $this->getCompanyNameWithId($getsalebill->company_id);
 
-        if ($companyName->company_type_id != 0) {
-            $companyTypeName = $this->getCompanyTypeName($companyName->company_type_id);
+        if ($companyName->company_type != 0) {
+            $companyTypeName = $this->getCompanyTypeName($companyName->company_type);
             $typeName = $companyTypeName->name;
         } else {
             $typeName = '';
         }
         $companyPerson = $this->getCompanyDetails($getsalebill->company_id);
+
         if ($companyPerson) {
-            $personName = $companyPerson->name;
+            $personName = $companyPerson->contact_person_name;
         } else {
             $personName = '';
         }
@@ -725,6 +730,7 @@ class SaleBillController extends Controller
             $this->insertIncrementIds($data_iuid);
         }
         $dataentry_iuid = array(
+            'id' => (getLastID('iuids', 'id') + 1),
             'iuid' => $iuid,
             'financial_year_id' => $user->financial_year_id,
             'created_at' => $dateAdded,
@@ -751,8 +757,8 @@ class SaleBillController extends Controller
         $combo_id->selection_date               = null;
         $combo_id->from_name                    = $personName;
         $combo_id->subject                      = 'For ' . $companyName->company_name . ' Of Rs._____/-';
-        $combo_id->default_category_id          = $getsalebill->sale_bill_for->id;
-        $combo_id->main_category_id             = $getsalebill->product_main_category_id->id;
+        $combo_id->default_category_id          = $getsalebill->sale_bill_for;
+        $combo_id->main_category_id             = $getsalebill->product_default_category_id;
         $combo_id->agent_id                     = $getsalebill->agent_id;
         $combo_id->supplier_invoice_no          = null;
         $combo_id->total                        = 0;
@@ -787,7 +793,7 @@ class SaleBillController extends Controller
         $combo_id->tds = 0;
         $combo_id->net_received_amount = 0;
         $combo_id->received_commission_amount = 0;
-        $combo_id->action_date = 0;
+        $combo_id->action_date = null;
         $combo_id->action_instruction = 0;
         // $combo_id->next_follow_up_date = 0;
         // $combo_id->next_follow_up_time = 0;
@@ -832,7 +838,7 @@ class SaleBillController extends Controller
         $sale_bill->general_ref_id           = $getsalebill->general_ref_id;
         $sale_bill->sale_bill_via            = $getsalebill->sale_bill_via;
         $sale_bill->new_or_old_reference     = 0;
-        $sale_bill->product_default_category_id = $getsalebill->product_main_category_id;
+        $sale_bill->product_default_category_id = $getsalebill->product_default_category_id;
         $sale_bill->product_category_id      = '[]';
         $sale_bill->inward_id                = $getsalebill->inward_id;
         $sale_bill->company_id               = $getsalebill->company_id;
@@ -854,6 +860,7 @@ class SaleBillController extends Controller
         $this->updateComboId($dataentry_update, $comboid);
 
         $transport_detail = new SaleBillTransport;
+        $transport_detail->id = (getLastID('sale_bill_transports', 'id') + 1);
         $transport_detail->sale_bill_id = $sale_bill_id;
         $transport_detail->transport_id = $getsalebillTransport->transport_id;
         $transport_detail->financial_year_id = $user->financial_year_id;
@@ -871,7 +878,7 @@ class SaleBillController extends Controller
         $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        return response()->json(['success' => 1, 'redirect' => '/account/sale-bill']);
+        return redirect('/account/sale-bill');
     }
 
     public function getReferenceForSaleBillUpdate(Request $request, $id)
@@ -1093,7 +1100,7 @@ class SaleBillController extends Controller
             'supplier_group' => $supplier_group,
             'product' => $product,
             'subCategory' => $subCategory,
-            'companyType' => $companyType->company_type_id ?? 0,
+            'companyType' => $companyType->company_type ?? 0,
             'companyFromInward' => $companyFromInward,
         ];
         return response()->json($all);
@@ -1583,6 +1590,7 @@ class SaleBillController extends Controller
                     $this->insertIncrementIds($data_iuid);
                 }
                 $dataentry_iuid = array(
+                    'id' => (getLastID('iuids', 'id') + 1),
                     'iuid' => $iuid,
                     'financial_year_id' => $user->financial_year_id,
                     'created_at' => $dateAdded,

@@ -299,7 +299,7 @@
                                                         <th>Bill.No.</th>
                                                         <th>Date</th>
                                                         <th>Total Commission</th>
-                                                        <th>Recived Commission</th>
+                                                        <th>Received Commission</th>
                                                         <th>Status</th>
                                                         <th>Amount</th>
                                                         <th>Remark</th>

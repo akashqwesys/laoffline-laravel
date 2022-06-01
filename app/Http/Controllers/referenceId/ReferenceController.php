@@ -217,8 +217,8 @@ class ReferenceController extends Controller
 
             $data_arr[] = array(
                 "reference_id" => $reference_id,
-                "created_at" => $date_added,
-                "selection_date" => $selection_date,
+                "created_at" => date('d-m-Y H:i A', strtotime($date_added)),
+                "selection_date" => date('d-m-Y', strtotime($selection_date)),
                 "type_of_inward" => $type_of_inward,
                 "company_name" => $company_name,
                 "firstname" => $firstname,
