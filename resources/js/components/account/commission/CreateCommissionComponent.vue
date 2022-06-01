@@ -12,7 +12,7 @@
                                 <h6>Search Commission Invoice</h6>
                             </div>
                             <div class="card-inner">
-                                    
+
                                     <div class="preview-block">
                                         <div class="row gy-4">
                                             <div class="col-md-4">
@@ -93,7 +93,7 @@
         },
         data() {
             return {
-                cancel_url: '/commission/',
+                cancel_url: '/commission',
                 company: [],
                 selected: [],
                 commission_invoice: [],
@@ -145,7 +145,7 @@
 </script>
 
 <style scoped>
-   
+
     input[type=checkbox] + label {
         display: block;
         margin: 0.2em;

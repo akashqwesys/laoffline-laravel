@@ -217,7 +217,7 @@
         },
         data() {
             return {
-                cancel_url: '/register/',
+                cancel_url: '/register',
                 supplier: [],
                 selected: [],
                 commissioninvoice: [],
@@ -270,7 +270,7 @@
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
                 formdata.append("commissioninvoice", JSON.stringify(this.selected));
-                axios.post('/register/insertcommissioninvoiceoutward/',formdata)
+                axios.post('/register/insertcommissioninvoiceoutward',formdata)
                 .then(function (responce) {
 
                 }).catch(function (error) {

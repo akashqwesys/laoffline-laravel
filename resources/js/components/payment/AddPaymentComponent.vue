@@ -415,7 +415,7 @@
 				                            <th>Supplier</th>
                                             <th>Bill Amount</th>
                                             <th>Overdue</th>
-				                        
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -428,7 +428,7 @@
 				                            <td>{{ itm.supplier }}</td>
                                             <td>{{ itm.amount }}</td>
                                             <td :class="itm.overdue > 90 ? 'text-danger' : ''">{{ itm.overdue }}</td>
-				                            
+
                                         </tr>
                                     </tbody>
                                 </table>
@@ -464,7 +464,7 @@
         data() {
             return {
                 old_reference_data: '',
-                cancel_url: '/payments/',
+                cancel_url: '/payments',
                 userGroups: [],
                 banks:[],
                 items :[],
@@ -572,13 +572,13 @@
             selectSalebill(event){
                 this.selected.forEach(value => {
                 for(var i = 0; i < this.items.length; i++) {
-                    if (this.items[i].sallbillid && this.items[i].sallbillid === value) { 
+                    if (this.items[i].sallbillid && this.items[i].sallbillid === value) {
                         this.items.splice(i, 1);
                         break;
                     }
                 }
                 });
-                
+
                 axios.post('/payments/selectsalebills', {
                     salebill: this.selected
                 })
@@ -592,7 +592,7 @@
                     });
                     this.form.totalamount = totalamount;
                     this.form.totaladjustamount = totalAdjustamount;
-                    
+
                     $('#addSalebill').hide();
                     $('.modal-backdrop').remove();
                     this.selected = [];
@@ -1563,7 +1563,7 @@
                             self.form.short = gData.paymentData.tot_short;
                             self.form.interest = gData.paymentData.tot_interest;
                             gData.salebill.forEach((value,index) => {
-                                
+
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
                                 self.salebills[index].amount = value.amount;

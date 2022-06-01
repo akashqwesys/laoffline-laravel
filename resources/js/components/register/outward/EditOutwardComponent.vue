@@ -158,7 +158,7 @@
         },
         data() {
             return {
-                cancel_url: '/register/',
+                cancel_url: '/register',
                 buyer: [],
                 agents: [],
                 courier: [],
@@ -203,7 +203,7 @@
             register (event) {
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
-                axios.post('/register/updateoutward/',formdata)
+                axios.post('/register/updateoutward',formdata)
                 .then(function (responce) {
 
                 }).catch(function (error) {
