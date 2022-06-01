@@ -15,9 +15,9 @@
                                     <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
                                     <div class="toggle-expand-content" data-content="pageMenu">
                                         <ul class="nk-block-tools g-3">
-                                            <li class="nk-block-tools-opt">
+                                            <!-- <li class="nk-block-tools-opt">
                                                 <a v-bind:href="create_inward" class="btn btn-wider btn-primary"><em class="icon ni ni-plus"></em><span>Inward</span></a>
-                                            </li>
+                                            </li> -->
                                             <li class="nk-block-tools-opt">
                                                 <a v-bind:href="create_outward" class="btn btn-wider btn-primary"><em class="icon ni ni-plus"></em><span>Outward</span></a>
                                             </li>
@@ -202,7 +202,7 @@
                         { data: 'cmptype', orderable: false },
                         { data: 'genby', orderable: false },
                         { data: 'assignto', orderable: false},
-                        { data: 'action', orderable: false}, 
+                        { data: 'action', orderable: false},
                     ],
                     search: {
                         return: true
@@ -261,7 +261,7 @@
                     draw = 0;
                 }
             });
-            
+
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });

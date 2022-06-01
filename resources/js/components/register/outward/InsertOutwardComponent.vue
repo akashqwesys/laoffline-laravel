@@ -246,7 +246,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-first-name">Date/Time</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-Reference-date" v-model="form.dateTime">
+                                                        <input type="date" class="form-control" id="fv-Reference-date" v-model="form.dateTime" onfocus="this.showPicker()">
                                                     </div>
                                                 </div>
                                             </div>
@@ -538,7 +538,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-assignToDateTime">Date/Time</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="date" class="form-control" id="fv-assignToDateTime" v-model="form.assignToDateTime">
+                                                        <input type="date" class="form-control" id="fv-assignToDateTime" v-model="form.assignToDateTime" onfocus="this.showPicker()">
                                                     </div>
                                                 </div>
                                             </div>
