@@ -287,7 +287,7 @@
                 formdata.append("payment", JSON.stringify(this.selected));
                 axios.post('/register/insertpaymentoutward/',formdata)
                 .then(function (responce) {
-
+                    window.location.href = '/register';
                 }).catch(function (error) {
                 });
             },

@@ -592,7 +592,7 @@
                     });
                     this.form.totalamount = totalamount;
                     this.form.totaladjustamount = totalAdjustamount;
-                    
+                    this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
                     $('#addSalebill').hide();
                     $('.modal-backdrop').remove();
                     this.selected = [];
@@ -611,8 +611,10 @@
                     totalAdjustamount += parseInt(value.adjustamount);
                     totalamount += parseInt(value.amount);
                 });
+
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount;
+                this.extraAmount = parseInt(this.form.reciptamount) - totalAdjustamount;
                 axios.post('/payments/removesalebill', {
                     salebill : salebillid
                 }).then(responce =>{
@@ -740,7 +742,9 @@
                 setTimeout(() => {
                     this.form.interest = totalInterst;
                     this.form.ratedifference = totalRateDifference;
+                    this.extraAmount = parseInt(this.extraAmount) - totalInterst;
                 },500);
+                
             },
             changeShort (event) {
                 let totalShort = 0;
@@ -1303,6 +1307,10 @@
                         this.salebills[index-1].discount = 0;
                         this.salebills[index-1].discountamount = 0;
                     }, 500);
+                } else if (amount < adjamount) {
+                    alert ('Adjust Amount is not more than bill Amount');
+                    this.salebills[index-1].adjustamount = amount;
+                    return false;
                 }
 
                 let diff1 = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim);

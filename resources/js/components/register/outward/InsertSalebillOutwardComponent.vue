@@ -268,7 +268,7 @@
                 formdata.append("salebill", JSON.stringify(this.selected));
                 axios.post('/register/insertcourier/',formdata)
                 .then(function (responce) {
-
+                    window.location.href = '/register';
                 }).catch(function (error) {
                 });
             },

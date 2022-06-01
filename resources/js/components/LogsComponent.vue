@@ -99,21 +99,26 @@
                     ajax: {
                         url: "./logs/list",
                         data: function (data) {
-                            if ($('#logs_filter input').val() == '') {
-                                data.search.value = '';
+                            if ($('#payment_no').val() == '') {
+                                data.columns[0].search.value = '';
+                            } else {
+                                data.columns[0].search.value = $('#subject').val();
+                            }
+                            if ($('#iuid').val() == '') {
+                                data.columns[1].search.value = '';
+                            } else {
+                                data.columns[1].search.value = $('#employee').val();
                             }
                         },
                         complete: function (data) { }
                     },
                     pagingType: 'full_numbers',
-                    dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-4'B>>" +
-                        "<'row'<'col-sm-12'tr>>" +
-                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                    dom: "Blrtip",
                     columns: [
                         { data: 'id' },
                         { data: 'log_subject' },
                         { data: 'log_path'},
-                        { data: 'Employee' },
+                        { data: 'Employee', orderable: false },
                         { data: 'created_at' }, 
                     ],
                     search: {
@@ -121,6 +126,9 @@
                     },
                     buttons: buttons,
                 })
+                .on( 'init.dt', function () {
+                    $('<div class="dataTables_filter mt-2" id="logs_filter"><input type="search" id="subject" class="form-control form-control-sm" placeholder="Subject"><input type="search" id="employee" class="form-control form-control-sm" placeholder="Employee"></div>').insertAfter('.dataTables_length');
+                });
             }
             init_dt_table();
             function exportAllRecords(e, dt, button, config) {

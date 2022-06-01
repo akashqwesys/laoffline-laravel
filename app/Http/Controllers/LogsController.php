@@ -55,20 +55,27 @@ class LogsController extends Controller
         // Total records
         $totalRecords = Logs::select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = Logs::select('count(*) as allcount');
-        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr, $searchValue) {
-                $q->orWhere('logs.log_subject', 'ILIKE', '%' . $searchValue . '%');
-            });
+        $totalRecordswithFilter = Logs::join('employees', 'employees.id', '=', 'logs.employee_id');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('logs.log_subject', 'ilike', '%'.$columnName_arr[0]['search']['value'].'%');
         }
-        $totalRecordswithFilter = Logs::select('count(*) as allcount')->
-                                                   where('log_subject', 'ilike', '%' .$searchValue . '%')->
-                                                   count();
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $cc_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[1]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('logs.employee_id', $cc_id);
+        }
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
         // Fetch records
-        $records = Logs::select('*')->
-                                where('log_subject', 'ilike', '%' .$searchValue . '%');
+        $records = Logs::join('employees', 'employees.id', '=', 'logs.employee_id');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $records = $records->where('logs.log_subject', 'ilike', '%'.$columnName_arr[0]['search']['value'].'%');
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $cc_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[1]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('logs.employee_id', $cc_id);
+        }
+        $records = $records->select('employees.firstname', 'logs.*');
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -78,11 +85,10 @@ class LogsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
-            $employee = DB::table('employees')->where('id',$record->employee_id)->first();
             $id = $record->id;
             $subject = $record->log_subject;
             $log_path = $record->log_path;
-            $emp  = $employee->firstname;
+            $emp  = $record->firstname;
             $time = date_format($record->created_at, "Y/m/d H:i:s");
             
             $data_arr[] = array(

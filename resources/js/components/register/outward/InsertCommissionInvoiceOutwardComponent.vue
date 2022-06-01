@@ -272,7 +272,7 @@
                 formdata.append("commissioninvoice", JSON.stringify(this.selected));
                 axios.post('/register/insertcommissioninvoiceoutward/',formdata)
                 .then(function (responce) {
-
+                    window.location.href = '/register';
                 }).catch(function (error) {
                 });
             },

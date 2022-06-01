@@ -867,6 +867,13 @@ class PaymentsController extends Controller
             $salebill = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $supplier->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
             array_push($salebills, $salebill);
         }
+        usort($salebills, function($a, $b) {
+            if ($a['overdue'] == $b['overdue']) {
+              return 0;
+            }
+            return ($a['overdue'] > $b['overdue']) ? -1 : 1;
+        });
+      
         $data['salebill'] = $salebills;
         return $data;
     }
@@ -1043,7 +1050,7 @@ class PaymentsController extends Controller
         $comboids->total = $paymentData->totalamount;
         $comboids->subject = 'For '. $companyName->name .' RS '.$paymentData->totalamount .'/-';
         $comboids->financial_year_id = $financialid;
-        $comboids->attachments = serialize($attachments);
+        $comboids->attachments = json_encode($attachments);
         $comboids->updated_by = Session::get('user')->employee_id;
         $comboids->inward_or_outward_flag = 0;
         $comboids->inward_or_outward_id = 0;
@@ -1637,7 +1644,7 @@ class PaymentsController extends Controller
         $comboids->receipt_amount = (int)$paymentData->reciptamount;
         $comboids->total = $paymentData->totalamount;
         $comboids->subject = 'For '. $companyName->name .' RS '.$paymentData->totalamount .'/-';
-        $comboids->attachments = serialize($attachments);
+        $comboids->attachments = json_encode($attachments);
         $comboids->updated_by = Session::get('user')->employee_id;
         $comboids->inward_or_outward_flag = 0;
         $comboids->inward_or_outward_id = 0;
@@ -2020,7 +2027,7 @@ class PaymentsController extends Controller
             $comboids->total = $payment->tot_good_returns;
             $comboids->subject = 'For '. $companyName->name .' RS '.$payment->tot_good_returnst .'/-';
             $comboids->financial_year_id = $payment->financial_id;
-            $comboids->attachments = serialize($attachments);
+            $comboids->attachments = json_encode($attachments);
             $comboids->updated_by = Session::get('user')->employee_id;
             $comboids->inward_or_outward_flag = 0;
             $comboids->inward_or_outward_id = 0;
@@ -2064,7 +2071,7 @@ class PaymentsController extends Controller
             $goodretun->financial_year_id = $financialid;
             $goodretun->generated_by = $user->employee_id;
             $goodretun->supp_invoice_no = $salebill->supplier_invoice_no;
-            $goodretun->multiple_attachment = serialize($attachments);
+            $goodretun->multiple_attachment = json_encode($attachments);
             $goodretun->amount = $salebill->amount;
             $goodretun->adjust_amount = $paymentDatail->adjust_amount;
             $goodretun->goods_return = $salebill->goods_return;

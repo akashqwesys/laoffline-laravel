@@ -208,6 +208,22 @@
                         return: true
                     },
                     buttons: buttons,
+                    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+                        switch(aData['iotype']){
+                            case "Outward Commission Invoice":
+                                $('td', nRow).css('background-color', '#C4FFC4')
+                                break;
+                            case "Enquiry":
+                                $('td', nRow).css('background-color', '#FFFFC8')
+                                break;
+                            case "Order":
+                                $('td', nRow).css('background-color', '#F2DEDE')
+                                break;
+                            case "Complain":
+                                $('td', nRow).css('background-color', '#C4FFC4')
+                                break;
+                        }
+                    }
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="register_filter"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="iotype" class="form-control form-control-sm" placeholder="IO Type"><input type="search" id="iomedium" class="form-control form-control-sm" placeholder="IO Medium"><input type="search" id="company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="cmptype" class="form-control form-control-sm" placeholder="CMP type"><input type="search" id="generatedby" class="form-control form-control-sm" placeholder="Generate By"><input type="search" id="assignto" class="form-control form-control-sm" placeholder="Assign to"></div>').insertAfter('.dataTables_length');
