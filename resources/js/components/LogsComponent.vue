@@ -8,7 +8,7 @@
                             <div class="nk-block-head-content">
                                 <h3 class="nk-block-title page-title">Employee Logs</h3>
                                 <div class="nk-block-des text-soft">
-                                    <p>You have total {{logs.length}} employee logs.</p>
+                                    <p>You have total employee logs.</p>
                                 </div>
                             </div><!-- .nk-block-head-content -->
                             <div class="nk-block-head-content">
@@ -21,7 +21,7 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                <table class="table table-hover" id="logs">
                                     <thead>
                                         <tr>
                                             <th>No</th>
@@ -31,15 +31,6 @@
                                             <th>Time</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr v-for="(log, index) in logs" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ log.log_subject }}</td>
-                                            <td>{{ log.log_path }}</td>
-                                            <td>{{ log.firstname }}</td>
-                                            <td>{{ dateFormate(log.created_at) }}</td>
-                                        </tr>
-                                    </tbody>
                                 </table>
                             </div><!-- .card -->
                         </div>
@@ -51,18 +42,26 @@
 </template>
 
 <script>
+    import 'jquery/dist/jquery.min.js';
+    import 'datatables.net-bs5/js/dataTables.bootstrap5';
+    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
+    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
+    import "datatables.net-buttons/js/buttons.flash.js";
+    import "datatables.net-buttons/js/buttons.html5.js";
+    import "datatables.net-buttons/js/buttons.print.js";
+    import $ from 'jquery';
     export default {
         name: 'logs',
+        props: {
+            excelAccess: Number,
+        },
         data() {
             return {
-                logs: [],
+               
             }
         },
         created() {
-            axios.get('./logs/list')
-            .then(response => {
-                this.logs = response.data;
-            });
+            
         },
         methods : {
           dateFormate(createdDate) {
@@ -73,6 +72,104 @@
           }
         },
         mounted() {
+            var buttons = [];
+            var dt_table = null;
+            if(this.excelAccess == 1) {
+                buttons = [{
+                    extend: 'excelHtml5',
+                    action: exportAllRecords,
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                }, {
+                    extend: 'pdfHtml5',
+                    action: exportAllRecords,
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                },
+                'print'];
+            }
+            function init_dt_table () {
+                dt_table = $('#logs').DataTable({
+                    responsive: true,
+                    processing: true,
+                    serverSide: true,
+                    lengthChange: true,
+                    ajax: {
+                        url: "./logs/list",
+                        data: function (data) {
+                            if ($('#logs_filter input').val() == '') {
+                                data.search.value = '';
+                            }
+                        },
+                        complete: function (data) { }
+                    },
+                    pagingType: 'full_numbers',
+                    dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-4'B>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                    columns: [
+                        { data: 'id' },
+                        { data: 'log_subject' },
+                        { data: 'log_path'},
+                        { data: 'Employee' },
+                        { data: 'created_at' }, 
+                    ],
+                    search: {
+                        return: true
+                    },
+                    buttons: buttons,
+                })
+            }
+            init_dt_table();
+            function exportAllRecords(e, dt, button, config) {
+                var self = this;
+                var oldStart = dt.settings()[0]._iDisplayStart;
+                dt.one('preXhr', function (e, s, data) {
+                    // Just this once, load all data from the server...
+                    data.start = 0;
+                    data.length = 'all';
+                    dt.one('preDraw', function (e, settings) {
+                        // Call the original action function
+                        if (button[0].className.indexOf('buttons-excel') >= 0) {
+                            $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                                $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                        }
+                        dt.one('preXhr', function (e, s, data) {
+                            // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                            // Set the property to what it was before exporting.
+                            settings._iDisplayStart = oldStart;
+                            data.start = oldStart;
+                        });
+                        // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                        setTimeout(dt.ajax.reload, 10);
+                        // Prevent rendering of the full data to the DOM
+                        return false;
+                    });
+                });
+                // Requery the server with the new one-time export settings
+                dt.ajax.reload();
+            }
+            var draw = 1;
+            $(document).on('keyup', '#logs_filter input', function(e) {
+                 if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    if (e.keyCode == 13) {
+                        dt_table.clear().draw();
+                    }
+                    draw = 0;
+                }
+            });
         },
     };
 </script>
