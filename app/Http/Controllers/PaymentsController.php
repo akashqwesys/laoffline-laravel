@@ -2214,7 +2214,7 @@ class PaymentsController extends Controller
         $payment->is_deleted = 1;
         $payment->save();
         $data['status'] = 1;
-        return redirect('/account/payments');
+        return redirect('/payments');
     }
     public function deleteGoodReturn($id){
         $goodretun = GoodsReturn::where('goods_return_id', $id)->first();
