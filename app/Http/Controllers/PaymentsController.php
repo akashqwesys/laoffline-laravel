@@ -602,7 +602,7 @@ class PaymentsController extends Controller
             $data_arr[] = array(
                 "id" => $id,
                 "iuid" => $iuid,
-                "ouid" => $ouid,                
+                "ouid" => $ouid,
                 "reference_id" => $ref_id,
                 "created_at" => $date_add,
                 "date" => $payment_date,
@@ -873,7 +873,7 @@ class PaymentsController extends Controller
             }
             return ($a['overdue'] > $b['overdue']) ? -1 : 1;
         });
-      
+
         $data['salebill'] = $salebills;
         return $data;
     }
@@ -2211,10 +2211,10 @@ class PaymentsController extends Controller
 
     public function deletePayment($id){
         $payment = Payment::where('payment_id', $id)->first();
-        $payment->is_deleted = '1';
+        $payment->is_deleted = 1;
         $payment->save();
         $data['status'] = 1;
-        return $data;
+        return redirect('/account/payments');
     }
     public function deleteGoodReturn($id){
         $goodretun = GoodsReturn::where('goods_return_id', $id)->first();
