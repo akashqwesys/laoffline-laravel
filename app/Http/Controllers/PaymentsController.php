@@ -1677,7 +1677,7 @@ class PaymentsController extends Controller
         if ($paymentData->recipt_mode == 'cheque') {
             $cheque_date = $paymentData->reciptdate;
             $cheque_dd_no = $paymentData->chequeno;
-            $cheque_dd_bank = $paymentData->chequebank->id;
+            $cheque_dd_bank = $paymentData->chequebank->id ?? 0;
         } else {
             $cheque_date = null;
             $cheque_dd_no = '';
