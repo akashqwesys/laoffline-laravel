@@ -1297,6 +1297,8 @@ class SaleBillController extends Controller
         $logs->log_subject = 'Sale Bill Details was inserted by ' . $user->username . '.';
         $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
+
+        return redirect('/account/sale-bill');
     }
 
     public function updateSaleBill(Request $request)
