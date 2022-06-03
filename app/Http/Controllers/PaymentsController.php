@@ -1788,6 +1788,7 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += 0;
                 } else {
                     $paymentDetail = new PaymentDetail();
+                    $paymentDetail->id = (getLastID('payment_details', 'id') + 1);
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->payment_id = $paymentData->id;
                     $paymentDetail->p_increment_id = $p_increment_id;
