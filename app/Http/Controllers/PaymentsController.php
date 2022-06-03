@@ -722,7 +722,7 @@ class PaymentsController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('payment_id','iuid', 'reference_id', 'created_at', 'date', 'customer_id', 'supplier_id', 'payment_id', 'receipt_amount', 'customer_commission_status', 'done_outward');
+        $records = $records->select('payment_id','iuid', 'reference_id', 'created_at', 'date', 'customer_id', 'supplier_id', 'payment_id', 'receipt_amount', 'tot_adjust_amount','customer_commission_status', 'done_outward');
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -779,7 +779,7 @@ class PaymentsController extends Controller
             $customer = '<a href="#" class="view-details ' . $customer_color . '"  data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
             $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
-            $paid_amount = $record->receipt_amount;
+            $paid_amount = $record->tot_adjust_amount;
             $scs = 0;
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
@@ -1828,11 +1828,13 @@ class PaymentsController extends Controller
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
                     $bill->save();
 
-                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first(1);
-                    $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
-                    $paymentDetail2->pending_payment = $Pending;
-                    $paymentDetail2->save();
-                }
+                    $paymentDetail2 = PaymentDetail::where('payment_id', $paymentData->id)->where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
+                    $Pending = (int)$bill->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
+                    //print_r($Pending);exit;
+                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', 0)->first();
+
+                    $bill2->pending_payment = $Pending;
+                    $bill2->save();                }
             }
         }
         if ($paymentData->recipt_mode == 'fullreturn') {
@@ -2213,6 +2215,25 @@ class PaymentsController extends Controller
     public function deletePayment($id){
         $user = Session::get('user');
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        $paymentDetail = PaymentDetail::where('payment_id', $id)
+                        ->where('p_increment_id', $payment->id)
+                        ->get();
+        foreach($paymentDetail as $paymentData) {
+            $salebill = SaleBill::where('financial_year_id', $user->financial_year_id)
+                        ->where('sale_bill_id', $paymentData->sr_no)
+                        ->where('financial_year_id', $paymentData->financial_year_id)
+                        ->where('is_deleted', 0)
+                        ->first();
+            $pending_amount = $paymentData->adjust_amount + $paymentData->discount_amount + $paymentData->vatav + $paymentData->agent_commission + $paymentData->bank_commission + $paymentData->claim + $paymentData->goods_return + $paymentData->short - $paymentData->interest;
+            if ($pending_amount != 0) {
+               $salebill->pending_payment = $salebill->pending_payment + $pending_amount;
+            }
+            $salebill->received_payment = $salebill->received_payment - $paymentData->adjust_amount;
+            $salebill->payment_status = 0;
+            $salebill->save();
+
+        }
+        
         $payment->is_deleted = 1;
         $payment->save();
         $data['status'] = 1;
