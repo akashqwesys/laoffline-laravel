@@ -2210,15 +2210,16 @@ class PaymentsController extends Controller
     }
 
     public function deletePayment($id){
-        $payment = Payment::where('payment_id', $id)->first();
-        $payment->is_deleted = '1';
+        $user = Session::get('user');
+        $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        $payment->is_deleted = 1;
         $payment->save();
         $data['status'] = 1;
         return $data;
     }
     public function deleteGoodReturn($id){
         $goodretun = GoodsReturn::where('goods_return_id', $id)->first();
-        $goodretun->is_deleted = '1';
+        $goodretun->is_deleted = 1;
         $goodretun->save();
         $data['status'] = 1;
         return $data;

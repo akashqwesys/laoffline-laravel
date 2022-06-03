@@ -392,10 +392,10 @@ class RegisterController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('system_module_id', '=', $columnName_arr[4]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('system_module_id', '=', $columnName_arr[4]['search']['value']);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('inward_or_outward_via', '=', $columnName_arr[5]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('inward_or_outward_via', 'ilike', '%' . $columnName_arr[5]['search']['value']. '%');
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
@@ -406,15 +406,15 @@ class RegisterController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $sc_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('company_type', '=', $columnName_arr[8]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('company_type', '=', $columnName_arr[8]['search']['value']);
         }
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
             $generated_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[9]['search']['value'] . '%')->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->where('generated_by', '=', $columnName_arr[8]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('generated_by', '=', $generated_id);
         }
         if (isset($columnName_arr[10]['search']['value']) && !empty($columnName_arr[10]['search']['value'])) {
             $assign_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->where('assigned_to', '=', $columnName_arr[10]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('assigned_to', '=', $assign_id);
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
@@ -447,15 +447,15 @@ class RegisterController extends Controller
             $records = $records->whereIn('supplier_id', $sc_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
-            $records = $records->whereDate('company_type', '=', $columnName_arr[8]['search']['value']);
+            $records = $records->where('company_type', 'ilike', '%' . $columnName_arr[8]['search']['value'] . '%');
         }
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
             $generated_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[9]['search']['value'] . '%')->pluck('id')->toArray();
-            $records = $records->where('generated_by', '=', $columnName_arr[8]['search']['value']);
+            $records = $records->where('generated_by', '=', $generated_id);
         }
         if (isset($columnName_arr[10]['search']['value']) && !empty($columnName_arr[10]['search']['value'])) {
             $assign_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
-            $records = $records->where('assigned_to', '=', $columnName_arr[10]['search']['value']);
+            $records = $records->where('assigned_to', '=', $assign_id);
         }
 
         // Fetch records
@@ -641,6 +641,15 @@ class RegisterController extends Controller
         $data['buyer'] = $buyer;
 
         return $data;
+    }
+    public function getAllDetails(Request $request) {
+       $id = $request->input('refrenceid');
+       $user = Session::get('user');
+       $reference =  ReferenceId::where('reference_id', $id)
+                    ->where('financial_year_id', $user->financial_year_id)
+                    ->where('is_deleted', 0)
+                    ->first();
+        
     }
 
     public function listAgentCourier() {

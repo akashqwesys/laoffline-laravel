@@ -903,8 +903,12 @@
             axios.get('/register/getReferenceSampleData')
             .then(response => {
                 this.referenceSampleData = response.data;
-
                 this.form.reference_sample_data = this.referenceSampleData[0].reference_id;
+            });
+            axois.post('/register/getalldetail',{
+                refrenceid : this.form.reference_sample_data
+            }).then(response => {
+                
             });
             axios.get('/register/main-categories')
             .then(response => {
