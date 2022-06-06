@@ -1220,7 +1220,7 @@ class SaleBillController extends Controller
 
         $station = DB::table('cities')
             ->select('name')
-            ->where('id', $sale_bill_transports ? intval($sale_bill_transports->station) : 0)
+            ->where('id', ($sale_bill_transports ? intval($sale_bill_transports->station) : 0))
             ->first();
 
         return response()->json([
@@ -2041,12 +2041,12 @@ class SaleBillController extends Controller
             ->select('id', 'name')
             ->get();
 
-        $city_s = DB::table('companies')
-            ->select('id', 'company_city as name')
-            ->where('id', $id)
-            ->first();
+        // $city_s = DB::table('companies')
+        //     ->select('id', 'company_city as name')
+        //     ->where('id', $id)
+        //     ->first();
 
-        return response()->json([$cities, $city_s]);
+        return response()->json([$cities]);
     }
 
     public function getCompanyNameWithId($id)
