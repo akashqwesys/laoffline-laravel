@@ -1220,7 +1220,7 @@ class SaleBillController extends Controller
 
         $station = DB::table('cities')
             ->select('name')
-            ->where('id', intval($sale_bill_transports->station ?? 0))
+            ->where('id', $sale_bill_transports ? intval($sale_bill_transports->station) : 0)
             ->first();
 
         return response()->json([
