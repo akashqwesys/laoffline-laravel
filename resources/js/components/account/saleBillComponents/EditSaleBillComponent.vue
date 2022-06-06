@@ -1085,7 +1085,9 @@
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
                         .then(response => {
                             this.station_options = response.data[0];
-                            this.station = response.data[0].find( _ => _.id == this.station );
+                            if (typeof (this.station) == 'number' || typeof (this.station) == 'string') {
+                                this.station = response.data[0].find( _ => _.id == this.station );
+                            }
                         });
                     });
                 }
