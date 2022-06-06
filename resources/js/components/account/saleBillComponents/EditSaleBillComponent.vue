@@ -861,11 +861,11 @@
 
             });
         },
-        watch: {
+        /* watch: {
             customer (newValue, oldValue) {
                 this.getCustomerAddress(newValue);
             },
-        },
+        }, */
         methods: {
             showAllReferenceDetails (e) {
                 if (this.change_reference == 1) {
