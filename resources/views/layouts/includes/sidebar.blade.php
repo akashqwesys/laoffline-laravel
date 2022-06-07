@@ -164,9 +164,9 @@
                         </a>
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
-                        <a href="html/pricing-table.html" class="nk-menu-link">
+                        <a href="/reports" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
-                            <span class="nk-menu-text">Reports</span>
+                            <span class="nk-menu-text">All Reports</span>
                         </a>
                     </li><!-- .nk-menu-item -->
                     <li class="nk-menu-item">
