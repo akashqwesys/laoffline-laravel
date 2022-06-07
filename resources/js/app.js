@@ -131,6 +131,8 @@ import ViewCommissionComponent from './components/account/commission/ViewCommiss
 
 import LogsComponent from './components/LogsComponent.vue';
 
+import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -398,6 +400,13 @@ const routes = [
             { path: 'view-commissiom/:id', component: ViewCommissionComponent },
         ]
     },
+    {
+        path: '/reports/',
+        component: SalesRegisterComponent,
+        // children: [
+        //     { path: 'create-commission', component: CreateCommissionComponent },
+        // ]
+    },
 ];
 
 const router = createRouter({
@@ -503,6 +512,8 @@ createApp({
         CommissionComponent,
         CreateCommissionComponent,
         AddCommissionComponent,
-        ViewCommissionComponent
+        ViewCommissionComponent,
+
+        SalesRegisterComponent
     }
 }).use(router).mount('#app');

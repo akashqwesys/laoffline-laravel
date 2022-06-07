@@ -1220,7 +1220,7 @@ class SaleBillController extends Controller
 
         $station = DB::table('cities')
             ->select('name')
-            ->where('id', intval($sale_bill_transports->station ?? 0))
+            ->where('id', ($sale_bill_transports ? intval($sale_bill_transports->station) : 0))
             ->first();
 
         return response()->json([
@@ -1676,10 +1676,12 @@ class SaleBillController extends Controller
         $total_peices = 0;
         $total_meters = 0;
         $dataentry_item = [];
+        $sale_bill_items_last_id = (getLastID('sale_bill_items', 'id') + 1);
         if (count($productDetails) > 0 && $productDetails[0]->amount > 0) {
             DB::table('sale_bill_items')->where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->delete();
             foreach ($productDetails as $row) {
                 $dataentry_item[] = array(
+                    'id'                   => $sale_bill_items_last_id,
                     'sale_bill_id'         => $request->sale_bill_id,
                     'product_or_fabric_id' => intval($row->product_name->id),
                     'financial_year_id'    => $user->financial_year_id,
@@ -1700,12 +1702,14 @@ class SaleBillController extends Controller
                     'updated_at'           => $dateAdded
                 );
                 $total_peices += intval($row->pieces);
+                $sale_bill_items_last_id++;
             }
         }
         if (count($fabricDetails) > 0 && $fabricDetails[0]->amount > 0) {
             DB::table('sale_bill_items')->where('sale_bill_id', $request->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->delete();
             foreach ($fabricDetails as $row) {
                 $dataentry_item[] = array(
+                    'id'                   => $sale_bill_items_last_id,
                     'sale_bill_id'         => $request->sale_bill_id,
                     'product_or_fabric_id' => intval($row->fabric_name->id),
                     'financial_year_id'    => $user->financial_year_id,
@@ -1728,6 +1732,7 @@ class SaleBillController extends Controller
                 );
                 $total_peices += intval($row->pieces);
                 $total_meters += floatval($row->meters);
+                $sale_bill_items_last_id++;
             }
         }
         DB::table('sale_bill_items')->insert($dataentry_item);
@@ -2036,12 +2041,12 @@ class SaleBillController extends Controller
             ->select('id', 'name')
             ->get();
 
-        $city_s = DB::table('companies')
-            ->select('id', 'company_city as name')
-            ->where('id', $id)
-            ->first();
+        // $city_s = DB::table('companies')
+        //     ->select('id', 'company_city as name')
+        //     ->where('id', $id)
+        //     ->first();
 
-        return response()->json([$cities, $city_s]);
+        return response()->json([$cities]);
     }
 
     public function getCompanyNameWithId($id)

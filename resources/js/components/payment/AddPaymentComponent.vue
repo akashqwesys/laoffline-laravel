@@ -15,7 +15,7 @@
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
-                    <form action="#" class="form-validate" @submit.prevent="register()">
+                    <!-- <form action="#" class="form-validate" @submit.prevent="register()"> -->
                     <input type="hidden" v-if="scope == 'edit'" id="fv-payment-id" v-model="form.id">
                     <input type="hidden" v-if="scope == 'edit'" id="fv-refrence-id" v-model="form.refrence_type">
                     <div id="allhiddenfield_div"></div>
@@ -381,7 +381,7 @@
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    <button @click="register()" class="btn btn-primary">Save changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -389,7 +389,7 @@
                             </div>
                         </div><!-- .card -->
                     </div><!-- .nk-block -->
-                    </form>
+                    <!-- </form> -->
                 </div>
             </div>
         </div>
@@ -744,7 +744,7 @@
                     this.form.ratedifference = totalRateDifference;
                     this.extraAmount = parseInt(this.extraAmount) - totalInterst;
                 },500);
-                
+
             },
             changeShort (event) {
                 let totalShort = 0;

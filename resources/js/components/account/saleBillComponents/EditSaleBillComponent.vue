@@ -852,6 +852,7 @@
                 this.transport_cases = data.sale_bill_transports.cases;
                 this.courier_weight = data.sale_bill_transports.weight;
                 this.courier_freight = data.sale_bill_transports.freight;
+                this.station = data.sale_bill_transports.station;
 
                 this.change_in_amount = data.sale_bill.change_in_amount;
                 this.change_in_sign = data.sale_bill.sign_change == '+' ? { name: '+' } : { name: '-' };
@@ -1084,7 +1085,9 @@
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
                         .then(response => {
                             this.station_options = response.data[0];
-                            this.station = response.data[1];
+                            if (typeof (this.station) == 'number' || typeof (this.station) == 'string') {
+                                this.station = response.data[0].find( _ => _.id == this.station );
+                            }
                         });
                     });
                 }

@@ -351,7 +351,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:acces
     Route::get('/inward', [App\Http\Controllers\register\RegisterController::class, 'inward']);
     Route::get('/view-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'viewOutward']);
     Route::get('/fetch-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'fetchOutward']);
-    Route::get('/edit-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'editOutward']);    
+    Route::get('/edit-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'editOutward']);
     Route::get('/list', [App\Http\Controllers\register\RegisterController::class, 'listRegister'])->name('list');
     Route::get('/list-buyer', [App\Http\Controllers\register\RegisterController::class, 'listBuyer']);
     Route::get('/outwardlist', [App\Http\Controllers\register\RegisterController::class, 'outwardList']);
@@ -433,7 +433,6 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modif
         Route::get('/delete/{id}', [App\Http\Controllers\settings\CountriesController::class, 'deleteCountries'])->name('delete');
     });
 });
-
 
 
 // Routes for Settings / States
@@ -655,7 +654,6 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:acces
 });
 
 
-
 Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modify-companytype']], function () {
     Route::group(['prefix' => 'companyType'], function () {
         Route::get('/create-companyType', [App\Http\Controllers\settings\CompanyTypeController::class, 'createCompanyType']);
@@ -688,69 +686,72 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modif
 });
 
 Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:access-payment']], function () {
-        Route::get('/list-seller', [App\Http\Controllers\PaymentsController::class, 'listSeller'])->name('list-seller');
-        Route::get('/list-customer', [App\Http\Controllers\PaymentsController::class, 'listCustomer'])->name('list-customer');
-        Route::get('/list-bank', [App\Http\Controllers\PaymentsController::class, 'listbank'])->name('list-bank');
-        Route::post('/searchsalebill', [App\Http\Controllers\PaymentsController::class, 'searchSaleBill']);
-        Route::get('/', [App\Http\Controllers\PaymentsController::class, 'index'])->name('payments');
-        Route::get('/status/{status}', [App\Http\Controllers\PaymentsController::class, 'paymentStatus'])->name('paymentstatus');
-        Route::get('/list', [App\Http\Controllers\PaymentsController::class, 'listpayment'])->name('list');
-        Route::get('/incompletelist', [App\Http\Controllers\PaymentsController::class, 'inCompletelistpayment'])->name('incompletelist');
-        Route::get('/goods_returns', [App\Http\Controllers\PaymentsController::class, 'goodReturn'])->name('goodreturn');
-        Route::get('/goodreturn-list', [App\Http\Controllers\PaymentsController::class, 'goodreturnList'])->name('goodreturnlist');
-        Route::get('/completelist', [App\Http\Controllers\PaymentsController::class, 'completelistpayment'])->name('completelist');
-        Route::get('/list-data', [App\Http\Controllers\PaymentsController::class, 'listData'])->name('list-data');
-        Route::get('/fetch-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchPayment']);
-        Route::get('/view-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'viewPayment']);
-        Route::get('/view-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'viewVoucher']);
-        Route::get('/view-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'viewGoodReturn']);
-        Route::get('/fetch-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchVoucher']);
-        Route::get('/fetch-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchGoodReturn']);
-        Route::get('/getgoodreturnview/{id}', [App\Http\Controllers\PaymentsController::class, 'getGoodReturnView']);
-        Route::get('/getbasicdata', [App\Http\Controllers\PaymentsController::class, 'getBasicData']);
-        Route::get('/getsalbillforadd', [App\Http\Controllers\PaymentsController::class, 'getSalbillforAdd']);
-        Route::post('/removesalebill', [App\Http\Controllers\PaymentsController::class, 'removeSalebill']);
-        Route::get('/getReferenceForSaleBill', [App\Http\Controllers\PaymentsController::class, 'getReferenceForSaleBill']);
-        Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\PaymentsController::class, 'getOldReferenceForSaleBill']);
-        Route::get('/getsalebillwithproduct', [App\Http\Controllers\PaymentsController::class, 'getSalebillWithProduct']);
-    });
+    Route::get('/list-seller', [App\Http\Controllers\PaymentsController::class, 'listSeller'])->name('list-seller');
+    Route::get('/list-customer', [App\Http\Controllers\PaymentsController::class, 'listCustomer'])->name('list-customer');
+    Route::get('/list-bank', [App\Http\Controllers\PaymentsController::class, 'listbank'])->name('list-bank');
+    Route::post('/searchsalebill', [App\Http\Controllers\PaymentsController::class, 'searchSaleBill']);
+    Route::get('/', [App\Http\Controllers\PaymentsController::class, 'index'])->name('payments');
+    Route::get('/status/{status}', [App\Http\Controllers\PaymentsController::class, 'paymentStatus'])->name('paymentstatus');
+    Route::get('/list', [App\Http\Controllers\PaymentsController::class, 'listpayment'])->name('list');
+    Route::get('/incompletelist', [App\Http\Controllers\PaymentsController::class, 'inCompletelistpayment'])->name('incompletelist');
+    Route::get('/goods_returns', [App\Http\Controllers\PaymentsController::class, 'goodReturn'])->name('goodreturn');
+    Route::get('/goodreturn-list', [App\Http\Controllers\PaymentsController::class, 'goodreturnList'])->name('goodreturnlist');
+    Route::get('/completelist', [App\Http\Controllers\PaymentsController::class, 'completelistpayment'])->name('completelist');
+    Route::get('/list-data', [App\Http\Controllers\PaymentsController::class, 'listData'])->name('list-data');
+    Route::get('/fetch-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchPayment']);
+    Route::get('/view-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'viewPayment']);
+    Route::get('/view-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'viewVoucher']);
+    Route::get('/view-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'viewGoodReturn']);
+    Route::get('/fetch-voucher/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchVoucher']);
+    Route::get('/fetch-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'fetchGoodReturn']);
+    Route::get('/getgoodreturnview/{id}', [App\Http\Controllers\PaymentsController::class, 'getGoodReturnView']);
+    Route::get('/getbasicdata', [App\Http\Controllers\PaymentsController::class, 'getBasicData']);
+    Route::get('/getsalbillforadd', [App\Http\Controllers\PaymentsController::class, 'getSalbillforAdd']);
+    Route::post('/removesalebill', [App\Http\Controllers\PaymentsController::class, 'removeSalebill']);
+    Route::get('/getReferenceForSaleBill', [App\Http\Controllers\PaymentsController::class, 'getReferenceForSaleBill']);
+    Route::get('/getOldReferenceForSaleBill/{id}', [App\Http\Controllers\PaymentsController::class, 'getOldReferenceForSaleBill']);
+    Route::get('/getsalebillwithproduct', [App\Http\Controllers\PaymentsController::class, 'getSalebillWithProduct']);
+});
 
 Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modify-payment']], function () {
-        Route::get('/create-payment', [App\Http\Controllers\PaymentsController::class, 'createPayment']);
-        Route::get('/add-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'addGoodRetuen']);
-        Route::get('/edit-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'editGoodRetuen']);
-        Route::post('/insertgoodreturn', [App\Http\Controllers\PaymentsController::class, 'insertGoodRetuen']);
-        Route::post('/updategoodreturn', [App\Http\Controllers\PaymentsController::class, 'updateGoodRetuen']);
-        Route::post('/create', [App\Http\Controllers\PaymentsController::class, 'insertPaymentData']);
-        Route::post('/generatepayment', [App\Http\Controllers\PaymentsController::class, 'generatePaymentData']);
-        Route::post('/selectsalebills', [App\Http\Controllers\PaymentsController::class, 'selectSaleBills']);
-        Route::get('/addpayment', [App\Http\Controllers\PaymentsController::class, 'addPayment'])->name('addpayment');
-        Route::post('/update', [App\Http\Controllers\PaymentsController::class, 'updatePaymentData']);
-        Route::get('/edit-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'editPayment']);
-        Route::get('/delete/{id}', [App\Http\Controllers\PaymentsController::class, 'deletePayment'])->name('delete');
-        Route::get('/deletegoodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'deleteGoodReturn'])->name('deletegoodreturn');
+    Route::get('/create-payment', [App\Http\Controllers\PaymentsController::class, 'createPayment']);
+    Route::get('/add-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'addGoodRetuen']);
+    Route::get('/edit-goodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'editGoodRetuen']);
+    Route::post('/insertgoodreturn', [App\Http\Controllers\PaymentsController::class, 'insertGoodRetuen']);
+    Route::post('/updategoodreturn', [App\Http\Controllers\PaymentsController::class, 'updateGoodRetuen']);
+    Route::post('/create', [App\Http\Controllers\PaymentsController::class, 'insertPaymentData']);
+    Route::post('/generatepayment', [App\Http\Controllers\PaymentsController::class, 'generatePaymentData']);
+    Route::post('/selectsalebills', [App\Http\Controllers\PaymentsController::class, 'selectSaleBills']);
+    Route::get('/addpayment', [App\Http\Controllers\PaymentsController::class, 'addPayment'])->name('addpayment');
+    Route::post('/update', [App\Http\Controllers\PaymentsController::class, 'updatePaymentData']);
+    Route::get('/edit-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'editPayment']);
+    Route::get('/delete/{id}', [App\Http\Controllers\PaymentsController::class, 'deletePayment'])->name('delete');
+    Route::get('/deletegoodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'deleteGoodReturn'])->name('deletegoodreturn');
+});
 
-    });
+Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:access-commission']], function () {
+    Route::get('/', [App\Http\Controllers\CommissionController::class, 'index'])->name('commission');
+    Route::get('/list-company', [App\Http\Controllers\CommissionController::class, 'listCompany'])->name('listComapany');
+    Route::get('/list', [App\Http\Controllers\CommissionController::class, 'listCommission'])->name('list');
+    Route::get('/view-commission/{id}', [App\Http\Controllers\CommissionController::class, 'viewCommission']);
+    Route::get('/getbasicdata', [App\Http\Controllers\CommissionController::class, 'getBasicData']);
+    Route::get('/list-data', [App\Http\Controllers\CommissionController::class, 'listData'])->name('list-data');
+    Route::get('/fetch-commission/{id}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
+});
 
-    Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:access-commission']], function () {
-            Route::get('/', [App\Http\Controllers\CommissionController::class, 'index'])->name('commission');
-            Route::get('/list-company', [App\Http\Controllers\CommissionController::class, 'listCompany'])->name('listComapany');
-            Route::get('/list', [App\Http\Controllers\CommissionController::class, 'listCommission'])->name('list');
-            Route::get('/view-commission/{id}', [App\Http\Controllers\CommissionController::class, 'viewCommission']);
-            Route::get('/getbasicdata', [App\Http\Controllers\CommissionController::class, 'getBasicData']);
-            Route::get('/list-data', [App\Http\Controllers\CommissionController::class, 'listData'])->name('list-data');
-            Route::get('/fetch-commission/{id}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
-    });
+Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:modify-commission']], function () {
+    Route::get('/create-commission', [App\Http\Controllers\CommissionController::class, 'createCommission']);
+    Route::get('/add-commission', [App\Http\Controllers\CommissionController::class, 'addCommission']);
+    Route::post('/searchcommissioninvoice', [App\Http\Controllers\CommissionController::class, 'searchCommissionInvoice']);
+    Route::post('/generate-commission', [App\Http\Controllers\CommissionController::class, 'generateCommissionData']);
+    Route::post('/create', [App\Http\Controllers\CommissionController::class, 'insertCommission']);
+    Route::post('/update', [App\Http\Controllers\CommissionController::class, 'updateCommission']);
+    Route::get('/edit-commission/{id}', [App\Http\Controllers\CommissionController::class, 'editCommission']);
+    Route::get('/delete/{id}', [App\Http\Controllers\CommissionController::class, 'deleteCommission'])->name('delete');
+});
 
-    Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:modify-commission']], function () {
-            Route::get('/create-commission', [App\Http\Controllers\CommissionController::class, 'createCommission']);
-            Route::get('/add-commission', [App\Http\Controllers\CommissionController::class, 'addCommission']);
-            Route::post('/searchcommissioninvoice', [App\Http\Controllers\CommissionController::class, 'searchCommissionInvoice']);
-            Route::post('/generate-commission', [App\Http\Controllers\CommissionController::class, 'generateCommissionData']);
-            Route::post('/create', [App\Http\Controllers\CommissionController::class, 'insertCommission']);
-            Route::post('/update', [App\Http\Controllers\CommissionController::class, 'updateCommission']);
-            Route::get('/edit-commission/{id}', [App\Http\Controllers\CommissionController::class, 'editCommission']);
-            Route::get('/delete/{id}', [App\Http\Controllers\CommissionController::class, 'deleteCommission'])->name('delete');
-    });
+Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access-reports']], function () {
+    Route::get('/', [App\Http\Controllers\ReportController::class, 'salesRegister']);
+});
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');
