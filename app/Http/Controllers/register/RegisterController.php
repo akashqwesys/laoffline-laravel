@@ -13,7 +13,9 @@ use App\Models\Product;
 use App\Models\SaleBill;
 use App\Models\Comboids\Comboids;
 use App\Models\Ouid;
+use App\Models\Iuid;
 use App\Models\InwardOutward\Outward;
+use App\Models\InwardOutward\Inward;
 use App\Models\CompanyType;
 use App\Models\OutwardSaleBill;
 use App\Models\ProductsImages;
@@ -21,6 +23,7 @@ use App\Models\InwardLinkWith;
 use App\Models\EnjayCallRecordsId;
 use App\Models\ProductCategory;
 use App\Models\Payment;
+use App\Models\InwardSample;
 use App\Models\Settings\TransportDetails;
 use App\Models\Settings\Agent;
 use App\Models\Company\Company;
@@ -331,8 +334,7 @@ class RegisterController extends Controller
     public function getReferenceSampleData() {
         $user = Session::get('user');
         $references = ReferenceId::join('companies', 'reference_ids.company_id', '=', 'companies.id')->
-                                   where('companies.company_type', 2)->
-                                   orwhere('companies.company_type', 3)->
+                                   whereIn('companies.company_type', [2,3])->
                                    where('reference_ids.type_of_inward', 'Courier')->
                                    where('reference_ids.employee_id', 15)->
                                    where('reference_ids.inward_or_outward', 1)->
@@ -643,13 +645,24 @@ class RegisterController extends Controller
         return $data;
     }
     public function getAllDetails(Request $request) {
-       $id = $request->input('refrenceid');
        $user = Session::get('user');
-       $reference =  ReferenceId::where('reference_id', $id)
+       $referenceid = $request->input('refernceid');
+       
+       $reference =  ReferenceId::where('reference_id', $referenceid)
                     ->where('financial_year_id', $user->financial_year_id)
                     ->where('is_deleted', 0)
                     ->first();
-        
+        $company = Company::where('id', $reference->company_id)
+                   ->where('is_delete', 0)
+                   ->first();
+        $data['courier_name'] = '';
+        if (!empty($reference->courier_name)){
+            $courier = TransportDetails::where('name', $reference->courier_name)->where('is_delete', 0)->first();
+            $data['courier_name'] = $courier;
+        }
+        $data['reference'] = $reference;
+        $data['company'] = $company;
+        return $data;
     }
 
     public function listAgentCourier() {
@@ -1607,6 +1620,15 @@ class RegisterController extends Controller
         return view('register.outward.outward',compact('financialYear'))->with('employees', $employees);
     }
 
+    public function inward() {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['excelAccess'] = $user->excel_access;
+        return view('register.inward.inward',compact('financialYear'))->with('employees', $employees);
+    }
+
     public function outwardList(Request $request) {
         $user = Session::get('user');
 
@@ -1693,6 +1715,109 @@ class RegisterController extends Controller
                 "subject" => $subject,
                 "generatedby" => $generatedby,
                 "type" => $type,
+                "action" => $action
+            );
+        }
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "aaData" => $data_arr
+        );
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function InwardList(Request $request) {
+        $user = Session::get('user');
+
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+        if($columnName == 'active') {
+            $columnName = 'users.is_active';
+        } else {
+            $columnName = 'inwards.'.$columnName;
+        }
+
+        $totalRecords = Inward::where('is_deleted', '0')->select('count(*) as count')->count();
+
+        $totalRecordswithFilter = Inward::where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('subject', 'ilike', '%' . $columnName_arr[2]['search']['value'] . '%');
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $emp_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[3]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('employee_id', $emp_id);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('type_of_outward', '=', $columnName_arr[4]['search']['value']);
+        }
+
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
+
+
+        $records = Inward::where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $records = $records->where('iuid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $records = $records->where('created_at', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $records = $records->where('subject', 'ilike', '%' . $columnName_arr[2]['search']['value']. '%');
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $emp_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[3]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('employee_id', $emp_id);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $records = $records->where('type_of_outward', '=', $columnName_arr[4]['search']['value']);
+        }
+
+        // Fetch records
+        $records = $records->select('*');
+
+        $records = $records->orderBy($columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
+            ->get();
+
+        $data_arr = array();
+        foreach($records as $record){
+            $inward_id = $record->inward_id;
+            $iuid = $record->iuid;
+            $date = date_format($record->created_at, 'Y/m/d H:i:s');
+            $subject = $record->subject;
+            $generatedby = Employee::where('id', $record->employe_id)->first()->firstname;
+            $type = $record->type_of_inward;
+            $action = '<a href="/register/view-inward/'.$record->inward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+
+            $data_arr[] = array(
+                "inward_id" => $inward_id,
+                "iuid" => $iuid,
+                "created_at" => $date,
+                "subject" => $subject,
+                "generatedby" => $generatedby,
+                "type_of_inward" => $type,
                 "action" => $action
             );
         }
@@ -1934,5 +2059,232 @@ class RegisterController extends Controller
         $outward->outward_courier_flag = '1';
         $outward->save();
 
+    }
+
+    public function insertInward(Request $request) {
+        $inward_data = json_decode($request->inwarddata);
+        $sampledata =  json_decode($request->sampleData);
+        $attechments = $request->attechment;
+        $files = array();
+        if ($attechments) {
+            foreach ($attechments as $attechment) {
+                $attechmentfile = date('YmdHis') . "_inward." . $attechment->getClientOriginalExtension();
+                $attechment->move(public_path('upload/Inwards/'), $attechmentfile);
+                array_push($files, $attechmentfile);
+            }
+        }
+        
+        $user = Session::get('user');
+        $financialid = $user->financial_year_id;
+        if($inward_data->notify_client) {
+            $notify_clients = 1;
+        } else {
+            $notify_clients = 0;
+        }
+
+        if($inward_data->notify_md) {
+            $notify_md = 1;
+        } else {
+            $notify_md = 0;
+        }
+
+        $latterBy_id = $inward_data->sample_via->id;
+        $ref_id = $inward_data->reference_sample_data;
+
+
+        if ($latterBy_id) {
+            $latter_by_id = $latterBy_id;
+            $courier_name = $inward_data->courier_name->id;
+            $weight_of_parcel = $inward_data->weight_of_parcel;
+            $courier_receipt_no = $inward_data->courier_receipt_number;
+            $courier_received_time = date('Y-m-d',strtotime($inward_data->received_date_time));
+            $delivery_by = $inward_data->delivery_by;
+        } else {
+            $latter_by_id = $latterBy_id;
+            $courier_name = '';
+            $weight_of_parcel = $inward_data->weight_of_parcel;
+            $courier_receipt_no = '';
+            $courier_received_time = date('Y-m-d',strtotime($inward_data->received_date_time));
+            $delivery_by = $inward_data->delivery_by;
+        }
+
+        $receiver_number = '';
+		$from_number = '';
+		$from_name = $inward_data->from_name;
+
+        $company_id = $inward_data->companyid;
+        $companytype = $inward_data->companytype;
+        $typeName = DB::table('company_types')->where('id', $companytype)->first();
+        $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+        $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
+        $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
+        
+        if ($increment_id_details) {
+            $iuid = $increment_id_details->iuid + 1;
+            $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+            $increment_id->iuid = $iuid;
+            $increment_id->save();
+        } else {
+            $iuid = '1';
+            $increment_id = new IncrementId();
+            $increment_id->id = $Incrementids;
+            $increment_id->iuid = $iuid;
+            $increment_id->financial_year_id = $financialid;
+            $increment_id->save();
+        }
+        $iuids = Iuid::orderBy('id', 'DESC')->first('id');
+        $nextAutoID = !empty($iuids) ? $iuids->id + 1 : 1;
+        $iuid_data = new Iuid();
+        $iuid_data->id = $nextAutoID;
+        $iuid_data->iuid = $iuid;
+        $iuid_data->financial_year_id = $financialid;
+        $iuid_data->save();
+
+        $subject = "Sample for". $inward_data->company;
+        $comboids = new Comboids();
+        if ($companytype == 3) {
+            $comboids->supplier_id = $inward_data->companyid;
+            $comboids->company_id = 0;
+        } else {
+            $comboids->supplier_id = 0;
+            $comboids->company_id = $inward_data->companyid;
+        }
+        $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
+        $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
+
+        $comboids->comboid = $combo_id;
+        $comboids->payment_id = 0;
+        $comboids->iuid = $iuid;
+        $comboids->ouid = 0;
+        $comboids->system_module_id = '15';
+        $comboids->general_ref_id = $ref_id;
+        $comboids->generated_by = $user->employee_id;
+        $comboids->assigned_to = $inward_data->assign_to->id;
+        $comboids->company_type = $typeName->name;
+        $comboids->followup_via = $inward_data->sample_via->name;
+        $comboids->inward_or_outward_via = $inward_data->sample_via->name;
+        $comboids->selection_date = $inward_data->dateTime;
+        $comboids->from_name = $from_name;
+        //$combo_id->receiver_number = "".$inward_data['receiver_number'];
+        //$combo_id->receiver_email_id = $inward_data['receiver_email'];
+        $comboids->receipt_mode = 0;
+        $comboids->receipt_amount = 0;
+        $comboids->total = 0;
+        $comboids->subject = $subject;
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = json_encode($files);
+        $comboids->action_date = $inward_data->assignToDateTime;
+        $comboids->action_instruction = $inward_data->instruction;
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 1;
+        $comboids->inward_or_outward_id = 0;
+        $comboids->sale_bill_id = 0;
+        $comboids->goods_return_id = 0;
+        $comboids->commission_id = 0;
+        $comboids->commission_invoice_id = 0;
+        $comboids->is_invoice = 0;
+        $comboids->sample_id = 0;
+        $comboids->inward_ref_via = 0;
+        $comboids->new_or_old_inward_or_outward = 0;
+        $comboids->outward_employe_id = 0;
+        $comboids->default_category_id = 0;
+        $comboids->main_category_id = 0;
+        $comboids->agent_id = 0;
+        $comboids->sale_bill_flag = 0;
+        $comboids->tds = 0;
+        $comboids->net_received_amount = 0;
+        $comboids->received_commission_amount = 0;
+        $comboids->is_completed = 0;
+        $comboids->mark_as_draft = 0;
+        $comboids->color_flag_id = 0;
+        $comboids->product_qty = 0;
+        $comboids->fabric_meters = 0;
+        $comboids->sample_return_qty = 0;
+        $comboids->mobile_flag = 0;
+        $comboids->is_deleted = 0;
+        $comboids->save();
+
+        $inward = new Inward();
+        if ($companytype == 3) {
+            $inward->supplier_id = $inward_data->companyid;
+            $inward->company_id = 0;
+        } else {
+            $inward->supplier_id = 0;
+            $inward->company_id = $inward_data->companyid;
+        }
+        $insertLastid = inward::orderBy('inward_id', 'DESC')->first('inward_id');
+        $inward_id = !empty($insertLastid) ? $insertLastid->inward_id + 1 : 1;
+
+        $inward->inward_id = $inward_id;
+        $inward->inward_date = $inward_data->dateTime;
+        $inward->inward_ref_via = $inward_data->sample_via->id;
+        $inward->sample_via = $inward_data->sample_via->name;
+        $inward->sample_for = $inward_data->sample_for->id;
+        $inward->connected_inward = 0;
+        $inward->product_main_id = 0;
+        $inward->product_image_id = 0;
+        $inward->inward_link_with_id = 0;
+        $inward->mark_as_draft = 0;
+        $inward->general_input_ref_id = $ref_id;
+        $inward->new_or_old_inward = 1;
+        $inward->receiver_number = $inward_data->receiver_number;
+        //$inward->from_number = '';
+        $inward->latter_by_id = $latter_by_id;
+        $inward->courier_name = (int)$courier_name;
+        $inward->weight_of_parcel = $weight_of_parcel;
+        $inward->courier_receipt_no = $courier_receipt_no;
+        $inward->courier_received_time = $courier_received_time;
+        $inward->delivery_by = $delivery_by;
+        $inward->from_name = $from_name;
+        $inward->to_name = '';
+        $inward->delivery_period = 0;
+        $inward->attachments = json_encode($files);
+        $inward->remarks = $inward_data->remark;
+        $inward->client_remark = $inward_data->remark ? $inward_data->remark : '';
+        $inward->employe_id = Session::get('user')->employee_id;
+        $inward->type_of_inward = $inward_data->sample_via->name;
+        $inward->subject = $subject;
+        $inward->notify_client = $notify_clients;
+        $inward->notify_md = $notify_md;
+        $inward->iuid = $iuid;
+        $inward->financial_year_id = $financialid;
+        $inward->enquiry_complain_for = 0;
+        $inward->product_qty = 0;
+        $inward->fabric_meters = 0; 
+        $inward->is_deleted = 0;
+        $inward->save();
+
+        $comboids = Comboids::where('comboid', $combo_id)->first();
+        $comboids->inward_or_outward_id = $inward_id;
+        $comboids->save();
+
+        if ($sampledata){
+            $key = 0;
+            foreach($sampledata as $sample) {
+                $samplefile = '';
+                if($request->pimage[$key] != 'null') {
+                    $samplefile = date('YmdHis') . "_inwardsample." . $request->pimage[$key]->getClientOriginalExtension();
+                    $request->pimage[$key]->move(public_path('upload/InwardSample/'), $samplefile);
+                }
+                $inwardsample = new InwardSample();
+                if ($inward_data->sample_for->id == 1 || $inward_data->sample_for->id == 1) {
+                    $inwardsample->qty = $sample->quantity;
+                    $inwardsample->meters = 0;
+                } else {
+                    $inwardsample->meters = $sample->quantity;
+                    $inwardsample->qty = 0;
+                }
+                $insertLastid = InwardSample::orderBy('inward_sample_id', 'DESC')->first('inward_sample_id');
+                $inwardsample_id = !empty($insertLastid) ? $insertLastid->inward_sample_id + 1 : 1;
+                $inwardsample->inward_sample_id = $inwardsample_id;
+                $inwardsample->inward_id = $inward_id;
+                $inwardsample->name = $sample->name;
+                $inwardsample->price = $sample->price;
+                $inwardsample->image = $samplefile;
+                $inwardsample->is_deleted = 0;
+                $inwardsample->save();
+                $key++;
+            }
+        }
     }
 }

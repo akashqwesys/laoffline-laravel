@@ -5,8 +5,10 @@ namespace App\Models\inwardOutward;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class inward extends Model
+class Inward extends Model
 {
+    protected $primaryKey = 'inward_id';
+
     use HasFactory;
     protected $fillable = [
         'inward_id',
