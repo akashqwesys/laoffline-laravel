@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class InwardSample extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'inward_sample_id';
 
     protected $fillable = [
         'inward_id',

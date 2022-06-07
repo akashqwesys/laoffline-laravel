@@ -17,6 +17,7 @@ import InsertCommissionOutwardComponent from './components/register/outward/Inse
 import InsertCommissionInvoiceOutwardComponent from './components/register/outward/InsertCommissionInvoiceOutwardComponent.vue';
 import CreateOutwardComponent from './components/register/outward/CreateOutwardComponent.vue';
 import OutwardComponent from './components/register/outward/OutwardComponent.vue';
+import InwardComponent from './components/register/inward/InwardComponent.vue';
 import ViewOutwardComponent from './components/register/outward/ViewOutwardComponent.vue';
 import EditOutwardComponent from './components/register/outward/EditOutwardComponent.vue';
 // Databank Menu
@@ -151,6 +152,7 @@ const routes = [
             { path: 'create-inward', component: CreateInwardComponent },
             { path: 'create-outward', component: CreateOutwardComponent },
             { path: 'inward/{type}', component: InsertInwardComponent },
+            { path: 'inward', component: InwardComponent},
             { path: 'outward', component: OutwardComponent},
             { path: 'outward/salebill', component: InsertSalebillOutwardComponent },
             { path: 'outward/payment', component: InsertPaymentOutwardComponent },
@@ -430,6 +432,7 @@ createApp({
 
         RegisterComponent,
         OutwardComponent,
+        InwardComponent,
         CreateInwardComponent,
         InsertInwardComponent,
         CreateOutwardComponent,

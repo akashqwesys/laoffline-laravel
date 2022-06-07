@@ -254,8 +254,13 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fw-company">Company</label>
                                                     <button type="button" class="btn btn-sm clipboard-init" @click="assignCompanyType('1-2')"><span class="clipboard-text">Add New</span></button>
-                                                    <div>
-                                                        <multiselect v-model="form.company" :options="companies" placeholder="Select one" label="company_name" track-by="company_name" @input="getFromName"></multiselect>
+                                                    <div v-if="inwardType == 'sample'">
+                                                        <input :readonly="true" type="text" class="form-control" v-model="form.company">
+                                                        <input type="hidden" class="form-control" v-model="form.companyid">
+                                                        <input type="hidden" class="form-control" v-model="form.companytype">
+                                                    </div>
+                                                    <div v-else>
+                                                        <multiselect v-model="form.company" :options="companies" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -272,7 +277,10 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-from_name">From Name</label>
                                                     <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#AddPerson" title="Person Detail"><span class="clipboard-text">Add New</span></button>
-                                                    <div class="form-control-wrap">
+                                                    <div v-if="inwardType == 'sample'" class="form-control-wrap">
+                                                        <input :readonly="true" type="text" class="form-control" id="fv-from_name" v-model="form.from_name" placeholder="Enter From Name">
+                                                    </div>
+                                                    <div v-else class="form-control-wrap">
                                                         <input type="text" class="form-control" id="fv-from_name" v-model="form.from_name" placeholder="Enter From Name">
                                                     </div>
                                                 </div>
@@ -329,7 +337,7 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-courier_name">Courrier Name</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="form.courier_name" :options="companies" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
+                                                        <multiselect :readonly="true" v-model="form.courier_name" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -337,7 +345,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-courier_receipt_number">Courrier Receipt No</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" class="form-control" id="fv-courier_receipt_number" v-model="form.courier_receipt_number" placeholder="Enter From Number">
+                                                        <input type="text" :readonly="true" class="form-control" id="fv-courier_receipt_number" v-model="form.courier_receipt_number" placeholder="Enter From Number">
                                                     </div>
                                                 </div>
                                             </div>
@@ -345,7 +353,7 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-weight_of_parcel">Weight Of Parcel</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" class="form-control" id="fv-weight_of_parcel" v-model="form.weight_of_parcel" placeholder="Enter To Name">
+                                                        <input :readonly="true" type="text" class="form-control" id="fv-weight_of_parcel" v-model="form.weight_of_parcel" placeholder="Enter To Name">
                                                     </div>
                                                 </div>
                                             </div>
@@ -353,7 +361,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-received_date_time">Received Date Time</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" class="form-control" id="fv-received_date_time" placeholder="Enter Receiver number" v-model="form.received_date_time">
+                                                        <input type="text" :readonly="true" class="form-control" id="fv-received_date_time" placeholder="Enter Receiver number" v-model="form.received_date_time">
                                                     </div>
                                                 </div>
                                             </div>
@@ -361,7 +369,7 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-delivery_by">Delivery By</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" class="form-control" id="fv-delivery_by" v-model="form.delivery_by" placeholder="Enter To Name">
+                                                        <input type="text" :readonly="true" class="form-control" id="fv-delivery_by" v-model="form.delivery_by" placeholder="Enter To Name">
                                                     </div>
                                                 </div>
                                             </div>
@@ -370,7 +378,7 @@
                                                     <label class="form-label">Multiple Attachments</label>
                                                     <div class="form-control-wrap">
                                                         <div class="custom-file">
-                                                            <input type="file" multiple class="custom-file-input" id="customMultipleFiles">
+                                                            <input type="file" multiple class="custom-file-input" id="customMultipleFiles" @change="attechmentFiles">
                                                             <label class="custom-file-label" for="customMultipleFiles">Choose files</label>
                                                         </div>
                                                     </div>
@@ -428,7 +436,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label" for="fw-contact_person_name">Name</label>
                                                         <div class="form-control-wrap">
-                                                            <input v-model="sample.contact_person_name" type="text" class="form-control" id="fw-contact_person_name" name="fw-contact_person_name">
+                                                            <input v-model="sample.name" type="text" class="form-control" id="fw-contact_person_name" name="fw-contact_person_name">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -757,6 +765,7 @@
                 cities: [],
                 companyTypes: [],
                 companies: [],
+                courier: [],
                 suppliers: [],
                 suppliersVal: 0,
                 inwardLinkWith: [],
@@ -845,6 +854,7 @@
                     city: '',
                     about_company: '',
                 }),
+                multiple_attachment: [],
                 form: new Form({
                     id: '',
                     call_by: [
@@ -856,6 +866,8 @@
                     reference_via: '',
                     inward_reference: 1,
                     company: '',
+                    companyid: '',
+                    companytype: '',
                     supplier: '',
                     dateTime: '',
                     from_name: '',
@@ -863,7 +875,6 @@
                     to_name: '',
                     receiver_number: '',
                     delivery_period: '',
-                    multiple_attachment: [],
                     remark: '',
                     required_followup: 1,
                     notify_client: 0,
@@ -903,12 +914,7 @@
             axios.get('/register/getReferenceSampleData')
             .then(response => {
                 this.referenceSampleData = response.data;
-                this.form.reference_sample_data = this.referenceSampleData[0].reference_id;
-            });
-            axois.post('/register/getalldetail',{
-                refrenceid : this.form.reference_sample_data
-            }).then(response => {
-                
+                this.form.reference_sample_data = response.data[0].reference_id;
             });
             axios.get('/register/main-categories')
             .then(response => {
@@ -957,6 +963,10 @@
             .then(response => {
                 this.companies = response.data;
             });
+            axios.get('/register/list-agentcourier')
+            .then(response => {
+                this.courier = response.data.courier;
+            });
             axios.get('/register/list-suppliers')
             .then(response => {
                 this.suppliers = response.data;
@@ -971,6 +981,9 @@
             });
         },
         methods: {
+            uploadImage (index, event) {
+                this.sampleData[index].image = event.target.files[index];
+            },
             dateFormate(createdDate) {
                 var mydate = new Date(createdDate);
                 var month = ["January", "February", "March", "April", "May", "June",
@@ -1009,6 +1022,13 @@
             },
             deleteSampleDataRow: function(row) {
                 this.sampleData.pop(row);
+            },
+            attechmentFiles: function(event) {
+                var files = event.target.files;
+                files.forEach((value,index) =>{
+                    this.multiple_attachment[index] = value;
+                });
+                console.log(this.multiple_attachment);
             },
             getSubProduct: function(event) {
                 var productName = '';
@@ -1208,13 +1228,49 @@
                 })
             },
             register () {
-                this.form.post('/register/insertinward/'+this.inwardType)
+                var paymentdata = new FormData();
+                paymentdata.append('inwarddata', JSON.stringify(this.form));
+                paymentdata.append('sampleData', JSON.stringify(this.sampleData));
+                this.multiple_attachment.forEach((contact,index)=>{
+                    if(contact){
+                        paymentdata.append(`attechment[${index}]`, contact);
+                    }
+                })
+                this.sampleData.forEach((value, index) => {
+                    if(value.image) {
+                        paymentdata.append(`pimage[${index}]`, value.image);
+                    } else {
+                        paymentdata.append(`pimage[${index}]`, null);
+                    }
+                })
+                axios.post('/register/insertinward/'+this.inwardType, paymentdata)
                     .then(( response ) => {
                         //window.location.href = '/settings/agent';
                 })
             },
         },
         mounted() {
+            setTimeout(() => {
+                axios.post('/register/getalldetail',{
+                    refernceid : this.form.reference_sample_data
+                })
+                .then(response => {
+                    if (this.inwardType == 'sample') {
+                        this.form.company = response.data.company.company_name;
+                        this.form.companyid = response.data.company.id;
+                        this.form.companytype = response.data.company.company_type;
+                        this.form.from_name = response.data.reference.from_name;
+                    }
+                    this.form.courier_name = response.data.courier;
+                    this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
+                    this.form.delivery_by = response.data.reference.delivery_by;
+                    this.form.received_date_time = response.data.reference.courier_received_time;
+                    this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
+                    this.form.dateTime = response.data.reference.selection_date;
+                });
+            }, 2100);
+            
+           
             if(this.type == 1) {
                 this.inwardType = 'call';
             } else if(this.type == 2) {
@@ -1237,7 +1293,7 @@
                 });
             }
 
-            this.form.dateTime = new Date().toLocaleDateString('en-CA');
+            //this.form.dateTime = new Date().toLocaleDateString('en-CA');
             this.form.assignToDateTime = new Date().toLocaleDateString('en-CA');
         },
     };
