@@ -56,10 +56,22 @@
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Letter Attachment : </b>  </label>
+                                        <span v-if="paymentData.letter_attachment">
+                                        <a :href="'/upload/payments/'+paymentData.letter_attachment" target="_blank">
+                                            <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                        </a>
+                                        </span>
+                                        <span v-else> - </span>
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Cheques Attachment : </b>  </label>
-				    		        </div>
+                                        <span v-if="paymentData.attachments">
+                                        <a :href="'/upload/payments/'+paymentData.attachment" target="_blank">
+                                            <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                        </a>
+                                        </span>
+                                        <span v-else> - </span>
+                                    </div>
                                 </div>
                                 <div class="row table-responsive">
                                     <table class="table mb-2 table table-striped m-b-none salebilltable">
@@ -89,7 +101,7 @@
                                                         <td>{{ salebill.supplier_invoice_no}}</td>
                                                         <td>{{ salebill.amount}}</td>
                                                         <td>{{ salebill.adjust_amount}}</td>
-                                                        <td v-if="salebill.status = '1'">Completed</td><td v-else>Pending</td>
+                                                        <td v-if="salebill.status == 1">Completed</td><td v-else>Pending</td>
                                                         <td>{{ salebill.discount }}</td>
                                                         <td>{{ salebill.discount_amount }}</td>
                                                         <td>{{ salebill.goods_return }}</td>

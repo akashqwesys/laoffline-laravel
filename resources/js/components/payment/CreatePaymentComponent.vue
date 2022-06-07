@@ -60,6 +60,7 @@
 				                            <th>Supplier Invoice No</th>
 				                            <th>Date</th>
 				                            <th>Supplier</th>
+                                            <th>Pending Payment</th>
                                             <th>Bill Amount</th>
                                             <th>Overdue</th>
 				                            <th>Action</th>
@@ -73,6 +74,7 @@
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
 				                            <td>{{ itm.supplier }}</td>
+                                            <td>{{ itm.pending_payment }}</td>
                                             <td>{{ itm.amount }}</td>
                                             <td v-if="itm.overdue > 90" class="text-danger">{{ itm.overdue }}</td><td v-else>{{ itm.overdue }}</td>
 				                            <td><a :href="'/account/sale-bill/view-sale-bill/'+ itm.sallbillid + '/' + itm.financialyear.id"><em class="icon ni ni-eye"></em></a></td>

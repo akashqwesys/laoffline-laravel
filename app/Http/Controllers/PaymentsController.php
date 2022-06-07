@@ -852,19 +852,25 @@ class PaymentsController extends Controller
         $user = Session::get('user');
         $customer_id = $request->input('customer');
         $supplier_id = $request->input('seller');
-        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
+        
         $supplier =  Company::where('id', $supplier_id)->first();
         $salebill = DB::table('sale_bills')->where('company_id', $customer_id)
                     ->where('supplier_id', $supplier_id)
-                    ->where('financial_year_id', $user->financial_year_id)
-                    ->where('payment_status', 0)
+                    ->Where('payment_status', 0)
                     ->where('is_deleted', 0)
                     ->orderBy('sale_bill_id', 'desc')
                     ->get();
+        
         $salebills = array();
         foreach($salebill as $bill) {
+            if ($bill->received_payment != 0){
+                $pendingpayment = $bill->total - $bill->received_payment;
+            } else {
+                $pendingpayment = $bill->total;
+            }
+            $financialyear = FinancialYear::where('id', $bill->financial_year_id)->first();
             $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
-            $salebill = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $supplier->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
+            $salebill = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $supplier->company_name, 'amount' => $bill->total, 'pending_payment' => $pendingpayment, 'overdue' => $overdue);
             array_push($salebills, $salebill);
         }
         usort($salebills, function($a, $b) {
@@ -1249,7 +1255,7 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += $paymentDetail->adjustamount;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
-                    $bill->payment_status = 1;
+                    $bill->payment_status = $salebill->status->code;
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
                     $bill->save();
 
@@ -1601,16 +1607,17 @@ class PaymentsController extends Controller
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
-        $ChequeImage = $LetterImage = null;
+        $payment = Payment::where('payment_id', $paymentData->id)->first();
+        //$ChequeImage = $LetterImage = null;
         if ($image = $request->chequeimage) {
             $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
-            $paymentData->chequeImage = $ChequeImage;
+            $payment->attachments = $ChequeImage;
             $image->move(public_path('upload/payments/'), $ChequeImage);
             array_push($attachments, $ChequeImage);
         }
         if ($image = $request->letterimage) {
             $LetterImage = date('YmdHis') . "_letterImage." . $image->getClientOriginalExtension();
-            $paymentData->letterImage = $LetterImage;
+            $payment->letter_attachment = $LetterImage;
             $image->move(public_path('upload/payments/'), $LetterImage);
             array_push($attachments, $LetterImage);
         }
@@ -1690,10 +1697,8 @@ class PaymentsController extends Controller
             $payment_tot_adjust_amount= $paymentData->totaladjustamount;
         }
         $payment_date = $paymentData->reciptdate;
-        $payment = Payment::where('payment_id', $paymentData->id)->first();
+        
         $payment->reciept_mode = $paymentData->recipt_mode;
-        $payment->attachments = $ChequeImage;
-        $payment->letter_attachment = $LetterImage;
         $payment->date = $payment_date;
         $payment->deposite_bank = 4;
         $payment->cheque_date = $cheque_date;
@@ -1795,7 +1800,7 @@ class PaymentsController extends Controller
                     $paymentDetail->financial_year_id = $payment->financial_year_id;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
-                    $paymentDetail->status = 1;
+                    $paymentDetail->status = $salebill->status->code;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->discount = $salebill->discount ?? 0;
                     $paymentDetail->discount_amount = $salebill->discountamount ?? 0;
@@ -1824,8 +1829,8 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += $salebill->adjustamount;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
-                    $bill->payment_status = 1;
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
+                    $bill->payment_status = $salebill->status->code;
+                    $bill->received_payment = (int)$salebill->adjustamount;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('payment_id', $paymentData->id)->where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
