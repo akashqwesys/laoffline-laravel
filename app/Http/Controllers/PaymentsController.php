@@ -1267,7 +1267,7 @@ class PaymentsController extends Controller
                     //print_r($Pending);exit;
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', 0)->first();
 
-                    $bill2->pending_payment = $Pending;
+                    $bill2->pending_payment = $Pending - (int)$bill2->pending_payment;
                     $bill2->save();
 
                 }
@@ -1543,8 +1543,6 @@ class PaymentsController extends Controller
         }
         return $html;
     }
-
-
 
     public function editPayment($id) {
         $page_title = 'Update Financial Year';
@@ -1858,8 +1856,9 @@ class PaymentsController extends Controller
                     //print_r($Pending);exit;
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', 0)->first();
 
-                    $bill2->pending_payment = $Pending;
-                    $bill2->save();                }
+                    $bill2->pending_payment = $Pending - (int)$bill2->pending_payment;
+                    $bill2->save();
+                }
             }
         }
         if ($paymentData->recipt_mode == 'fullreturn') {
