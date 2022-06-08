@@ -318,7 +318,7 @@ export default {
         const d = String(date.getDate()).padStart(2, '0')
         const y = String(date.getFullYear())
         const h = String(date.getHours());
-        const min = String(date.getMinutes());
+        const min = String((date.getMinutes() < 10 ? '0' : '') + date.getMinutes());
         const formatedDate = [y, m, d].join('-');
         const formatedTime = [h,min].join(':');
         this.form.Date_Time = formatedDate;
@@ -350,9 +350,12 @@ export default {
             }
         },
         register() {
+            $('#save_changes').attr('disabled', true);
             this.form.post('/reference/create-reference/create')
             .then(( response ) => {
                 window.location.href = '/reference';
+            }).catch(function (error) {
+                $('#save_changes').attr('disabled', false);
             });
         },
         showDatePicker () {
