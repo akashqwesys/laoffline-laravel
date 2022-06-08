@@ -499,6 +499,7 @@
                         interest: '',
                         remark: '',
                 }],
+                salebilladjust : [],
                 chequeimage: [],
                 letterimage: [],
                 form: new Form({
@@ -544,7 +545,7 @@
             });
             var getbasicdata_url = '/payments/getbasicdata';
             if (this.scope != 'edit') {
-            axios.get(getbasicdata_url)
+                axios.get(getbasicdata_url)
             .then(responce => {
                 this.salebills = responce.data.salebill;
                 this.salebilldata = responce.data.salebilldata;
@@ -556,14 +557,18 @@
                 this.form.depositebank = 'Cheque in Hand';
                 let totalamount = 0;
                 let totalAdjustamount = 0;
-                this.salebills.forEach(value => {
+                this.salebills.forEach((value,index) => {
                     totalAdjustamount += parseInt(value.adjustamount);
                     totalamount += parseInt(value.amount);
+                    setTimeout(() => {
+                        this.salebilladjust[index] = value.adjustamount;
+                    }, 1000);  
                 });
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount;
                 this.min = responce.data.financial_year_start_date;
                 this.max = responce.data.financial_year_end_date;
+                console.log(this.salebilladjust);
             })
             }
             //this.form.refrence = 'new';
@@ -1300,7 +1305,16 @@
                 if (!claim) {
                     claim = 0;
                 }
-
+                if (this.scope == 'edit') {
+                console.log(this.salebilladjust);
+                console.log(index);
+                let salebilladj = this.salebilladjust[index-1];
+                if (adjamount > salebilladj) {
+                    alert ('Adjust Amount is not more than Pending Amount');
+                    this.salebills[index-1].adjustamount = salebilladj;
+                    return false;
+                }
+                }
                 if (amount > adjamount) {
                     diff = amount - adjamount;
                     discount = diff / amount * 100;
@@ -1490,15 +1504,14 @@
         },
         mounted() {
             var main_url = location.href.split('/');
-            if (main_url[main_url.length - 2] == 'edit-payment') {
-                var getsalbillforadd_url = '/payments/getsalbillforadd?payment_id=' + this.id ;
-            } else {
+            if (main_url[main_url.length - 2] != 'edit-payment') {
                 var getsalbillforadd_url = '/payments/getsalbillforadd';
+                axios.get(getsalbillforadd_url)
+                .then(responce => {
+                    this.items = responce.data.salebilldata;
+                });
             }
-            axios.get(getsalbillforadd_url)
-            .then(responce => {
-                this.items = responce.data.salebilldata;
-            });
+            
             const self = this;
             //this.form.refrencevia = {name: 'Courier', code: '1'};
             this.form.discountamount = 0;
@@ -1575,7 +1588,7 @@
                             self.form.short = gData.paymentData.tot_short;
                             self.form.interest = gData.paymentData.tot_interest;
                             gData.salebill.forEach((value,index) => {
-
+                                self.salebilladjust[index] = value.adjust_amount;
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
                                 self.salebills[index].amount = value.amount;

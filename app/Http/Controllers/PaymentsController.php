@@ -1550,7 +1550,7 @@ class PaymentsController extends Controller
     }
 
     public function editPayment($id) {
-        $page_title = 'Update Financial Year';
+        $page_title = 'Update Payment';
         $financialYear = FinancialYear::where('id',$id);
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
