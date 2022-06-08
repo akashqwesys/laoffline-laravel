@@ -898,20 +898,23 @@ class PaymentsController extends Controller
         $customer_id = $request->session()->get('customer');
         $seller_id = $request->session()->get('seller');
         $newSalebill = $request->input('salebill');
+        
+        $salebill_data = array();
+        foreach($newSalebill as $ids){
         $salebills = DB::table('sale_bills')
             ->where('company_id', $customer_id)
             ->where('supplier_id', $seller_id)
-            ->where('financial_year_id', Session::get('user')->financial_year_id)
-            ->whereIn('sale_bill_id', $newSalebill)
+            ->where('financial_year_id', $ids['fid'])
+            ->where('sale_bill_id', $ids['id'])
             ->where('payment_status', 0)
-            ->get();
-        $salebill_data = array();
-        foreach ($salebills as $bill) {
+            ->first();
+        
+        
             $status_c = new \stdClass;
             $status_c->code = 1;
             $status_c->status = 'Complete';
-            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total, 'status' => $status_c);
-            array_push($salebill_data, $salebill);
+            $salebill = array('id' => $salebills->sale_bill_id, 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c);
+            array_push($salebill_data, $salebill);     
         }
         $data['salebill'] = $salebill_data;
         $oldSalebill = $request->session()->get('saleBill');
@@ -1339,36 +1342,37 @@ class PaymentsController extends Controller
             $seller_id = $request->session()->get('seller');
             $salebill_ids = $request->session()->get('saleBill');
         }
-        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
+        
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
-        $salebills = DB::table('sale_bills')
-            ->where('company_id', $customer_id)
-            ->where('supplier_id', $seller_id)
-            ->where('financial_year_id', Session::get('user')->financial_year_id)
-            ->whereIn('sale_bill_id', $salebill_ids)
-            ->where('payment_status', 0)
-            ->get();
-        $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
-                        ->where('supplier_id', $seller_id)
-                        ->where('financial_year_id', Session::get('user')->financial_year_id)
-                        ->whereNotIn('sale_bill_id', $salebill_ids)
-                        ->orderBy('sale_bill_id', 'desc')
-                        ->get();
-
         $salebill_data = array();
-        foreach ($salebills as $bill) {
+        $salebill_data2 = array();
+        foreach($salebill_ids as $ids){
+            $salebills = DB::table('sale_bills')
+                    ->where('company_id', $customer_id)
+                    ->where('supplier_id', $seller_id)
+                    ->where('financial_year_id', $ids['fid'])
+                    ->where('sale_bill_id', $ids['id'])
+                    ->where('payment_status', 0)
+                    ->first();
+            $salebills2 = DB::table('sale_bills')
+                    ->where('company_id', $customer_id)
+                    ->where('supplier_id', $seller_id)
+                    ->where('financial_year_id', $ids['fid'])
+                    ->whereNot('sale_bill_id', $ids['id'])
+                    ->orderBy('sale_bill_id', 'desc')
+                    ->first();
+       
+        
             $status_c = new \stdClass;
             $status_c->code = 1;
             $status_c->status = 'Complete';
-            $salebill = array('id' => $bill->sale_bill_id, 'sup_inv' => $bill->supplier_invoice_no, 'amount' => $bill->total, 'adjustamount' => $bill->total, 'status' => $status_c);
+            $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c);
             array_push($salebill_data, $salebill);
-        }
-
-        $salebill_data2 = array();
-        foreach($salebills2 as $bill) {
-            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
-            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
+        
+            $financialyear = FinancialYear::where('id', $ids['fid'] )->first();
+            $overdue = floor((time() - strtotime($salebills2->select_date)) / (60 * 60 * 24));
+            $salebill2 = array('sallbillid' => $salebills2->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $salebills2->supplier_invoice_no, 'date'=> $salebills2->select_date, 'supplier' => $seller->company_name, 'amount' => $salebills2->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
         }
         $courier = TransportDetails::where('is_delete', 0)->get();
@@ -1405,25 +1409,32 @@ class PaymentsController extends Controller
         $seller = Company::where('id', $seller_id)->first();
         $salebillid = $request->salebill;
         $salebill_ids = $request->session()->get('saleBill');
-        $salebill_array = array_diff($salebill_ids, array($salebillid));
+        $key = array_search($salebillid[0]['id'] , array_column($salebill_ids, 'id'));
+        
+        unset($salebill_ids[$key]);
+        
         $request->session()->forget('saleBill');
-        $request->session()->put('saleBill', $salebill_array);
-        $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
+        $request->session()->put('saleBill', $salebill_ids);
+        $salebill_data2 = array();
+        $sid = array();
+        foreach ($salebill_ids as $ids) {
+            array_push($sid, $ids['id']);
+        }
+        
+        $salebills2 = DB::table('sale_bills')
+                        ->where('company_id', $customer_id)
                         ->where('supplier_id', $seller_id)
-                        ->where('financial_year_id', Session::get('user')->financial_year_id)
                         ->where('payment_status', 0)
                         ->where('is_deleted', 0)
-                        ->whereNotIn('sale_bill_id', $salebill_array)
+                        ->whereNotIn('sale_bill_id', $sid)
                         ->orderBy('sale_bill_id', 'desc')
                         ->get();
-
-        $salebill_data2 = array();
-        foreach($salebills2 as $bill) {
-            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
-            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
+        foreach($salebills2 as $bills){
+            $financialyear = FinancialYear::where('id', $bills->financial_year_id)->first();
+            $overdue = floor((time() - strtotime($bills->select_date)) / (60 * 60 * 24));
+            $salebill2 = array('sallbillid' => $bills->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bills->supplier_invoice_no, 'date'=> $bills->select_date, 'supplier' => $seller->company_name, 'amount' => $bills->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
-        }
-
+        }   
         $data['customer'] = $customer;
         $data['seller'] = $seller;
         $data['salebilldata'] = $salebill_data2;
@@ -1443,22 +1454,27 @@ class PaymentsController extends Controller
             $seller_id = $payment->supplier_id;
             $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
         }
-        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
+       
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
-        $salebills2 = DB::table('sale_bills')->where('company_id', $customer_id)
+        $salebill_data2 = array();
+        $sid = array();
+        foreach ($salebill_ids as $ids) {
+            array_push($sid, $ids['id']);
+        }
+        
+        $salebills2 = DB::table('sale_bills')
+                        ->where('company_id', $customer_id)
                         ->where('supplier_id', $seller_id)
-                        ->where('financial_year_id', Session::get('user')->financial_year_id)
                         ->where('payment_status', 0)
                         ->where('is_deleted', 0)
-                        ->whereNotIn('sale_bill_id', $salebill_ids)
+                        ->whereNotIn('sale_bill_id', $sid)
                         ->orderBy('sale_bill_id', 'desc')
                         ->get();
-
-        $salebill_data2 = array();
-        foreach($salebills2 as $bill) {
-            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
-            $salebill2 = array('sallbillid' => $bill->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bill->supplier_invoice_no, 'date'=> $bill->select_date, 'supplier' => $seller->company_name, 'amount' => $bill->total, 'overdue' => $overdue);
+        foreach($salebills2 as $bills){
+            $financialyear = FinancialYear::where('id', $bills->financial_year_id)->first();
+            $overdue = floor((time() - strtotime($bills->select_date)) / (60 * 60 * 24));
+            $salebill2 = array('sallbillid' => $bills->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bills->supplier_invoice_no, 'date'=> $bills->select_date, 'supplier' => $seller->company_name, 'amount' => $bills->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
         }
 

@@ -68,7 +68,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in salebill" :key="itm.sallbillid" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="{'id':itm.sallbillid, 'fid': itm.financialyear.id}"  required></td>
 				                            <td>{{ itm.sallbillid }}</td>
 				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
@@ -136,6 +136,7 @@
                     alert('please select Sale Bill');
                     return false;
                 }
+               console.log(this.selected);
                axios.post('/payments/generatepayment', {
                     salebill: this.selected,
                     customer: this.form.customer.id,

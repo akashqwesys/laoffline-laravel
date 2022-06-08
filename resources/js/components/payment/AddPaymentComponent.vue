@@ -332,7 +332,7 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr class="salebillrow" v-for="(salebill,index) in salebills" :key="index">
-                                                        <td><input type="text" :readonly="true" class="form-control" v-model="salebill.id"></td>
+                                                        <td><input type="text" :readonly="true" class="form-control" v-model="salebill.id"><input type="hidden" class="form-control" v-model="salebill.fid"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="salebill.sup_inv"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="salebill.amount"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.adjustamount" @change="changeAdjAmount"></td>
@@ -420,7 +420,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in items" :key="itm.sallbillid" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="itm.sallbillid"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="{'id':itm.sallbillid, 'fid': itm.financialyear.id}"  required></td>
 				                            <td>{{ itm.sallbillid}}</td>
 				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
@@ -482,6 +482,7 @@
                 max: '',
                 salebills: [{
                         id: '',
+                        fid: '',
                         sup_inv: '',
                         amount: '',
                         adjustamount: '',
@@ -571,8 +572,9 @@
         methods: {
             selectSalebill(event){
                 this.selected.forEach(value => {
+                console.log(value);
                 for(var i = 0; i < this.items.length; i++) {
-                    if (this.items[i].sallbillid && this.items[i].sallbillid === value) {
+                    if (this.items[i].sallbillid && this.items[i].sallbillid === value.id) {
                         this.items.splice(i, 1);
                         break;
                     }
@@ -603,6 +605,7 @@
                 event.preventDefault();
                 let index = event.target.parentElement.parentElement.rowIndex;
                 let salebillid = this.salebills[index-1].id;
+                let fid = this.salebills[index-1].fid;
                 this.salebills.splice(index-1, 1);
 
                 let totalamount = 0;
@@ -616,7 +619,7 @@
                 this.form.totaladjustamount = totalAdjustamount;
                 this.extraAmount = parseInt(this.form.reciptamount) - totalAdjustamount;
                 axios.post('/payments/removesalebill', {
-                    salebill : salebillid
+                    salebill : [{'id' : salebillid, 'fid' : fid}]
                 }).then(responce =>{
                     this.items = responce.data.salebilldata;
                 })
