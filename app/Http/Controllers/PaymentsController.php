@@ -1383,7 +1383,8 @@ class PaymentsController extends Controller
         $data['courier'] = $courier;
         $data['salebill'] = $salebill_data;
         $data['salebilldata'] = $salebill_data2;
-        // $data['financialyear'] = $financialyear;
+        $data['financial_year_start_date'] = session()->get('user')->financial_year_start_date;
+        $data['financial_year_end_date'] = session()->get('user')->financial_year_end_date;
         return $data;
     }
     public function addPayment(Request $request){

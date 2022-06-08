@@ -562,8 +562,8 @@
                 });
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount;
-                this.min = responce.data.financialyear.start_date;
-                this.max = responce.data.financialyear.end_date;
+                this.min = responce.data.financial_year_start_date;
+                this.max = responce.data.financial_year_end_date;
             })
             }
             //this.form.refrence = 'new';
