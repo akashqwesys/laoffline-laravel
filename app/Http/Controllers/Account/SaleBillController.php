@@ -2041,12 +2041,12 @@ class SaleBillController extends Controller
             ->select('id', 'name')
             ->get();
 
-        // $city_s = DB::table('companies')
-        //     ->select('id', 'company_city as name')
-        //     ->where('id', $id)
-        //     ->first();
+        $city_s = DB::table('companies')
+            ->select('id', 'company_city as name')
+            ->where('id', $id)
+            ->first();
 
-        return response()->json([$cities]);
+        return response()->json([$cities, $city_s]);
     }
 
     public function getCompanyNameWithId($id)

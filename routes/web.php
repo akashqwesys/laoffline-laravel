@@ -751,7 +751,8 @@ Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:mod
 });
 
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access-reports']], function () {
-    Route::get('/', [App\Http\Controllers\ReportController::class, 'salesRegister']);
+    Route::get('/', [App\Http\Controllers\ReportController::class, 'index']);
+    Route::get('/sales-register-report', [App\Http\Controllers\ReportController::class, 'salesRegister']);
 });
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

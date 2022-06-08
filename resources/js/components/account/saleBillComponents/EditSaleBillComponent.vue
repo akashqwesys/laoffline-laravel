@@ -1087,6 +1087,8 @@
                             this.station_options = response.data[0];
                             if (typeof (this.station) == 'number' || typeof (this.station) == 'string') {
                                 this.station = response.data[0].find( _ => _.id == this.station );
+                            } else {
+                                this.station = response.data[0].find(_ => _.name == response.data[1].name);
                             }
                         });
                     });
