@@ -643,6 +643,7 @@
                         $('#show-references').slideDown();
                         setTimeout(() => {
                             $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                            this.form.refrence_type = $('#show-references tr input[type="radio"]').first().val();
                         }, 500);
                         $('#overlay').hide();
                     })
@@ -1409,7 +1410,7 @@
 
                    axios.post('/payments/update',paymentdata)
                     .then(() => {
-                    window.location.href = '/payments';
+                         window.location.href = '/payments';
                     })
                     .catch((error) => {
                         var validationError = error.response.data.errors;
