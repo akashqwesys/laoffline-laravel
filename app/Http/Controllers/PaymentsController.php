@@ -1602,12 +1602,13 @@ class PaymentsController extends Controller
     public function updatePaymentData(Request $request){
         $attachments = array();
         $user = Session::get('user');
+        $financialid = Session::get('user')->financial_year_id;
         $paymentData = json_decode($request->formdata);
         $paymentSalebill = json_decode($request->billdata);
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
-        $payment = Payment::where('payment_id', $paymentData->id)->first();
+        $payment = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
         //$ChequeImage = $LetterImage = null;
         if ($image = $request->chequeimage) {
             $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
@@ -1621,7 +1622,7 @@ class PaymentsController extends Controller
             $image->move(public_path('upload/payments/'), $LetterImage);
             array_push($attachments, $LetterImage);
         }
-        $payment2 = Payment::where('payment_id', $paymentData->id)->first();
+        $payment2 = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
         $cmpTypeName = Company::where('id', $payment2->receipt_from)->first();
         $companyName = Company::where('id', $payment2->supplier_id)->first();
 
@@ -1632,7 +1633,7 @@ class PaymentsController extends Controller
         } else {
             $typeName = '';
         }
-        $financialid = Session::get('user')->financial_year_id;
+        
 
         $combo = Comboids::where('payment_id', $paymentData->id)->first();
         $personName = '';
