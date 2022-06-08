@@ -21,6 +21,18 @@ class ReportController extends Controller
         $this->middleware('auth');
     }
 
+    public function index(Request $request)
+    {
+        $page_title = 'All Reports';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        return view('reports.index', compact('page_title', 'employees'));
+    }
+
     public function salesRegister(Request $request)
     {
         $page_title = 'Sale Register Report';

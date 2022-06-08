@@ -131,6 +131,7 @@ import ViewCommissionComponent from './components/account/commission/ViewCommiss
 
 import LogsComponent from './components/LogsComponent.vue';
 
+import ReportsListComponent from './components/reports/ReportsListComponent.vue';
 import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
 
 /**
@@ -402,10 +403,10 @@ const routes = [
     },
     {
         path: '/reports/',
-        component: SalesRegisterComponent,
-        // children: [
-        //     { path: 'create-commission', component: CreateCommissionComponent },
-        // ]
+        component: ReportsListComponent,
+        children: [
+            { path: 'sales-register-report', component: SalesRegisterComponent },
+        ]
     },
 ];
 
@@ -514,6 +515,7 @@ createApp({
         AddCommissionComponent,
         ViewCommissionComponent,
 
-        SalesRegisterComponent
+        ReportsListComponent,
+        SalesRegisterComponent,
     }
 }).use(router).mount('#app');
