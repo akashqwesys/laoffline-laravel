@@ -562,13 +562,12 @@
                     totalamount += parseInt(value.amount);
                     setTimeout(() => {
                         this.salebilladjust[index] = value.adjustamount;
-                    }, 1000);  
+                    }, 1000);
                 });
                 this.form.totalamount = totalamount;
                 this.form.totaladjustamount = totalAdjustamount;
                 this.min = responce.data.financial_year_start_date;
                 this.max = responce.data.financial_year_end_date;
-                console.log(this.salebilladjust);
             })
             }
             //this.form.refrence = 'new';
@@ -577,7 +576,6 @@
         methods: {
             selectSalebill(event){
                 this.selected.forEach(value => {
-                console.log(value);
                 for(var i = 0; i < this.items.length; i++) {
                     if (this.items[i].sallbillid && this.items[i].sallbillid === value.id) {
                         this.items.splice(i, 1);
@@ -1306,26 +1304,24 @@
                     claim = 0;
                 }
                 if (this.scope == 'edit') {
-                console.log(this.salebilladjust);
-                console.log(index);
-                let salebilladj = this.salebilladjust[index-1];
-                if (adjamount > salebilladj) {
-                    alert ('Adjust Amount is not more than Pending Amount');
-                    this.salebills[index-1].adjustamount = salebilladj;
-                    return false;
+                    let salebilladj = this.salebilladjust[index-1];
+                    if (adjamount > salebilladj) {
+                        alert ('Adjust Amount is not more than Pending Amount');
+                        this.salebills[index-1].adjustamount = salebilladj;
+                        return false;
+                    }
                 }
-                }
-                if (amount > adjamount) {
+                if (parseInt(amount) > parseInt(adjamount)) {
                     diff = amount - adjamount;
                     discount = diff / amount * 100;
                         this.salebills[index-1].discountamount = diff;
                         this.salebills[index-1].discount = discount;
-                } else if (amount == adjamount) {
+                } else if (parseInt(amount) == parseInt(adjamount)) {
                     setTimeout(() => {
                         this.salebills[index-1].discount = 0;
                         this.salebills[index-1].discountamount = 0;
                     }, 500);
-                } else if (amount < adjamount) {
+                } else if (parseInt(amount) < parseInt(adjamount)) {
                     alert ('Adjust Amount is not more than bill Amount');
                     this.salebills[index-1].adjustamount = amount;
                     return false;
@@ -1357,7 +1353,6 @@
 
             uploadChequeImage (event) {
                 this.chequeimage = event.target.files[0];
-               // console.log(this.chequeimage);
             },
             uploadLetterImage (event) {
                 this.letterimage = event.target.files[0];
@@ -1469,7 +1464,6 @@
                         $("#error-for-reference").text("");
                     }
                     if (this.form.recipt_mode == 'cheque') {
-                        console.log(this.form.chequedate);
                         if (this.form.chequedate == '') {
                             $("#error-for-chequedate").text("Select Cheque Date");
                             this.isValidate = false;
@@ -1511,7 +1505,7 @@
                     this.items = responce.data.salebilldata;
                 });
             }
-            
+
             const self = this;
             //this.form.refrencevia = {name: 'Courier', code: '1'};
             this.form.discountamount = 0;
@@ -1525,7 +1519,6 @@
             this.form.interest = 0;
             $(document).on('change', '.old-reference', function () {
                 self.form.refrence_type = this.value;
-                console.log(self.form);
             });
             $(document).on('click', '#sale_bill_ref_search_btn', function() {
                 axios.get('/payments/getOldReferenceForSaleBill/'+$('#sale_bill_ref_search').val())
@@ -1535,7 +1528,6 @@
                         $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="r-'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
                         $('#show-references tr input[type="radio"]').last().prop('checked', true);
                         self.form.refrence_type = $('#hidden_reference_id_input').val();
-                        console.log(self.form);
                         // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
                     } else {
                         this.new_old_sale_bill = 1;

@@ -27,6 +27,48 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
+                                <div class="mb-5">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th width="15%">Start Date</th>
+                                                <th width="15%">End Date</th>
+                                                <th width="20%">Customer</th>
+                                                <th width="20%">Supplier</th>
+                                                <th width="15%">Status</th>
+                                                <th width="5%">Hide</th>
+                                                <th width="10%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <input type="date" v-model="start_date" id="start_date" class="form-control" autocomplete="off" onfocus="this.showPicker();" :max="max_date">
+                                                </td>
+                                                <td>
+                                                    <input type="date" v-model="end_date" id="end_date" class="form-control" autocomplete="off" onfocus="this.showPicker();" :max="max_date">
+                                                </td>
+                                                <td>
+                                                    <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id=""></multiselect>
+                                                    <input type="hidden" name="hidden_reports_cmp_id" id="hidden_reports_cmp_id" value="" autocomplete="off">
+                                                </td>
+                                                <td>
+                                                    <multiselect v-model="supplier" :options="supplier_options" placeholder="Select One" label="name" track-by="id" id=""></multiselect>
+                                                    <input type="hidden" name="hidden_reports_supplier_id" id="hidden_reports_supplier_id" value="" autocomplete="off">
+                                                </td>
+                                                <td>
+                                                    <multiselect v-model="payment_status" :options="payment_status_options" label="name" track-by="id" id="payment_status"></multiselect>
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    <input type="checkbox" v-model="show_detail" id="show_detail" value="1" onchange="hide_detail()" autocomplete="off">
+                                                </td>
+                                                <td class="">
+                                                    <button type="submit" class="btn btn-primary btn-round" @click="getData()">Go</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <div class="table-responsive">
                                     <table id="salesRegister" class="table table-hover table-bordered">
                                         <thead>
@@ -69,17 +111,42 @@
     import 'pdfmake/build/pdfmake';
     import "datatables.net-buttons/js/buttons.html5";
     import "datatables.net-buttons/js/buttons.print";
+    import Multiselect from 'vue-multiselect';
 
     export default {
         name: 'salesRegister',
         props: {
         },
         components: {
+            Multiselect,
             ViewCompanyDetails
         },
         data() {
             return {
+                customer_options: [],
+                supplier_options: [],
+                payment_status_options: [{id: 0, name: 'All'}, {id: 1, name: 'Pending'}, {id: 2, name: 'Complete'}],
+                start_date: '',
+                end_date: '',
+                customer: '',
+                supplier: '',
+                payment_status: { id: 0, name: 'All' },
+                show_detail: 0,
+                max_date: '2022-01-01',
             }
+        },
+        created() {
+            const date = new Date();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const y = String(date.getFullYear());
+            this.max_date = [y, m, d].join('-');
+
+            axios.get('/account/sale-bill/list-customers-and-suppliers')
+            .then(response => {
+                this.customer_options = response.data[0];
+                this.supplier_options = response.data[1];
+            });
         },
         methods: {
             showModal: function(id) {
@@ -93,7 +160,19 @@
                 window.$('#viewCompany1').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').removeAttr('style');
-            }
+            },
+            getData() {
+                axios.get('/reports/list-sales-register-data', {
+                    start_date: this.start_date,
+                    end_date: this.end_date,
+                    customer: this.customer,
+                    supplier: this.supplier,
+                    payment_status: this.payment_status,
+                })
+                .then(response => {
+                    1
+                });
+            },
         },
         mounted() {
             const self = this;

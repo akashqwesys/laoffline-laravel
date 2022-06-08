@@ -58,7 +58,7 @@ class ReportController extends Controller
         return view('reports.sales_register_report', compact('page_title', 'employees'));
     }
 
-    public function viewSalesRegisterData(Request $request)
+    public function listSalesRegisterData(Request $request)
     {
 
     }
