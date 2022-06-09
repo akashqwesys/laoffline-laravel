@@ -1158,7 +1158,7 @@ class PaymentsController extends Controller
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $financialid;
+                    $paymentDetail->financial_year_id = $salebill->fid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->status = 1;
@@ -1189,7 +1189,7 @@ class PaymentsController extends Controller
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $financialid;
+                    $paymentDetail->financial_year_id = $salebill->fid;;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->status = 0;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
@@ -1226,7 +1226,7 @@ class PaymentsController extends Controller
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->payment_id = $payment_id;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $financialid;
+                    $paymentDetail->financial_year_id = $salebill->fid;;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->status = $salebill->status->code;
@@ -1296,7 +1296,7 @@ class PaymentsController extends Controller
         $payment1->tot_good_returns = $tot_good_returns;
         $payment1->tot_short = $tot_short;
         $payment1->tot_interest = $tot_interest;
-        $payment->tot_rate_difference = $paymentData->ratedifference;
+        $payment1->tot_rate_difference = $paymentData->ratedifference;
         $payment1->payment_ok_or_not = $payment_ok_or_not;
         $payment1->save();
 
@@ -1770,12 +1770,12 @@ class PaymentsController extends Controller
                     $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
-                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', '0')->first(1);
+                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first(0);
                     $bill->payment_status = '1';
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
                     $bill->save();
 
-                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first(1);
+                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$salebill->fid)->where('is_deleted', '0')->first(0);
                     $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
                     $paymentDetail2->pending_payment = $Pending;
                     $paymentDetail2->save();
@@ -1786,7 +1786,7 @@ class PaymentsController extends Controller
                     $paymentDetail->payment_id = $paymentData->id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $payment->financial_year_id;
+                    $paymentDetail->financial_year_id = $salebill->fid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->status = 0;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
@@ -1796,11 +1796,11 @@ class PaymentsController extends Controller
                     $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
-                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first(1);
+                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first(1);
                     $bill->payment_status = '0';
                     $bill->save();
 
-                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first(1);
+                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$salebill->fid)->where('is_deleted', '0')->first();
                     $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
                     $paymentDetail2->pending_payment = $Pending;
                     $paymentDetail2->save();
@@ -1852,17 +1852,21 @@ class PaymentsController extends Controller
 					$tot_rate_difference += $salebill->ratedifference;
 					$tot_adjust_amount += $salebill->adjustamount;
 
-                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->first();
+                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
+                    
+
+                    $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id',$salebill->fid)->where('is_deleted', '0')->get();
+                    
+                    $receive_amount = 0;
+                    foreach ($paymentDetail2 as $pdetai){
+                        $totalamount = (int)$pdetai->adjust_amount + (int)$pdetai->discount_amount + (int)$pdetai->vatav + (int)$pdetai->agent_commission + (int)$pdetai->bank_commission + (int)$pdetai->claim + (int)$pdetai->goods_return + $pdetai->short - (int)$pdetai->interest;
+                        $receive_amount += $totalamount;
+                    }
                     $bill->payment_status = $salebill->status->code;
-                    $bill->received_payment = (int)$salebill->adjustamount;
+                    $bill->received_payment = (int)$receive_amount;
                     $bill->save();
 
-                    $paymentDetail2 = PaymentDetail::where('payment_id', $paymentData->id)->where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
-
-                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $financialid)->where('is_deleted', 0)->first();
-
-                    //$Pending = (int)$bill2->pending_payment - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
-
+                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', 0)->first();
                     $bill2->pending_payment = $bill2->total - $bill2->received_payment;
                     $bill2->save();
                 }
@@ -2343,6 +2347,30 @@ class PaymentsController extends Controller
         $data['salebill'] = $salebilldata;
         $data['customer'] = $customer;
         $data['supplier'] = $supplier;
+        return $data;
+    }
+
+    public function checkPendingPayment(Request $request)
+    {
+        $old_amount = $request->old_amount;
+        $new_amount = $request->new_amount;
+        $salebillid = $request->salebillid;
+        $fid = $request->fid;
+        
+        $salebill = SaleBill::where('sale_bill_id', $salebillid)->where('financial_year_id', $fid)->first();
+        $received_payment = $salebill->received_payment;
+        $status = $salebill->payment_status;
+        $pending_payment = $salebill->pending_payment;
+        
+        if ($pending_payment > 0) {
+            $amount = $old_amount + $pending_payment;
+            $diff = $new_amount - $amount;
+            if ($diff > 0) {
+                $data['amount'] = $amount;
+            } else {
+                $data['amount'] = 0;
+            }
+        }
         return $data;
     }
 }

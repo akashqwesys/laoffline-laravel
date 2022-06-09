@@ -724,6 +724,7 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:modif
     Route::post('/selectsalebills', [App\Http\Controllers\PaymentsController::class, 'selectSaleBills']);
     Route::get('/addpayment', [App\Http\Controllers\PaymentsController::class, 'addPayment'])->name('addpayment');
     Route::post('/update', [App\Http\Controllers\PaymentsController::class, 'updatePaymentData']);
+    Route::post('/checkpendingpayment', [App\Http\Controllers\PaymentsController::class, 'checkPendingPayment']);
     Route::get('/edit-payment/{id}', [App\Http\Controllers\PaymentsController::class, 'editPayment']);
     Route::get('/delete/{id}', [App\Http\Controllers\PaymentsController::class, 'deletePayment'])->name('delete');
     Route::get('/deletegoodreturn/{id}', [App\Http\Controllers\PaymentsController::class, 'deleteGoodReturn'])->name('deletegoodreturn');

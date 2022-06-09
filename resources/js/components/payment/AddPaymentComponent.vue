@@ -1305,11 +1305,23 @@
                 }
                 if (this.scope == 'edit') {
                     let salebilladj = this.salebilladjust[index-1];
-                    if (adjamount > salebilladj) {
-                        alert ('Adjust Amount is not more than Pending Amount');
-                        this.salebills[index-1].adjustamount = salebilladj;
-                        return false;
-                    }
+                    let salebillid = this.salebills[index-1].id;
+                    let fid = this.salebills[index-1].fid;
+                    axios.post('/payments/checkpendingpayment',{
+                        old_amount : salebilladj,
+                        new_amount : adjamount,
+                        salebillid : salebillid,
+                        fid : fid,
+                    }).then(response =>{
+                        let amount = response.data.amount;
+                        if (amount > 0) {
+                            alert ('Adjust Amount is not more than amount'+ amount);
+                            this.salebills[index-1].adjustamount = salebilladj;
+                            return false;
+                        }
+                    })
+                    
+                    
                 }
                 if (parseInt(amount) > parseInt(adjamount)) {
                     diff = amount - adjamount;
@@ -1582,6 +1594,7 @@
                             gData.salebill.forEach((value,index) => {
                                 self.salebilladjust[index] = value.adjust_amount;
                                 self.salebills[index].id = value.sr_no;
+                                self.salebills[index].fid = value.financial_year_id;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
                                 self.salebills[index].amount = value.amount;
                                 self.salebills[index].adjustamount = value.adjust_amount;
