@@ -344,7 +344,7 @@
                                         <hr>
                                         <div class="transport_details">
                                             <!-- Modal -->
-                                            <!-- <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -355,18 +355,19 @@
                                                             <div class="row">
                                                                 <label class="col-sm-2">Name</label>
                                                                 <div class="col-sm-10">
-                                                                    <input type="text" value="" name="add_transport_name" id="add_transport_name" class="form-control">
+                                                                    <input type="text" id="add_transport_name" class="form-control">
                                                                 </div>
                                                             </div><br>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                            <button type="button" class="btn btn-default" data-dismiss="modal" id="closeTransportModalBtn">Close</button>
                                                             <button type="button" id="save_modal_data_transport" class="btn btn-primary" data-dismiss="modal">Submit</button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div> -->
+                                            </div>
                                             <label class=""><b>Transport Details</b></label>
+                                            <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#myModalTransport" title="Add New" @click="addTransport()"><span class="clipboard-text">Add New</span></button>
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
@@ -1000,6 +1001,18 @@
                 .then(response => {
                     $('#closeFabricModalBtn').trigger('click');
                     this.add_fabric_name = '';
+                    if (response.data.refresh_data == 1) {
+                        this.getProductSubCategory();
+                    }
+                });
+            },
+            addTransport () {
+                axios.post('/account/sale-bill/add-transport', {
+                    transport: $('#add_transport_name').val()
+                })
+                .then(response => {
+                    $('#closeTransportModalBtn').trigger('click');
+                    $('#add_transport_name').val('');
                     if (response.data.refresh_data == 1) {
                         this.getProductSubCategory();
                     }

@@ -1273,7 +1273,7 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
-                
+
 
 
                 let rateDifference = 0;
@@ -1304,8 +1304,8 @@
                 }
                 let amount = this.salebills[index-1].amount;
                 let adjamount = this.salebills[index-1].adjustamount;
-                
-                if (this.scope == 'edit') {    
+
+                if (this.scope == 'edit') {
                     let salebilladj = this.salebilladjust[index-1];
                     let salebillid = this.salebills[index-1].id;
                     let fid = this.salebills[index-1].fid;
@@ -1327,7 +1327,7 @@
                                 return false;
                             }
                         }
-                    })    
+                    })
                 }
                 if (this.scope != 'edit'){
                 if (parseInt(amount) > parseInt(adjamount)) {
@@ -1364,7 +1364,7 @@
                         totalAdjustamount += parseInt(value.adjustamount);
                         totaldiscount += parseInt(discountamount);
                     }, 500);
-                    
+
                 });
                 setTimeout(() => {
                      this.form.totaladjustamount = totalAdjustamount;
@@ -1602,8 +1602,8 @@
                             self.form.claim = gData.paymentData.tot_claim;
                             self.form.short = gData.paymentData.tot_short;
                             self.form.interest = gData.paymentData.tot_interest;
-                            gData.salebill.forEach((value,index) => {
-                                
+                            gData.salebill.forEach((value, index) => {
+                                self.salebills[index] = [];
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].fid = value.financial_year_id;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
