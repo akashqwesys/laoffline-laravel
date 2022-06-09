@@ -930,7 +930,7 @@ class PaymentsController extends Controller
         $paymentSalebill = json_decode($request->billdata);
         $financialid = Session::get('user')->financial_year_id;
         $attachments = array();
-        
+
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
@@ -1263,12 +1263,16 @@ class PaymentsController extends Controller
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id',$financialid)->where('is_deleted', '0')->first();
-                    $Pending = (int)$bill->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
+                    if ($paymentDetail2) {
+                        $Pending = (int)$bill->total - (int)$paymentDetail2->adjust_amount + (int)$paymentDetail2->discount_amount + (int)$paymentDetail2->vatav + (int)$paymentDetail2->agent_commission + (int)$paymentDetail2->bank_commission + (int)$paymentDetail2->claim + (int)$paymentDetail2->goods_return + $paymentDetail2->short - (int)$paymentDetail2->interest;
+                    } else {
+                        $Pending = (int)$bill->total;
+                    }
                     //print_r($Pending);exit;
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', 0)->first();
-                    
+
                     $bill2->pending_payment = $bill2->total - $bill2->received_payment;
-                    
+
                     $bill2->save();
 
                 }
@@ -1627,7 +1631,7 @@ class PaymentsController extends Controller
         $financialid = Session::get('user')->financial_year_id;
         $paymentData = json_decode($request->formdata);
         $paymentSalebill = json_decode($request->billdata);
-        
+
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
@@ -1853,10 +1857,10 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += $salebill->adjustamount;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
-                    
+
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id',$salebill->fid)->where('is_deleted', '0')->get();
-                    
+
                     $receive_amount = 0;
                     foreach ($paymentDetail2 as $pdetai){
                         $totalamount = (int)$pdetai->adjust_amount + (int)$pdetai->discount_amount + (int)$pdetai->vatav + (int)$pdetai->agent_commission + (int)$pdetai->bank_commission + (int)$pdetai->claim + (int)$pdetai->goods_return + $pdetai->short - (int)$pdetai->interest;
@@ -2356,12 +2360,12 @@ class PaymentsController extends Controller
         $new_amount = $request->new_amount;
         $salebillid = $request->salebillid;
         $fid = $request->fid;
-        
+
         $salebill = SaleBill::where('sale_bill_id', $salebillid)->where('financial_year_id', $fid)->first();
         $received_payment = $salebill->received_payment;
         $status = $salebill->payment_status;
         $pending_payment = $salebill->pending_payment;
-        
+
         if ($pending_payment > 0) {
             $amount = $old_amount + $pending_payment;
             $diff = $new_amount - $amount;
