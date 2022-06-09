@@ -2169,6 +2169,7 @@ class SaleBillController extends Controller
             $fabric = new ProductCategory();
             $fabric->id = (getLastID('product_categories', 'id') + 1);
             $fabric->main_category_id = $request->mainCategory_id;
+            $fabric->name = $request->fabric_name;
             $fabric->product_default_category_id = 2;
             $fabric->company_id = json_encode([$request->supplier_id]);
             $fabric->product_fabric_id = 0;

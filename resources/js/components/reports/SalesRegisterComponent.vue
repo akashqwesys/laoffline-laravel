@@ -168,6 +168,7 @@
                     customer: this.customer,
                     supplier: this.supplier,
                     payment_status: this.payment_status,
+                    show_detail: this.show_detail,
                 })
                 .then(response => {
                     1
