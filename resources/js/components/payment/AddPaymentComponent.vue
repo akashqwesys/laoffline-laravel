@@ -1603,7 +1603,7 @@
                             self.form.short = gData.paymentData.tot_short;
                             self.form.interest = gData.paymentData.tot_interest;
                             gData.salebill.forEach((value,index) => {
-                                self.salebilladjust[index] = value.adjust_amount;
+                                
                                 self.salebills[index].id = value.sr_no;
                                 self.salebills[index].fid = value.financial_year_id;
                                 self.salebills[index].sup_inv = value.supplier_invoice_no;
@@ -1621,6 +1621,7 @@
                                 self.salebills[index].ratedifference = value.rate_difference;
                                 self.salebills[index].remark = value.remark;
                                 self.salebills[index].status = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
+                                self.salebilladjust[index] = value.adjust_amount;
                             });
                         }, 1000);
 
