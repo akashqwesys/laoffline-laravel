@@ -1372,10 +1372,11 @@ class PaymentsController extends Controller
             $status_c = new \stdClass;
             $status_c->code = 1;
             $status_c->status = 'Complete';
+            $overdue = floor((time() - strtotime($salebills->select_date)) / (60 * 60 * 24));
             if ($salebills->pending_payment != 0){
-                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->pending_payment, 'adjustamount' => $salebills->pending_payment, 'status' => $status_c);
+                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->pending_payment, 'adjustamount' => $salebills->pending_payment, 'status' => $status_c, 'overdue' => $overdue);
             } else {
-                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c);
+                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'overdue' => $overdue);
             }
             array_push($salebill_data, $salebill);
 
@@ -1386,6 +1387,12 @@ class PaymentsController extends Controller
                 array_push($salebill_data2, $salebill2);
             }
         }
+        usort($salebill_data, function($a, $b) {
+            if ($a['overdue'] == $b['overdue']) {
+              return 0;
+            }
+            return ($a['overdue'] > $b['overdue']) ? -1 : 1;
+        });
         $courier = TransportDetails::where('is_delete', 0)->get();
         $data['customer'] = $customer;
         $data['seller'] = $seller;
@@ -1571,7 +1578,7 @@ class PaymentsController extends Controller
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
-        $salebill = PaymentDetail::where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->get();
+        $salebill = PaymentDetail::where('p_increment_id', $payment->id)->get();
 
         $data['paymentData'] = $payment;
         $data['created_at'] = date_format($payment->created_at,"Y/m/d H:i:s");

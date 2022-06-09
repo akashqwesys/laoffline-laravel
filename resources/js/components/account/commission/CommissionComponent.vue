@@ -15,7 +15,8 @@
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="commissionivoicelink" class="dropdown-toggle btn btn-icon btn-warning px-2">Commission Invoice</a>
-                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>                                        
+                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
 				                    </div>
                                 </div>
                                 
@@ -94,6 +95,10 @@
                 .then(response => {
                     location.reload();
                 });
+            },
+            clearallfilter(event) {
+                $("#commission_filter").find('input[type=search]').val("");
+                $('#commission').DataTable().clear().draw();
             },
         },
         mounted() {

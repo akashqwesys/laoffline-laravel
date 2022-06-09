@@ -81,7 +81,7 @@
                                         </tr>
                                     </tbody>
                                     <tfoot>
-                                        <tr>
+                                        <tr class="text-center">
                                             <td><b>Total Salebill</b></td>
                                             <td>{{ slectedsalebill }}</td>
                                             <td></td>
@@ -89,7 +89,7 @@
                                             <td></td>
                                             <td><b>Total Bill Amount</b></td>
                                             <td>{{ totalamount}}</td>
-                                            <td></td>
+                                            <td>{{ totalbillamont }}</td>
                                             <td></td>
                                             <td></td>
                                         </tr>
@@ -128,6 +128,7 @@
                 salebill: [],
                 slectedsalebill: 0,
                 totalamount: '',
+                totalbillamont: '',
                 form: new Form({
                     id: '',
                     customer: '',
@@ -148,14 +149,17 @@
         methods: {
             salebillselect(event) {
                 let total = 0;
+                let totalbill = 0;
                 this.slectedsalebill = this.selected.length;
                 this.selected.forEach(value => {
                 this.salebill.forEach(value1 => {
                     if (value.id == value1.sallbillid) {
+                        totalbill += parseInt(value1.amount);
                         total += parseInt(value1.pending_payment);
                     }
                 });
             });
+            this.totalbillamont = totalbill;
             this.totalamount = total;
             },
             generatePayment(event){
@@ -191,7 +195,9 @@
                 });
             },
             clearallfilter(event){
-               
+               this.form.customer = "";
+               this.form.seller = "";
+               $(".salebill").addClass("d-none");
             },
         },
         mounted(){
