@@ -97,18 +97,18 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr class="salebillrow" v-for="(salebill,index) in salebills" :key="index">
-                                                        <td>{{ salebill.sr_no}}</td>
-                                                        <td>{{ salebill.supplier_invoice_no}}</td>
+                                                        <td>{{ salebill.id}}</td>
+                                                        <td>{{ salebill.sup_inv}}</td>
                                                         <td>{{ salebill.amount}}</td>
-                                                        <td>{{ salebill.adjust_amount}}</td>
-                                                        <td v-if="salebill.status == 1">Completed</td><td v-else>Pending</td>
+                                                        <td>{{ salebill.adjustamount}}</td>
+                                                        <td>{{ salebill.status.status}}</td>
                                                         <td>{{ salebill.discount }}</td>
-                                                        <td>{{ salebill.discount_amount }}</td>
-                                                        <td>{{ salebill.goods_return }}</td>
-                                                        <td>{{ salebill.rate_difference }}</td>
-                                                        <td>{{ salebill.bank_commission }}</td>
+                                                        <td>{{ salebill.discountamount }}</td>
+                                                        <td>{{ salebill.goodreturn }}</td>
+                                                        <td>{{ salebill.ratedifference }}</td>
+                                                        <td>{{ salebill.bankcommission }}</td>
                                                         <td>{{ salebill.vatav }}</td>
-                                                        <td>{{ salebill.agent_commission }}</td>
+                                                        <td>{{ salebill.agentcommission }}</td>
                                                         <td>{{ salebill.claim }}</td>
                                                         <td>{{ salebill.short }}</td>
                                                         <td>{{ salebill.interest }}</td>

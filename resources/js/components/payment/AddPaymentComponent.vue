@@ -1602,26 +1602,9 @@
                             self.form.claim = gData.paymentData.tot_claim;
                             self.form.short = gData.paymentData.tot_short;
                             self.form.interest = gData.paymentData.tot_interest;
+                            self.salebills = gData.salebill;
                             gData.salebill.forEach((value, index) => {
-                                self.salebills[index] = [];
-                                self.salebills[index].id = value.sr_no;
-                                self.salebills[index].fid = value.financial_year_id;
-                                self.salebills[index].sup_inv = value.supplier_invoice_no;
-                                self.salebills[index].amount = value.amount;
-                                self.salebills[index].adjustamount = value.adjust_amount;
-                                self.salebills[index].discount = value.discount;
-                                self.salebills[index].discountamount = value.discount_amount;
-                                self.salebills[index].vatav = value.vatav;
-                                self.salebills[index].bankcommission = value.bank_commission;
-                                self.salebills[index].agentcommission = value.agent_commission;
-                                self.salebills[index].claim = value.claim;
-                                self.salebills[index].goodreturn = value.goods_return;
-                                self.salebills[index].short = value.short;
-                                self.salebills[index].interest = value.interest;
-                                self.salebills[index].ratedifference = value.rate_difference;
-                                self.salebills[index].remark = value.remark;
-                                self.salebills[index].status = value.status == 1 ? {status: 'Complete', code: '1'} : {status: 'Pending', code: '0'};
-                                self.salebilladjust[index] = value.adjust_amount;
+                                self.salebilladjust[index] = value.adjustamount;
                             });
                         }, 1000);
 

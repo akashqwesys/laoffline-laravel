@@ -1574,8 +1574,21 @@ class PaymentsController extends Controller
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
-        $salebill = PaymentDetail::where('p_increment_id', $payment->id)->get();
-
+        $paymentDetail = PaymentDetail::where('p_increment_id', $payment->id)->get();
+        $salebill = array();
+        foreach ($paymentDetail as $details) {
+            $status = array("status" => 'Pending', "code" => 0);
+            if ($details->status == 1) {
+                $status = array("status" => 'Complate', "code" => 1);
+            }
+            $salebilldata = array('id'=> $details->sr_no, 'fid'=> $details->financial_year_id, 'sup_inv' => $details->supplier_invoice_no,
+                        'amount' => $details->amount, 'adjustamount' => $details->adjust_amount, 'status' => $status,
+                        'discount' => $details->discount, 'discountamount' => $details->discount_amount,
+                        'goodreturn' => $details->goods_return, 'ratedifference' => $details->rate_difference,
+                        'bankcommission' => $details->bank_commission, 'vatav' => $details->vatav, 'agentcommission' => $details->agent_commission,
+                        'claim' => $details->claim, 'short' => $details->short, 'interest'=> $details->interest, 'remark' => $details->remark);
+            array_push($salebill, $salebilldata);
+        }
         $data['paymentData'] = $payment;
         $data['created_at'] = date_format($payment->created_at,"Y/m/d H:i:s");
         $data['salebill'] = $salebill;
@@ -2376,7 +2389,14 @@ class PaymentsController extends Controller
             } else {
                 $data['amount'] = 0;
             }
-            $data['amount'] = 0;
+        } else if ($pending_payment == 0) {
+            $diff = $new_amount - $old_amount;
+            if ($diff > 0) {
+                $data['amount'] = $old_amount;
+            } else {
+                $data['amount'] = 0;
+            }
         }
+        return $data;
     }
 }
