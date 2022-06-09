@@ -1846,7 +1846,7 @@ class SaleBillController extends Controller
     {
         $where = null;
         foreach ($link_companies as $v) {
-            $where .= "company_id @> '\"" . strval($v) . "\"' or ";
+            $where .= "company_id @> '\"" . strval($v) . "\"' or company_id @> '" . strval($v) . "' or ";
         }
         $products = DB::table('product_categories')
             ->select('id', 'product_default_category_id', 'name', 'main_category_id')
