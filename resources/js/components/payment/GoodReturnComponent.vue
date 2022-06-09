@@ -3,25 +3,21 @@
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
-                    <div class="nk-block-head nk-block-head-sm">
-                        <div class="nk-block-between">
-                            <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Good Return Lists</h3>
-                                <div class="nk-block-des text-soft">
-                                    <!-- <p>You have total {{employees.length}} employee.</p> -->
-                                </div>
-                            </div><!-- .nk-block-head-content -->
-                            <div class="nk-block-head-content">
-                                <div class="toggle-wrap nk-block-tools-toggle">
-                                    <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
-                                    <div class="toggle-expand-content" data-content="pageMenu">
-                                        
-                                    </div>
-                                </div><!-- .toggle-wrap -->
-                            </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between -->
-                    </div><!-- .nk-block-head -->
                     <div class="nk-block">
+                        <div class="card-header">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h6 class="nk-block-title page-title">Good Return List</h6>
+                                    </div>
+                                    <div class="col-md-8 text-right">
+				                    	
+										<button @click="clearallfilter" class="btn btn-dark mx-1">
+				                            Clear All
+				                        </button>
+				                    </div>
+                                </div>
+                                
+                            </div>
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
                                 <div class="table-responsive">
@@ -98,6 +94,10 @@
                     location.reload();
                 });
             },
+            clearallfilter(event){
+                $("#goodreturn_filter").find('input[type=search]').val("");
+                $('#goodreturn').DataTable().clear().draw();
+            }
         },
         mounted() {
             const self = this;

@@ -24,9 +24,9 @@
 										<a href="/payments/goods_returns" class="btn btn-primary mx-1">
 				                            Goods Return
 				                        </a>
-										<a href="/payments/" class="btn btn-dark mx-1">
+										<button @click="clearallfilter" class="btn btn-dark mx-1">
 				                            Clear All
-				                        </a>
+				                        </button>
                                         <a v-bind:href="create_payment" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
 				                    </div>
                                 </div>
@@ -112,6 +112,10 @@
                     location.reload();
                 });
             },
+            clearallfilter(event){
+                $("#payment_filter").find('input[type=search]').val("");
+                $('#payment').DataTable().clear().draw();
+            }
         },
         mounted() {
             const self = this;
