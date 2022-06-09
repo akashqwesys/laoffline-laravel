@@ -1756,7 +1756,7 @@ class PaymentsController extends Controller
         $payment->total_amount = $paymentData->totalamount ?? 0;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount ?? 0;
         $payment->save();
-        $p_increment_id = $paymentData->id;
+        $p_increment_id = $payment->p_increment_id;
         PaymentDetail::where('payment_id', $paymentData->id)->delete();
         if ($paymentSalebill) {
             $i=0;
