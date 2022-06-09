@@ -1273,8 +1273,7 @@
                 let short = this.salebills[index-1].short;
                 let claim = this.salebills[index-1].claim;
                 let interest = this.salebills[index-1].interest;
-                let amount = this.salebills[index-1].amount;
-                let adjamount = this.salebills[index-1].adjustamount;
+                
 
 
                 let rateDifference = 0;
@@ -1303,7 +1302,10 @@
                 if (!claim) {
                     claim = 0;
                 }
-                if (this.scope == 'edit') {
+                let amount = this.salebills[index-1].amount;
+                let adjamount = this.salebills[index-1].adjustamount;
+                
+                if (this.scope == 'edit') {    
                     let salebilladj = this.salebilladjust[index-1];
                     let salebillid = this.salebills[index-1].id;
                     let fid = this.salebills[index-1].fid;
@@ -1313,16 +1315,21 @@
                         salebillid : salebillid,
                         fid : fid,
                     }).then(response =>{
-                        let amount = response.data.amount;
-                        if (amount > 0) {
-                            alert ('Adjust Amount is not more than amount'+ amount);
-                            this.salebills[index-1].adjustamount = salebilladj;
+                        let newamount = response.data.amount;
+                        if (parseInt(amount) < parseInt(adjamount)) {
+                            alert ('Adjust Amount is not more than bill Amount & Also Pending amount : ' + newamount);
+                            this.salebills[index-1].adjustamount = newamount;
                             return false;
+                        } else if (parseInt(amount) > parseInt(adjamount)) {
+                            if (parseInt(newamount)) {
+                                alert ('Adjust Amount is not more than Amount : ' + newamount);
+                                this.salebills[index-1].adjustamount = newamount;
+                                return false;
+                            }
                         }
-                    })
-                    
-                    
+                    })    
                 }
+                if (this.scope != 'edit'){
                 if (parseInt(amount) > parseInt(adjamount)) {
                     diff = amount - adjamount;
                     discount = diff / amount * 100;
@@ -1334,9 +1341,10 @@
                         this.salebills[index-1].discountamount = 0;
                     }, 500);
                 } else if (parseInt(amount) < parseInt(adjamount)) {
-                    alert ('Adjust Amount is not more than bill Amount');
-                    this.salebills[index-1].adjustamount = amount;
-                    return false;
+                        alert ('Adjust Amount is not more than bill Amount');
+                        this.salebills[index-1].adjustamount = amount;
+                        return false;
+                    }
                 }
 
                 let diff1 = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim);
@@ -1351,9 +1359,12 @@
                     if (!rate) {
                         rate = 0;
                     }
-                    totalRateDifference += rate;
-                    totalAdjustamount += parseInt(value.adjustamount);
-                    totaldiscount += parseInt(discountamount);
+                    setTimeout(() => {
+                        totalRateDifference += rate;
+                        totalAdjustamount += parseInt(value.adjustamount);
+                        totaldiscount += parseInt(discountamount);
+                    }, 500);
+                    
                 });
                 setTimeout(() => {
                      this.form.totaladjustamount = totalAdjustamount;

@@ -2370,6 +2370,13 @@ class PaymentsController extends Controller
             } else {
                 $data['amount'] = 0;
             }
+        } else if ($pending_payment == 0) {
+            $diff = $new_amount - $old_amount;
+            if ($diff > 0) {
+                $data['amount'] = $old_amount;
+            } else {
+                $data['amount'] = 0;
+            }
         }
         return $data;
     }

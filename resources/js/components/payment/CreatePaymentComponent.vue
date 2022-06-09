@@ -36,7 +36,7 @@
                                                     <label class="form-label" for="fv-seller"></label>
                                                     <div>
                                                         <button class="btn btn-primary" @click="searchSalebills($event)">Search</button>
-                                                        <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
+                                                        <button class="mx-2 btn btn-dim btn-secondary" @click="clearallfilter">Cancel</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -68,7 +68,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in salebill" :key="itm.sallbillid" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="{'id':itm.sallbillid, 'fid': itm.financialyear.id}"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" @change="salebillselect" :id="itm.sallbillid"  :value="{'id':itm.sallbillid, 'fid': itm.financialyear.id}"  required></td>
 				                            <td>{{ itm.sallbillid }}</td>
 				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
@@ -80,6 +80,20 @@
 				                            <td><a :href="'/account/sale-bill/view-sale-bill/'+ itm.sallbillid + '/' + itm.financialyear.id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td><b>Total Salebill</b></td>
+                                            <td>{{ slectedsalebill }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td><b>Total Bill Amount</b></td>
+                                            <td>{{ totalamount}}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                                 <button class="btn btn-primary generatepayment float-right" @click="generatePayment($event)">Generate Payment</button>
 
@@ -112,7 +126,8 @@
                 customer: [],
                 selected: [],
                 salebill: [],
-
+                slectedsalebill: 0,
+                totalamount: '',
                 form: new Form({
                     id: '',
                     customer: '',
@@ -131,6 +146,18 @@
             });
         },
         methods: {
+            salebillselect(event) {
+                let total = 0;
+                this.slectedsalebill = this.selected.length;
+                this.selected.forEach(value => {
+                this.salebill.forEach(value1 => {
+                    if (value.id == value1.sallbillid) {
+                        total += parseInt(value1.pending_payment);
+                    }
+                });
+            });
+            this.totalamount = total;
+            },
             generatePayment(event){
                if (this.selected.length == 0) {
                     alert('please select Sale Bill');
@@ -162,6 +189,9 @@
                 })
                 .catch(function (error) {
                 });
+            },
+            clearallfilter(event){
+               
             },
         },
         mounted(){
