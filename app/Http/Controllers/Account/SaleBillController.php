@@ -1846,7 +1846,7 @@ class SaleBillController extends Controller
     {
         $where = null;
         foreach ($link_companies as $v) {
-            $where .= "company_id @> '\"" . strval($v) . "\"' or ";
+            $where .= "company_id @> '\"" . strval($v) . "\"' or company_id @> '" . strval($v) . "' or ";
         }
         $products = DB::table('product_categories')
             ->select('id', 'product_default_category_id', 'name', 'main_category_id')
@@ -2169,6 +2169,7 @@ class SaleBillController extends Controller
             $fabric = new ProductCategory();
             $fabric->id = (getLastID('product_categories', 'id') + 1);
             $fabric->main_category_id = $request->mainCategory_id;
+            $fabric->name = $request->fabric_name;
             $fabric->product_default_category_id = 2;
             $fabric->company_id = json_encode([$request->supplier_id]);
             $fabric->product_fabric_id = 0;

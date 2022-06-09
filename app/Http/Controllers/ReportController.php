@@ -60,7 +60,51 @@ class ReportController extends Controller
 
     public function listSalesRegisterData(Request $request)
     {
+        $data = DB::table('sale_bills as s');
+        if ($request->show_detail == 1) {
+            $data = $data->join('companies as c', 's.company_id', '=', 'c.id')
+                ->selectRaw('SUM(s.total) as total, SUM(s.received_payment) as received_payment, c.name, s.company_id');
+        } else {
+            $data = $data->join('sale_bill_items as sbi', function ($j) {
+                    $j->on('s.sale_bill_id', '=', 'sbi.sale_bill_id')
+                    ->on('s.financial_year_id', '=', 'sbi.financial_year_id');
+                })
+                ->leftJoin('sale_bill_transports as sbt', function ($j) {
+                    $j->on('s.sale_bill_id', '=', 'sbt.sale_bill_id')
+                    ->on('s.financial_year_id', '=', 'sbt.financial_year_id')
+                    ->where('sbt.is_deleted', 0);
+                })
+                ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+                ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+                ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, SUM(sbi.pieces) AS tot_pieces, SUM(sbi.meters) AS tot_meters, SUM(sbi.cgst_amount + sbi.sgst_amount + sbi.igst_amount) AS total_gst, sbt.transport_id, sbt.station, sbt.lr_mr_no');
+        }
+        if ($request->customer && $request->customer->id) {
+            $data = $data->where('s.company_id', $request->customer->id);
+        }
+        if ($request->supplier && $request->supplier->id) {
+            $data = $data->where('s.supplier_id', $request->supplier->id);
+        }
+        if ($request->payment_status && $request->payment_status->id == 1) {
+            $data = $data->where('s.payment_status', 0);
+        } else if ($request->payment_status && $request->payment_status->id == 2) {
+            $data = $data->where('s.payment_status', 1);
+        }
+        if ($request->start_date && $request->end_date) {
+            $data = $data->whereBetween('s.select_date', [$request->start_date, $request->end_date]);
+        }
+        if ($request->show_detail == 1) {
+            $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0')
+                ->groupBy('c.id')
+                ->orderByRaw('c.company_name, s.select_date asc')
+                ->get();
+        } else {
+            $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
+                // ->groupByRaw('s.sale_bill_id, s.financial_year_id')
+                ->orderBy('s.sale_bill_id', 'asc')
+                ->get();
+        }
 
+        return response()->json($data);
     }
 
 }
