@@ -1653,7 +1653,7 @@ class PaymentsController extends Controller
             mkdir(public_path('upload/payments'), 0777, true);
         }
         $payment = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
-        $p_increment_id = $payment->p_increment_id;
+        $p_increment_id = $payment->id;
         //$ChequeImage = $LetterImage = null;
         if ($image = $request->chequeimage) {
             $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
