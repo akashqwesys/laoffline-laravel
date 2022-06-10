@@ -149,7 +149,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
-                    order: [[ 0, "desc" ]],
+                    order: [[ 2, "desc" ]],
                     columns: [
                         { data: 'bill_no' },
                         { data: 'bill_date' },
