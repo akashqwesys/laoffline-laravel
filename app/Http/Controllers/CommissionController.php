@@ -582,7 +582,7 @@ class CommissionController extends Controller
     }
 
     public function fetchCommission($id) {
-        $commission = commission::where('commission_id', $id)->first();
+        $commission = commission::where('commission_id', $id)->where('financial_year_id', Session::get('user')->financial_year_id)->first();
         $supplier = Company::where('id', $commission->supplier_id)->first();
         $customer = Company::where('id', $commission->customer_id)->first();
         $deposite = BankDetails::where('id', $commission->deposite_bank)->first();
