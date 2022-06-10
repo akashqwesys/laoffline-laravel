@@ -1653,6 +1653,7 @@ class PaymentsController extends Controller
             mkdir(public_path('upload/payments'), 0777, true);
         }
         $payment = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
+        $p_increment_id = $payment->p_increment_id;
         //$ChequeImage = $LetterImage = null;
         if ($image = $request->chequeimage) {
             $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
@@ -1667,6 +1668,7 @@ class PaymentsController extends Controller
             array_push($attachments, $LetterImage);
         }
         $payment2 = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
+        
         $cmpTypeName = Company::where('id', $payment2->receipt_from)->first();
         $companyName = Company::where('id', $payment2->supplier_id)->first();
 
@@ -1756,8 +1758,18 @@ class PaymentsController extends Controller
         $payment->receipt_amount = $paymentData->reciptamount ?? 0;
         $payment->total_amount = $paymentData->totalamount ?? 0;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount ?? 0;
+
+        $payment->tot_rate_difference = $paymentData->ratedifference;
+        $payment->tot_discount = $paymentData->discountamount;
+        $payment->tot_vatav = $paymentData->vatav;
+        $payment->tot_agent_commission = $paymentData->agentcommission;
+        $payment->tot_bank_cpmmission = $paymentData->bankcommission;
+        $payment->tot_claim = $paymentData->claim;
+        $payment->tot_good_returns = $paymentData->goodreturn;
+        $payment->tot_short = $paymentData->short;
+        $payment->tot_interest = $paymentData->interest;
         $payment->save();
-        $p_increment_id = $payment->p_increment_id;
+        
         PaymentDetail::where('payment_id', $paymentData->id)->delete();
         if ($paymentSalebill) {
             $i=0;
@@ -1906,15 +1918,7 @@ class PaymentsController extends Controller
         }
 
         $payment1 = Payment::where('payment_id', $paymentData->id)->first();
-        $payment1->tot_discount = $paymentData->discountamount;
-        $payment1->tot_vatav = $paymentData->vatav;
-        $payment1->tot_agent_commission = $paymentData->agentcommission;
-        $payment1->tot_bank_cpmmission = $paymentData->bankcommission;
-        $payment1->tot_claim = $paymentData->claim;
-        $payment1->tot_good_returns = $paymentData->goodreturn;
-        $payment1->tot_short = $paymentData->short;
-        $payment1->tot_interest = $paymentData->interest;
-        $payment1->tot_rate_difference = $paymentData->ratedifference;
+        
         $payment1->payment_ok_or_not = $payment_ok_or_not;
 
         $payment1->save();
