@@ -828,7 +828,6 @@
                         .then(response2 => {
                             this.station_options = response2.data[0];
                             this.station = response2.data[0].find(_ => _.name == response2.data[1].name);
-                            console.log(this.station);
                         });
                     });
                 }
