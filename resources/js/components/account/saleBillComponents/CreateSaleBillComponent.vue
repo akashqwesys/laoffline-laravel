@@ -101,6 +101,7 @@
                                                     <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#addCompany" title="Add New Customer" @click="setCustomer"><span class="clipboard-text">Add New</span></button>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @select="getCustomerAddress"></multiselect>
+                                                        <div v-if="v$.customer.$error" class="invalid mt-1">Select Customer</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -109,6 +110,7 @@
                                                     <label class="form-label" for="customer_address">Customer Address</label>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="customer_address" :options="customer_address_options" placeholder="Select One" label="name" track-by="id" id="customer_address" ></multiselect>
+                                                        <div v-if="v$.customer_address.$error" class="invalid mt-1">Select Customer Address</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -348,8 +350,8 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
+                                                            <h4 class="modal-title" id="myModalLabel">Transport Insert</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                        <h4 class="modal-title" id="myModalLabel">Transport Insert</h4>
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="row">
@@ -361,18 +363,19 @@
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-default" data-dismiss="modal" id="closeTransportModalBtn">Close</button>
-                                                            <button type="button" id="save_modal_data_transport" class="btn btn-primary" data-dismiss="modal">Submit</button>
+                                                            <button type="button" id="save_modal_data_transport" class="btn btn-primary" @click="addTransport()">Submit</button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <label class=""><b>Transport Details</b></label>
-                                            <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#myModalTransport" title="Add New" @click="addTransport()"><span class="clipboard-text">Add New</span></button>
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="transport">Transport</label>
+                                                        <button type="button" class="btn btn-primary float-right clipboard-init badge" data-toggle="modal" data-target="#myModalTransport" title="Add New"><span class="clipboard-text">Add New</span></button>
                                                         <multiselect v-model="transport" :options="transport_options" placeholder="Select One" label="name" track-by="id" id="transport"></multiselect>
+                                                        <div v-if="v$.transport.$error" class="invalid mt-1">Select Transport</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -609,6 +612,8 @@
         validations () {
             const localRules = {
                 supplier: { required },
+                customer: { required },
+                customer_address: { required },
                 product_category: { required },
                 agent: { required },
                 from_email: { /* required */ },
@@ -617,6 +622,7 @@
                 supplier_invoice_no: { required },
                 bill_date: { required },
                 station: { required },
+                transport: { required },
                 transport_date: { required }
             };
             if (this.reference_via) {
@@ -819,9 +825,10 @@
                         this.customer_address = response.data[0];
 
                         axios.get('/account/sale-bill/list-stations/'+this.customer.id)
-                        .then(response => {
-                            this.station_options = response.data[0];
-                            this.station = response.data[0].find(_ => _.name == response.data[1].name);
+                        .then(response2 => {
+                            this.station_options = response2.data[0];
+                            this.station = response2.data[0].find(_ => _.name == response2.data[1].name);
+                            console.log(this.station);
                         });
                     });
                 }
@@ -1014,7 +1021,8 @@
                     $('#closeTransportModalBtn').trigger('click');
                     $('#add_transport_name').val('');
                     if (response.data.refresh_data == 1) {
-                        this.getProductSubCategory();
+                        this.transport_options = response.data.options;
+                        this.transport = '';
                     }
                 });
             },

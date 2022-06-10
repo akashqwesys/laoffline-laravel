@@ -309,6 +309,7 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
         Route::get('/delete/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'deleteSaleBill']);
         Route::post('/update', [App\Http\Controllers\Account\SaleBillController::class, 'updateSaleBill']);
         Route::post('/addFabricsDetails', [App\Http\Controllers\Account\SaleBillController::class, 'addFabricsDetails']);
+        Route::post('/add-transport', [App\Http\Controllers\Account\SaleBillController::class, 'addTransport']);
     });
 });
 

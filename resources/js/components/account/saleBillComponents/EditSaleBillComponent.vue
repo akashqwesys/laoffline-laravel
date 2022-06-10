@@ -144,6 +144,7 @@
                                                     <label class="form-label" for="customer">Customer</label>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id="customer" @select="getCustomerAddress" :disabled="isCustomerDisabled"></multiselect>
+                                                        <div v-if="v$.customer.$error" class="invalid mt-1">Select Customer</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -152,6 +153,7 @@
                                                     <label class="form-label" for="customer_address">Customer Address</label>
                                                     <div class="form-control-wrap">
                                                         <multiselect v-model="customer_address" :options="customer_address_options" placeholder="Select One" label="name" track-by="id" id="customer_address" ></multiselect>
+                                                        <div v-if="v$.customer_address.$error" class="invalid mt-1">Select Customer Address</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -402,35 +404,13 @@
                                         </div>
                                         <hr>
                                         <div class="transport_details">
-                                            <!-- Modal -->
-                                            <!-- <div class="modal fade" id="myModalTransport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                        <h4 class="modal-title" id="myModalLabel">Transport Insert</h4>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <label class="col-sm-2">Name</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="text" value="" name="add_transport_name" id="add_transport_name" class="form-control">
-                                                                </div>
-                                                            </div><br>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                            <button type="button" id="save_modal_data_transport" class="btn btn-primary" data-dismiss="modal">Submit</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> -->
                                             <label class=""><b>Transport Details</b></label>
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="transport">Transport</label>
                                                         <multiselect v-model="transport" :options="transport_options" placeholder="Select One" label="name" track-by="id" id="transport"></multiselect>
+                                                        <div v-if="v$.transport.$error" class="invalid mt-1">Select Transport</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -672,6 +652,8 @@
         validations () {
             const localRules = {
                 supplier: { required },
+                customer: { required },
+                customer_address: { required },
                 product_category: { required },
                 agent: { required },
                 from_email: { /* required */ },
@@ -681,6 +663,7 @@
                 supplier_invoice_no: { required },
                 bill_date: { required },
                 station: { required },
+                transport: { required },
                 transport_date: { required }
             };
             if (this.reference_via) {

@@ -224,7 +224,6 @@ class ProductsController extends Controller
         $mainCategoryData = [];
         $category_array = [];
 
-
         foreach($mainCategory as $key => $category) {
             if (is_array(json_decode($category->company_id))) {
                 $companyIds = json_decode($category->company_id);
