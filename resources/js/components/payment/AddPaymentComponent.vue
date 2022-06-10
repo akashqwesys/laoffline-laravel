@@ -742,7 +742,7 @@
                     if (!interest) {
                         interest = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);;
                     totalInterst += parseInt(interest);
 
                 });
@@ -808,7 +808,7 @@
                     if (!short) {
                         short = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);;
                     totalShort += parseInt(short);
 
                 });
@@ -871,7 +871,7 @@
                     if (!claim) {
                         claim = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);;
                     totalClaim += parseInt(claim);
 
                 });
@@ -934,7 +934,7 @@
                     if (!agentcomm) {
                         agentcomm = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);;
                     totalAgentComm += parseInt(agentcomm);
 
                 });
@@ -998,7 +998,7 @@
                     if (!vatav) {
                         vatav = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);;
                     totalVatav += parseInt(vatav);
 
                 });
@@ -1062,7 +1062,7 @@
                     if (!goodreturn) {
                         goodreturn = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);;
                     totalGoodReturn += parseInt(goodreturn);
                 });
                 setTimeout(() => {
@@ -1124,7 +1124,7 @@
                     if (!bankcomm) {
                         bankcomm = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);
                     totalBankCommission += parseInt(bankcomm);
                 });
                 setTimeout(() => {
@@ -1190,7 +1190,7 @@
                     if (!rate) {
                         rate = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);
                     totalamount +=parseInt(disAmount);
                 });
                 this.form.discountamount = totalamount;
@@ -1255,7 +1255,7 @@
                     if (!rate) {
                         rate = 0;
                     }
-                    totalRateDifference += rate;
+                    totalRateDifference += parseInt(rate);
                     totalamount +=parseInt(disAmount);
                 });
                 this.form.discountamount = totalamount;
@@ -1365,7 +1365,7 @@
                         rate = 0;
                     }
                     setTimeout(() => {
-                        totalRateDifference += rate;
+                        totalRateDifference += parseInt(rate);
                         totalAdjustamount += parseInt(value.adjustamount);
                         totaldiscount += parseInt(discountamount);
                     }, 500);
