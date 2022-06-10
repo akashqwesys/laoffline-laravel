@@ -40,13 +40,13 @@
                     <div class="nk-block">
                         <div class="card card-bordered commissioninvoice d-none">
                             <div class="card-header">
-                                <h6>Sale bill Details</h6>
+                                <h6>Commission Invoice Details</h6>
                             </div>
                             <div class="card-inner commissioninvoicedata">
                                 <table id="commissioninvoice" class="table mb-2 table-hover">
                                     <thead>
                                         <tr class="text-center">
-                                            <th>Select</th>
+                                            <th class="text-left">Select</th>
 				                            <th>Invoice No</th>
 				                            <th>Financial Year</th>
 				                            <th>Date</th>
@@ -56,8 +56,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td><input type="text" v-model="invoice_no" class="form-control" id="inv_no" @keyup="searchColumn('inv_no', 1)"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td><input type="text" v-model="invoice_amount" class="form-control" id="inv_amount" @keyup="searchColumn('inv_amount', 4)"></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
                                         <tr v-for="itm in commission_invoice" :key="itm.commission_id" :class="itm.overdue > 90 ? 'text-danger' : ''" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.commission_id" :value="itm.commission_id"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.commission_id" @change="invoiceselect" :value="{'id': itm.commission_id, 'fid': itm.fid }"  required></td>
 				                            <td>{{ itm.invoiceno }}</td>
 				                            <td>{{ itm.financialyear }}</td>
 				                            <td>{{ itm.date}}</td>
@@ -66,10 +75,27 @@
 				                            <td><a :href="'/account/commission/invoice/view-invoice/'+itm.commission_id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
                                     </tbody>
+                                    <tfoot>
+                                        <tr class="text-center">
+                                            <td class="text-left"><b>Selected Invoice : </b>{{ selectedinvoice }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td><b>{{ totalinvoice }}</b></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                                 <button class="btn btn-primary generateCommission float-right disabled" @click="generateCommission($event)">Generate Commission</button>
-
+                                <button class="btn btn-primary" @click="showCommissionRemark">Right Of Amount</button>
+                                <div class="hidden my-2" id="commissioninvoice-remark-div">
+                                        
+                                        <textarea v-model="commissioninvoice_remark" class="form-control" ></textarea>
+                                        <button class="btn btn-success mt-2" @click="updateInvoiceRemark">ADD</button>
+                                    </div>
                             </div>
+
                         </div><!-- .card -->
                     </div><!-- .nk-block -->
                 </div>
@@ -79,6 +105,7 @@
 </template>
 
 <script>
+    import $ from "jquery";
     import Multiselect from 'vue-multiselect';
     import Form from 'vform';
 
@@ -97,7 +124,11 @@
                 company: [],
                 selected: [],
                 commission_invoice: [],
-
+                invoice_no: '',
+                invoice_amount: '',
+                commissioninvoice_remark: '',
+                selectedinvoice: '',
+                totalinvoice: 0,
                 form: new Form({
                     id: '',
                     company: '',
@@ -111,6 +142,58 @@
             });
         },
         methods: {
+            searchColumn(id, index) {
+                var input, filter, table, tr, td, i, txtValue;
+                input = document.getElementById(id);
+                filter = input.value.toUpperCase();
+                table = document.getElementById("commissioninvoice");
+                tr = table.getElementsByTagName("tr");
+                for (i = 0; i < tr.length; i++) {
+                    if (i == 1) { continue; }
+                    td = tr[i].getElementsByTagName("td")[index];
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            },
+            updateInvoiceRemark(event){
+                let remark = this.commissioninvoice_remark;
+                let invoices = this.selected;
+                if (invoices.length > 0) {
+                    axios.post('/commission/update-invoice-remarks', {
+                        right_of_comment: remark,
+                        invoices: invoices
+                    })
+                    .then(response => {
+                        if (response.data.success == 1) {
+                            this.commissioninvoice_remark = '';
+                            $('#commissioninvoice-remark-div').slideUp();
+                            this.selected = [];
+                        }
+                    });
+                }
+            },
+            invoiceselect(event) {
+                let totalbill = 0;
+                this.selectedinvoice = this.selected.length;
+                this.selected.forEach(value => {
+                this.commission_invoice.forEach(value1 => {
+                    if (value.id == value1.commission_id) {
+                        totalbill += parseInt(value1.amount);
+                        
+                    }
+                });
+            });
+            this.totalinvoice = totalbill;
+            },
+            showCommissionRemark() {
+                $('#commissioninvoice-remark-div').slideDown();
+            },
             generateCommission(event){
                if (this.selected.length == 0) {
                    alert('please select commission invoice');
@@ -124,6 +207,7 @@
                     window.location.href = '/commission/add-commission';
                 })
             },
+            
             searchCommissionInvoices(event) {
                 const self = this;
                 axios.post('/commission/searchcommissioninvoice', {
@@ -135,7 +219,6 @@
                     setTimeout(() => {
                         self.commission_invoice = response.data.commissioninvoice;
                     }, 1000);
-                    console.log(self.commission_invoice);
                 })
                 .catch(function (error) {
                 });

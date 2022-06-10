@@ -747,6 +747,7 @@ Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:mod
     Route::post('/generate-commission', [App\Http\Controllers\CommissionController::class, 'generateCommissionData']);
     Route::post('/create', [App\Http\Controllers\CommissionController::class, 'insertCommission']);
     Route::post('/update', [App\Http\Controllers\CommissionController::class, 'updateCommission']);
+    Route::post('/update-invoice-remarks', [App\Http\Controllers\CommissionController::class, 'updateInvoiceRemarks']);
     Route::get('/edit-commission/{id}', [App\Http\Controllers\CommissionController::class, 'editCommission']);
     Route::get('/delete/{id}', [App\Http\Controllers\CommissionController::class, 'deleteCommission'])->name('delete');
 });

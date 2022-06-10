@@ -1580,7 +1580,7 @@ class PaymentsController extends Controller
         foreach ($paymentDetail as $details) {
             $status = array("status" => 'Pending', "code" => 0);
             if ($details->status == 1) {
-                $status = array("status" => 'Complate', "code" => 1);
+                $status = array("status" => 'Complete', "code" => 1);
             }
             $salebilldata = array('id'=> $details->sr_no, 'fid'=> $details->financial_year_id, 'sup_inv' => $details->supplier_invoice_no,
                         'amount' => $details->amount, 'adjustamount' => $details->adjust_amount, 'status' => $status,
@@ -2347,10 +2347,10 @@ class PaymentsController extends Controller
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
-        $salebill = PaymentDetail::where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->get();
+        $salebill = PaymentDetail::where('p_incerment_id', $payment->id)->get();
         $salebilldata = array();
         foreach($salebill as $sale) {
-            $salebill_date = DB::table('sale_bills')->where('sale_bill_id', $sale->sr_no)->where('financial_year_id', $user->financial_year_id)->first();
+            $salebill_date = DB::table('sale_bills')->where('sale_bill_id', $sale->sr_no)->where('financial_year_id', $sale->financial_year_id)->first();
 
             $payment_date = strtotime($payment->date);
 			$salebill_date = strtotime($salebill_date->select_date);

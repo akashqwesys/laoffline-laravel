@@ -64,7 +64,7 @@
                                             <td><b>Total</b></td>
                                             <td></td>
                                             <td><b>{{ paymentData.total_amount }}</b></td>
-        									<td><b>{{ paymentData.total_amount - paymentData.tot_discount - paymentData.tot_vatav - paymentData.tot_good_returns - paymentData.tot_agent_commission - paymentData.tot_bank_cpmmission - paymentData.tot_claim - paymentData.tot_short - paymentData.tot_interest - paymentData.tot_rate_difference }}</b></td>
+        									<td><b>{{ paymentData.total_amount - paymentData.tot_discount - paymentData.tot_vatav - paymentData.tot_good_returns - paymentData.tot_agent_commission - paymentData.tot_bank_cpmmission - paymentData.tot_claim - paymentData.tot_short - paymentData.tot_interest }}</b></td>
 		        							<td></td>
                                         </tr>
 							        </tbody>

@@ -69,7 +69,7 @@
                                 </div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
-                                        <label class="form-label" for="fv-refrence">Refrence</label>
+                                        <label class="form-label" for="fv-refrence">Reference</label>
                                     </div>
                                     <div class="col-sm-4" style="z-index:0">
                                         <div class="preview-block">
@@ -307,12 +307,12 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr class="commissioninvoicerow" v-for="(commissioninvoice,index) in commissioninvoices" :key="index">
-                                                        <td><input type="hidden" :readonly="true" class="form-control" v-model="commissioninvoice.id"><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.invoiceno"></td>
+                                                        <td><input type="hidden" :readonly="true" class="form-control" v-model="commissioninvoice.id"><input type="hidden" :readonly="true" class="form-control" v-model="commissioninvoice.fid"><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.invoiceno"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.date"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.totalCommission"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.recivedCommission.totalrecived"></td>
                                                         <td><multiselect v-model="commissioninvoice.status" :options="[{status: 'Complete', code: '1'},{status: 'Pending', code: '0'}]" placeholder="Select one" label="status" track-by="status"></multiselect></td>
-                                                        <td><input type="text" class="form-control" v-model="commissioninvoice.amount"></td>
+                                                        <td><input type="text" class="form-control" @change="changeAmount(index, event)" v-model="commissioninvoice.amount"></td>
                                                         <td><input type="text" class="form-control" v-model="commissioninvoice.remark"></td>
                                                     </tr>
                                                 </tbody>
@@ -323,7 +323,7 @@
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="form.totalCommission"></td>
                                                         <td></td>
                                                         <td></td>
-                                                        <td></td>
+                                                        <td><input type="text" :readonly="true" class="form-control" v-model="form.totalamount"></td>
                                                         <td></td>
                                                         <td></td>
                                                     </tr>
@@ -389,6 +389,7 @@
                 },
                 commissioninvoices: [{
                         id: '',
+                        fid: '',
                         invoiceno: '',
                         date: '',
                         totalCommission: '',
@@ -423,7 +424,8 @@
                     commissiondate: '',
                     commissionacc: '',
                     commissionamount:'',
-                    totalCommission:''
+                    totalCommission:'',
+                    totalamount:''
               })
             }
         },
@@ -452,6 +454,47 @@
 
         },
         methods: {
+            changeAmount: function (index, event) {
+                let amount = this.commissioninvoices[index].amount;
+                let invoiceamount = this.commissioninvoices[index].totalCommission;
+                let receiveamount = this.commissioninvoices[index].recivedCommission.totalrecived;
+                
+                if (!receiveamount){
+                    receiveamount = 0;
+                }
+                if (parseInt(amount) > parseInt(invoiceamount)) {
+                    if (this.scope == 'edit') {
+                        alert('Amount is not more than :' + invoiceamount);
+                        this.commissioninvoices[index].amount = invoiceamount;
+                    } else {
+                        alert('Amount Is Not More Than Invoice Amount');
+                    }
+                } else {
+                    if (this.scope != 'edit'){
+                        let diff = parseInt(invoiceamount) - parseInt(receiveamount);
+                        if (diff > parseInt(invoiceamount)) {
+                            this.commissioninvoices[index].amount = diff;
+                            alert('Amount is not more than :' + diff);
+                        }
+                    } else {
+                        if (parseInt(amount) > parseInt(invoiceamount)) {
+                            alert('Amount is not more than :' + amount);
+                        } 
+                    }
+                }
+                let total = 0;
+                this.commissioninvoices.forEach(value =>{
+                    let amount = value.amount;
+                    if (!amount) {
+                        amount = 0;
+                    }
+                    total += parseInt(amount);
+                })
+                setTimeout(() => {
+                    this.form.totalamount = total;
+                }, 500);
+                
+            },
             getOldReferences: function (event) {
 
                 if (this.form.refrencevia == '') {
@@ -471,6 +514,7 @@
                         $('#show-references').slideDown();
                         setTimeout(() => {
                             $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                            this.form.refrence_type = $('#show-references tr input[type="radio"]').first().val();
                         }, 500);
                         $('#overlay').hide();
                     })
@@ -569,8 +613,9 @@
                         $("#error-for-reference").text("Select Reference");
                         this.isValidate = false;
                     } else {
+                        if (this.form.refrence == 1){
                         if (this.form.refrencevia.name == 'Courier') {
-                            console.log('courrier');
+                            
                             if (this.form.courrier == '') {
                                 console.log('courrier name');
                                 $("#error-for-couurier").text("Select Courier");
@@ -588,7 +633,7 @@
                                 this.isValidate = true;
                             }
                         } else if (this.form.refrencevia.name == 'Hand') {
-                            console.log('hand');
+                           
                             if (this.form.recivedate == '') {
                                 console.log('recive date');
                                 $("#error-for-recivedate").text("Select Recive Date");
@@ -599,7 +644,7 @@
                             }
                         } else if (this.form.refrencevia.name == 'Email') {
                             if (this.form.emailfrom == '') {
-                                console.log('email');
+                                
                                 $("#error-for-emailfrom").text("Enter Email");
                                 this.isValidate = false;
                             } else {
@@ -607,10 +652,13 @@
                                 this.isValidate = true;
                             }
                         }
+                        } else {
+                            this.isValidate = true;
+                        }
                     }
 
                     if (this.form.recipt_mode == 'cheque') {
-                        console.log('cheque');
+                        
                         if (this.form.chequedate == '') {
                             console.log('chequedate');
                             $("#error-for-chequedate").text("Select Cheque Date");
@@ -700,6 +748,7 @@
                         self.form.commissionamount = gData.commission.commission_payment_amount;
                         gData.commissioninvoice.forEach((value,index) => {
                                 self.commissioninvoices[index].id = value.commission_id;
+                                self.commissioninvoices[index].fid = value.fid;
                                 self.commissioninvoices[index].invoiceno = value.invoiceno;
                                 self.commissioninvoices[index].date = value.date;
                                 self.commissioninvoices[index].totalCommission = value.totalCommission;
@@ -712,12 +761,15 @@
                                 self.commissioninvoices[index].status = comm_status;
                                 self.commissioninvoices[index].amount = value.amount;
                                 self.commissioninvoices[index].remark = value.remark;
-                            });
-                         let total = 0;
+                        });
+                        let total = 0;
+                        let totalamount = 0;
                         self.commissioninvoices.forEach((value,index) => {
                             total += parseInt(value.totalCommission);
+                            totalamount += parseInt(value.amount);
                         });
                         self.form.totalCommission = total;
+                        self.form.totalamount = totalamount;
                     });
                     break;
                 default:

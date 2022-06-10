@@ -21,6 +21,7 @@ use App\Models\Goods\GoodsReturn;
 use App\Models\Goods\GrSaleBillItem;
 use App\Models\Settings\BankDetails;
 use App\Models\Settings\Agent;
+use App\Models\Commission\CommissionInvoice;
 use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
 use DB;
@@ -128,7 +129,7 @@ class CommissionController extends Controller
             $records = $records->whereIn('supplier_id', $cc_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $records = $records->where('commission_payment_amount', '=', $columnName_arr[5]['search']['value']);
+            $records = $records->where('received_commission_amount', '=', $columnName_arr[5]['search']['value']);
         }
 
         // Fetch records
@@ -170,7 +171,7 @@ class CommissionController extends Controller
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $seller = Company::where('id', $record->supplier_id)->first();
             $seller_id = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
-            $paid_amount = $record->commission_payment_amount;
+            $paid_amount = $record->received_commission_amount;
             if ($iscompleted && $iscompleted->is_completed == '1') {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             } else {
@@ -237,7 +238,7 @@ class CommissionController extends Controller
         foreach($commissioninvoice as $invoice) {
             $overdue = floor((time() - strtotime($invoice->bill_date)) / (60 * 60 * 24));
             $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
-            $invoice = array('commission_id' => $invoice->id, 'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => $overdue);
+            $invoice = array('commission_id' => $invoice->id, 'fid' =>$invoice->financial_year_id,  'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => $overdue);
             array_push($commissioninvoices, $invoice);
         }
         $data['commissioninvoice'] = $commissioninvoices;
@@ -265,17 +266,20 @@ class CommissionController extends Controller
         $user = Session::get('user');
         $company_id = $request->session()->get('company');
         $commissioninvoice_id = $request->session()->get('commissioninvoice');
-
+        
+        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $company = Company::where('id', $company_id)->first();
         $agent = Agent::where('is_delete', '0')->get();
-
-        $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', Session::get('user')->financial_year_id)->whereIn('id', $commissioninvoice_id)->get();
-        $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $commissioninvoice_data = array();
-        foreach ($commissioninvoice as $invoice) {
-            $commission_invoice = array('commission_id' => $invoice->id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'totalCommission' => $invoice->final_amount);
+        foreach ($commissioninvoice_id as $ci) {
+            $commissioninvoice = DB::table('commission_invoices')
+                                ->where('financial_year_id', $ci['fid'])
+                                ->where('id', $ci['id'])
+                                ->first();
+        
+            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid' => $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount);
             $totalrecivedamount = DB::table('commission_details')
-                                 ->where('commission_invoice_id', $invoice->id)
+                                 ->where('commission_invoice_id', $commissioninvoice->id)
                                  ->where('is_deleted', 0)
                                  ->select(DB::raw("SUM(received_commission_amount) as totalrecived"))
                                  ->first();
@@ -498,8 +502,8 @@ class CommissionController extends Controller
         $commissions->commission_cheque_dd_bank = (int)$chequebank;
         $commissions->commission_payment_amount = $commissionData->commissionamount;
         $commissions->tds = 0;
-        $commissions->net_received_amount = 0;
-        $commissions->received_commission_amount = 0;
+        $commissions->net_received_amount = $commissionData->totalamount;
+        $commissions->received_commission_amount = $commissionData->totalamount;
         $commissions->done_outward = 0;
         $commissions->normal_amt_flag = 3;
         $commissions->date_added = Carbon::now()->format('Y-m-d H:i:s');
@@ -528,7 +532,7 @@ class CommissionController extends Controller
             // $commission_detail->commission_details_id = $commissionDetailId;
             $commission_detail->c_increment_id = $c_increment_id;
             $commission_detail->payment_id = 0;
-            $commission_detail->financial_year_id = 7;
+            $commission_detail->financial_year_id = $invoice->fid;
             $commission_detail->commission_id = $commission_id;
             $commission_detail->commission_invoice_id = $invoice->commission_id;
             $commission_detail->bill_date = $invoice->date;
@@ -588,10 +592,11 @@ class CommissionController extends Controller
         $commissioninvoice = DB::table('commission_details as cd')->join('commission_invoices as ci', 'ci.id', '=', 'cd.commission_invoice_id' )->where('cd.commission_id', $commission->commission_id)->select('cd.*', 'ci.bill_no')->get();
         $commissioninvoice_data = array();
         foreach ($commissioninvoice as $invoice) {
-            $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', Session::get('user')->financial_year_id)->where('id', $invoice->commission_invoice_id)->first();
-            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount, 'amount' => $invoice->received_commission_amount, 'remark' => $invoice->remark, 'status' => $invoice->status);
+            $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', $invoice->financial_year_id)->where('id', $invoice->commission_invoice_id)->first();
+            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid'=> $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount, 'amount' => $invoice->received_commission_amount, 'remark' => $invoice->remark, 'status' => $invoice->status);
             $totalrecivedamount = DB::table('commission_details')
                                  ->where('commission_invoice_id', $commissioninvoice->id)
+                                 ->where('financial_year_id', $commissioninvoice->financial_year_id)
                                  ->where('is_deleted', 0)
                                  ->select(DB::raw("SUM(received_commission_amount) as totalrecived"))
                                  ->first();
@@ -733,13 +738,6 @@ class CommissionController extends Controller
             $commissiondate = Carbon::now()->format('Y-m-d');
         }
 
-        if ($typeName == "Supplier") {
-            $commissions->supplier_id = $request->session()->get('company');
-            $commissions->customer_id = 0;
-        } else {
-            $commissions->supplier_id = 0;
-            $commissions->customer_id = $request->session()->get('company');
-        }
         if ($commissionData->recipt_mode == 'cheque') {
             $depositebank = $commissionData->depositebank->id;
             $chequedate = $commissionData->chequedate;
@@ -760,13 +758,15 @@ class CommissionController extends Controller
         $commissions->cheque_dd_bank = (int)$chequebank;
         $commissions->financial_year_id = $financialid;
         $commissions->commission_date = $commissiondate;
-        $commissions->commission_account = $commissionData->commissionacc;
+        $commissions->commission_account = $commissionData->commissionacc->id;
         $commissions->commission_reciept_mode = $commissionData->recipt_mode;
         $commissions->commission_deposite_bank = (int)$depositebank;
         $commissions->commission_cheque_date = $chequedate;
         $commissions->commission_cheque_dd_no = (int)$chequeno;
         $commissions->commission_cheque_dd_bank = (int)$chequebank;
         $commissions->commission_payment_amount = $commissionData->commissionamount;
+        $commissions->net_received_amount = $commissionData->totalamount;
+        $commissions->received_commission_amount = $commissionData->totalamount;
         $commissions->normal_amt_flag = 3;
         $commissions->save();
 
@@ -774,7 +774,7 @@ class CommissionController extends Controller
             $commission_status = $invoice->status->code;
             $commission_pay_amount = $invoice->amount;
             $remark = $invoice->remark;
-            $commission_detail = CommissionDetail::where('commission_invoice_id', $invoice->id)->first();
+            $commission_detail = CommissionDetail::where('commission_invoice_id', $invoice->id)->where('financial_year_id', $invoice->fid)->first();
 
             $commission_detail->bill_date = $invoice->date;
             $commission_detail->bill_amount = $invoice->totalCommission;
@@ -782,7 +782,7 @@ class CommissionController extends Controller
             $commission_detail->service_tax = 0;
             $commission_detail->tds = 0;
             $commission_detail->commission_date = $commissiondate;
-            $commission_detail->commission_account = $commissionData->commissionacc;
+            $commission_detail->commission_account = $commissionData->commissionacc->id;
             $commission_detail->net_received_amount = $commission_pay_amount;
             $commission_detail->received_commission_amount = $commission_pay_amount;
             $commission_detail->status = $commission_status;
@@ -817,5 +817,27 @@ class CommissionController extends Controller
         $commissions->is_deleted = 1;
         $commissions->save();
     }
+
+    public function updateInvoiceRemarks(Request $request)
+    {
+        $invoices = $request->invoices;
+        $remark = $request->right_of_comment;
+        foreach ($invoices as $invoice) {
+            $commission_invoice = CommissionInvoice::where('id', $invoice['id'])->first();
+            $final_amount = $commission_invoice->final_amount;
+            $reciveamount = DB::table('commission_details')
+                            ->where('commission_invoice_id', $invoice['id'])
+                            ->where('is_deleted', 0)
+                            ->select(DB::raw("SUM(received_commission_amount) as totalrecived"))
+                            ->first();
+            $amount = $final_amount - $reciveamount->totalrecived;
+            $commission_invoice->right_of_amount = $amount;
+            $commission_invoice->right_of_remark = $remark;
+            $commission_invoice->commission_status = 1;
+            $commission_invoice->save();
+        }
+        $data['success'] = 1;
+        return $data;
+    } 
 
 }
