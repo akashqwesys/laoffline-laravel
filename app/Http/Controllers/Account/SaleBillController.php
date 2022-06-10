@@ -2182,4 +2182,22 @@ class SaleBillController extends Controller
         }
     }
 
+    public function addTransport(Request $request)
+    {
+        $transport = TransportDetails::where('is_delete', '0')->where('name', $request->transport)->first();
+        if ($transport) {
+            $transport->name = $request->transport;
+            $transport->save();
+            return response()->json(['refresh_data' => 0]);
+        } else {
+            $transport = new TransportDetails;
+            $transport->id = (getLastID('transport_details', 'id') + 1);
+            $transport->name = $request->transport;
+            $transport->is_delete = 0;
+            $transport->save();
+            $transportDetails = TransportDetails::select('id', 'name')->where('is_delete', '0')->get();
+            return response()->json(['refresh_data' => 1, 'options' => $transportDetails]);
+        }
+    }
+
 }

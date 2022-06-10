@@ -57,7 +57,7 @@ class ProductCategoryController extends Controller
     public function listCategory() {
         $productCategory = ProductCategory::where('product_default_category_id', '!=', '0')->
                                             where('is_delete', '0')->
-                                            get(['id', 'name as category_name']);
+                                            get(['id', 'name as category_name', 'product_default_category_id']);
 
         return $productCategory;
     }
@@ -65,7 +65,7 @@ class ProductCategoryController extends Controller
     public function listData() {
         $productCategory = ProductCategory::where('product_default_category_id', '!=', '0')->
                                             where('is_delete', '0')->
-                                            get(['id', 'name as category_name']);
+                                            get(['id', 'name as category_name', 'product_default_category_id']);
 
         return $productCategory;
     }

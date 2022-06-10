@@ -195,6 +195,7 @@
                 alert('Please enter some value!');
             }
         }
+        $('.custom-file-input').parent('div').parent('div').css('z-index', 0);
     </script>
     @yield('js')
 </body>

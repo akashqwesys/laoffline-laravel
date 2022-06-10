@@ -329,20 +329,19 @@ class ProductSubCategoryController extends Controller
     }
 
     public function insertProductSubCategoryData(Request $request) {
+
         if ($request->multiple_company == 1) {
             $this->validate($request, [
                 'main_category' => 'required',
                 'company' => 'required',
                 'sub_category_name' => 'required',
             ]);
-
         } elseif ($request->multiple_company == 0) {
             $this->validate($request, [
                 'singleCompany' => 'required',
                 'mainCategory' => 'required',
                 'sub_category_name' => 'required',
             ]);
-
         }
 
         $company_id = [];
