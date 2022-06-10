@@ -589,7 +589,7 @@ class CommissionController extends Controller
         $cheque_bank = BankDetails::where('id', $commission->cheque_dd_bank)->first();
         $agent = Agent::where('is_delete', '0')->get();
         $commissionacc = Agent::where('id', $commission->commission_account)->first();
-        $commissioninvoice = DB::table('commission_details as cd')->join('commission_invoices as ci', 'ci.id', '=', 'cd.commission_invoice_id' )->where('cd.commission_id', $commission->commission_id)->select('cd.*', 'ci.bill_no')->get();
+        $commissioninvoice = DB::table('commission_details as cd')->join('commission_invoices as ci', 'ci.id', '=', 'cd.commission_invoice_id' )->where('cd.c_increment_id', $commission->id)->select('cd.*', 'ci.bill_no')->get();
         $commissioninvoice_data = array();
         foreach ($commissioninvoice as $invoice) {
             $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', $invoice->financial_year_id)->where('id', $invoice->commission_invoice_id)->first();
