@@ -99,12 +99,13 @@ class ProductSubCategoryController extends Controller
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->first();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) . "\"'");
+            $totalRecordswithFilter = $totalRecordswithFilter->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) ."\"' or company_id @> '" . strval($cc_id->id ?? 0) . "'");
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         // Fetch records
-        $records = ProductCategory::select('product_categories.*')
+        $records = ProductCategory::select('product_categories.*', 'pc1.name as main_category_name')
+            ->join('product_categories as pc1', 'product_categories.main_category_id', '=', 'pc1.id')
             // ->where('product_categories.main_category_id', '<>', '0')
             ->where('product_categories.is_delete', '0');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
@@ -123,7 +124,7 @@ class ProductSubCategoryController extends Controller
                 ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $records = $records->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) . "\"'");
+            $records = $records->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) . "\"' company_id @> '" . strval($cc_id->id ?? 0) . "'");
         }
         if ($columnName == 'main_category') {
             $columnName = 'product_categories.name';
@@ -141,7 +142,6 @@ class ProductSubCategoryController extends Controller
         }
         $select_ .= '</select>'; */
         $data_arr = array();
-        $sno = $start+1;
 
         foreach($records as $record){
             $id = $record->id;
@@ -151,14 +151,13 @@ class ProductSubCategoryController extends Controller
                 if(is_array(json_decode($companyId))) {
                     $companyName = [];
                     $companyArr = json_decode($companyId);
-
                     foreach($companyArr as $key => $c) {
-                        $company = Company::where('id', $c)->first('company_name');
+                        $company = Company::select('company_name')->where('id', $c)->first('company_name');
                         $companyName[$key] = $company->company_name;
                     }
                 } else {
                     $cId = json_decode($companyId);
-                    $company = Company::where('id', $cId)->first('company_name');
+                    $company = Company::select('company_name')->where('id', $cId)->first('company_name');
                     $companyName = $company->company_name;
                 }
                 $record['companyName'] = is_array($companyName) ? implode(", ", $companyName) : $companyName;
@@ -167,28 +166,28 @@ class ProductSubCategoryController extends Controller
             }
 
             if ($record->product_fabric_id != 0) {
-                $fabricGroup = productFabricGroup::where('id', $record->product_fabric_id)->first('name');
+                $fabricGroup = ProductFabricGroup::select('name')->where('id', $record->product_fabric_id)->first('name');
                 $record['fabricGroupName'] = $fabricGroup->name;
             } else {
                 $record['fabricGroupName'] = '';
             }
 
             $name = $record->name;
-            $fabric_group = $record->fabricGroupName;
-            $company_name = $record->companyName;
+            $fabric_group = $record['fabricGroupName'];
+            $company_name = $record['companyName'];
 
-            if ($record->is_active == 1) {
+            /* if ($record->is_active == 1) {
                 $active = '<span class="badge badge-dot badge-dot-xs badge-success">Yes</span>';
             } else {
                 $active = '<span class="badge badge-dot badge-dot-xs badge-danger">No</span>';
-            }
+            } */
             $action = '<a href="./productsub-category/edit-productsub-category/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./productsub-category/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
                 "name" => $name,
-                "main_category" => $name,
+                "main_category" => $record->main_category_name,
                 "fabric_group" => $fabric_group,
                 "company" => $company_name,
                 "action" => $action
@@ -259,11 +258,11 @@ class ProductSubCategoryController extends Controller
 
         if($productSubCategory->multiple_company == 1) {
 
-            $category = ProductCategory::first(['name as category_name', 'id as category_id']);
+            $category = ProductCategory::where('id', $productSubCategory->main_category_id)->first(['name as category_name', 'id']);
             $productSubCategoryData['main_category'] = $category;
 
             if ($productSubCategory->product_fabric_id != 0) {
-                $fabricGroup = productFabricGroup::where('id', $productSubCategory->product_fabric_id)->first();
+                $fabricGroup = ProductFabricGroup::where('id', $productSubCategory->product_fabric_id)->first();
                 $productSubCategoryData['fabric_group'] = $fabricGroup;
             } else {
                 $productSubCategoryData['fabric_group'] = [];
@@ -283,11 +282,11 @@ class ProductSubCategoryController extends Controller
                 $productSubCategoryData['sort_order'] = $productSubCategory->sort_order;
             }
         } elseif($productSubCategory->multiple_company == 0) {
-            $category = ProductCategory::first(['name as category_name', 'id as category_id']);
+            $category = ProductCategory::where('id', $productSubCategory->main_category_id)->first(['name as category_name', 'id']);
             $productSubCategoryData['subCategory'][0]['mainCategory'] = $category;
 
             if ($productSubCategory->product_fabric_id != 0) {
-                $fabricGroup = productFabricGroup::where('id', $productSubCategory->product_fabric_id)->first();
+                $fabricGroup = ProductFabricGroup::where('id', $productSubCategory->product_fabric_id)->first();
                 $productSubCategoryData['subCategory'][0]['mfabric_group'] = $fabricGroup;
             } else {
                 $productSubCategoryData['subCategory'][0]['mfabric_group'] = [];
@@ -307,7 +306,6 @@ class ProductSubCategoryController extends Controller
 
         return $productSubCategoryData;
     }
-
 
     public function deleteProductSubCategory($id){
         $productCategoryData = ProductCategory::where('id',$id)->first();
@@ -339,8 +337,8 @@ class ProductSubCategoryController extends Controller
         } elseif ($request->multiple_company == 0) {
             $this->validate($request, [
                 'singleCompany' => 'required',
-                'mainCategory' => 'required',
-                'sub_category_name' => 'required',
+                'productSubCategory.*.mainCategory' => 'required',
+                'productSubCategory.*.sub_category_name' => 'required',
             ]);
         }
 
@@ -372,6 +370,7 @@ class ProductSubCategoryController extends Controller
 
         } else if($request->multiple_company == 0) {
             foreach($request->productSubCategory as $subCategory) {
+
                 $productCategoryLastId = ProductCategory::orderBy('id', 'DESC')->first('id');
                 $productCategoryId = !empty($productCategoryLastId) ? $productCategoryLastId->id + 1 : 1;
 
@@ -379,7 +378,7 @@ class ProductSubCategoryController extends Controller
                 $productCategory->id = $productCategoryId;
                 $productCategory->multiple_company = $request->multiple_company;
                 $productCategory->product_default_category_id = 0;
-                $productCategory->main_category_id = $subCategory['mainCategory']['category_id'];
+                $productCategory->main_category_id = $subCategory['mainCategory']['id'];
                 if ($subCategory['mfabric_group'] != null) {
                     $productCategory->product_fabric_id = $subCategory['mfabric_group']['id'];
                 } else {
@@ -406,11 +405,20 @@ class ProductSubCategoryController extends Controller
     }
 
     public function updateProductSubCategoryData(Request $request) {
-        $this->validate($request, [
-            'main_category' => 'required',
-            'company' => 'required',
-            'sub_category_name' => 'required',
-        ]);
+        if ($request->multiple_company == 1) {
+            $this->validate($request, [
+                'main_category' => 'required',
+                'company' => 'required',
+                'sub_category_name' => 'required',
+            ]);
+        } elseif ($request->multiple_company == 0) {
+            $this->validate($request, [
+                'singleCompany' => 'required',
+                'productSubCategory.*.mainCategory' => 'required',
+                'productSubCategory.*.sub_category_name' => 'required',
+            ]);
+        }
+
         $id = $request->id;
         $company_id = [];
 
@@ -446,7 +454,7 @@ class ProductSubCategoryController extends Controller
                 }
                 $productCategory->multiple_company = $request->multiple_company;
                 $productCategory->product_default_category_id = 0;
-                $productCategory->main_category_id = $subCategory['mainCategory']['category_id'];
+                $productCategory->main_category_id = $subCategory['mainCategory']['id'];
                 if ($subCategory['mfabric_group'] != null) {
                     $productCategory->product_fabric_id = $subCategory['mfabric_group']['id'];
                 } else {
