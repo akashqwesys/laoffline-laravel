@@ -29,7 +29,7 @@
 				    			        <label class="control-label"><b>Commission Date : </b> {{ commission.commission_date}} </label>
 				    		        </div>
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Commission Account : </b> {{ commission.commissionaccount}} </label>
+				    			        <label class="control-label"><b>Commission Account : </b> {{ commission.commissionaccount.name }} </label>
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Recipt Mode : </b> {{ commission.commission_reciept_mode }} </label>
@@ -72,7 +72,7 @@
                                                         <td>{{ commission_invoice.commission_id }}</td>
                                                         <td>{{ commission_invoice.date}}</td>
                                                         <td>{{ commission_invoice.recivedCommission.totalrecived}}</td>
-                                                        <td v-if="commission_invoice.status = '1'">Completed</td><td v-else>Pending</td>
+                                                        <td>{{ commission_invoice.status.status }}</td>
                                                         <td>{{ commission_invoice.remark}}</td>
                                                        
                                                     </tr>
@@ -140,6 +140,7 @@
                         this.commissioninvoice.forEach( value => {
                             total += value.amount;
                         })
+                        
                         this.totalrecivedcommission = total;
                 });    
         },

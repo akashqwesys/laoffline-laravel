@@ -592,8 +592,12 @@ class CommissionController extends Controller
         $commissioninvoice = DB::table('commission_details as cd')->join('commission_invoices as ci', 'ci.id', '=', 'cd.commission_invoice_id' )->where('cd.c_increment_id', $commission->id)->select('cd.*', 'ci.bill_no')->get();
         $commissioninvoice_data = array();
         foreach ($commissioninvoice as $invoice) {
+            $status = array("status" => 'Pending', "code" => 0);
+            if ($invoice->status == 1) {
+                $status = array("status" => 'Complete', "code" => 1);
+            }
             $commissioninvoice = DB::table('commission_invoices')->where('financial_year_id', $invoice->financial_year_id)->where('id', $invoice->commission_invoice_id)->first();
-            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid'=> $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount, 'amount' => $invoice->received_commission_amount, 'remark' => $invoice->remark, 'status' => $invoice->status);
+            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid'=> $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount, 'amount' => $invoice->received_commission_amount, 'remark' => $invoice->remark, 'status' => $status);
             $totalrecivedamount = DB::table('commission_details')
                                  ->where('commission_invoice_id', $commissioninvoice->id)
                                  ->where('financial_year_id', $commissioninvoice->financial_year_id)

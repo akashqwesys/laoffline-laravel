@@ -753,12 +753,8 @@
                                 self.commissioninvoices[index].date = value.date;
                                 self.commissioninvoices[index].totalCommission = value.totalCommission;
                                 self.commissioninvoices[index].recivedCommission = value.recivedCommission;
-                                if (value.status == '1') {
-                                   comm_status = {status: 'Complete', code: '1'};
-                                } else {
-                                    comm_status = {status: 'Pending', code: '0'};
-                                }
-                                self.commissioninvoices[index].status = comm_status;
+                                
+                                self.commissioninvoices[index].status = value.status;
                                 self.commissioninvoices[index].amount = value.amount;
                                 self.commissioninvoices[index].remark = value.remark;
                         });
