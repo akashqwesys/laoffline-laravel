@@ -340,7 +340,7 @@
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.discount" @change="changeDiscount"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.discountamount" @change="changeDiscountAmount"></td>
                                                         <td><input type="text" class="form-control" v-model="salebill.goodreturn" @change="changeGoodReturn"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="salebill.ratedifference" @change="changeRateDiff"></td>
+                                                        <td class="cash"><input type="text" :readonly="true" class="form-control" v-model="salebill.ratedifference" @change="changeRateDiff"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.bankcommission" @change="changeBankComm"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.vatav" @change="changeVatav"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.agentcommission" @change="changeAgentComm"></td>
@@ -1267,6 +1267,56 @@
                 let diff,discount;
                 let index = event.target.parentElement.parentElement.rowIndex;
 
+                
+                let amount = this.salebills[index-1].amount;
+                let adjamount = this.salebills[index-1].adjustamount;
+
+                if (this.scope == 'edit') {
+                    let salebilladj = this.salebilladjust[index-1];
+                    let salebillid = this.salebills[index-1].id;
+                    let fid = this.salebills[index-1].fid;
+                    axios.post('/payments/checkpendingpayment',{
+                        old_amount : salebilladj,
+                        new_amount : adjamount,
+                        salebillid : salebillid,
+                        fid : fid,
+                    }).then(response =>{
+                        let newamount = response.data.amount;
+                        if (parseInt(amount) < parseInt(adjamount)) {
+                            alert ('Adjust Amount is not more than bill Amount & Also Pending amount : ' + newamount);
+                            this.salebills[index-1].adjustamount = newamount;
+                            return false;
+                        } else if (parseInt(amount) > parseInt(adjamount)) {
+                            if (parseInt(newamount)) {
+                                alert ('Adjust Amount is not more than Amount : ' + newamount);
+                                this.salebills[index-1].adjustamount = newamount;
+                                return false;
+                            }
+                        }
+                        let newadjamount = this.salebills[index-1].adjustamount;
+                        diff = amount - newadjamount;
+                        discount = diff / amount * 100;
+                        this.salebills[index-1].discountamount = diff;
+                        this.salebills[index-1].discount = discount;   
+                    })
+                }
+                if (this.scope != 'edit'){
+                if (parseInt(amount) > parseInt(adjamount)) {
+                    diff = amount - adjamount;
+                    discount = diff / amount * 100;
+                        this.salebills[index-1].discountamount = diff;
+                        this.salebills[index-1].discount = discount;
+                } else if (parseInt(amount) == parseInt(adjamount)) {
+                    setTimeout(() => {
+                        this.salebills[index-1].discount = 0;
+                        this.salebills[index-1].discountamount = 0;
+                    }, 500);
+                } else if (parseInt(amount) < parseInt(adjamount)) {
+                        alert ('Adjust Amount is not more than bill Amount');
+                        this.salebills[index-1].adjustamount = amount;
+                        return false;
+                    }
+                }
                 let bankcommossion = this.salebills[index-1].bankcommission;
                 let vatav = this.salebills[index-1].vatav;
                 let agentComm = this.salebills[index-1].agentcommission;
@@ -1302,51 +1352,6 @@
                 if (!claim) {
                     claim = 0;
                 }
-                let amount = this.salebills[index-1].amount;
-                let adjamount = this.salebills[index-1].adjustamount;
-
-                if (this.scope == 'edit') {
-                    let salebilladj = this.salebilladjust[index-1];
-                    let salebillid = this.salebills[index-1].id;
-                    let fid = this.salebills[index-1].fid;
-                    axios.post('/payments/checkpendingpayment',{
-                        old_amount : salebilladj,
-                        new_amount : adjamount,
-                        salebillid : salebillid,
-                        fid : fid,
-                    }).then(response =>{
-                        let newamount = response.data.amount;
-                        if (parseInt(amount) < parseInt(adjamount)) {
-                            alert ('Adjust Amount is not more than bill Amount & Also Pending amount : ' + newamount);
-                            this.salebills[index-1].adjustamount = newamount;
-                            return false;
-                        } else if (parseInt(amount) > parseInt(adjamount)) {
-                            if (parseInt(newamount)) {
-                                alert ('Adjust Amount is not more than Amount : ' + newamount);
-                                this.salebills[index-1].adjustamount = newamount;
-                                return false;
-                            }
-                        }
-                    })
-                }
-                if (this.scope != 'edit'){
-                if (parseInt(amount) > parseInt(adjamount)) {
-                    diff = amount - adjamount;
-                    discount = diff / amount * 100;
-                        this.salebills[index-1].discountamount = diff;
-                        this.salebills[index-1].discount = discount;
-                } else if (parseInt(amount) == parseInt(adjamount)) {
-                    setTimeout(() => {
-                        this.salebills[index-1].discount = 0;
-                        this.salebills[index-1].discountamount = 0;
-                    }, 500);
-                } else if (parseInt(amount) < parseInt(adjamount)) {
-                        alert ('Adjust Amount is not more than bill Amount');
-                        this.salebills[index-1].adjustamount = amount;
-                        return false;
-                    }
-                }
-
                 let diff1 = parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim);
                 let rateDiff = rateDifference - diff1;
                 this.salebills[index-1].ratedifference = rateDiff;

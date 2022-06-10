@@ -1130,6 +1130,16 @@ class PaymentsController extends Controller
         $payment->total_amount = $paymentData->totalamount;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount;
 
+        $payment->tot_rate_difference = $paymentData->ratedifference;
+        $payment->tot_discount = $paymentData->discountamount;
+        $payment->tot_vatav = $paymentData->vatav;
+        $payment->tot_agent_commission = $paymentData->agentcommission;
+        $payment->tot_bank_cpmmission = $paymentData->bankcommission;
+        $payment->tot_claim = $paymentData->claim;
+        $payment->tot_good_returns = $paymentData->goodreturn;
+        $payment->tot_short = $paymentData->short;
+        $payment->tot_interest = $paymentData->interest;
+        
         $payment->save();
         $p_increment_id = $paymentId;
 
@@ -1288,15 +1298,6 @@ class PaymentsController extends Controller
         }
 
         $payment1 = Payment::where('payment_id', $payment_id)->first();
-        $payment1->tot_discount = $tot_discount;
-        $payment1->tot_vatav = $tot_vatav;
-        $payment1->tot_agent_commission = $tot_agent_commission;
-        $payment1->tot_bank_cpmmission = $tot_bank_cpmmission;
-        $payment1->tot_claim = $tot_claim;
-        $payment1->tot_good_returns = $tot_good_returns;
-        $payment1->tot_short = $tot_short;
-        $payment1->tot_interest = $tot_interest;
-        $payment1->tot_rate_difference = $paymentData->ratedifference;
         $payment1->payment_ok_or_not = $payment_ok_or_not;
         $payment1->save();
 
