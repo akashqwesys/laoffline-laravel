@@ -1792,7 +1792,7 @@ class PaymentsController extends Controller
                     $paymentDetail->payment_id = $paymentData->id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $payment->financial_year_id;
+                    $paymentDetail->financial_year_id = $salebill->fid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->status = 1;
@@ -1854,7 +1854,7 @@ class PaymentsController extends Controller
                     $paymentDetail->payment_details_id = $paymentDetailId;
                     $paymentDetail->payment_id = $paymentData->id;
                     $paymentDetail->p_increment_id = $p_increment_id;
-                    $paymentDetail->financial_year_id = $payment->financial_year_id;
+                    $paymentDetail->financial_year_id = $salebill->fid;
                     $paymentDetail->sr_no = $salebill->id;
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->status = $salebill->status->code;
