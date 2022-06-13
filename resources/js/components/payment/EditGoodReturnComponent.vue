@@ -275,18 +275,18 @@
                     let data = new FormData();
                     data.append('salebills', JSON.stringify(this.form));
                     data.append('products', JSON.stringify(this.products));
-                    //data.append('attechment', this.attechment);
+                    data.append('grattechment', this.attechment);
 
-                    this.attechment.forEach((contact,index)=>{
-                    if(contact){
-                        data.append(`grattechment[${index}]`, contact);
-                    }else{
-                        data.append(`grattechment[${index}]`, null);
-                    }
-                })
+                    // this.attechment.forEach((contact,index)=>{
+                    // if(contact){
+                    //     data.append(`grattechment[${index}]`, contact);
+                    // }else{
+                    //     data.append(`grattechment[${index}]`, null);
+                    // }
+                //})
                     axios.post('/payments/updategoodreturn', data)
                         .then(() => {
-                            //window.location.href = '/payments';
+                            window.location.href = '/payments';
                     })
                     .catch((error) => {
                         var validationError = error.response.data.errors;

@@ -1622,8 +1622,9 @@ class PaymentsController extends Controller
         return $data;
     }
     public function getGoodReturnView($id) {
-        $goodReturn = GoodsReturn::where('goods_return_id', $id)->first();
-        $goodReturnItem = GrSaleBillItem::where('goods_return_id', $id)->get();
+        $user = session()->get('user');
+        $goodReturn = GoodsReturn::where('goods_return_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        $goodReturnItem = GrSaleBillItem::where('gr_increment_id', $goodReturn->id)->get();
         $customer = Company::where('id', $goodReturn->company_id)->first();
         $supplier = Company::where('id', $goodReturn->supplier_id)->first();
         $grItemData = array();
@@ -2012,11 +2013,11 @@ class PaymentsController extends Controller
         $salebilldata = json_decode($request->salebills);
         $attachments = array();
         if ($grattechment) {
-            foreach ($grattechment as $attechment) {
+            foreach ($grattechment as $key => $attechment) {
                     $attechmentImage = '';
                     $attechmentImage = rand() . "_grattechment." . $attechment->getClientOriginalExtension();
                     $attechment->move(public_path('upload/goodreturn/'), $attechmentImage);
-                    array_push($attachments, $attechmentImage);
+                    $attachments[$key] = $attechmentImage;
             }
         }
 
@@ -2034,7 +2035,7 @@ class PaymentsController extends Controller
             $typeName = '';
         }
         $personName = '';
-        foreach ($salebilldata as $salebill) {
+        foreach ($salebilldata as $key => $salebill) {
 
             $total_pieces = 0; $total_meter = 0; $totalamount = 0;
             $payment = Payment::where('payment_id', $pid)->where('financial_year_id', $user->financial_year_id)->first();
@@ -2141,7 +2142,7 @@ class PaymentsController extends Controller
             $goodretun->financial_year_id = $financialid;
             $goodretun->generated_by = $user->employee_id;
             $goodretun->supp_invoice_no = $salebill->supplier_invoice_no;
-            $goodretun->multiple_attachment = json_encode($attachments);
+            $goodretun->multiple_attachment = $attachments[$key];
             $goodretun->amount = $salebill->amount;
             $goodretun->adjust_amount = $paymentDatail->adjust_amount;
             $goodretun->goods_return = $salebill->goods_return;
