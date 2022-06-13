@@ -1600,8 +1600,9 @@ class PaymentsController extends Controller
     }
 
     public function fetchGoodReturn($id) {
-        $goodReturn = GoodsReturn::where('goods_return_id', $id)->first();
-        $goodReturnItem = GrSaleBillItem::where('goods_return_id', $id)->get();
+        $user = session()->get('user');
+        $goodReturn = GoodsReturn::where('goods_return_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        $goodReturnItem = GrSaleBillItem::where('gr_increment_id', $goodReturn->id)->get();
         $grItemData = array();
 
         foreach ($goodReturnItem as $Item){
@@ -2021,7 +2022,7 @@ class PaymentsController extends Controller
 
 
         $pid = $request->session()->get('p_id');
-        $payment = Payment::where('payment_id', $pid)->first();
+        $payment = Payment::where('payment_id', $pid)->where('financial_year_id', $user->financial_year_id)->first();
         $reference = ReferenceId::where('reference_id', $payment->reference_id)->first();
         $companyName = Company::where('id', $payment->supplier_id)->first();
         $cmpTypeName = Company::where('id', $payment->customer_id)->first();
@@ -2036,8 +2037,11 @@ class PaymentsController extends Controller
         foreach ($salebilldata as $salebill) {
 
             $total_pieces = 0; $total_meter = 0; $totalamount = 0;
-            $paymentDatail = PaymentDetail::where('sr_no', $salebill->sr_no)->where('payment_id', $pid)->first();
-            $salebill2 = DB::table('sale_bills')->where('sale_bill_id', $salebill->sr_no)->first();
+            $payment = Payment::where('payment_id', $pid)->where('financial_year_id', $user->financial_year_id)->first();
+            $paymentDatail = PaymentDetail::where('sr_no', $salebill->sr_no)->where('p_increment_id', $payment->id)->first();
+            $salebill2 = DB::table('sale_bills')->where('sale_bill_id', $salebill->sr_no)
+                        ->where('financial_year_id', $paymentDatail->financial_year_id)
+                        ->first();
             $bill = DB::table('sale_bill_items')->where('sale_bill_id', $salebill->sr_no)->get();
 
             $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
@@ -2082,7 +2086,7 @@ class PaymentsController extends Controller
             $comboids->general_ref_id = $payment->reference_id;
             $comboids->generated_by = $user->employee_id;
             $comboids->assigned_to = $user->employee_id;
-            $comboids->company_id = $payment->company_id;
+            $comboids->company_id = $payment->customer_id;
             $comboids->supplier_id = $payment->supplier_id;
             $comboids->company_type = $typeName;
             $comboids->followup_via = 'Payment';
@@ -2091,11 +2095,12 @@ class PaymentsController extends Controller
             $comboids->from_name = $personName;
             $comboids->total = $payment->tot_good_returns;
             $comboids->subject = 'For '. $companyName->name .' RS '.$payment->tot_good_returnst .'/-';
-            $comboids->financial_year_id = $payment->financial_id;
+            $comboids->financial_year_id = $payment->financial_year_id;
             $comboids->attachments = json_encode($attachments);
             $comboids->updated_by = Session::get('user')->employee_id;
             $comboids->inward_or_outward_flag = 0;
             $comboids->inward_or_outward_id = 0;
+            $comboids->receipt_amount = 0;
             $comboids->sale_bill_id = 0;
             $comboids->goods_return_id = 0;
             $comboids->commission_id = 0;
