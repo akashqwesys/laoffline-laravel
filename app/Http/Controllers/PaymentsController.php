@@ -2202,7 +2202,9 @@ class PaymentsController extends Controller
         $user = Session::get('user');
         $salebilldata = json_decode($request->salebills);
         $products = json_decode($request->products);
-
+        $goodreturn = GoodsReturn::where('goods_return_id', $salebilldata->id)
+                    ->where('financial_year_id', $user->financial_year_id)
+                    ->first();
         $attachments = array();
         if ($grattechment) {
             foreach ($grattechment as $attechment) {
@@ -2211,30 +2213,20 @@ class PaymentsController extends Controller
                     $attechment->move(public_path('upload/goodreturn/'), $attechmentImage);
                     array_push($attachments, $attechmentImage);
             }
+           $goodreturn->multiple_attachment = json_encode($attachments);
         }
-        $bill = GrSaleBillItem::where('goods_return_id', $salebilldata->id)->first();
-        GrSaleBillItem::where('goods_return_id', $salebilldata->id)->delete();
-        $goodreturnId = DB::table('goods_returns')->where('goods_return_id', $salebilldata->id)->select('id')->first();
+        $goodreturn->save();
+        
+        //$bill = GrSaleBillItem::where('gr_increment_id', $goodreturn->id)->first();
+        //GrSaleBillItem::where('goods_return_id', $salebilldata->id)->delete();
+        //$goodreturnId = DB::table('goods_returns')->where('goods_return_id', $salebilldata->id)->select('id')->first();
         foreach ($products as $product) {
-            $gritemLastid = GrSaleBillItem::orderBy('id', 'DESC')->first('id');
-            $gritemId = !empty($gritemLastid) ? $gritemLastid->id + 1 : 1;
-            $grsalebillitem = new GrSaleBillItem();
-            $grsalebillitem->id = $gritemId;
-            $grsalebillitem->gr_increment_id = $goodreturnId->id;
-            $grsalebillitem->goods_return_id = $salebilldata->id;
+            $grsalebillitem = GrSaleBillItem::where('id', $product->id)->first();
             $grsalebillitem->product_or_fabric_id = $product->product_or_fabric_id;
             $grsalebillitem->peices = $product->pieces;
             $grsalebillitem->meters = (int)$product->meter;
             $grsalebillitem->peices_meters = (int)$product->pieces_meter;
             $grsalebillitem->rate = $product->rate;
-            $grsalebillitem->discount_per = $bill->discount_per;
-            $grsalebillitem->discount_amt = $bill->discount_amt;
-            $grsalebillitem->cgst_per = $bill->cgst_per;
-            $grsalebillitem->cgst_amt = $bill->cgst_amt;
-            $grsalebillitem->sgst_per = $bill->sgst_per;
-            $grsalebillitem->sgst_amt = $bill->sgst_amt;
-            $grsalebillitem->igst_per = $bill->igst_per;
-            $grsalebillitem->igst_amt = $bill->igst_amt;
             $grsalebillitem->amount = $product->amount;
             $grsalebillitem->save();
         }
