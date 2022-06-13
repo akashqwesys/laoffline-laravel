@@ -1509,10 +1509,10 @@
                     if (this.isValidate) {
                         axios.post('/payments/create', paymentdata)
                         .then((response2) => {
-                            if (response2.data == ''){
+                            if (response2.data.redirect_url == ''){
                                 window.location.href = '/payments';
                             } else {
-                                window.location.href = response2.data;
+                                window.location.href = response2.data.redirect_url;
                             }
                         })
                         .catch((error) => {

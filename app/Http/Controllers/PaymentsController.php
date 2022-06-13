@@ -1335,7 +1335,8 @@ class PaymentsController extends Controller
         if ($tot_good_returns != 0) {
             $redirect_url = '/payments/add-goodreturn/'. $payment_id;
         }
-        return $redirect_url;
+        $data['redirect_url'] = $redirect_url;
+        return $data;
     }
     public function getBasicData(Request $request) {
         $user = session()->get('user');
