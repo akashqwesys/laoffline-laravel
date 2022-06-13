@@ -35,7 +35,7 @@
                                             <th>Name</th>
                                             <th>Main Category</th>
                                             <th>Fabric Group</th>
-                                            <th>Company</th>
+                                            <th width="50%">Company</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -140,6 +140,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
+                    order: [[ 0, "desc" ]],
                     columns: [
                         { data: 'id' },
                         { data: 'name' },

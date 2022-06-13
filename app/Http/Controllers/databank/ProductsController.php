@@ -244,12 +244,14 @@ class ProductsController extends Controller
 
         foreach ($categories as $key => $row_category) {
 			if(in_array($row_category->id, $category_array)) {
-				$mainCategoryData[$key]['id'] = $row_category->id;
-                $mainCategoryData[$key]['name'] = $row_category->name;
+				$mainCategoryData[] = [
+                    'id' => $row_category->id,
+                    'name' => $row_category->name
+                ];
 			}
 		}
 
-        return $mainCategoryData;
+        return response()->json($mainCategoryData);
     }
 
     public function subCategory($id, $companyId) {

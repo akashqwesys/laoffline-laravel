@@ -161,7 +161,7 @@
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    <button type="submit" class="btn btn-primary ml-2">Save changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -326,7 +326,7 @@
                             this.form.sub_category_name = productSubCategories.sub_category_name;
                             this.form.fabric_group = productSubCategories.fabric_group;
                             this.form.sort_order = productSubCategories.sort_order;
-                            if (this.form.fabric_group) {
+                            if (productSubCategories.fabric_group.length) {
                                 this.fabric = true;
                             } else {
                                 this.fabric = false;
@@ -336,7 +336,7 @@
                             this.multipleCompanies = false;
                             this.form.singleCompany = productSubCategories.company;
                             this.productSubCategories = productSubCategories.subCategory;
-                            this.productSubCategories.forEach((category,index)=>{
+                            productSubCategories.subCategory.forEach((category,index)=>{
                                 if (category.mfabric_group != null) {
                                     this.mfabric = true;
                                 } else {
