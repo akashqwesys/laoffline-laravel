@@ -238,13 +238,16 @@
                
                 this.products[index1-1].amount = amount;
 
-                
+                    let totalMeter = 0;
                     let totalPieces = 0;
                     let totalAmount = 0;
                     this.products.forEach((value1,index1) => {
                     let pieces = value1.pieces;
                     let amount = value1.amount;
-                    
+                    let meter = value1.meter;
+                    if (!meter){
+                        meter = 0;
+                    }
                     if (!pieces) {
                         pieces = 0;
                     }
@@ -253,14 +256,17 @@
                     }
                     setTimeout(() => {
                         this.products[index1].pieces = pieces;
+                        this.products[index1].meter = meter;
                         this.products[index1].amount = amount;
                     }, 500);
                     totalPieces += parseInt(pieces);
                     totalAmount += parseInt(amount);
+                    totalMeter += parseInt(meter);
                 });
                 
                 setTimeout(() => {
                     this.form.pieces = totalPieces;
+                    this.form.meter = totalMeter;
                     this.form.totamount = totalAmount;
                 }, 1000);
             },

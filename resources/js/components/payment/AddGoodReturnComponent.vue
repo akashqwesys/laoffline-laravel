@@ -248,9 +248,11 @@
                 this.salebills.forEach((value,index)=>{
                     let totalPieces = 0;
                     let totalAmount = 0;
+                    let totalMeter = 0;
                     this.salebills[index].products.forEach((value1,index1) => {
                     let pieces = value1.pieces;
                     let amount = value1.amount;
+                    let meter = value1.meter;
                     
                     if (!pieces) {
                         pieces = 0;
@@ -258,16 +260,22 @@
                     if (!amount){
                         amount = 0;
                     }
+                    if (!meter){
+                        meter = 0;
+                    }
                     setTimeout(() => {
                         this.salebills[index].products[index1].pieces = pieces;
+                        this.salebills[index].products[index1].meter = meter;
                         this.salebills[index].products[index1].amount = amount;
                     }, 500);
                     totalPieces += parseInt(pieces);
+                    totalMeter += parseInt(meter);
                     totalAmount += parseInt(amount);
                 });
                 
                 setTimeout(() => {
                     this.salebills[index].pieces = totalPieces;
+                    this.salebills[index].meter = totalMeter;
                     this.salebills[index].totamount = totalAmount;
                 }, 1000);
                 });
