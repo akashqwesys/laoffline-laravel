@@ -1302,7 +1302,7 @@ class PaymentsController extends Controller
         $payment1->save();
 
         if ($paymentData->recipt_mode == 'fullreturn') {
-            if ($tot_good_returns != 0) {
+            if ($paymentData->goodreturn != 0) {
                 $color_flag_id = 3;
             } else {
                 $color_flag_id = 1;
@@ -1332,7 +1332,7 @@ class PaymentsController extends Controller
         $request->session()->forget('saleBill');
 
         $redirect_url = '';
-        if ($tot_good_returns != 0) {
+        if ($paymentData->goodreturn != 0) {
             $redirect_url = '/payments/add-goodreturn/'. $payment_id;
         }
         $data['redirect_url'] = $redirect_url;
@@ -1978,12 +1978,14 @@ class PaymentsController extends Controller
     public function getSalebillWithProduct(Request $request) {
         $p_id = $request->session()->get('p_id');
         $data = array();
-        $salebill = PaymentDetail::where('payment_id', $p_id)->get();
+        $user = Session::get('user');
+        $payment = Payment::where('payment_id', $p_id)->where('financial_year_id', $user->financial_year_id)->first();
+        $salebill = PaymentDetail::where('p_increment_id', $payment->id)->get();
         foreach($salebill as $bill) {
             $product_list = array();
             $product = DB::table('sale_bill_items')
             ->where('sale_bill_items.sale_bill_id', $bill->sr_no)
-            ->where('sale_bill_items.financial_year_id', Session::get('user')->financial_year_id)
+            ->where('sale_bill_items.financial_year_id', $bill->financial_year_id)
             ->get();
             foreach($product as $p){
                 $product_name = DB::table('products')->where('id', $p->product_or_fabric_id)->first();
