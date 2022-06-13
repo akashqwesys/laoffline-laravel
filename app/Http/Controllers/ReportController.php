@@ -12,6 +12,7 @@ use App\Models\SaleBill;
 use App\Models\SaleBillTransport;
 use Illuminate\Support\Facades\Session;
 use DB;
+use PDF;
 
 class ReportController extends Controller
 {
@@ -63,7 +64,7 @@ class ReportController extends Controller
         $data = DB::table('sale_bills as s');
         if ($request->show_detail == 1) {
             $data = $data->join('companies as c', 's.company_id', '=', 'c.id')
-                ->selectRaw('SUM(s.total) as total, SUM(s.received_payment) as received_payment, c.name, s.company_id');
+                ->selectRaw('SUM(s.total) as total, SUM(s.received_payment) as received_payment, c.company_name, s.company_id');
         } else {
             $data = $data->join('sale_bill_items as sbi', function ($j) {
                     $j->on('s.sale_bill_id', '=', 'sbi.sale_bill_id')
@@ -76,17 +77,20 @@ class ReportController extends Controller
                 })
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
-                ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, SUM(sbi.pieces) AS tot_pieces, SUM(sbi.meters) AS tot_meters, SUM(sbi.cgst_amount + sbi.sgst_amount + sbi.igst_amount) AS total_gst, sbt.transport_id, sbt.station, sbt.lr_mr_no');
+                ->join('cities as c', DB::raw('cast(sbt.station as integer)'), '=', 'c.id')
+                ->join('transport_details as td', 'sbt.transport_id', '=', 'td.id')
+                ->join('sale_bill_agents as sba', 's.agent_id', '=', 'sba.id')
+                ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, s.company_id, s.supplier_id, to_char(s.select_date, \'dd-mm-yyyy\') as select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, s.change_in_amount, s.sign_change, s.supplier_invoice_no, SUM(sbi.pieces) AS tot_pieces, SUM(sbi.meters) AS tot_meters, SUM(sbi.cgst_amount + sbi.sgst_amount + sbi.igst_amount) AS total_gst, sbt.transport_id, sbt.lr_mr_no, td.name as transport_name, sba.name as agent_name, c.name as city_name');
         }
-        if ($request->customer && $request->customer->id) {
-            $data = $data->where('s.company_id', $request->customer->id);
+        if ($request->customer && $request->customer['id']) {
+            $data = $data->where('s.company_id', $request->customer['id']);
         }
-        if ($request->supplier && $request->supplier->id) {
-            $data = $data->where('s.supplier_id', $request->supplier->id);
+        if ($request->supplier && $request->supplier['id']) {
+            $data = $data->where('s.supplier_id', $request->supplier['id']);
         }
-        if ($request->payment_status && $request->payment_status->id == 1) {
+        if ($request->payment_status && $request->payment_status['id'] == 1) {
             $data = $data->where('s.payment_status', 0);
-        } else if ($request->payment_status && $request->payment_status->id == 2) {
+        } else if ($request->payment_status && $request->payment_status['id'] == 2) {
             $data = $data->where('s.payment_status', 1);
         }
         if ($request->start_date && $request->end_date) {
@@ -94,17 +98,27 @@ class ReportController extends Controller
         }
         if ($request->show_detail == 1) {
             $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0')
-                ->groupBy('c.id')
+                ->groupByRaw('c.company_name, s.company_id, s.select_date')
                 ->orderByRaw('c.company_name, s.select_date asc')
                 ->get();
         } else {
             $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
-                // ->groupByRaw('s.sale_bill_id, s.financial_year_id')
+                ->groupByRaw('s.company_id, s.supplier_id, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name')
                 ->orderBy('s.sale_bill_id', 'asc')
                 ->get();
         }
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.export_pdf', compact('data', 'request'))->setOptions(['defaultFont' => 'sans-serif']);
+            $path = public_path('pdf/sales-register-reports');
+            $fileName =  'Sales-Register-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            $pdf = public_path('pdf/' . $fileName);
+            return response()->json(['url' => url('/pdf/sales-register-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
 
-        return response()->json($data);
+        } else {
+            return response()->json($data);
+        }
     }
 
 }
