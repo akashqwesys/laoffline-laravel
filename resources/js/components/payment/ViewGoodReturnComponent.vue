@@ -42,12 +42,12 @@
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Multiple Attachment : </b>  </label>
-                                        <span v-if="attachment">
-                                        <li v-for="(grp,index) in attachment" :key="index">
-                                        <a :href="'/upload/goodreturn/'+grp[index]" target="_blank">
+                                        <span v-if="Goodreturn.multiple_attachment">
+                                        
+                                        <a :href="'/upload/goodreturn/'+Goodreturn.multiple_attachment" target="_blank">
                                             <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
                                         </a>
-                                        </li>
+                                        
                                         </span>
                                         <span v-else> - </span>
 				    		        </div>
@@ -146,7 +146,7 @@
                 GoodretunProduct: [],
                 customer: [],
                 supplier: [],
-                attachment: [],
+                
                  
             }
         },
@@ -160,7 +160,6 @@
                         this.GoodretunProduct = gData.item;
                         this.customer = gData.customer;
                         this.supplier = gData.supplier;
-                        this.attachment = gData.goodreturn.multiple_attachment;
                 });    
         },
         methods: {

@@ -2014,13 +2014,14 @@ class PaymentsController extends Controller
         $attachments = array();
         if ($grattechment) {
             foreach ($grattechment as $key => $attechment) {
-                    $attechmentImage = '';
-                    $attechmentImage = rand() . "_grattechment." . $attechment->getClientOriginalExtension();
-                    $attechment->move(public_path('upload/goodreturn/'), $attechmentImage);
-                    $attachments[$key] = $attechmentImage;
+                        $attechmentImage = '';
+                        $attechmentImage = rand() . "_grattechment." . $attechment->getClientOriginalExtension();
+                        $attechment->move(public_path('upload/goodreturn/'), $attechmentImage);
+                        $attachments[$key] = $attechmentImage;
             }
         }
-
+        
+        
 
         $pid = $request->session()->get('p_id');
         $payment = Payment::where('payment_id', $pid)->where('financial_year_id', $user->financial_year_id)->first();
@@ -2142,7 +2143,7 @@ class PaymentsController extends Controller
             $goodretun->financial_year_id = $financialid;
             $goodretun->generated_by = $user->employee_id;
             $goodretun->supp_invoice_no = $salebill->supplier_invoice_no;
-            $goodretun->multiple_attachment = $attachments[$key];
+            $goodretun->multiple_attachment = array_key_exists($key,$attachments) ? $attachments[$key] :  '';
             $goodretun->amount = $salebill->amount;
             $goodretun->adjust_amount = $paymentDatail->adjust_amount;
             $goodretun->goods_return = $salebill->goods_return;
@@ -2208,13 +2209,10 @@ class PaymentsController extends Controller
                     ->first();
         $attachments = array();
         if ($grattechment) {
-            foreach ($grattechment as $attechment) {
                     $attechmentImage = '';
-                    $attechmentImage = rand() . "_grattechment." . $attechment->getClientOriginalExtension();
-                    $attechment->move(public_path('upload/goodreturn/'), $attechmentImage);
-                    array_push($attachments, $attechmentImage);
-            }
-           $goodreturn->multiple_attachment = json_encode($attachments);
+                    $attechmentImage = rand() . "_grattechment." . $grattechment->getClientOriginalExtension();
+                    $grattechment->move(public_path('upload/goodreturn/'), $attechmentImage);
+                    $goodreturn->multiple_attachment = $attechmentImage;
         }
         $goodreturn->save();
         
