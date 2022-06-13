@@ -60,9 +60,9 @@
                                                     <input type="hidden" class="form-control" v-model="product.id">
                                         
                                                     <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.meter"></td>
+                                                    <td><input type="text" class="form-control" v-model="product.meter" @change="piecechange(index, $event)"></td>
                                                     <td><input type="text" class="form-control" v-model="product.pieces_meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.pieces" @change="pricechange(index, $event)"></td>
+                                                    <td><input type="text" class="form-control" v-model="product.pieces" @change="piecechange(index, $event)"></td>
                                                     <td class="text-center">{{ product.rate }}</td>
                                                     <td><input type="text" class="form-control" v-model="product.amount"></td>
                                                     <td><a class="btn btn-primary" @click="removeProduct(index, $event)">x</a></td>
@@ -228,12 +228,19 @@
                 }, 1000);
                 }); 
             },
-            pricechange (index, event) {
+            piecechange (index, event) {
                 
                 let index1 = event.target.parentElement.parentElement.rowIndex;
                 let pieces = this.salebills[index].products[index1-1].pieces;
+                let meter = this.salebills[index].products[index1-1].meter;
+                let pieces_meter = this.salebills[index].products[index1-1].pieces_meter;
                 let rate = this.salebills[index].products[index1-1].rate;
-                let amount = pieces * rate;
+                if (pieces_meter  == 1) {
+                    let amount = meter * rate;
+                } else if (pieces_meter == 2) {
+                    let amount = pieces * rate;
+                }
+                
                
                 this.salebills[index].products[index1-1].amount = amount;
 
