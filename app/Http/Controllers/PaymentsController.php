@@ -2147,7 +2147,7 @@ class PaymentsController extends Controller
             $goodretun->amount = $salebill->amount;
             $goodretun->adjust_amount = $paymentDatail->adjust_amount;
             $goodretun->goods_return = $salebill->goods_return;
-            $goodretun->tot_peices = $salebill->pieces;
+            $goodretun->tot_peices = (int)$salebill->pieces;
             $goodretun->tot_meters = (int)$salebill->meter;
             $goodretun->tot_amount = (int)$salebill->totamount;
             $goodretun->sale_bill_for = $salebill2->sale_bill_for;
@@ -2169,7 +2169,7 @@ class PaymentsController extends Controller
                 $grsalebillitem->gr_increment_id = $goodreturnId;
                 $grsalebillitem->goods_return_id = $goods_return_id;
                 $grsalebillitem->product_or_fabric_id = $product->product_or_fabric_id;
-                $grsalebillitem->peices = $product->pieces;
+                $grsalebillitem->peices = (int)$product->pieces;
                 $grsalebillitem->meters = (int)$product->meter;
                 $grsalebillitem->peices_meters = (int)$product->pieces_meter;
                 $grsalebillitem->rate = $product->rate;

@@ -61,7 +61,7 @@
                                         
                                                     <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
                                                     <td><input type="text" class="form-control" v-model="product.meter" @change="piecechange(index, $event)"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.pieces_meter"></td>
+                                                    <td><input :readonly="true" type="text" class="form-control" v-model="product.pieces_meter"></td>
                                                     <td><input type="text" class="form-control" v-model="product.pieces" @change="piecechange(index, $event)"></td>
                                                     <td class="text-center">{{ product.rate }}</td>
                                                     <td><input type="text" class="form-control" v-model="product.amount"></td>
@@ -204,27 +204,41 @@
                 this.salebills.forEach((value,index)=>{
                     let totalPieces = 0;
                     let totalAmount = 0;
+                    let totalMeter = 0;
+                    
                     this.salebills[index].products.forEach((value1,index1) => {
                     let pieces = value1.pieces;
-                    let amount = value1.amount;
+                    let amount = 0;
+                    let meter = value1.meter;
+                    let pieces_meter = value1.pieces_meter;
                     
                     if (!pieces) {
                         pieces = 0;
                     }
-                    if (!amount){
-                        amount = 0;
+                    
+                    if (!meter) {
+                        meter = 0;
+                    }
+
+                    if (pieces_meter == 1) {
+                        amount = meter * value1.rate;
+                    } else if (pieces_meter == 2) {
+                        amount = pieces * value1.rate;
                     }
                     setTimeout(() => {
                         this.salebills[index].products[index1].pieces = pieces;
+                        this.salebills[index].products[index1].meter = meter;
                         this.salebills[index].products[index1].amount = amount;
                     }, 500);
                     totalPieces += parseInt(pieces);
                     totalAmount += parseInt(amount);
+                    totalMeter += parseInt(meter);
                 });
                 
                 setTimeout(() => {
                     this.salebills[index].pieces = totalPieces;
                     this.salebills[index].totamount = totalAmount;
+                    this.salebills[index].meter = totalMeter;
                 }, 1000);
                 }); 
             },

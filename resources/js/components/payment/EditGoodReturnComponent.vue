@@ -61,7 +61,7 @@
                                                     
                                                     <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
                                                     <td><input type="text" class="form-control" v-model="product.meter" @change="piecechange"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.pieces_meter"></td>
+                                                    <td><input :readonly="true" type="text" class="form-control" v-model="product.pieces_meter"></td>
                                                     <td><input type="text" class="form-control" v-model="product.pieces" @change="piecechange"></td>
                                                     <td class="text-center">{{ product.rate }}</td>
                                                     <td><input type="text" class="form-control" v-model="product.amount"></td>
@@ -153,34 +153,50 @@
                     this.products = response.data.products;
 
                     let totalPieces = 0;
+                    let totalMeter = 0;
                     let totalAmount = 0;
                     let totalPm = 0;
                     let amount = 0;
                     this.products.forEach((value1,index1) => {
                     let pieces = value1.pieces;
+                    let meter = value1.meter;
                     let amount = value1.amount;
                     let pieces_meter = value1.pieces_meter;
                     
                     if (!pieces) {
                         pieces = 0;
                     }
+
+                    if (!meter) {
+                        meter = 0;
+                    }
                     
                     if (!pieces_meter) {
                         pieces_meter = 0;
                     }
-                    amount = pieces * value1.rate;
+
+                    if (pieces_meter == 1) {
+                        amount = meter * value1.rate;
+                    } else if (pieces_meter == 2) {
+                        amount = pieces * value1.rate;
+                    }
+                    
                     setTimeout(() => {
                         this.products[index1].pieces = pieces;
+                        this.products[index1].meter = meter;
                         this.products[index1].amount = amount;
                         this.products[index1].pieces_meter = pieces_meter;
                     }, 500);
+
                     totalPieces += parseInt(pieces);
                     totalAmount += parseInt(amount);
+                    totalMeter += parseInt(meter);
                     totalPm += parseInt(pieces_meter);
                 });
                 
                 setTimeout(() => {
                     this.form.pieces = totalPieces;
+                    this.form.meter = totalMeter;
                     this.form.totamount = totalAmount;
                     this.form.pieces_meter = totalPm;
                 }, 1000);
@@ -198,20 +214,31 @@
                 
                     let totalPieces = 0;
                     let totalAmount = 0;
-                    this.products.forEach((value1,index1) => {
+                    let totalMeter = 0;
+                this.products.forEach((value1,index1) => {
                     let pieces = value1.pieces;
-                    let amount = value1.amount;
-                    
+                    let amount = 0;
+                    let meter = value1.meter;
+                    let pieces_meter = value1.pieces_meter; 
+
                     if (!pieces) {
                         pieces = 0;
                     }
-                    if (!amount){
-                        amount = 0;
+                    if (!meter) {
+                        meter = 0;
+                    }
+
+                    if (pieces_meter == 1) {
+                        amount = meter * value1.rate;
+                    } else if (pieces_meter == 2) {
+                        amount = pieces * value1.rate;
                     }
                     setTimeout(() => {
                         this.products[index1].pieces = pieces;
+                        this.products[index1].meter = meter;
                         this.products[index1].amount = amount;
                     }, 500);
+                    totalMeter += parseInt(meter);
                     totalPieces += parseInt(pieces);
                     totalAmount += parseInt(amount);
                 });
@@ -219,6 +246,7 @@
                 setTimeout(() => {
                     this.form.pieces = totalPieces;
                     this.form.totamount = totalAmount;
+                    this.form.meter = totalMeter;
                 }, 1000);
             },
             piecechange (event) {
