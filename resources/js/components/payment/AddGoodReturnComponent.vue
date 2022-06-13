@@ -235,10 +235,11 @@
                 let meter = this.salebills[index].products[index1-1].meter;
                 let pieces_meter = this.salebills[index].products[index1-1].pieces_meter;
                 let rate = this.salebills[index].products[index1-1].rate;
+                let amount = 0;
                 if (pieces_meter  == 1) {
-                    let amount = meter * rate;
+                    amount = meter * rate;
                 } else if (pieces_meter == 2) {
-                    let amount = pieces * rate;
+                    amount = pieces * rate;
                 }
                 
                

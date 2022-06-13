@@ -60,9 +60,9 @@
                                                     <input type="hidden" class="form-control" v-model="product.id">
                                                     
                                                     <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.meter"></td>
+                                                    <td><input type="text" class="form-control" v-model="product.meter" @change="piecechange"></td>
                                                     <td><input type="text" class="form-control" v-model="product.pieces_meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.pieces" @change="pricechange"></td>
+                                                    <td><input type="text" class="form-control" v-model="product.pieces" @change="piecechange"></td>
                                                     <td class="text-center">{{ product.rate }}</td>
                                                     <td><input type="text" class="form-control" v-model="product.amount"></td>
                                                     <td><a class="btn btn-primary" @click="removeProduct">x</a></td>
@@ -221,12 +221,20 @@
                     this.form.totamount = totalAmount;
                 }, 1000);
             },
-            pricechange (event) {
+            piecechange (event) {
                 let index1 = event.target.parentElement.parentElement.rowIndex;
                 console.log(index1);
                 let pieces = this.products[index1-1].pieces;
                 let rate = this.products[index1-1].rate;
-                let amount = pieces * rate;
+                let meter = this.products[index1-1].meter;
+                let pieces_meter = this.products[index1-1].pieces_meter;
+
+                let amount = 0;
+                if (pieces_meter  == 1) {
+                    amount = meter * rate;
+                } else if (pieces_meter == 2) {
+                    amount = pieces * rate;
+                }
                
                 this.products[index1-1].amount = amount;
 
