@@ -4,33 +4,21 @@
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
-                    <div class="nk-block-head nk-block-head-sm">
-                        <div class="nk-block-between">
-                            <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Company Lists</h3>
-                                <div class="nk-block-des text-soft">
-                                    <!-- <p>You have total {{companies.length}} company.</p> -->
-                                </div>
-                            </div><!-- .nk-block-head-content -->
-                            <div class="nk-block-head-content">
-                                <div class="toggle-wrap nk-block-tools-toggle">
-                                    <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
-                                    <div class="toggle-expand-content" data-content="pageMenu">
-                                        <ul class="nk-block-tools g-3">
-                                            <li class="nk-block-tools-opt">
-                                                <a href="#" class="btn btn-wider btn-primary" @click="getEssentialCompany">Essential Companies</a>
-                                            </li>
-                                            <li class="nk-block-tools-opt">
-                                                <a v-bind:href="create_company" class="dropdown-toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div><!-- .toggle-wrap -->
-                            </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between -->
-                    </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h3 class="nk-block-title page-title">Company Lists</h3>
+                                    </div>
+                                    <div class="col-md-8 text-right">
+                                        <a href="#" class="btn btn-primary" @click="getEssentialCompany">Essential Companies</a>
+                                        <a v-bind:href="create_company" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+				                    </div>
+                                </div>
+                                
+                            </div>
                             <div class="card-inner">
                                 <table id="companies" class="table table-hover table-bordered">
                                     <thead>
@@ -134,7 +122,11 @@
                 window.$('#viewCompany1').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').removeAttr('style');
-            }
+            },
+            clearallfilter(event) {
+                $('#company_filter').find("input[type=search]").val('');
+                $('#companies').DataTable().clear().draw();
+            },
         },
         mounted() {
             const self = this;

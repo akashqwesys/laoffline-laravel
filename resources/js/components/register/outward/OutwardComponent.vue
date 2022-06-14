@@ -3,25 +3,20 @@
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
-                    <div class="nk-block-head nk-block-head-sm">
-                        <div class="nk-block-between">
-                            <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Register Lists</h3>
-                                <div class="nk-block-des text-soft">
-                                </div>
-                            </div><!-- .nk-block-head-content -->
-                            <div class="nk-block-head-content">
-                                <div class="toggle-wrap nk-block-tools-toggle">
-                                    <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
-                                    <div class="toggle-expand-content" data-content="pageMenu">
-                                        
-                                    </div>
-                                </div><!-- .toggle-wrap -->
-                            </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between -->
-                    </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h3 class="nk-block-title page-title">Outward Lists</h3>
+                                    </div>
+                                    <div class="col-md-8 text-right">
+                                        <a v-bind:href="create_outward" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+				                    </div>
+                                </div>
+                                
+                            </div>
                             <div class="card-inner table-responsive">
                                 <table class="table table-hover" id="outward">
                                     <thead>
@@ -68,6 +63,7 @@
         },
         data() {
             return {
+                create_outward: 'register/create-outward',
             }
         },
         methods: {
@@ -82,6 +78,11 @@
                 window.$('#viewCompany1').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').removeAttr('style');
+            },
+            clearallfilter(event) {
+                $('#outward_filter').find("input[type=search]").val('');
+                $('#outward_filter').find("input[type=date]").val('');
+                $('#outward').DataTable().clear().draw();
             },
         },
         mounted() {
@@ -127,12 +128,12 @@
                             } else {
                                 data.columns[2].search.value = $('#subject').val();
                             }
-                            if ($('#date_added').val() == '') {
+                            if ($('#generatedby').val() == '') {
                                 data.columns[3].search.value = '';
                             } else {
                                 data.columns[3].search.value = $('#generatedby').val();
                             }
-                            if ($('#iotype').val() == '') {
+                            if ($('#type').val() == '') {
                                 data.columns[4].search.value = '';
                             } else {
                                 data.columns[4].search.value = $('#type').val();

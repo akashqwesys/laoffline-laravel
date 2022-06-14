@@ -180,12 +180,12 @@
         data() {
             return {
                 cancel_url: '/register',
-                inward_call: '/register/inward/call',
-                inward_message: '/register/inward/message',
-                inward_whatsapp: '/register/inward/whatsapp',
-                inward_letter: '/register/inward/letter',
+                inward_call: '/register/inward',
+                inward_message: '/register/inward',
+                inward_whatsapp: '/register/inward',
+                inward_letter: '/register/inward',
                 inward_sample: '/register/inward/sample',
-                inward_email: '/register/inward/email',
+                inward_email: '/register/inward',
             }
         },
         methods: {
