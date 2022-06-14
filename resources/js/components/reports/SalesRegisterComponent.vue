@@ -7,14 +7,15 @@
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
                                 <h3 class="nk-block-title page-title">Sales Register Report</h3>
-                                <div class="nk-block-des text-soft">
-                                </div>
+                                <div class="nk-block-des text-soft"> </div>
                             </div><!-- .nk-block-head-content -->
                             <div class="nk-block-head-content">
                                 <div class="toggle-wrap nk-block-tools-toggle">
                                     <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1"
                                         data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
                                     <div class="toggle-expand-content" data-content="pageMenu">
+                                        <button class="btn btn-primary mr-2" @click="exportSheet()">Export Sheet</button>
+                                        <button class="btn btn-primary" @click="exportPDF()">Export PDF</button>
                                         <ul class="nk-block-tools g-3">
                                             <li class="nk-block-tools-opt">
                                             </li>
@@ -35,61 +36,84 @@
                                                 <th width="15%">End Date</th>
                                                 <th width="20%">Customer</th>
                                                 <th width="20%">Supplier</th>
-                                                <th width="15%">Status</th>
+                                                <th width="10%">Status</th>
                                                 <th width="5%">Hide</th>
-                                                <th width="10%">Action</th>
+                                                <th width="15%">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    <input type="date" v-model="start_date" id="start_date" class="form-control" autocomplete="off" onfocus="this.showPicker();" :max="max_date">
+                                                    <input type="date" v-model="start_date" id="start_date"
+                                                        class="form-control" autocomplete="off"
+                                                        onfocus="this.showPicker();" :max="max_date">
                                                 </td>
                                                 <td>
-                                                    <input type="date" v-model="end_date" id="end_date" class="form-control" autocomplete="off" onfocus="this.showPicker();" :max="max_date">
+                                                    <input type="date" v-model="end_date" id="end_date"
+                                                        class="form-control" autocomplete="off"
+                                                        onfocus="this.showPicker();" :max="max_date">
                                                 </td>
                                                 <td>
-                                                    <multiselect v-model="customer" :options="customer_options" placeholder="Select One" label="name" track-by="id" id=""></multiselect>
-                                                    <input type="hidden" name="hidden_reports_cmp_id" id="hidden_reports_cmp_id" value="" autocomplete="off">
+                                                    <multiselect v-model="customer" :options="customer_options"
+                                                        placeholder="Select One" label="name" track-by="id" id="">
+                                                    </multiselect>
                                                 </td>
                                                 <td>
-                                                    <multiselect v-model="supplier" :options="supplier_options" placeholder="Select One" label="name" track-by="id" id=""></multiselect>
-                                                    <input type="hidden" name="hidden_reports_supplier_id" id="hidden_reports_supplier_id" value="" autocomplete="off">
+                                                    <multiselect v-model="supplier" :options="supplier_options"
+                                                        placeholder="Select One" label="name" track-by="id" id="">
+                                                    </multiselect>
                                                 </td>
                                                 <td>
-                                                    <multiselect v-model="payment_status" :options="payment_status_options" label="name" track-by="id" id="payment_status"></multiselect>
+                                                    <multiselect v-model="payment_status"
+                                                        :options="payment_status_options" label="name" track-by="id"
+                                                        id="payment_status"></multiselect>
                                                 </td>
                                                 <td class="text-center" style="vertical-align: middle;">
-                                                    <input type="checkbox" v-model="show_detail" id="show_detail" value="1" onchange="hide_detail()" autocomplete="off">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            v-model="show_detail" id="show_detail" value="1"
+                                                            autocomplete="off"> <!-- onchange="hide_detail()" -->
+                                                        <label class="custom-control-label" for="show_detail"></label>
+                                                    </div>
                                                 </td>
                                                 <td class="">
-                                                    <button type="submit" class="btn btn-primary btn-round" @click="getData()">Go</button>
+                                                    <button class="btn btn-primary btn-round btn-sm mr-1"
+                                                        @click="getData()">Go</button>
+                                                    <button class="btn btn-light btn-round btn-sm"
+                                                        @click="clearData()">Clear All</button>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="table-responsive">
-                                    <table id="salesRegister" class="table table-hover table-bordered">
+                                    <table id="salesRegister" class="table table-hover table-bordered-">
                                         <thead>
-                                            <tr>
+                                            <tr v-if="detailed_table == true">
                                                 <th>Date</th>
                                                 <th>Sr</th>
                                                 <th>Party</th>
-                                                <th>Pieces</th>
-                                                <th>Meters</th>
-                                                <th>Net Amt</th>
-                                                <th>Rec. Amt</th>
-                                                <th>GST</th>
+                                                <th class="text-right">Pieces</th>
+                                                <th class="text-right">Meters</th>
+                                                <th class="text-right">Net Amt</th>
+                                                <th class="text-right">Rec. Amt</th>
+                                                <th class="text-right">GST</th>
                                                 <th>Agent</th>
                                                 <th>Invoice</th>
-                                                <th>Gross Amt</th>
+                                                <th class="text-right">Gross Amt</th>
                                                 <th>Transport</th>
                                                 <th>City</th>
                                                 <th>L.R.No.</th>
                                                 <th>Purchase Party</th>
                                             </tr>
+                                            <tr v-else>
+                                                <th>No</th>
+                                                <th>Party</th>
+                                                <th class="text-right">Net Amt</th>
+                                                <th class="text-right">Rec. Amt</th>
+                                            </tr>
                                         </thead>
+                                        <tbody></tbody>
                                     </table>
                                 </div>
                             </div><!-- .card -->
@@ -133,6 +157,9 @@
                 payment_status: { id: 0, name: 'All' },
                 show_detail: 0,
                 max_date: '2022-01-01',
+                detailed_table: true,
+                export_sheet: 0,
+                export_pdf: 0,
             }
         },
         created() {
@@ -161,18 +188,124 @@
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').removeAttr('style');
             },
+            clearData() {
+                this.start_date = this.end_date = this.customer = this.supplier = '';
+                this.payment_status = { id: 0, name: 'All' };
+                this.show_detail = 0;
+            },
             getData() {
-                axios.get('/reports/list-sales-register-data', {
+                if (this.show_detail == 1) {
+                    this.detailed_table = false;
+                } else {
+                    this.detailed_table = true;
+                }
+                axios.post('/reports/list-sales-register-data', {
                     start_date: this.start_date,
                     end_date: this.end_date,
                     customer: this.customer,
                     supplier: this.supplier,
                     payment_status: this.payment_status,
                     show_detail: this.show_detail,
+                    export_sheet: this.export_sheet,
+                    export_pdf: this.export_pdf
                 })
                 .then(response => {
-                    1
+                    if (this.export_sheet == 1 || this.export_pdf == 1) {
+                        this.export_sheet = this.export_pdf = 0;
+                        window.open(response.data.url, '_blank');
+                        return;
+                    }
+                    if (response.data.length > 0) {
+                        const toINR = new Intl.NumberFormat('en-IN', {
+                            // style: 'currency',
+                            // currency: 'INR',
+                            // minimumFractionDigits: 0
+                        });
+                        var html = '';
+                        var total_pieces = 0, total_meters = 0, net_total = 0, received_total = 0, gross_total = 0;
+                        var gross_amount = 0;
+                        if (this.show_detail == 1) {
+                            response.data.forEach((k, i) => {
+                                net_total += parseFloat(k.total);
+                                received_total += parseFloat(k.received_payment);
+                                html += `<tr>
+                                    <td class=""> ${i+1} </td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.company_name} </a> </td>
+                                    <td class="text-right"> ${toINR.format(k.total)} </td>
+                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
+                                </tr>`;
+                            });
+                            html += `<tr>
+                                    <th class=""> Total</th>
+                                    <th class=""> </th>
+                                    <th class="text-right"> ${toINR.format(net_total)} </th>
+                                    <th class="text-right"> ${toINR.format(received_total)} </th>
+                                </tr>`;
+                        } else {
+                            response.data.forEach((k, i) => {
+                                total_pieces += parseFloat(k.tot_pieces);
+                                total_meters += parseFloat(k.tot_meters);
+                                net_total += parseFloat(k.total);
+                                received_total += parseFloat(k.received_payment);
+                                if (k.sign_change == '+') {
+                                    gross_amount = (parseFloat(k.total) - parseFloat(k.change_in_amount));
+                                } else {
+                                    gross_amount = (parseFloat(k.total) + parseFloat(k.change_in_amount));
+                                }
+                                gross_total += gross_amount;
+                                html += `<tr>
+                                    <td class=""> ${k.select_date} </td>
+                                    <td class=""> <a href="/account/sale-bill/view-sale-bill/${k.sale_bill_id}/${k.financial_year_id}" class="" data-toggle="tooltip" data-placement="top" title="View"> ${k.sale_bill_id} </a></td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.customer_name} </a> </td>
+                                    <td class="text-right"> ${k.tot_pieces} </td>
+                                    <td class="text-right"> ${k.tot_meters} </td>
+                                    <td class="text-right"> ${toINR.format(k.total)} </td>
+                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
+                                    <td class="text-right"> ${toINR.format(k.total_gst)} </td>
+                                    <td class=""> ${k.agent_name} </td>
+                                    <td class=""> ${k.supplier_invoice_no} </td>
+                                    <td class="text-right"> ${toINR.format(gross_amount)} </td>
+                                    <td class=""> ${k.transport_name} </td>
+                                    <td class=""> ${k.city_name} </td>
+                                    <td class=""> ${k.lr_mr_no} </td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.supplier_name} </a> </td>
+                                </tr>`;
+                            });
+                            html += `<tr>
+                                    <th class=""> Total</th>
+                                    <th class=""> </th>
+                                    <th class=""> </th>
+                                    <th class="text-right"> ${total_pieces} </th>
+                                    <th class="text-right"> ${total_meters} </th>
+                                    <th class="text-right"> ${toINR.format(net_total)} </th>
+                                    <th class="text-right"> ${toINR.format(received_total)} </th>
+                                    <th class=""> </th>
+                                    <th class=""> </th>
+                                    <th class=""> </th>
+                                    <th class="text-right"> ${toINR.format(gross_total)} </th>
+                                    <th class=""> </th>
+                                    <th class=""> </th>
+                                    <th class=""> </th>
+                                    <th class=""> </th>
+                                </tr>`;
+                        }
+                        $('#salesRegister tbody').html(html);
+                    } else {
+                        if (this.show_detail == 1) {
+                            $('#salesRegister tbody').html('<tr><td colspan="4" class="text-center">No Records Found</td></tr>');
+                        } else {
+                            $('#salesRegister tbody').html('<tr><td colspan="15" class="text-center">No Records Found</td></tr>');
+                        }
+                    }
                 });
+            },
+            exportSheet() {
+                this.export_sheet = 1;
+                this.getData();
+            },
+            exportPDF() {
+                this.export_pdf = 1;
+                this.getData();
             },
         },
         mounted() {
@@ -183,168 +316,6 @@
                 currency: 'INR',
                 // minimumFractionDigits: 2
             }); */
-            var today = new Date();
-            var dt = today.toJSON().slice(0, 10);
-            var nDate = dt.slice(0, 4) + '-' + dt.slice(5, 7) + '-' + dt.slice(8, 10);
-            function init_dt_table () {
-                dt_table = $('#saleBill').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    responsive: true,
-                    ajax: {
-                        url: "./sale-bill/list-data",
-                        data: function (data) {
-                            if ($('#sale_bill_id').val() == '') {
-                                data.columns[0].search.value = '';
-                            } else {
-                                data.columns[0].search.value = $('#sale_bill_id').val();
-                            }
-                            if ($('#reference_id').val() == '') {
-                                data.columns[2].search.value = '';
-                            } else {
-                                data.columns[2].search.value = $('#reference_id').val();
-                            }
-                            if ($('#updated_at').val() == '') {
-                                data.columns[3].search.value = '';
-                            } else {
-                                data.columns[3].search.value = $('#updated_at').val();
-                            }
-                            if ($('#bill_date').val() == '') {
-                                data.columns[4].search.value = '';
-                            } else {
-                                data.columns[4].search.value = $('#bill_date').val();
-                            }
-                            if ($('#customer_name').val() == '') {
-                                data.columns[5].search.value = '';
-                            } else {
-                                data.columns[5].search.value = $('#customer_name').val();
-                            }
-                            if ($('#supplier_name').val() == '') {
-                                data.columns[6].search.value = '';
-                            } else {
-                                data.columns[6].search.value = $('#supplier_name').val();
-                            }
-                            if ($('#supplier_inv_no').val() == '') {
-                                data.columns[7].search.value = '';
-                            } else {
-                                data.columns[7].search.value = $('#supplier_inv_no').val();
-                            }
-                        },
-                        complete: function (data) { }
-                    },
-                    pagingType: 'full_numbers',
-                    dom: 'Blrtip',
-                    order: [[ 0, "desc" ]],
-                    columns: [
-                        { data: 'sale_bill_id' },
-                        { data: 'iuid' },
-                        { data: 'general_ref_id' },
-                        { data: 'updated_at' },
-                        { data: 'select_date' },
-                        { data: 'customer', orderable: false },
-                        { data: 'supplier', orderable: false },
-                        { data: 'supplier_invoice_no' },
-                        { data: 'total', render: $.fn.dataTable.render.number(',', '.', 0, '₹') },
-                        { data: 'payment_status', orderable: false },
-                        { data: 'outward_status', orderable: false },
-                        { data: 'action', orderable: false },
-                    ],
-                    search: {
-                        return: true
-                    },
-                    buttons: [{
-                        extend: 'excelHtml5',
-                        action: exportAllRecords,
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        }
-                    }, {
-                        extend: 'pdfHtml5',
-                        action: exportAllRecords,
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        }
-                    },
-                    'print'],
-                    createdRow: function( row, data, dataIndex ) {
-                        var color = $(row).find('.color-flag').attr('data-color_flag');
-                        if (color && color == '#FFFFC8') {
-                            $(row).style('background', '#FFFFC8');
-                        } else if (color && color == '#F2DEDE') {
-                            $(row).style('background', '#F2DEDE')
-                        }
-                    }
-                })
-                .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="sale_bill_filter"><input type="search" id="sale_bill_id" class="form-control form-control-sm" placeholder="Sale Bill ID"><input type="search" id="reference_id" class="form-control form-control-sm" placeholder="Reference ID"><input type="date" id="updated_at" class="form-control form-control-sm" placeholder="Updated At" max="'+nDate+'"><input type="date" id="bill_date" class="form-control form-control-sm" placeholder="Bill Date" max="'+nDate+'"><input type="search" id="customer_name" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"><input type="search" id="supplier_inv_no" class="form-control form-control-sm" placeholder="Supplier Invoice No"></div>').insertAfter('.dataTables_length');
-                } );
-                dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
-                    var count = columns.reduce( function (a,b) {
-                        return b === false ? a+1 : a;
-                    }, 0 );
-                } );
-            }
-            init_dt_table();
-            function exportAllRecords(e, dt, button, config) {
-                var self = this;
-                var oldStart = dt.settings()[0]._iDisplayStart;
-                dt.one('preXhr', function (e, s, data) {
-                    // Just this once, load all data from the server...
-                    data.start = 0;
-                    data.length = 'all';
-                    dt.one('preDraw', function (e, settings) {
-                        // Call the original action function
-                        if (button[0].className.indexOf('buttons-excel') >= 0) {
-                            $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
-                                $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
-                                $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
-                        } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
-                                $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
-                                $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
-                                $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
-                        }
-                        dt.one('preXhr', function (e, s, data) {
-                            // DataTables thinks the first item displayed is index 0, but we're not drawing that.
-                            // Set the property to what it was before exporting.
-                            settings._iDisplayStart = oldStart;
-                            data.start = oldStart;
-                        });
-                        // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
-                        setTimeout(dt.ajax.reload, 10);
-                        // Prevent rendering of the full data to the DOM
-                        return false;
-                    });
-                });
-                // Requery the server with the new one-time export settings
-                dt.ajax.reload();
-            }
-            var draw = 1;
-            $(document).on('keyup', '#sale_bill_filter input', function(e) {
-                if ($(this).val() == '') {
-                    if (draw == 0) {
-                        dt_table.clear().draw();
-                        draw = 1;
-                    }
-                } else {
-                    if (e.keyCode == 13) {
-                        dt_table.clear().draw();
-                    }
-                    draw = 0;
-                }
-            });
-
-            $(document).on('click', '.delete-salebill', function(e) {
-                if (confirm('Are you sure you want to delete?')) {
-                    location.href = '/account/sale-bill/delete/' + $(this).attr('data-id');
-                }
-                return;
-            });
-            $(document).on('click', '.copy-salebill', function(e) {
-                if (confirm('Are you sure you want to copy?')) {
-                    location.href = '/account/sale-bill/copy/' + $(this).attr('data-id');
-                }
-                return;
-            });
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
@@ -357,16 +328,3 @@
     };
 </script>
 
-<style scoped>
-.icon.ni.ni-star,
-.icon.ni.ni-star-fill,
-.icon.ni.ni-alert-fill,
-.icon.ni.ni-check-thick {
-    font-size: 20px;
-}
-
-.icon.ni.ni-star,
-.icon.ni.ni-star-fill {
-    cursor: pointer;
-}
-</style>
