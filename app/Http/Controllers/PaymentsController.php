@@ -1139,7 +1139,7 @@ class PaymentsController extends Controller
         $payment->tot_good_returns = $paymentData->goodreturn;
         $payment->tot_short = $paymentData->short;
         $payment->tot_interest = $paymentData->interest;
-        
+
         $payment->save();
         $p_increment_id = $paymentId;
 
@@ -1671,7 +1671,7 @@ class PaymentsController extends Controller
             array_push($attachments, $LetterImage);
         }
         $payment2 = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
-        
+
         $cmpTypeName = Company::where('id', $payment2->receipt_from)->first();
         $companyName = Company::where('id', $payment2->supplier_id)->first();
 
@@ -1772,7 +1772,7 @@ class PaymentsController extends Controller
         $payment->tot_short = $paymentData->short;
         $payment->tot_interest = $paymentData->interest;
         $payment->save();
-        
+
         PaymentDetail::where('payment_id', $paymentData->id)->delete();
         if ($paymentSalebill) {
             $i=0;
@@ -1806,7 +1806,7 @@ class PaymentsController extends Controller
                     $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
-                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first(0);
+                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
                     $bill->payment_status = '1';
                     $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
                     $bill->save();
@@ -1921,7 +1921,7 @@ class PaymentsController extends Controller
         }
 
         $payment1 = Payment::where('payment_id', $paymentData->id)->first();
-        
+
         $payment1->payment_ok_or_not = $payment_ok_or_not;
 
         $payment1->save();
@@ -2020,8 +2020,8 @@ class PaymentsController extends Controller
                         $attachments[$key] = $attechmentImage;
             }
         }
-        
-        
+
+
 
         $pid = $request->session()->get('p_id');
         $payment = Payment::where('payment_id', $pid)->where('financial_year_id', $user->financial_year_id)->first();
@@ -2215,7 +2215,7 @@ class PaymentsController extends Controller
                     $goodreturn->multiple_attachment = $attechmentImage;
         }
         $goodreturn->save();
-        
+
         //$bill = GrSaleBillItem::where('gr_increment_id', $goodreturn->id)->first();
         //GrSaleBillItem::where('goods_return_id', $salebilldata->id)->delete();
         //$goodreturnId = DB::table('goods_returns')->where('goods_return_id', $salebilldata->id)->select('id')->first();
