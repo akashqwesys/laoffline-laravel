@@ -15,7 +15,8 @@
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="commissionivoicelink" class="dropdown-toggle btn btn-icon btn-warning px-2">Commission Invoice</a>
-                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
+                                        <a href="/account/commission/invoice/create-invoice" class="dropdown-toggle btn btn-icon btn-secondary mx-2 px-2"><em class="icon ni ni-plus"></em> Commission Invoice</a>
+                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mr-2"><em class="icon ni ni-plus"></em></a>
                                         <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
 				                    </div>
                                 </div>

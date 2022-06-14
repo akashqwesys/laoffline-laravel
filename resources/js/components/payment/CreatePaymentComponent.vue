@@ -67,7 +67,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="itm in salebill" :key="itm.sallbillid" class="text-center">
+                                        <tr v-for="itm in salebill" :class="itm.overdue > 90 ? 'text-danger' : ''" :key="itm.sallbillid" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" @change="salebillselect" :id="itm.sallbillid"  :value="{'id':itm.sallbillid, 'fid': itm.financialyear.id}"  required></td>
 				                            <td>{{ itm.sallbillid }}</td>
 				                            <td>{{ itm.financialyear.name }}</td>
@@ -76,7 +76,7 @@
 				                            <td>{{ itm.supplier }}</td>
                                             <td>{{ itm.pending_payment }}</td>
                                             <td>{{ itm.amount }}</td>
-                                            <td v-if="itm.overdue > 90" class="text-danger">{{ itm.overdue }}</td><td v-else>{{ itm.overdue }}</td>
+                                            <td>{{ itm.overdue }}</td>
 				                            <td><a :href="'/account/sale-bill/view-sale-bill/'+ itm.sallbillid + '/' + itm.financialyear.id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
                                     </tbody>

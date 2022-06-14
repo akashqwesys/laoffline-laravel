@@ -71,7 +71,7 @@
 				                            <td>{{ itm.financialyear }}</td>
 				                            <td>{{ itm.date}}</td>
                                             <td>{{ itm.amount }}</td>
-                                            <td v-if="itm.overdue > 90" class="text-danger">{{ itm.overdue }}</td><td v-else>{{ itm.overdue }}</td>
+                                            <td>{{ itm.overdue }}</td>
 				                            <td><a :href="'/account/commission/invoice/view-invoice/'+itm.commission_id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
                                     </tbody>

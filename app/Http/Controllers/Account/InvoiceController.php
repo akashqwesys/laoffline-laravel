@@ -91,7 +91,7 @@ class InvoiceController extends Controller
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $ag_id = DB::table('agents')->select('id')->where('name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('a.agent_id', $ag_id);
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('ci.agent_id', $ag_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('ci.final_amount', $columnName_arr[5]['search']['value']);
@@ -132,10 +132,10 @@ class InvoiceController extends Controller
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $ag_id = DB::table('agents')->select('id')->where('name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
-            $invoice = $invoice->whereIn('a.agent_id', $ag_id);
+            $invoice = $invoice->whereIn('ci.agent_id', $ag_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $invoice = $invoice->where('ci.final_amount', $columnName_arr[5]['search']['value']);
+            $invoice = $invoice->where('ci.total_payment_received_amount', $columnName_arr[5]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             if (in_array($columnName_arr[6]['search']['value'], ['none', 'non', 'None'])) {
@@ -229,7 +229,7 @@ class InvoiceController extends Controller
                 "bill_date" => $bill_date,
                 "created_at" => $created_at,
                 "company" => $company_row,
-                'agent_name' => $s->agent_name,
+                'agent_id' => $s->agent_name,
                 'total_payment_received_amount' => $s->total_payment_received_amount,
                 'commission_status' => $commission_status,
                 "outward_status" => $outward_status,

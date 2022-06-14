@@ -3,29 +3,23 @@
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
-                    <div class="nk-block-head nk-block-head-sm">
-                        <div class="nk-block-between">
-                            <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Invoice</h3>
-                                <div class="nk-block-des text-soft">
-                                </div>
-                            </div><!-- .nk-block-head-content -->
-                            <div class="nk-block-head-content">
-                                <div class="toggle-wrap nk-block-tools-toggle">
-                                    <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
-                                    <div class="toggle-expand-content" data-content="pageMenu">
-                                        <ul class="nk-block-tools g-3">
-                                            <li class="nk-block-tools-opt">
-                                                <a href="/account/commission/invoice/create-invoice" class="dropdown-toggle btn btn-primary"><em class="icon ni ni-plus"></em> &nbsp;CREATE INVOICE</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div><!-- .toggle-wrap -->
-                            </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between -->
-                    </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h3 class="nk-block-title page-title">Invoice List</h3>
+                                    </div>
+                                    <div class="col-md-8 text-right">
+                                        
+										<button @click="clearallfilter" class="btn btn-dark mx-1">
+				                            Clear All
+				                        </button>
+                                        <a href="/account/commission/invoice/create-invoice" class="btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
+				                    </div>
+                                </div>
+
+                            </div>
                             <div class="card-inner">
                                 <table id="invoiceTable" class="table table-hover table-bordered">
                                     <thead>
@@ -88,7 +82,12 @@
                 window.$('#viewCompany1').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').removeAttr('style');
-            }
+            },
+            clearallfilter: function() {
+                $("#invoice_filter").find('input[type=search]').val("");
+                $("#invoice_filter").find('input[type=Date]').val("");
+                $('#invoiceTable').DataTable().clear().draw();
+            },
         },
         mounted() {
             const self = this;
@@ -155,7 +154,7 @@
                         { data: 'bill_date' },
                         { data: 'created_at' },
                         { data: 'company', orderable: false },
-                        { data: 'agent_name', orderable: false },
+                        { data: 'agent_id', orderable: false },
                         { data: 'total_payment_received_amount', render: $.fn.dataTable.render.number(',', '.', 0, '₹') },
                         { data: 'commission_status' },
                         { data: 'outward_status', orderable: false },

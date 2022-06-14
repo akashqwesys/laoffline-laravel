@@ -511,6 +511,8 @@ class RegisterController extends Controller
                 $iomedium = 'Hand';
             } else if($record->inward_or_outward_via == 'Courier') {
                 $iomedium = 'Courier';
+            } else {
+                $iomedium = '';
             }
             $iodetail = $record->subject;
             $customer_company = Company::where('id', $record->company_id)->first();
@@ -586,6 +588,7 @@ class RegisterController extends Controller
             } else {
                 $action = '';
             }
+            $color_flag = $record->color_flag_id;
             $timecompleted = 00;
             if ($record->color_flag_id == 3 && $record->inward_or_outward_flag == 1 ) {
                 $complete = Comboids::where('inward_or_outward_id', $record->inward_or_outward_id)
@@ -622,6 +625,7 @@ class RegisterController extends Controller
                 "cmptype" => $cmptype,
                 "genby" => $genratebyname,
                 "assignto" => $assigntoname,
+                "color_flag" => $color_flag,
                 "action" => $action
             );
         }
@@ -1759,7 +1763,7 @@ class RegisterController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[0]['search']['value']);
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[1]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('created_at', 'ilike', $columnName_arr[1]['search']['value']. '%');
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('subject', 'ilike', '%' . $columnName_arr[2]['search']['value'] . '%');
@@ -1769,7 +1773,7 @@ class RegisterController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('employee_id', $emp_id);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('type_of_outward', '=', $columnName_arr[4]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('type_of_inward', 'ilike', '%' . $columnName_arr[4]['search']['value']. '%');
         }
 
         $totalRecordswithFilter = $totalRecordswithFilter->count();
@@ -1780,7 +1784,7 @@ class RegisterController extends Controller
             $records = $records->where('iuid', '=', $columnName_arr[0]['search']['value']);
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
-            $records = $records->where('created_at', '=', $columnName_arr[1]['search']['value']);
+            $records = $records->whereDate('created_at', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $records = $records->where('subject', 'ilike', '%' . $columnName_arr[2]['search']['value']. '%');
@@ -1790,7 +1794,7 @@ class RegisterController extends Controller
             $records = $records->whereIn('employee_id', $emp_id);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $records = $records->where('type_of_outward', '=', $columnName_arr[4]['search']['value']);
+            $records = $records->where('type_of_inward', 'ilike', '%' . $columnName_arr[4]['search']['value']. '%');
         }
 
         // Fetch records
@@ -1805,7 +1809,7 @@ class RegisterController extends Controller
         foreach($records as $record){
             $inward_id = $record->inward_id;
             $iuid = $record->iuid;
-            $date = date_format($record->created_at, 'Y/m/d H:i:s');
+            $date = date_format($record->created_at, 'd/m/Y H:i:s');
             $subject = $record->subject;
             $generatedby = Employee::where('id', $record->employe_id)->first()->firstname;
             $type = $record->type_of_inward;

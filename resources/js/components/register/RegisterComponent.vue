@@ -3,32 +3,21 @@
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
-                    <div class="nk-block-head nk-block-head-sm">
-                        <div class="nk-block-between">
-                            <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Register Lists</h3>
-                                <div class="nk-block-des text-soft">
-                                </div>
-                            </div><!-- .nk-block-head-content -->
-                            <div class="nk-block-head-content">
-                                <div class="toggle-wrap nk-block-tools-toggle">
-                                    <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
-                                    <div class="toggle-expand-content" data-content="pageMenu">
-                                        <ul class="nk-block-tools g-3">
-                                            <!-- <li class="nk-block-tools-opt">
-                                                <a v-bind:href="create_inward" class="btn btn-wider btn-primary"><em class="icon ni ni-plus"></em><span>Inward</span></a>
-                                            </li> -->
-                                            <li class="nk-block-tools-opt">
-                                                <a v-bind:href="create_outward" class="btn btn-wider btn-primary"><em class="icon ni ni-plus"></em><span>Outward</span></a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div><!-- .toggle-wrap -->
-                            </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between -->
-                    </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h3 class="nk-block-title page-title">Register Lists</h3>
+                                    </div>
+                                    <div class="col-md-8 text-right">
+                                        <a v-bind:href="create_outward" class="dropdown-toggle btn btn-icon btn-primary pr-2"><em class="icon ni ni-plus"></em> Outward</a>
+                                        <a v-bind:href="create_inward" class="dropdown-toggle btn btn-icon btn-primary pr-2 mx-2"><em class="icon ni ni-plus"></em> Inward</a>
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+				                    </div>
+                                </div>
+                                
+                            </div>
                             <div class="card-inner table-responsive">
                                 <table class="table table-hover" id="register">
                                     <thead>
@@ -98,6 +87,11 @@
                 window.$('#viewCompany1').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').removeAttr('style');
+            },
+            clearallfilter(event) {
+                $('#register_filter').find("input[type=search]").val('');
+                $('#register_filter').find("input[type=date]").val('');
+                $('#register').DataTable().clear().draw();
             },
         },
         mounted() {
@@ -213,17 +207,21 @@
                             case "Outward Commission Invoice":
                                 $('td', nRow).css('background-color', '#C4FFC4')
                                 break;
-                            case "Enquiry":
+                        }
+                        switch(aData['color_flag']){
+                            case 1:
                                 $('td', nRow).css('background-color', '#FFFFC8')
                                 break;
-                            case "Order":
+                            case 2:
                                 $('td', nRow).css('background-color', '#F2DEDE')
                                 break;
-                            case "Complain":
+                            case 3:
                                 $('td', nRow).css('background-color', '#C4FFC4')
                                 break;
+
                         }
                     }
+                    
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="register_filter"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="iotype" class="form-control form-control-sm" placeholder="IO Type"><input type="search" id="iomedium" class="form-control form-control-sm" placeholder="IO Medium"><input type="search" id="company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="cmptype" class="form-control form-control-sm" placeholder="CMP type"><input type="search" id="generatedby" class="form-control form-control-sm" placeholder="Generate By"><input type="search" id="assignto" class="form-control form-control-sm" placeholder="Assign to"></div>').insertAfter('.dataTables_length');

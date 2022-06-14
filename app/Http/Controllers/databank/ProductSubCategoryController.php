@@ -84,13 +84,12 @@ class ProductSubCategoryController extends Controller
             ->where('product_categories.is_delete', '0');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
+                $q->orWhere('product_categories.name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
             });
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where(function ($q) use ($columnName_arr) {
-                $q->where('name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%')
-                ->where('product_default_category_id', '<>', 0);
+                $q->where('name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
             });
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
@@ -110,13 +109,12 @@ class ProductSubCategoryController extends Controller
             ->where('product_categories.is_delete', '0');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $records = $records->where(function ($q) use ($columnName_arr) {
-                $q->orWhere('name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
+                $q->orWhere('product_categories.name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%');
             });
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $records = $records->where(function ($q) use ($columnName_arr) {
-                $q->where('name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%')
-                ->where('product_default_category_id', '<>', 0);
+                $q->where('pc1.name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%'); 
             });
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
