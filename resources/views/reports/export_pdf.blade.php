@@ -37,6 +37,7 @@
             font-size: 10px;
             padding: 3px;
             letter-spacing: 0px;
+            border: 1px solid black;
         }
         .clearfix {
             clear: both;

@@ -13,6 +13,8 @@ use App\Models\SaleBillTransport;
 use Illuminate\Support\Facades\Session;
 use DB;
 use PDF;
+use Excel;
+use App\Exports\SalesRegisterExport;
 
 class ReportController extends Controller
 {
@@ -108,14 +110,19 @@ class ReportController extends Controller
                 ->get();
         }
         if ($request->export_pdf == 1) {
-            $pdf = PDF::loadView('reports.export_pdf', compact('data', 'request'))->setOptions(['defaultFont' => 'sans-serif']);
-            $path = public_path('pdf/sales-register-reports');
+            $pdf = PDF::loadView('reports.export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            if ($request->show_detail == 0) {
+                $pdf = $pdf->setPaper('a4', 'landscape');
+            }
+            $path = storage_path('app/public/pdf/sales-register-reports');
             $fileName =  'Sales-Register-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
-            $pdf = public_path('pdf/' . $fileName);
-            return response()->json(['url' => url('/pdf/sales-register-reports/' . $fileName)]);
+            return response()->json(['url' => url('/storage/pdf/sales-register-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
-
+            $fileName =  'Sales-Register-Report-' . time() . '.xlsx';
+            Excel::store(new SalesRegisterExport($data, $request), 'excel-sheets/sales-register-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/sales-register-reports/' . $fileName)]);
         } else {
             return response()->json($data);
         }
