@@ -154,9 +154,10 @@
                                             </div>
                                             <div class="col-md-4" >
                                                 <div class="form-group">
-                                                    <label class="form-label" for="extra_attachment">Extra Attachment</label>
+                                                    <label class="form-label" for="extra_attachment">Attachment</label>
                                                     <div class="form-control-wrap">
                                                         <input type="file" @change="uploadAttachment" id="extra_attachment" class="form-control" accept="text/plain,image/png,image/jpeg,application/msword,application/pdf,audio/ogg,audio/mpeg">
+                                                        <div v-if="v$.extra_attachment.$error" class="invalid mt-1">Select Attachment</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -504,7 +505,7 @@
                 old_reference_data: '',
                 reference_options:[
                     // { name: 'Call'},
-                    // { name: 'Whatsapp'},
+                    { name: 'Whatsapp'},
                     // { name: 'Message'},
                     // { name: 'Letter'},
                     { name: 'Email'},
@@ -621,6 +622,7 @@
                 reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
                 supplier_invoice_no: { required },
                 bill_date: { required },
+                extra_attachment: { required },
                 station: { required },
                 transport: { required },
                 transport_date: { required }
@@ -938,6 +940,7 @@
                     axios.get('/account/sale-bill/getSubProductFromProduct?product_id='+this.productDetails[i].product_name.id)
                     .then(response => {
                         this.sub_product_options[i] = response.data;
+                        this.productDetails[i].rate = response.data.find( _ => _.name == 'Full Catalogue' ).price;
                     });
                 }
             },

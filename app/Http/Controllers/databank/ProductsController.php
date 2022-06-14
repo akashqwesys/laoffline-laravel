@@ -131,7 +131,8 @@ class ProductsController extends Controller
         // Fetch records
         $products = Product::join('companies','products.company','=','companies.id')
             ->join('product_categories','products.category','=','product_categories.id')
-            ->join('product_details','products.id','=','product_details.product_id');
+            ->join('product_details','products.id','=','product_details.product_id')
+            ->select('products.*', 'products.id as product_id', 'companies.company_name', 'product_categories.name as category_name', 'product_details.catalogue_price');
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
             $products = $products->where(function ($q) use ($columnName_arr) {
                 $q->orWhere('products.product_name', 'ILIKE', '%' . $columnName_arr[2]['search']['value'] . '%')
@@ -161,10 +162,9 @@ class ProductsController extends Controller
             ->orderBy($columnName,$columnSortOrder)
             ->skip($start)
             ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
-            ->get(['products.*','products.id as product_id','companies.company_name','product_categories.name as category_name','product_details.catalogue_price']);
+            ->get();
 
         $data_arr = array();
-        $sno = $start+1;
 
         foreach($products as $product) {
             $id = $product->product_id;
@@ -331,7 +331,8 @@ class ProductsController extends Controller
         $categoryData['id'] = $category->id;
         $categoryData['name'] = $category->name;
 
-        $subCategory = ProductCategory::where('id', $productData->sub_category)->first();
+        $subCategories_ids = json_decode($productData->sub_category);
+        $subCategory = ProductCategory::whereIn('id', $subCategories_ids)->first();
         $subCategoryData['id'] = $subCategory->id;
         $subCategoryData['name'] = $subCategory->name;
 
@@ -514,7 +515,7 @@ class ProductsController extends Controller
         $products->launch_date = $productData->launch_date;
         $products->company = $productData->company->id;
         $products->category = $productData->category->id;
-        $products->sub_category = implode(',', $subCategoriesId);
+        $products->sub_category = json_encode($subCategoriesId);
         $products->main_image = $productData->main_image;
         $products->price_list_image = $productData->price_list_image;
         $products->description = $productData->description;
@@ -615,7 +616,7 @@ class ProductsController extends Controller
                 $subCategoriesId[$key] = $subCategory->id;
             }
         } else {
-            $subCategoriesId[0] = $productData->sub_category->id;
+            $subCategoriesId[] = $productData->sub_category->id;
         }
 
         if (!file_exists(public_path('upload/products'))) {
@@ -674,7 +675,7 @@ class ProductsController extends Controller
         $products->launch_date = $productData->launch_date;
         $products->company = $productData->company->id;
         $products->category = $productData->category->id;
-        $products->sub_category = implode(',', $subCategoriesId);
+        $products->sub_category = json_encode($subCategoriesId);
         $products->main_image = $productData->main_image;
         $products->price_list_image = $productData->price_list_image;
         $products->description = $productData->description;

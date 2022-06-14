@@ -291,7 +291,7 @@ class SaleBillController extends Controller
         $referenceDetails->sale_bill_via = 3;
         $productDetails = json_decode($request->productDetails);
         $fabricDetails = json_decode($request->fabricDetails);
-        $totals = json_decode($request->totals);
+        // $totals = json_decode($request->totals);
         $transportDetails = json_decode($request->transportDetails);
         $changeAmount = json_decode($request->changeAmount);
 
@@ -333,18 +333,11 @@ class SaleBillController extends Controller
         $general_ref = $this->getReferenceDetails($referenceDetails->sale_bill_via, $referenceDetails->reference_via->name);
         if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
             $ref_via = $referenceDetails->reference_via->name;
+            $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = null;
             if ($referenceDetails->reference_via->name == "Email") {
-                $from_name = null;
                 $from_email_id = $referenceDetails->from_email;
-                $latter_by_id = null;
-                $courier_name = null;
-                $weight_of_parcel = null;
-                $courier_receipt_no = null;
-                $courier_received_time = null;
-                $delivery_by = null;
+                $latter_by_id = 0;
             } else if ($referenceDetails->reference_via->name == "Courier") {
-                $from_name = null;
-                $from_email_id = null;
                 $latter_by_id = 1;
                 $courier_name = $transport_id;
                 $weight_of_parcel = $transportDetails->courier_weight;
@@ -352,12 +345,8 @@ class SaleBillController extends Controller
                 $courier_received_time = $transport_date;
                 $delivery_by = $referenceDetails->delivery_by;
             } else if ($referenceDetails->reference_via->name == "Hand") {
-                $from_name = null;
-                $from_email_id = null;
                 $latter_by_id = 0;
-                $courier_name = null;
                 $weight_of_parcel = $transportDetails->courier_weight;
-                $courier_receipt_no = null;
                 $courier_received_time = $transport_date;
                 $delivery_by = $referenceDetails->delivery_by;
             }
@@ -1384,15 +1373,9 @@ class SaleBillController extends Controller
             if ($referenceDetails->reference_via->name == "Email") {
                 $from_name = $referenceDetails->from_name;
                 $from_email_id = $referenceDetails->from_email;
-                $latter_by_id = null;
-                $courier_name = null;
-                $weight_of_parcel = null;
-                $courier_receipt_no = null;
-                $courier_received_time = null;
-                $delivery_by = null;
+                $latter_by_id = 0;
             } else if ($referenceDetails->reference_via->name == "Courier") {
                 $from_name = $referenceDetails->from_name;
-                $from_email_id = null;
                 $latter_by_id = 1;
                 $courier_name = $transport_id;
                 $weight_of_parcel = $transportDetails->courier_weight;
@@ -1401,11 +1384,7 @@ class SaleBillController extends Controller
                 $delivery_by = $referenceDetails->delivery_by;
             } else if ($referenceDetails->reference_via->name == "Hand") {
                 $from_name = $referenceDetails->from_name;
-                $from_email_id = null;
                 $latter_by_id = 0;
-                $courier_name = null;
-                $courier_weight_of_parcel = $transportDetails->courier_weight;
-                $courier_receipt_no = null;
                 $courier_received_time = $transport_date;
                 $delivery_by = $referenceDetails->delivery_by;
             }
@@ -1865,7 +1844,7 @@ class SaleBillController extends Controller
     {
         $where = null;
         foreach ($subCategory as $v) {
-            $where .= "sub_category @> '\"" . strval($v) . "\"' or ";
+            $where .= "sub_category @> '\"" . strval($v) . "\"' or sub_category @> '" . strval($v) . "' or ";
         }
         $products = DB::table('products')
             ->select('id', 'product_name as name')

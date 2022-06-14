@@ -49,7 +49,7 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-model-name">Model / Acctress Name</label>
+                                                    <label class="form-label" for="fv-model-name">Model / Actress Name</label>
                                                     <div class="form-control-wrap">
                                                         <input type="text" class="form-control" id="fv-model-name" v-model="productData.model">
                                                     </div>

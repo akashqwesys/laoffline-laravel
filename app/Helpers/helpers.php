@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\DB;
 
 function getLastID ($table, $pid) {
-    return intval(DB::table($table)->select($pid)->orderBy($pid, 'desc')->limit(1)->pluck($pid)->first());
+    $data = DB::table($table)->select($pid)->orderBy($pid, 'desc')->limit(1)->pluck($pid)->first();
+    return $data ? intval($data) : 0;
 }
 
 function numberToString($number) {
