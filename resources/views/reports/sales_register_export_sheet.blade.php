@@ -8,7 +8,7 @@
 </style>
 <table class="" width="">
     @php
-        $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $i = 0;
+        $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $gst_total = $i = 0;
     @endphp
     @if ($request->show_detail == 1)
     <thead>
@@ -88,6 +88,7 @@
             $total_pieces += floatval($d->tot_pieces);
             $total_meters += floatval($d->tot_meters);
             $net_total += floatval($d->total);
+            $gst_total += floatval($d->total_gst);
             if ($d->sign_change == '+') {
                 $gross_amount = (floatval($d->total) - floatval($d->change_in_amount));
             } else {
@@ -99,8 +100,8 @@
             <td class=""> {{ $d->select_date }} </td>
             <td align="left"> {{ $d->sale_bill_id }} </td>
             <td class=""> {{ $d->customer_name }} </td>
-            <td align="right"> {{ $d->tot_pieces }} </td>
-            <td align="right"> {{ $d->tot_meters }} </td>
+            <td align="right"> {{ number_format($d->tot_pieces) }} </td>
+            <td align="right"> {{ number_format($d->tot_meters) }} </td>
             <td align="right"> {{ number_format($d->total) }} </td>
             <td class=""> {{ $d->agent_name }} </td>
             <td align="left"> {{ $d->supplier_invoice_no }} </td>
@@ -109,7 +110,7 @@
             <td class=""> {{ $d->city_name }} </td>
             <td align="left"> {{ $d->lr_mr_no }} </td>
             <td class=""> {{ $d->supplier_name }} </td>
-            <td align="right"> {{ $d->total_gst }} </td>
+            <td align="right"> {{ number_format($d->total_gst) }} </td>
         </tr>
         @endforeach
         <tr>
@@ -131,8 +132,8 @@
             <th class=""> </th>
             <th class=""> </th>
             <th class=""> <b>Total</b></th>
-            <th align="right"> <b>{{ $total_pieces }} </b></th>
-            <th align="right"> <b>{{ $total_meters }} </b></th>
+            <th align="right"> <b>{{ number_format($total_pieces) }} </b></th>
+            <th align="right"> <b>{{ number_format($total_meters) }} </b></th>
             <th align="right"> <b>{{ number_format($net_total) }} </b></th>
             <th class="">  </th>
             <th class="">  </th>
@@ -140,7 +141,7 @@
             <th class="">  </th>
             <th class="">  </th>
             <th class="">  </th>
-            <th class="">  </th>
+            <th class=""> <b>{{ number_format($gst_total) }}</b>  </th>
         </tr>
     </tbody>
     @endif
