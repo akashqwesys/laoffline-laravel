@@ -388,7 +388,11 @@ class PaymentsController extends Controller
             $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
-            $scs = 0;
+            if (!$record->old_commission_status) {
+                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
+            } else {
+                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+            }
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
@@ -584,7 +588,11 @@ class PaymentsController extends Controller
             $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->receipt_amount;
-            $scs = 0;
+            if (!$record->old_commission_status) {
+                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
+            } else {
+                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+            }
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
@@ -780,7 +788,12 @@ class PaymentsController extends Controller
             $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->tot_adjust_amount;
-            $scs = 0;
+            
+            if (!$record->old_commission_status) {
+                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
+            } else {
+                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+            }
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
@@ -1514,11 +1527,13 @@ class PaymentsController extends Controller
 
     public function getReferenceForSaleBill(Request $request)
     {
+        $customer_id = $request->session()->get('customer');
         $general_ref = DB::table('reference_ids as r')
             ->join('companies as c', 'r.company_id', '=', 'c.id')
             ->select('r.employee_id', 'r.reference_id', 'r.created_at')
             ->where('r.financial_year_id', Session::get('user')->financial_year_id)
             ->where('r.type_of_inward', $request->ref_via)
+            ->where('r.company_id', $customer_id)
             ->where('r.inward_or_outward', 1)
             ->whereRaw("(r.employee_id = " . Session::get('user')->employee_id . " or r.employee_id = 15)")
             ->orderBy('r.reference_id', 'desc')

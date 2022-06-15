@@ -340,7 +340,7 @@
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.discount" @change="changeDiscount"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.discountamount" @change="changeDiscountAmount"></td>
                                                         <td><input type="text" class="form-control good_return" v-model="salebill.goodreturn" @change="changeGoodReturn"></td>
-                                                        <td class="cash"><input type="text" :readonly="true" class="form-control" v-model="salebill.ratedifference" @change="changeRateDiff"></td>
+                                                        <td class="cash"><input type="text" class="form-control" v-model="salebill.ratedifference" @change="changeRateDiff"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.bankcommission" @change="changeBankComm"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.vatav" @change="changeVatav"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.agentcommission" @change="changeAgentComm"></td>
@@ -604,6 +604,7 @@
                     //window.location.href = '/payments/addpayment';
                 })
             },
+            
             removeSalebill (event) {
                 event.preventDefault();
                 let index = event.target.parentElement.parentElement.rowIndex;
@@ -684,6 +685,22 @@
                     this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount);
                 }, 1000);
 
+            },
+            changeRateDiff (event) {
+            
+                let totalRateDifference = 0;
+                this.salebills.forEach((value,index) => {
+                    let rate = value.ratedifference;
+                
+                    if (!rate) {
+                        rate = 0;
+                    }
+                    
+                    totalRateDifference += parseInt(rate);
+                });
+                setTimeout(() => {
+                    this.form.ratedifference = totalRateDifference;
+                },500);
             },
 
             changeInterest (event) {
