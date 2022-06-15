@@ -221,6 +221,16 @@
                         return: true
                     },
                     buttons: buttons,
+                    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+                        switch(aData['color_flag_id']){
+                            case 1:
+                                $('td', nRow).css('background-color', '#FFFFC8')
+                                break;
+                            case 3:
+                                $('td', nRow).css('background-color', '#C4FFC4')
+                                break;
+                        }
+                    }
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="paymentdate" class="form-control form-control-sm" placeholder="Payment Date"><input type="search" id="customer" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="voucher" class="form-control form-control-sm" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm" placeholder="Amount"></div>').insertAfter('.dataTables_length');

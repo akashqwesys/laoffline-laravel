@@ -163,13 +163,13 @@
                                                         </li>
                                                         <li>
                                                             <div class="custom-control custom-radio">
-                                                                <input type="radio" class="custom-control-input" name="recipt_mode" @change="typePayment($event)" v-model="form.recipt_mode" id="fv-full-return" value="fullreturn" >
+                                                                <input type="radio" class="custom-control-input retun_option" name="recipt_mode" @change="typePayment($event)" v-model="form.recipt_mode" id="fv-full-return" value="fullreturn" >
                                                                 <label class="custom-control-label" for="fv-full-return">Full Return</label>
                                                             </div>
                                                         </li>
                                                         <li>
                                                             <div class="custom-control custom-radio">
-                                                                <input type="radio" class="custom-control-input" name="recipt_mode" @change="typePayment($event)" v-model="form.recipt_mode" id="fv-part-return" value="partreturn" >
+                                                                <input type="radio" class="custom-control-input retun_option" name="recipt_mode" @change="typePayment($event)" v-model="form.recipt_mode" id="fv-part-return" value="partreturn" >
                                                                 <label class="custom-control-label" for="fv-part-return">Part  Return</label>
                                                             </div>
                                                         </li>
@@ -288,7 +288,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-4 goodreturn">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-Recipt-amount">Receipt Amount</label>
                                                     <div class="form-control-wrap">
@@ -339,7 +339,7 @@
                                                         <td class="cash"><multiselect v-model="salebill.status" :options="[{status: 'Complete', code: '1'},{status: 'Pending', code: '0'}]" placeholder="Select one" label="status" track-by="status"></multiselect></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.discount" @change="changeDiscount"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.discountamount" @change="changeDiscountAmount"></td>
-                                                        <td><input type="text" class="form-control" v-model="salebill.goodreturn" @change="changeGoodReturn"></td>
+                                                        <td><input type="text" class="form-control good_return" v-model="salebill.goodreturn" @change="changeGoodReturn"></td>
                                                         <td class="cash"><input type="text" :readonly="true" class="form-control" v-model="salebill.ratedifference" @change="changeRateDiff"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.bankcommission" @change="changeBankComm"></td>
                                                         <td class="cash"><input type="text" class="form-control" v-model="salebill.vatav" @change="changeVatav"></td>
@@ -356,25 +356,25 @@
                                                         <td><strong>Total</strong></td>
                                                         <td></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="form.totalamount"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.totaladjustamount"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.totaladjustamount"></td>
                                                         <td class="cash"></td>
                                                         <td class="cash"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.discountamount"></td>
-                                                        <td><input type="text" class="form-control" v-model="form.goodreturn"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.ratedifference"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.bankcommission"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.vatav"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.agentcommission"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.claim"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.short"></td>
-                                                        <td class="cash"><input type="text" class="form-control" v-model="form.interest"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.discountamount"></td>
+                                                        <td><input type="text" :readonly="true" class="form-control" v-model="form.goodreturn"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.ratedifference"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.bankcommission"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.vatav"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.agentcommission"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.claim"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.short"></td>
+                                                        <td class="cash"><input :readonly="true" type="text" class="form-control" v-model="form.interest"></td>
                                                         <td></td>
                                                         <td></td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
-                                        <div class="row gy-4 text-center">
+                                        <div class="row gy-4 text-center goodreturn">
                                             <label class="form-label" for="fv-extraamount" style="margin:0px auto">Extra Amount : {{ extraAmount }}</label>
                                         </div>
                                         <div class="row gy-4">
@@ -1386,34 +1386,60 @@
                 this.letterimage = event.target.files[0];
             },
             typePayment(event) {
+                
                 let paymentType = event.target.value;
                 let goodreturn = 0;
+                let total = 0;
                 if (paymentType == 'cash') {
 
                     $(".cash").removeClass("d-none");
                     $(".cheque").addClass("d-none");
+                    $(".goodreturn").removeClass("d-none");
+                    $(".good_return").removeAttr("readonly");
                     $(".table-responsive").addClass("salebilltable");
                     this.salebills.forEach((value,index) => {
                         this.salebills[index].goodreturn = goodreturn;
+                        total += parseInt(goodreturn);
                     });
+                    this.form.goodreturn = total;
 
                 } else if(paymentType == 'cheque') {
 
                     $(".cash").removeClass("d-none");
                     $(".cheque").removeClass("d-none");
+                    $(".goodreturn").removeClass("d-none");
+                    $(".good_return").removeAttr("readonly");
                     $(".table-responsive").addClass("salebilltable");
                     this.salebills.forEach((value,index) => {
                         this.salebills[index].goodreturn = goodreturn;
+                        total += parseInt(goodreturn);
                     });
+                    this.form.goodreturn = total;
 
-                } else if (paymentType == 'fullreturn' || paymentType == 'partreturn') {
+                } else if (paymentType == 'fullreturn') {
 
                     $(".cheque").addClass("d-none");
                     $(".cash").addClass("d-none");
+                    $(".goodreturn").addClass("d-none");
+                    $(".good_return").attr("readonly", true);
                     $(".table-responsive").removeClass("salebilltable");
                     this.salebills.forEach((value,index) => {
                         this.salebills[index].goodreturn = this.salebills[index].amount;
+                        total += parseInt(this.salebills[index].goodreturn);
                     });
+                    this.form.goodreturn = total;
+                } else if (paymentType == 'partreturn') {
+
+                    $(".cheque").addClass("d-none");
+                    $(".cash").addClass("d-none");
+                    $(".goodreturn").addClass("d-none");
+                    $(".good_return").removeAttr("readonly");
+                    $(".table-responsive").removeClass("salebilltable");
+                    this.salebills.forEach((value,index) => {
+                        this.salebills[index].goodreturn = this.salebills[index].amount;
+                        total += parseInt(this.salebills[index].goodreturn);
+                    });
+                    this.form.goodreturn = total;
                 }
             },
             getRefenceForm(option, id) {
@@ -1545,6 +1571,11 @@
             this.form.claim = 0;
             this.form.short = 0;
             this.form.interest = 0;
+            if (this.scope == 'edit') {
+                if (this.form.recipt_mode == 'cash' || this.form.recipt_mode == 'cheque'){
+                    $(".retun_option").attr("disabled",true);
+                }
+            }
             $(document).on('change', '.old-reference', function () {
                 self.form.refrence_type = this.value;
             });

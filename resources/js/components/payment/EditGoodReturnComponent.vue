@@ -47,9 +47,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Name</th>
-                                                    <th>meter</th>
-                                                    <th>Pieces_Meter</th>
-                                                    <th>Pieces</th>
+                                                    <th>Meter / Pieces</th>
                                                     <th class="text-center">Rate</th>
                                                     <th>Amount</th>
                                                     <th>Action</th>
@@ -59,10 +57,9 @@
                                                 <tr v-for="(product,index) in products" :key="index">
                                                     <input type="hidden" class="form-control" v-model="product.id">
                                                     
-                                                    <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.meter" @change="piecechange"></td>
-                                                    <td><input :readonly="true" type="text" class="form-control" v-model="product.pieces_meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.pieces" @change="piecechange"></td>
+                                                    <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.pieces_meter"><input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
+                                                    <td v-if="product.pieces_meter == 0 || product.pieces_meter == 2"><input type="text" class="form-control" v-model="product.pieces" @change="piecechange"><input type="text" class="form-control" v-model="product.meter" @change="piecechange(index, $event)"><input type="text" class="form-control" v-model="product.pieces" @change="piecechange(index, $event)"><input type="hidden" class="form-control" v-model="product.meter"></td>
+                                                    <td v-else><input type="text" class="form-control" v-model="product.meter" @change="piecechange"><input type="hidden" class="form-control" v-model="product.pieces"></td>
                                                     <td class="text-center">{{ product.rate }}</td>
                                                     <td><input type="text" class="form-control" v-model="product.amount"></td>
                                                     <td><a class="btn btn-primary" @click="removeProduct">x</a></td>
@@ -71,11 +68,9 @@
                                             <tfoot>
                                                 <tr>
                                                     
-                                                    <td>Total:</td>
-                                                    <td><input type="text" class="form-control" v-model="form.meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="form.pieces_meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="form.pieces"></td>
-                                                    <td class="text-center">total Amount :</td> 
+                                                    <td></td>
+                                                    <td><input type="hidden" class="form-control" v-model="form.meter"><input type="hidden" class="form-control" v-model="form.pieces"></td>
+                                                    <td class="text-center"><b>Total Amount :</b></td> 
                                                     <td><input type="text" class="form-control" v-model="form.totamount"></td>
                                                     <td></td>
                                                 </tr>

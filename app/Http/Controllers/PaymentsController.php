@@ -108,7 +108,7 @@ class PaymentsController extends Controller
                         ->count();
         $totalRecordswithFilter = DB::table('goods_returns')
                                 ->where('financial_year_id', $user->financial_year_id)
-                                ->where('is_deleted', '0');
+                                ->where('is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('goods_return_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -135,7 +135,7 @@ class PaymentsController extends Controller
         // Fetch records
         $records = DB::table('goods_returns')
                     ->where('financial_year_id', $user->financial_year_id)
-                    ->where('is_deleted', '0');;
+                    ->where('is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $records = $records->where('goods_return_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -649,20 +649,20 @@ class PaymentsController extends Controller
             $columnName = 'payments.'.$columnName;
         }
         // Total records
-        $totalRecords = Payment::where('is_deleted', '0')->select('count(*) as allcount')->count();
+        $totalRecords = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.goods_return_id', 0)->select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = Payment::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
+        $totalRecordswithFilter = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.goods_return_id', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('payment_id', '=', $columnName_arr[0]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[1]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.iuid', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[2]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.ouid', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[3]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.reference_id', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.created_at', '=', $columnName_arr[4]['search']['value']);
@@ -671,34 +671,34 @@ class PaymentsController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('payments.company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $sp_id);
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('payment_id', '=', $columnName_arr[8]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
         }
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
-        $records = Payment::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
+        $records = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.goods_return_id', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $records = $records->where('payment_id', '=', $columnName_arr[0]['search']['value']);
+            $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
-            $records = $records->where('iuid', '=', $columnName_arr[1]['search']['value']);
+            $records = $records->where('payments.iuid', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $records = $records->where('ouid', '=', $columnName_arr[2]['search']['value']);
+            $records = $records->where('payments.ouid', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $records = $records->where('reference_id', '=', $columnName_arr[3]['search']['value']);
+            $records = $records->where('payments.reference_id', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $records = $records->whereDate('payments.created_at', '=', $columnName_arr[4]['search']['value']);
@@ -708,21 +708,21 @@ class PaymentsController extends Controller
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
-            $records = $records->whereIn('customer_id', $cc_id);
+            $records = $records->whereIn('payments.customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
-            $records = $records->whereIn('supplier_id', $sp_id);
+            $records = $records->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
-            $records = $records->where('payment_id', '=', $columnName_arr[8]['search']['value']);
+            $records = $records->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
         }
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
-            $records = $records->where('tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
+            $records = $records->where('payments.tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
         }
 
         // Fetch records
-        $records = $records->select('payment_id','iuid', 'reference_id', 'created_at', 'date', 'customer_id', 'supplier_id', 'payment_id', 'receipt_amount', 'tot_adjust_amount','customer_commission_status', 'done_outward');
+        $records = $records->select('payments.id', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.customer_commission_status', 'payments.done_outward', 'payments.reciept_mode', 'comboids.is_completed', 'comboids.color_flag_id');
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -758,7 +758,7 @@ class PaymentsController extends Controller
                             ->where('ca.company_id', $record->supplier_id)
                             ->get();
 
-
+            $action = '';
             $id = $record->payment_id;
             $iuid = $record->iuid;
             $ouid = '';
@@ -791,8 +791,18 @@ class PaymentsController extends Controller
             } else {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
-
-            $action = '<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
+            if ($record->reciept_mode == 'partreturn' || $record->reciept_mode == 'fullreturn') {
+                $goodretun = GoodsReturn::where('p_increment_id', $record->id)
+                            ->where('is_deleted', 0)
+                            ->first();
+                if (!$goodretun) {
+                    $action = '<a href="/payments/add-goodreturn/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Good Return"><em class="icon ni ni-plus"></em></a>';
+                } else {
+                    $action = '';
+                }
+            }
+            $color_flag_id = $record->color_flag_id;
+            $action = $action.'<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="/payments/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
@@ -809,6 +819,7 @@ class PaymentsController extends Controller
                 "suppiler_commission_status" => $scs,
                 "customer_commission_status" => $ccs,
                 "outward_status" => $outward,
+                "color_flag_id" => $color_flag_id,
                 "action" => $action
             );
         }
@@ -1130,7 +1141,12 @@ class PaymentsController extends Controller
         $payment->total_amount = $paymentData->totalamount;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount;
 
-        $payment->tot_rate_difference = $paymentData->ratedifference;
+        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn') {
+            $payment->tot_rate_difference = 0;
+        } else {
+            $payment->tot_rate_difference = $paymentData->ratedifference;
+        }
+        
         $payment->tot_discount = $paymentData->discountamount;
         $payment->tot_vatav = $paymentData->vatav;
         $payment->tot_agent_commission = $paymentData->agentcommission;
@@ -1182,14 +1198,14 @@ class PaymentsController extends Controller
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
                     $bill->payment_status = 1;
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount - (int)$salebill->goodreturn;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
                     $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
 
                     $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
-                    $bill2->pending_payment = $Pending;
+                    $bill2->pending_payment = $bill2->total - $bill2->received_payment;
                     $bill2->save();
 
                     $tot_good_returns += $salebill->goodreturn;
@@ -1205,6 +1221,7 @@ class PaymentsController extends Controller
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
+                    $paymentDetail->adjust_amount = 0;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
                     $paymentDetail->remark = $salebill->remark;
                     $paymentDetail->rate_difference = 0;
@@ -1221,14 +1238,8 @@ class PaymentsController extends Controller
 					$tot_adjust_amount += 0;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
-                    $bill->payment_status = 0;
+                    $bill->payment_status = 1;
                     $bill->save();
-
-                    $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
-                    $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
-                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
-                    $bill2->pending_payment = $Pending;
-                    $bill2->save();
 
                 } else {
                     $paymentDetail = new PaymentDetail();
@@ -1762,7 +1773,11 @@ class PaymentsController extends Controller
         $payment->total_amount = $paymentData->totalamount ?? 0;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount ?? 0;
 
-        $payment->tot_rate_difference = $paymentData->ratedifference;
+        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn') {
+            $payment->tot_rate_difference = 0;
+        } else {
+            $payment->tot_rate_difference = $paymentData->ratedifference;
+        }
         $payment->tot_discount = $paymentData->discountamount;
         $payment->tot_vatav = $paymentData->vatav;
         $payment->tot_agent_commission = $paymentData->agentcommission;
@@ -1806,15 +1821,17 @@ class PaymentsController extends Controller
                     $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->save();
 
-                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first(0);
-                    $bill->payment_status = '1';
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
+                    $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
+                    $bill->payment_status = 1;
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount - (int)$salebill->goodreturn;
                     $bill->save();
 
-                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$salebill->fid)->where('is_deleted', '0')->first(0);
+                    $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
                     $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
-                    $paymentDetail2->pending_payment = $Pending;
-                    $paymentDetail2->save();
+
+                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
+                    $bill2->pending_payment = $bill2->total - $bill2->received_payment;
+                    $bill2->save();
 
                     $tot_good_returns += $salebill->goodreturn;
                 } else if ($paymentData->recipt_mode == 'fullreturn') {
@@ -1833,13 +1850,8 @@ class PaymentsController extends Controller
                     $paymentDetail->save();
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first(1);
-                    $bill->payment_status = '0';
+                    $bill->payment_status = 1;
                     $bill->save();
-
-                    $paymentDetail2 = PaymentDetail::where('sale_bill_id', $salebill->id)->where('financial_year_id',$salebill->fid)->where('is_deleted', '0')->first();
-                    $Pending = $paymentDetail2->total - $paymentDetail2->adjust_amount + $paymentDetail2->discount_amount + $paymentDetail2->vatav + $paymentDetail2->agent_commission + $paymentDetail2->bank_commission + $paymentDetail2->claim + $paymentDetail2->goods_return + $paymentDetail2->short - $paymentDetail2->interest;
-                    $paymentDetail2->pending_payment = $Pending;
-                    $paymentDetail2->save();
 
                     $tot_discount += 0;
 					$tot_vatav += 0;
@@ -2046,14 +2058,14 @@ class PaymentsController extends Controller
                         ->first();
             $bill = DB::table('sale_bill_items')->where('sale_bill_id', $salebill->sr_no)->get();
 
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+            $increment_id_details = IncrementId::where('financial_year_id', $user->financial_year_id)->first();
             $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
             $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
 
             if ($increment_id_details) {
                 $iuid = $increment_id_details->iuid + 1;
                 $goods_return_id = $increment_id_details->goods_return_id + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+                $increment_id = IncrementId::where('financial_year_id', $user->financial_year_id)->first();
                 $increment_id->iuid = $iuid;
                 $increment_id->goods_return_id = $goods_return_id;
                 $increment_id->save();
@@ -2064,7 +2076,7 @@ class PaymentsController extends Controller
                 $increment_id->id = $Incrementids;
                 $increment_id->iuid = $iuid;
                 $increment_id->goods_return_id = $goods_return_id;
-                $increment_id->financial_year_id = $financialid;
+                $increment_id->financial_year_id = $user->financial_year_id;
                 $increment_id->save();
             }
             $iuids = Iuid::orderBy('id', 'DESC')->first('id');
@@ -2097,7 +2109,7 @@ class PaymentsController extends Controller
             $comboids->from_name = $personName;
             $comboids->total = $payment->tot_good_returns;
             $comboids->subject = 'For '. $companyName->name .' RS '.$payment->tot_good_returnst .'/-';
-            $comboids->financial_year_id = $payment->financial_year_id;
+            $comboids->financial_year_id = $user->financial_year_id;
             $comboids->attachments = json_encode($attachments);
             $comboids->updated_by = Session::get('user')->employee_id;
             $comboids->inward_or_outward_flag = 0;
@@ -2140,7 +2152,7 @@ class PaymentsController extends Controller
             $goodretun->sale_bill_id = $salebill->sr_no;
             $goodretun->company_id = $payment->customer_id;
             $goodretun->supplier_id = $payment->supplier_id;
-            $goodretun->financial_year_id = $financialid;
+            $goodretun->financial_year_id = $user->financial_year_id;
             $goodretun->generated_by = $user->employee_id;
             $goodretun->supp_invoice_no = $salebill->supplier_invoice_no;
             $goodretun->multiple_attachment = array_key_exists($key,$attachments) ? $attachments[$key] :  '';

@@ -133,6 +133,7 @@ import LogsComponent from './components/LogsComponent.vue';
 
 import ReportsListComponent from './components/reports/ReportsListComponent.vue';
 import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
+import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -406,6 +407,7 @@ const routes = [
         component: ReportsListComponent,
         children: [
             { path: 'sales-register-report', component: SalesRegisterComponent },
+            { path: 'payment-register-report', component: PaymentRegisterComponent },
         ]
     },
 ];
@@ -517,5 +519,6 @@ createApp({
 
         ReportsListComponent,
         SalesRegisterComponent,
+        PaymentRegisterComponent,
     }
 }).use(router).mount('#app');

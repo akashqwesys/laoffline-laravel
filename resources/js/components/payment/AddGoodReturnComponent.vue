@@ -47,9 +47,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Name</th>
-                                                    <th>Meter</th>
-                                                    <th>Pieces_Meter</th>
-                                                    <th>Pieces</th>
+                                                    <th>Pieces / Meter</th>
                                                     <th class="text-center">Rate</th>
                                                     <th>Amount</th>
                                                     <th>Action</th>
@@ -59,10 +57,9 @@
                                                 <tr v-for="(product,index1) in salebills[index].products" :key="index1">
                                                     <input type="hidden" class="form-control" v-model="product.id">
                                         
-                                                    <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.meter" @change="piecechange(index, $event)"></td>
-                                                    <td><input :readonly="true" type="text" class="form-control" v-model="product.pieces_meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="product.pieces" @change="piecechange(index, $event)"></td>
+                                                    <td>{{ product.name }}<input type="hidden" class="form-control" v-model="product.pieces_meter"><input type="hidden" class="form-control" v-model="product.product_or_fabric_id"></td>
+                                                    <td v-if="product.pieces_meter == 0 || product.pieces_meter == 2"><input type="text" class="form-control" v-model="product.pieces" @change="piecechange(index, $event)"><input type="text" class="form-control" v-model="product.meter" @change="piecechange(index, $event)"><input type="text" class="form-control" v-model="product.pieces" @change="piecechange(index, $event)"><input type="hidden" class="form-control" v-model="product.meter"></td>
+                                                    <td v-else><input type="text" class="form-control" v-model="product.meter" @change="piecechange(index, $event)"><input type="hidden" class="form-control" v-model="product.pieces"></td>
                                                     <td class="text-center">{{ product.rate }}</td>
                                                     <td><input type="text" class="form-control" v-model="product.amount"></td>
                                                     <td><a class="btn btn-primary" @click="removeProduct(index, $event)">x</a></td>
@@ -72,9 +69,8 @@
                                                 <tr>
                                                     
                                                     <td>Total:</td>
-                                                    <td><input type="text" class="form-control" v-model="salebill.meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="salebill.pieces_meter"></td>
-                                                    <td><input type="text" class="form-control" v-model="salebill.pieces"></td>
+                                                    <td><input type="hidden" class="form-control" v-model="salebill.meter"><input type="hidden" class="form-control" v-model="salebill.pieces"></td>
+                                                    
                                                     <td class="text-center">total Amount :</td>
                                                     <td><input type="text" class="form-control" v-model="salebill.totamount"></td>
                                                     <td></td>
@@ -131,7 +127,6 @@
                         amount: '',
                     }],
                     meter: '',
-                    pieces_meter: '',
                     pieces: '',
                     totamount: '',
                 }],
@@ -151,24 +146,31 @@
                     let totalPieces = 0;
                     let totalAmount = 0;
                     let totalMeter = 0;
-                    let totalpm = 0;
+                    
                     this.salebills[index].products.forEach((value1,index1) => {
                     let meter = value1.meter;
                     let pieces = value1.pieces;
-                    let amount = value1.amount;
+                    let rate = value1.rate;
                     let pm = value1.pieces_meter;
-                    
+                    let amount = 0;
                     if (!pieces) {
                         pieces = 0;
                     }
-                    if (!amount){
-                        amount = 0;
+                    if (!rate) {
+                        rate = 0;
                     }
+                    
                     if (!meter){
                         meter = 0;
                     }
                     if (!pm) {
                         pm = 0;
+                    }
+
+                    if (pm == 0 || pm == 2) {
+                        amount = rate * pieces;
+                    } else {
+                        amount = rate * meter;
                     }
                     setTimeout(() => {
                         this.salebills[index].products[index1].pieces = pieces;
@@ -179,14 +181,13 @@
                     totalPieces += parseInt(pieces);
                     totalAmount += parseInt(amount);
                     totalMeter += parseInt(meter);
-                    totalpm += parseInt(pm);
+                    
                 });
                 
                 setTimeout(() => {
                     this.salebills[index].pieces = totalPieces;
                     this.salebills[index].totamount = totalAmount;
                     this.salebills[index].meter = totalMeter;
-                    this.salebills[index].pieces_meter = totalpm;
                 }, 1000);
                 });  
             });

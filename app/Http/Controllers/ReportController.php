@@ -61,6 +61,34 @@ class ReportController extends Controller
         return view('reports.sales_register_report', compact('page_title', 'employees'));
     }
 
+    public function paymentRegister(Request $request)
+    {
+        $page_title = 'Payment Register Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Payment Register Report / View';
+        $logs->log_subject = 'Payment Register Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.payments_register_report', compact('page_title', 'employees'));
+    }
+    public function listPaymentRegisterData(Request $request) {
+        $data = DB::table('payments as p');
+        
+    }
     public function listSalesRegisterData(Request $request)
     {
         $data = DB::table('sale_bills as s');
