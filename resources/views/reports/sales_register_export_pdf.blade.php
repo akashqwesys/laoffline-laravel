@@ -29,6 +29,9 @@
         .logo > img {
             max-width: 150px;
         }
+        /* table {
+            border: 1px solid;
+        } */
         table tr th {
             text-align: left;
         }
@@ -36,7 +39,7 @@
         table tr td {
             font-size: 10px;
             padding: 3px;
-            letter-spacing: 0px;
+            /* letter-spacing: 0px; */
             border: 1px solid black;
         }
         .clearfix {
@@ -84,7 +87,7 @@
                 <br>
                 <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</b>
             </div>
-            <table class="invoice-table" width="100%">
+            <table class="" width="100%">
                 @php
                     $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $i = 0;
                 @endphp

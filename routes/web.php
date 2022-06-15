@@ -754,12 +754,13 @@ Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:mod
 });
 
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access-reports']], function () {
-    Route::get('/', [App\Http\Controllers\ReportController::class, 'index']);
-    Route::get('/sales-register-report', [App\Http\Controllers\ReportController::class, 'salesRegister']);
+    Route::get('/', [App\Http\Controllers\Reports\SalesReportController::class, 'index']);
+    Route::get('/sales-register-report', [App\Http\Controllers\Reports\SalesReportController::class, 'salesRegister']);
+    Route::post('/list-sales-register-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSalesRegisterData']);
+    Route::get('/consolidate-monthly-sales-report', [App\Http\Controllers\Reports\SalesReportController::class, 'consolidateMonthlySales']);
     Route::get('/payment-register-report', [App\Http\Controllers\ReportController::class, 'paymentRegister']);
-    Route::post('/list-sales-register-data', [App\Http\Controllers\ReportController::class, 'listSalesRegisterData']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\ReportController::class, 'listPaymentRegisterData']);
-    
+
 });
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

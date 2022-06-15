@@ -38,7 +38,7 @@
                                         <tbody>
                                             <tr>
                                                 <td>1</td>
-                                                <td><a target="_blank" href="/monthly_sales_reports">Consolidate Monthly Sales Report</a></td>
+                                                <td><a target="_blank" href="/reports/consolidate-monthly-sales-report">Consolidate Monthly Sales Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>2</td>

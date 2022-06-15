@@ -133,6 +133,7 @@ import LogsComponent from './components/LogsComponent.vue';
 
 import ReportsListComponent from './components/reports/ReportsListComponent.vue';
 import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
+import ConsolidateMonthlySalesComponent from './components/reports/ConsolidateMonthlySalesComponent.vue';
 import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
 
 /**
@@ -407,6 +408,7 @@ const routes = [
         component: ReportsListComponent,
         children: [
             { path: 'sales-register-report', component: SalesRegisterComponent },
+            { path: 'consolidate-monthly-sales-report', component: ConsolidateMonthlySalesComponent },
             { path: 'payment-register-report', component: PaymentRegisterComponent },
         ]
     },
@@ -519,6 +521,7 @@ createApp({
 
         ReportsListComponent,
         SalesRegisterComponent,
+        ConsolidateMonthlySalesComponent,
         PaymentRegisterComponent,
     }
 }).use(router).mount('#app');
