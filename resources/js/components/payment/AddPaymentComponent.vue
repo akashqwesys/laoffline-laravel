@@ -766,7 +766,7 @@
                 setTimeout(() => {
                     this.form.interest = totalInterst;
                     this.form.ratedifference = totalRateDifference;
-                    this.extraAmount = parseInt(this.extraAmount) - totalInterst;
+                    this.extraAmount = parseInt(this.form.reciptamount) - parseInt(this.form.totaladjustamount) - totalInterst;
                 },500);
 
             },
