@@ -138,7 +138,7 @@ class ReportController extends Controller
                 ->get();
         }
         if ($request->export_pdf == 1) {
-            $pdf = PDF::loadView('reports.export_pdf', compact('data', 'request'))
+            $pdf = PDF::loadView('reports.sales_register_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);
             if ($request->show_detail == 0) {
                 $pdf = $pdf->setPaper('a4', 'landscape');
