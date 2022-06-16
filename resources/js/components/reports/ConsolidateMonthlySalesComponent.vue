@@ -92,21 +92,16 @@
                                     <table id="salesRegister" class="table table-hover table-bordered-">
                                         <thead>
                                             <tr>
-                                                <th>Date</th>
-                                                <th>Sr</th>
-                                                <th>Party</th>
-                                                <th class="text-right">Pieces</th>
-                                                <th class="text-right">Meters</th>
-                                                <th class="text-right">Net Amt</th>
-                                                <th class="text-right">Rec. Amt</th>
-                                                <th class="text-right">GST</th>
-                                                <th>Agent</th>
-                                                <th>Invoice</th>
-                                                <th class="text-right">Gross Amt</th>
-                                                <th>Transport</th>
-                                                <th>City</th>
-                                                <th>L.R.No.</th>
-                                                <th>Purchase Party</th>
+                                                <th colspan="4" class="text-center">{{ customer ? customer.name : 'All Parties' }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="4" class="text-center">{{ agent ? agent.name : 'All Agents' }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Month</th>
+                                                <th class="text-right">Gross Sales (Amount)</th>
+                                                <th class="text-right">Net Sales (Amount)</th>
+                                                <th class="text-right">Gross Pending (Amount)</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -209,23 +204,18 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearData() {
-                this.start_date = this.end_date = this.customer = this.supplier = '';
-                this.payment_status = { id: 0, name: 'All' };
-                this.show_detail = 0;
+                this.start_date = this.end_date = this.customer = this.supplier = this.category = this.city = '';
+                this.agent = { id: 0, name: 'All Agents' };
             },
             getData() {
-                if (this.show_detail == 1) {
-                    this.detailed_table = false;
-                } else {
-                    this.detailed_table = true;
-                }
-                axios.post('/reports/list-sales-register-data', {
+                axios.post('/reports/list-consolidate-monthly-sales-data', {
                     start_date: this.start_date,
                     end_date: this.end_date,
                     customer: this.customer,
                     supplier: this.supplier,
-                    payment_status: this.payment_status,
-                    show_detail: this.show_detail,
+                    agent: this.agent,
+                    category: this.category,
+                    city: this.city,
                     export_sheet: this.export_sheet,
                     export_pdf: this.export_pdf
                 })

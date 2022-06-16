@@ -151,6 +151,56 @@ class SalesReportController extends Controller
         return view('reports.consolidate_monthly_sales_export', compact('page_title', 'employees'));
     }
 
+    public function listConsolidateMonthlySales(Request $request)
+    {
+        $data = DB::table('sale_bills');
+
+        $data = $data->selectRaw('SUM(total) as total, SUM(received_payment) as received_payment, SUM(CASE WHEN pending_payment = 0 THEN total ELSE pending_payment END) AS total_pending');
+
+        if ($request->customer && $request->customer['id']) {
+            $data = $data->where('s.company_id', $request->customer['id']);
+        }
+        if ($request->supplier && $request->supplier['id']) {
+            $data = $data->where('s.supplier_id', $request->supplier['id']);
+        }
+        if ($request->payment_status && $request->payment_status['id'] == 1) {
+            $data = $data->where('s.payment_status', 0);
+        } else if ($request->payment_status && $request->payment_status['id'] == 2) {
+            $data = $data->where('s.payment_status', 1);
+        }
+        if ($request->start_date && $request->end_date) {
+            $data = $data->whereBetween('s.select_date', [$request->start_date, $request->end_date]);
+        }
+        if ($request->show_detail == 1) {
+            $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0')
+                ->groupByRaw('c.company_name, s.company_id, s.select_date')
+                ->orderByRaw('c.company_name, s.select_date asc')
+                ->get();
+        } else {
+            $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
+                ->groupByRaw('s.company_id, s.supplier_id, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name')
+                ->orderBy('s.sale_bill_id', 'asc')
+                ->get();
+        }
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.sales_register_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            if ($request->show_detail == 0) {
+                $pdf = $pdf->setPaper('a4', 'landscape');
+            }
+            $path = storage_path('app/public/pdf/sales-register-reports');
+            $fileName =  'Sales-Register-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/sales-register-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Sales-Register-Report-' . time() . '.xlsx';
+            Excel::store(new SalesRegisterExport($data, $request), 'excel-sheets/sales-register-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/sales-register-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
     public function listCities()
     {
         $cities = DB::table('cities as c')
