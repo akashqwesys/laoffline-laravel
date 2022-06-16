@@ -66,7 +66,7 @@
                                             </tr>
                                             <tr>
                                                 <td>8</td>
-                                                <td><a target="_blank" href="/payment_register_report">Payment Register</a></td>
+                                                <td><a target="_blank" href="/reports/payment-register-report">Payment Register</a></td>
                                             </tr>
                                             <!-- <tr><td>9</td>	<td><a target="_blank" href="">Outstanding Commission Report</a></td></tr> -->
                                             <tr>

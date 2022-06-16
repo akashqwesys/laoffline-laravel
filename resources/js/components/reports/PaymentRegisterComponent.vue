@@ -84,14 +84,14 @@
                                                 <th>Id</th>
                                                 <th>Supplier</th>
                                                 <th>Customer</th>
-                                                <th class="text-right">Date</th>
-                                                <th class="text-right">Mode</th>
-                                                <th class="text-right">Dep.Bank</th>
-                                                <th class="text-right">Chq.Date</th>
-                                                <th class="text-right">Chq/DD No</th>
+                                                <th>Date</th>
+                                                <th>Mode</th>
+                                                <th>Dep.Bank</th>
+                                                <th>Chq.Date</th>
+                                                <th>Chq/DD No</th>
                                                 <th>Chq/DD Bank</th>
                                                 <th>Rec.Amt</th>
-                                                <th class="text-right">Tot.Amt</th>
+                                                <th>Tot.Amt</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -170,16 +170,16 @@
             },
             clearData() {
                 this.start_date = this.end_date = this.customer = this.supplier = '';
-                this.payment_status = { id: 0, name: 'All' };
+                this.sorting = {id: 5, name: 'Date L -> H'};
+                this.getData();
             },
             getData() {
-                
                 axios.post('/reports/list-payment-register-data', {
                     start_date: this.start_date,
                     end_date: this.end_date,
                     customer: this.customer,
                     supplier: this.supplier,
-                    sorting: this.payment_status,
+                    sorting: this.sorting,
                     export_sheet: this.export_sheet,
                     export_pdf: this.export_pdf
                 })
@@ -195,55 +195,55 @@
                             // currency: 'INR',
                             // minimumFractionDigits: 0
                         });
-                        var html = '';
-                        var total_pieces = 0, total_meters = 0, net_total = 0, received_total = 0, gross_total = 0;
-                        var gross_amount = 0;
+                        var receipt_amount = 0, total_amount = 0;
                         response.data.forEach((k, i) => {
-                                total_pieces += parseFloat(k.tot_pieces);
-                                total_meters += parseFloat(k.tot_meters);
-                                net_total += parseFloat(k.total);
-                                received_total += parseFloat(k.received_payment);
-                                if (k.sign_change == '+') {
-                                    gross_amount = (parseFloat(k.total) - parseFloat(k.change_in_amount));
+                                receipt_amount += parseFloat(k.receipt_amount);
+                                total_amount += parseFloat(k.total_amount);
+                        });
+                        var html = '';
+                        html += `<tr>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left"></td>
+                                    <td align="left">Total</td>
+                                    <td align="left">${receipt_amount}</td>
+                                    <td align="right">${total_amount}</td>
+                                </tr>`;
+                        
+                        var cheque_date = '', cheque_dd_no = '', cheque_bank = '';
+                        response.data.forEach((k, i) => {
+                                receipt_amount += parseFloat(k.receipt_amount);
+                                total_amount += parseFloat(k.total_amount);
+                                if (k.reciept_mode != 'cheque') {
+                                    cheque_date = '-';
+                                    cheque_dd_no = '-';
+                                    cheque_bank = '-';
                                 } else {
-                                    gross_amount = (parseFloat(k.total) + parseFloat(k.change_in_amount));
+                                    cheque_date = k.cheque_date;
+                                    cheque_dd_no = k.cheque_dd_no;
+                                    cheque_bank = k.cheque_bank;
                                 }
-                                gross_total += gross_amount;
                                 html += `<tr>
-                                    <td class=""> ${k.select_date} </td>
-                                    <td class=""> <a href="/account/sale-bill/view-sale-bill/${k.sale_bill_id}/${k.financial_year_id}" class="" data-toggle="tooltip" data-placement="top" title="View"> ${k.sale_bill_id} </a></td>
-                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.customer_name} </a> </td>
-                                    <td class="text-right"> ${k.tot_pieces} </td>
-                                    <td class="text-right"> ${k.tot_meters} </td>
-                                    <td class="text-right"> ${toINR.format(k.total)} </td>
-                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
-                                    <td class="text-right"> ${toINR.format(k.total_gst)} </td>
-                                    <td class=""> ${k.agent_name} </td>
-                                    <td class=""> ${k.supplier_invoice_no} </td>
-                                    <td class="text-right"> ${toINR.format(gross_amount)} </td>
-                                    <td class=""> ${k.transport_name} </td>
-                                    <td class=""> ${k.city_name} </td>
-                                    <td class=""> ${k.lr_mr_no} </td>
-                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.supplier_name} </a> </td>
+                                    <td align="left">${k.payment_id}</td>
+                                    <td align="left">${k.supplier_name}</td>
+                                    <td align="left">${k.customer_name}</td>
+                                    <td align="left">${k.date}</td>
+                                    <td align="left">${k.reciept_mode}</td>
+                                    <td align="left">${k.bank_name}</td>
+                                    <td align="left">${cheque_date}</td>
+                                    <td align="left">${cheque_dd_no}</td>
+                                    <td align="left">${cheque_bank}</td>
+                                    <td align="left">${k.receipt_amount}</td>
+                                    <td align="right">${k.total_amount}</td>
+                                    
                                 </tr>`;
                             });
-                            html += `<tr>
-                                    <th class=""> Total</th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class="text-right"> ${total_pieces} </th>
-                                    <th class="text-right"> ${total_meters} </th>
-                                    <th class="text-right"> ${toINR.format(net_total)} </th>
-                                    <th class="text-right"> ${toINR.format(received_total)} </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class="text-right"> ${toINR.format(gross_total)} </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                </tr>`;
+                            
                         
                         $('#salesRegister tbody').html(html);
                     } else {
