@@ -64,6 +64,9 @@
             register () {
                 this.form.post('/settings/type-of-address/create')
                     .then(( response ) => {
+                        if (response.data.length > 0) {
+                            this.$parent.typeOfAddress = response.data;
+                        }
                         $('#addTypeOffAddress').hide();
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open');

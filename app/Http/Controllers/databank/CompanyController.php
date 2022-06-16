@@ -778,7 +778,15 @@ class CompanyController extends Controller
         $comapnyLastId = Company::orderBy('id', 'DESC')->first('id');
         $companyId = !empty($comapnyLastId) ? $comapnyLastId->id + 1 : 1;
 
-        $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
+        if ($companyData->company_category) {
+            if (is_array($companyData->company_category)) {
+                $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
+            } else {
+                $company_category =  [$companyData->company_category->id];
+            }
+        } else {
+            $company_category = [];
+        }
 
         $company = new Company;
         $company->id = $companyId;
