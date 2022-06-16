@@ -257,9 +257,9 @@ class PaymentsController extends Controller
             $columnName = 'payments.'.$columnName;
         }
         // Total records
-        $totalRecords = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3')->select('count(*) as allcount')->count();
+        $totalRecords = Payment::where('payments.financial_year_id', $user->financial_year_id)->where('payments.is_deleted', 0)->select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3');
+        $totalRecordswithFilter = Payment::where('payments.financial_year_id', $user->financial_year_id)->where('payments.is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -295,7 +295,7 @@ class PaymentsController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
-        $records = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->where('comboids.color_flag_id', '3');
+        $records = Payment::where('payments.financial_year_id', $user->financial_year_id)->where('payments.is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -331,7 +331,7 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward');
+        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -341,7 +341,7 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
-
+            if ($record->color_flag_id == 3) {
             $customer_company = Company::where('id', $record->customer_id)->first();
             $customer_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
@@ -423,11 +423,12 @@ class PaymentsController extends Controller
                 "outward_status" => $outward,
                 "action" => $action
             );
+            }
         }
 
         $response = array(
             "draw" => intval($draw),
-            "iTotalRecords" => $totalRecords,
+            "iTotalRecords" => count($data_arr),
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr
         );
@@ -457,9 +458,9 @@ class PaymentsController extends Controller
             $columnName = 'payments.'.$columnName;
         }
         // Total records
-        $totalRecords = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNotIn('comboids.color_flag_id', ['3'])->where('comboids.goods_return_id', '0')->select('count(*) as allcount')->count();
+        $totalRecords = Payment::where('payments.financial_year_id', $user->financial_year_id)->where('payments.is_deleted', 0)->select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNotIn('comboids.color_flag_id', ['3'])->where('comboids.goods_return_id', '0');
+        $totalRecordswithFilter = Payment::where('payments.financial_year_id', $user->financial_year_id)->where('payments.is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -495,7 +496,7 @@ class PaymentsController extends Controller
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
 
-        $records = Payment::join('comboids', 'comboids.payment_id', '=', 'payments.payment_id')->where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->whereNotIn('comboids.color_flag_id', ['3'])->where('comboids.goods_return_id', '0');
+        $records = Payment::where('payments.financial_year_id', $user->financial_year_id)->where('payments.is_deleted', 0);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -531,7 +532,7 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward');
+        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -541,6 +542,7 @@ class PaymentsController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
+            if ($record->color_flag_id != 3) {
             $customer_company = Company::where('id', $record->customer_id)->first();
             $customer_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
@@ -623,11 +625,12 @@ class PaymentsController extends Controller
                 "outward_status" => $outward,
                 "action" => $action
             );
+            }
         }
 
         $response = array(
             "draw" => intval($draw),
-            "iTotalRecords" => $totalRecords,
+            "iTotalRecords" => count($data_arr),
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr
         );
