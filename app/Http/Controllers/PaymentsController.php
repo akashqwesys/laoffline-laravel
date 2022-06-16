@@ -339,9 +339,14 @@ class PaymentsController extends Controller
             ->get();
 
         $data_arr = array();
-
-        foreach($records as $record){
-            if ($record->color_flag_id == 3) {
+        $recorddata = array();
+        foreach($records as $data){
+            if ($data->color_flag_id == 3) {
+                $recorddata[] = $data;
+            }
+        }
+        foreach($recorddata as $record){
+            
             $customer_company = Company::where('id', $record->customer_id)->first();
             $customer_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
@@ -423,13 +428,13 @@ class PaymentsController extends Controller
                 "outward_status" => $outward,
                 "action" => $action
             );
-            }
+            
         }
 
         $response = array(
             "draw" => intval($draw),
-            "iTotalRecords" => count($data_arr),
-            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "iTotalRecords" => count($recorddata),
+            "iTotalDisplayRecords" => count($recorddata),
             "aaData" => $data_arr
         );
 
@@ -538,11 +543,16 @@ class PaymentsController extends Controller
             ->skip($start)
             ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
             ->get();
-
         $data_arr = array();
+        $recorddata = array();
+        foreach($records as $data){
+            if ($data->color_flag_id != 3) {
+                $recorddata[] = $data;
+            }
+        };
 
-        foreach($records as $record){
-            if ($record->color_flag_id != 3) {
+        foreach($recorddata as $record){
+            
             $customer_company = Company::where('id', $record->customer_id)->first();
             $customer_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
@@ -625,13 +635,13 @@ class PaymentsController extends Controller
                 "outward_status" => $outward,
                 "action" => $action
             );
-            }
+            
         }
 
         $response = array(
             "draw" => intval($draw),
-            "iTotalRecords" => count($data_arr),
-            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "iTotalRecords" => count($recorddata),
+            "iTotalDisplayRecords" => count($recorddata),
             "aaData" => $data_arr
         );
 
