@@ -6,7 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Payment Register Report</h3>
+                                <h3 class="nk-block-title page-title">Commission Register Report</h3>
                                 <div class="nk-block-des text-soft"> </div>
                             </div><!-- .nk-block-head-content -->
                             <div class="nk-block-head-content">
@@ -34,10 +34,12 @@
                                             <tr>
                                                 <th width="15%">Start Date</th>
                                                 <th width="15%">End Date</th>
-                                                <th width="20%">Customer</th>
-                                                <th width="20%">Supplier</th>
-                                                <th width="15%">Sorting</th>
-                                                <th width="15%">Action</th>
+                                                <th width="10%">Mode</th>
+                                                <th width="15%">Account</th>
+                                                <th width="15%">Company</th>
+                                                <th width="10%">Sorting</th>
+                                                <th width="10%">Hide</th>
+                                                <th width="10%">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -185,9 +187,9 @@
                 })
                 .then(response => {
                     if (this.export_sheet == 1 || this.export_pdf == 1) {
-                        this.export_sheet = this.export_pdf = 0;
-                        window.open(response.data.url, '_blank');
-                        return;
+                        // this.export_sheet = this.export_pdf = 0;
+                        // window.open(response.data.url, '_blank');
+                        // return;
                     }
                     if (response.data.length > 0) {
                         const toINR = new Intl.NumberFormat('en-IN', {
