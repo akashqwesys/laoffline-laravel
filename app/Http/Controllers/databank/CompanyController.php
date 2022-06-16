@@ -803,9 +803,9 @@ class CompanyController extends Controller
         $company->company_about = $companyData->company_about;
         $company->company_category = json_encode($company_category);
         $company->company_transport = !empty($companyData->company_transport) ? $companyData->company_transport->id : 0;
-        $company->company_discount = $companyData->company_discount;
-        $company->company_payment_terms_in_days = $companyData->company_payment_terms_in_days;
-        $company->company_opening_balance = $companyData->company_opening_balance;
+        $company->company_discount = $companyData->company_discount ? $companyData->company_discount : 0;
+        $company->company_payment_terms_in_days = $companyData->company_payment_terms_in_days ? $companyData->company_payment_terms_in_days : 0;
+        $company->company_opening_balance = $companyData->company_opening_balance ? $companyData->company_opening_balance : 0;
         $company->favorite_flag = 0;
         $company->is_verified = 0;
         $company->verified_by = 0;
