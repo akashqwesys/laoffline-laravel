@@ -10,6 +10,7 @@ use App\Models\Logs;
 use App\Models\FinancialYear;
 use App\Models\Settings\TypeOfAddress;
 use Illuminate\Support\Facades\Session;
+use DB;
 
 class TypeOfAddressController extends Controller
 {
@@ -52,7 +53,7 @@ class TypeOfAddressController extends Controller
     }
 
     public function listData(Request $request) {
-        $typeOfAddress = TypeOfAddress::where('is_delete', '0')->get();
+        $typeOfAddress = TypeOfAddress::select('id', 'name', 'sort_order')->where('is_delete', '0')->get();
 
         return $typeOfAddress;
     }
@@ -174,6 +175,9 @@ class TypeOfAddressController extends Controller
         $logs->log_subject = 'TypeOfAddress - "'.$request->name.'" was inserted from '.Session::get('user')->username.'.';
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
+
+        $data = DB::table('type_of_addresses')->select('id', 'name', 'sort_order')->where('is_delete', '0')->get();
+        return response()->json($data);
     }
 
     public function updateTypeOfAddressData(Request $request) {

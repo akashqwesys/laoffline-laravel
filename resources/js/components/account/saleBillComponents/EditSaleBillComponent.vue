@@ -453,14 +453,14 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <!-- <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="form-label" for="courier_freight">Freight</label>
                                                         <div class="form-control-wrap">
                                                             <input type="text" v-model="courier_freight" id="courier_freight" class="form-control">
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> -->
                                             </div>
                                         </div>
                                         <hr>
@@ -634,7 +634,7 @@
                 transport_date: '',
                 transport_cases: '',
                 courier_weight: '',
-                courier_freight: '',
+                courier_freight: 0,
                 change_in_sign: { name: '+' },
                 change_in_amount: 0,
                 transport_remark: '',

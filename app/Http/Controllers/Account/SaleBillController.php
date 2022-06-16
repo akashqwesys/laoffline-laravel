@@ -637,7 +637,7 @@ class SaleBillController extends Controller
         $transport_detail->lr_mr_no = $transportDetails->lr_mr_no;
         $transport_detail->date = $transport_date;
         $transport_detail->cases = $transportDetails->transport_cases ? $transportDetails->transport_cases : 0;
-        $transport_detail->weight = $transportDetails->courier_weight ? $transportDetails->courier_weight : 0;
+        $transport_detail->weight = $transportDetails->courier_weight ? floatval($transportDetails->courier_weight) : 0;
         $transport_detail->freight = $transportDetails->courier_freight ? $transportDetails->courier_freight : 0;
         $transport_detail->save();
 
@@ -1729,7 +1729,7 @@ class SaleBillController extends Controller
         $transport_detail->date = $transport_date;
         $transport_detail->cases = $transportDetails->transport_cases ? $transportDetails->transport_cases : 0;
         $transport_detail->weight = $transportDetails->courier_weight ? $transportDetails->courier_weight : 0;
-        $transport_detail->freight = $transportDetails->courier_freight ? $transportDetails->courier_freight : 0;
+        $transport_detail->freight = $transportDetails->courier_freight ? floatval($transportDetails->courier_freight) : 0;
         $transport_detail->save();
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');

@@ -778,7 +778,15 @@ class CompanyController extends Controller
         $comapnyLastId = Company::orderBy('id', 'DESC')->first('id');
         $companyId = !empty($comapnyLastId) ? $comapnyLastId->id + 1 : 1;
 
-        $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
+        if ($companyData->company_category) {
+            if (is_array($companyData->company_category)) {
+                $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
+            } else {
+                $company_category =  [$companyData->company_category->id];
+            }
+        } else {
+            $company_category = [];
+        }
 
         $company = new Company;
         $company->id = $companyId;
@@ -795,9 +803,9 @@ class CompanyController extends Controller
         $company->company_about = $companyData->company_about;
         $company->company_category = json_encode($company_category);
         $company->company_transport = !empty($companyData->company_transport) ? $companyData->company_transport->id : 0;
-        $company->company_discount = $companyData->company_discount;
-        $company->company_payment_terms_in_days = $companyData->company_payment_terms_in_days;
-        $company->company_opening_balance = $companyData->company_opening_balance;
+        $company->company_discount = $companyData->company_discount ? $companyData->company_discount : 0;
+        $company->company_payment_terms_in_days = $companyData->company_payment_terms_in_days ? $companyData->company_payment_terms_in_days : 0;
+        $company->company_opening_balance = $companyData->company_opening_balance ? $companyData->company_opening_balance : 0;
         $company->favorite_flag = 0;
         $company->is_verified = 0;
         $company->verified_by = 0;

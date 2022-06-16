@@ -150,4 +150,15 @@ class SalesReportController extends Controller
 
         return view('reports.consolidate_monthly_sales_export', compact('page_title', 'employees'));
     }
+
+    public function listCities()
+    {
+        $cities = DB::table('cities as c')
+            ->join('sale_bill_transports as sbt', 'c.id', '=', DB::raw('cast(station as integer)'))
+            ->select('c.id', 'c.name')
+            ->groupByRaw('c.id, c.name')
+            ->orderBy('c.name', 'asc')
+            ->get();
+        return response()->json($cities);
+    }
 }

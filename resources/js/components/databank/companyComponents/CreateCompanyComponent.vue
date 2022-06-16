@@ -202,7 +202,7 @@
                                                     <label class="form-label" :for="'fw-contact_person_profile_pic'+index">Photo</label>
                                                     <div class="form-control-wrap">
                                                         <img v-if="scope == 'edit' && getContactProfilePic(contactDetail.contact_person_profile_pic)" :src="getContactProfilePic(contactDetail.contact_person_profile_pic)">
-                                                        <span v-else>N/A</span>
+                                                        <!-- <span v-else>N/A</span> -->
                                                         <div :class="scope == 'edit' ? 'custom-file profilePic' : 'custom-file'">
                                                             <input type="file" class="custom-file-input" :id="'fv-contact_person_profile_pic'+index" @change="uploadContactPersonProfilePic(index, $event)">
                                                             <label class="custom-file-label" :for="'fv-contact_person_profile_pic'+index">Choose photo</label>
@@ -297,7 +297,7 @@
                                                         <label class="form-label" for="fw-mao_profile_pic">Photo</label>
                                                         <div class="form-control-wrap">
                                                         <img v-if="scope == 'edit' && getOwnerProfilePic(multipleAddressesOwner.profile_pic)" :src="getOwnerProfilePic(multipleAddressesOwner.profile_pic)">
-                                                        <span v-else>N/A</span>
+                                                        <!-- <span v-else>N/A</span> -->
                                                         <div :class="scope == 'edit' ? 'custom-file profilePic' : 'custom-file'">
                                                                 <input type="file" class="custom-file-input" :id="'fv-mao_profile_pic'+index" @change="uploadMultipleAddressOwnerPic(index, key, $event)">
                                                                 <label class="custom-file-label" :for="'fv-mao_profile_pic'+index">Choose photo</label>
@@ -502,7 +502,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
+                                                    <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary mr-2">Cancel</a>
                                                     <button type="submit" class="btn btn-primary">Save changes</button>
                                                 </div>
                                             </div>
@@ -843,99 +843,6 @@
     .form-control-wrap .custom-file.profilePic {
         width: 75%;
         float: right;
-    }
-    .multiselect {
-        height: calc(2.125rem + 2px);
-        font-family: Roboto,sans-serif;
-        font-size: 13px;
-        font-weight: 400;
-        background-color: #fff;
-        border: none;
-        border-radius: 4px;
-        box-shadow: none;
-        transition: all 0.3s;
-        min-height: 36px;
-        display: inline-flex;
-        flex-wrap: wrap;
-    }
-    .multiselect__tag-icon:after {
-        color: #526484;
-    }
-    .multiselect__tag {
-        color: #526484;
-        background: #ebeef2;
-        font-size: 13px;
-        font-family: Roboto,sans-serif;
-    }
-    .multiselect__tags {
-        padding: 7px 16px;
-        font-size: 13px;
-        min-height: 36px;
-        border: 1px solid #dbdfea;
-        width: 100%;
-    }
-    .multiselect__placeholder {
-        margin-bottom: 0;
-        padding-top: 0;
-    }
-    .multiselect__select {
-        height: calc(2.125rem + 2px);
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: calc(2.125rem + 2px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .multiselect__select:before {
-        display: none;
-    }
-    .multiselect .multiselect__select:after {
-        font-family: "Nioicon";
-        content: "";
-        line-height: 1;
-    }
-    .multiselect.multiselect--active .multiselect__input, .multiselect__single {
-        font-size: 13px;
-        padding: 0;
-        margin-bottom: 0;
-        width: 98% !important;
-    }
-    .multiselect__content-wrapper {
-        border-top: 1px solid #dbdfea;
-        padding: 6px;
-        top: 36px;
-    }
-    .multiselect__option--highlight {
-        background: #ebeef2;
-        border-radius: 4px;
-        color: #526484;
-    }
-    .multiselect__element {
-        margin-bottom: 0.125rem;
-    }
-    .multiselect__option--highlight:after, .multiselect__option:after {
-        display: none;
-    }
-    .multiselect__option--selected.multiselect__option--highlight {
-        background: #f3f3f3;
-        color: #35495e;
-    }
-    .multiselect__option--selected {
-        font-weight: 500;
-    }
-    .multiselect__tags-wrap {
-        display: inline-flex;
-    }
-    .multiselect--above .multiselect__content-wrapper {
-        border: 1px solid #e8e8e8;
-    }
-    .multiselect__tag-icon:focus, .multiselect__tag-icon:hover {
-        background: #ebeef2;
-    }
-    .multiselect__tag-icon:focus:after, .multiselect__tag-icon:hover:after {
-        color: #526484;
     }
     .form-group.code-block {
         border: none;

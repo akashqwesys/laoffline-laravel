@@ -146,7 +146,7 @@
                 customer_options: [],
                 supplier_options: [],
                 agent_options: [],
-                category_options: [{id: 0, name: 'All'}, {id: 1, name: 'Pending'}, {id: 2, name: 'Complete'}],
+                category_options: [],
                 city_options: [],
                 agent: { id: 0, name: 'All Agents' },
                 start_date: '',
@@ -172,6 +172,10 @@
                 this.customer_options = response.data[0];
                 this.supplier_options = response.data[1];
             });
+            axios.get('/reports/list-cities')
+            .then(response => {
+                this.city_options = response.data;
+            });
             axios.get('/account/sale-bill/list-sale-bill-agents')
             .then(response => {
                 this.agent_options.push({id: 0, name: 'All Agents'});
@@ -181,7 +185,14 @@
             });
             axios.get('/databank/product-category/list-category')
             .then(response => {
-                this.category_options = response.data;
+                response.data.forEach((k, i) => {
+                    if (k.product_default_category_id == 1) {
+                        k.category_name = k.category_name + ' (Product)';
+                    } else {
+                        k.category_name = k.category_name + ' (Fabric)';
+                    }
+                    this.category_options.push(k);
+                });
             });
         },
         methods: {
