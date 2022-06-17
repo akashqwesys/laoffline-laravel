@@ -346,7 +346,7 @@ class PaymentsController extends Controller
             }
         }
         foreach($recorddata as $record){
-            
+
             $customer_company = Company::where('id', $record->customer_id)->first();
             $customer_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
@@ -428,7 +428,7 @@ class PaymentsController extends Controller
                 "outward_status" => $outward,
                 "action" => $action
             );
-            
+
         }
 
         $response = array(
@@ -552,7 +552,7 @@ class PaymentsController extends Controller
         };
 
         foreach($recorddata as $record){
-            
+
             $customer_company = Company::where('id', $record->customer_id)->first();
             $customer_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
@@ -635,7 +635,7 @@ class PaymentsController extends Controller
                 "outward_status" => $outward,
                 "action" => $action
             );
-            
+
         }
 
         $response = array(
@@ -801,7 +801,7 @@ class PaymentsController extends Controller
             $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
             $paid_amount = $record->tot_adjust_amount;
-            
+
             if (!$record->old_commission_status) {
                 $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
@@ -1173,7 +1173,7 @@ class PaymentsController extends Controller
         } else {
             $payment->tot_rate_difference = $paymentData->ratedifference;
         }
-        
+
         $payment->tot_discount = $paymentData->discountamount;
         $payment->tot_vatav = $paymentData->vatav;
         $payment->tot_agent_commission = $paymentData->agentcommission;
@@ -1558,7 +1558,7 @@ class PaymentsController extends Controller
                 } else {
                     $empName = "Rec.";
                 }
-                $html .= '<tr><td><div class="custom-control custom-radio"><input class="custom-control-input old-reference" type="radio" name="reference_id_sale_bill" value="' . $row_general_ref->reference_id . '" id="r-' . $row_general_ref->reference_id . '"><label class="custom-control-label" for="r-'.$row_general_ref->reference_id.'"></label></div></td><td>' . $row_general_ref->reference_id . '</td><td>' . $empName . '</td><td>' . date('Y-m-d', strtotime($row_general_ref->created_at)) . '</td><td>' . date('H:i A', strtotime($row_general_ref->created_at)) . '</td></tr>';
+                $html .= '<tr><td><div class="custom-control custom-radio"><input class="custom-control-input old-reference" type="radio" name="reference_id_sale_bill" value="' . $row_general_ref->reference_id . '" id="r-' . $row_general_ref->reference_id . '"><label class="custom-control-label" for="r-'.$row_general_ref->reference_id.'"></label></div></td><td>' . $row_general_ref->reference_id . '</td><td>' . $empName . '</td><td>' . date('d-m-Y', strtotime($row_general_ref->created_at)) . '</td><td>' . date('H:i A', strtotime($row_general_ref->created_at)) . '</td></tr>';
             }
             $html .= '<tr><td colspan="5"><div class="input-group"><input type="text" class="form-control" name="sale_bill_ref_search" id="sale_bill_ref_search" placeholder="Enter Reference Number"><span class="input-group-btn"><button type="button" class="btn btn-primary" id="sale_bill_ref_search_btn">Go</button></span></div></td></tr><tr id="sale_bill_ref_msg"></tr>';
             $html .= '</tbody></table></div></div><label class="col-sm-2 control-label"></label></div>';
@@ -1588,7 +1588,7 @@ class PaymentsController extends Controller
                 } else {
                     $empName = "Rec.";
                 }
-                $html .= "<input type='hidden' id='hidden_sale_bill_date' value='" . date('d-m-Y', strtotime($reference->selection_date)) . "'><input type='hidden' id='hidden_reference_via' value='" . $reference->type_of_inward . "'><input type='hidden' id='hidden_from_name' value='" . $reference->from_name . "'><input type='hidden' id='hidden_from_number' value='" . $reference->from_number . "'><input type='hidden' id='hidden_receiver_number' value='" . $reference->receiver_number . "'><input type='hidden' id='hidden_from_email_id' value='" . $reference->from_email_id . "'><input type='hidden' id='hidden_receiver_email_id' value='" . $reference->receiver_email_id . "'><input type='hidden' id='hidden_latter_by_id' value='" . $reference->latter_by_id . "'><input type='hidden' name='hidden_courier_name' id='hidden_courier_name' value='" . $reference->courier_name . "'><input type='hidden' id='hidden_weight_of_parcel' value='" . $reference->weight_of_parcel . "'><input type='hidden' id='hidden_courier_receipt_no' value='" . $reference->courier_receipt_no . "'><input type='hidden' id='hidden_courier_received_time' value='" . date('d-m-Y', strtotime($reference->courier_received_time)) . "'><input type='hidden' id='hidden_delivery_by' value='" . $reference->delivery_by . "'><input type='hidden' name='hidden_cmp_id' id='hidden_cmp_id' value='" . $reference->company_id . "'><input type='hidden' name='hidden_cmp_name' id='hidden_cmp_name' value='" . $reference->company_name . "'><input type='hidden' id='hidden_reference_id_input' name='hidden_reference_id_input' value='" . $reference->reference_id . "'><input type='hidden' id='hidden_ref_emp_name' name='hidden_ref_emp_name' value='" . $empName . "'><input type='hidden' id='hidden_ref_date_added' name='hidden_ref_date_added' value='" . date('Y-m-d', strtotime($reference->created_at)) . "'><input type='hidden' id='hidden_ref_time_added' name='hidden_ref_time_added' value='" . date('h:i A', strtotime($reference->created_at)) . "'>";
+                $html .= "<input type='hidden' id='hidden_sale_bill_date' value='" . date('d-m-Y', strtotime($reference->selection_date)) . "'><input type='hidden' id='hidden_reference_via' value='" . $reference->type_of_inward . "'><input type='hidden' id='hidden_from_name' value='" . $reference->from_name . "'><input type='hidden' id='hidden_from_number' value='" . $reference->from_number . "'><input type='hidden' id='hidden_receiver_number' value='" . $reference->receiver_number . "'><input type='hidden' id='hidden_from_email_id' value='" . $reference->from_email_id . "'><input type='hidden' id='hidden_receiver_email_id' value='" . $reference->receiver_email_id . "'><input type='hidden' id='hidden_latter_by_id' value='" . $reference->latter_by_id . "'><input type='hidden' name='hidden_courier_name' id='hidden_courier_name' value='" . $reference->courier_name . "'><input type='hidden' id='hidden_weight_of_parcel' value='" . $reference->weight_of_parcel . "'><input type='hidden' id='hidden_courier_receipt_no' value='" . $reference->courier_receipt_no . "'><input type='hidden' id='hidden_courier_received_time' value='" . date('d-m-Y', strtotime($reference->courier_received_time)) . "'><input type='hidden' id='hidden_delivery_by' value='" . $reference->delivery_by . "'><input type='hidden' name='hidden_cmp_id' id='hidden_cmp_id' value='" . $reference->company_id . "'><input type='hidden' name='hidden_cmp_name' id='hidden_cmp_name' value='" . $reference->company_name . "'><input type='hidden' id='hidden_reference_id_input' name='hidden_reference_id_input' value='" . $reference->reference_id . "'><input type='hidden' id='hidden_ref_emp_name' name='hidden_ref_emp_name' value='" . $empName . "'><input type='hidden' id='hidden_ref_date_added' name='hidden_ref_date_added' value='" . date('d-m-Y', strtotime($reference->created_at)) . "'><input type='hidden' id='hidden_ref_time_added' name='hidden_ref_time_added' value='" . date('h:i A', strtotime($reference->created_at)) . "'>";
             }
         }
         return $html;
