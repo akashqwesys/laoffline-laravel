@@ -92,21 +92,16 @@
                                     <table id="salesRegister" class="table table-hover table-bordered-">
                                         <thead>
                                             <tr>
-                                                <th>Date</th>
-                                                <th>Sr</th>
-                                                <th>Party</th>
-                                                <th class="text-right">Pieces</th>
-                                                <th class="text-right">Meters</th>
-                                                <th class="text-right">Net Amt</th>
-                                                <th class="text-right">Rec. Amt</th>
-                                                <th class="text-right">GST</th>
-                                                <th>Agent</th>
-                                                <th>Invoice</th>
-                                                <th class="text-right">Gross Amt</th>
-                                                <th>Transport</th>
-                                                <th>City</th>
-                                                <th>L.R.No.</th>
-                                                <th>Purchase Party</th>
+                                                <th colspan="4" class="text-center">{{ customer ? customer.name : 'All Parties' }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="4" class="text-center">{{ agent ? agent.name : 'All Agents' }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Month</th>
+                                                <th class="text-right">Gross Sales (Amount)</th>
+                                                <th class="text-right">Net Sales (Amount)</th>
+                                                <th class="text-right">Gross Pending (Amount)</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -209,23 +204,18 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearData() {
-                this.start_date = this.end_date = this.customer = this.supplier = '';
-                this.payment_status = { id: 0, name: 'All' };
-                this.show_detail = 0;
+                this.start_date = this.end_date = this.customer = this.supplier = this.category = this.city = '';
+                this.agent = { id: 0, name: 'All Agents' };
             },
             getData() {
-                if (this.show_detail == 1) {
-                    this.detailed_table = false;
-                } else {
-                    this.detailed_table = true;
-                }
-                axios.post('/reports/list-sales-register-data', {
+                axios.post('/reports/list-consolidate-monthly-sales-data', {
                     start_date: this.start_date,
                     end_date: this.end_date,
                     customer: this.customer,
                     supplier: this.supplier,
-                    payment_status: this.payment_status,
-                    show_detail: this.show_detail,
+                    agent: this.agent,
+                    category: this.category,
+                    city: this.city,
                     export_sheet: this.export_sheet,
                     export_pdf: this.export_pdf
                 })
@@ -238,80 +228,27 @@
                     if (response.data.length > 0) {
                         const toINR = new Intl.NumberFormat('en-IN', { });
                         var html = '';
-                        var total_pieces = 0, total_meters = 0, net_total = 0, received_total = 0, gross_total = 0;
-                        var gross_amount = 0;
-                        if (this.show_detail == 1) {
-                            response.data.forEach((k, i) => {
-                                net_total += parseFloat(k.total);
-                                received_total += parseFloat(k.received_payment);
-                                html += `<tr>
-                                    <td class=""> ${i+1} </td>
-                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.company_name} </a> </td>
-                                    <td class="text-right"> ${toINR.format(k.total)} </td>
-                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
-                                </tr>`;
-                            });
+                        var total_payment = 0, total_received = 0, total_pending = 0;
+                        response.data.forEach((k, i) => {
+                            total_payment += parseFloat(k.total_payment);
+                            total_received += parseFloat(k.total_received);
+                            total_pending += parseFloat(k.total_pending);
                             html += `<tr>
-                                    <th class=""> Total</th>
-                                    <th class=""> </th>
-                                    <th class="text-right"> ${toINR.format(net_total)} </th>
-                                    <th class="text-right"> ${toINR.format(received_total)} </th>
-                                </tr>`;
-                        } else {
-                            response.data.forEach((k, i) => {
-                                total_pieces += parseFloat(k.tot_pieces);
-                                total_meters += parseFloat(k.tot_meters);
-                                net_total += parseFloat(k.total);
-                                received_total += parseFloat(k.received_payment);
-                                if (k.sign_change == '+') {
-                                    gross_amount = (parseFloat(k.total) - parseFloat(k.change_in_amount));
-                                } else {
-                                    gross_amount = (parseFloat(k.total) + parseFloat(k.change_in_amount));
-                                }
-                                gross_total += gross_amount;
-                                html += `<tr>
-                                    <td class=""> ${k.select_date} </td>
-                                    <td class=""> <a href="/account/sale-bill/view-sale-bill/${k.sale_bill_id}/${k.financial_year_id}" class="" data-toggle="tooltip" data-placement="top" title="View"> ${k.sale_bill_id} </a></td>
-                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.customer_name} </a> </td>
-                                    <td class="text-right"> ${k.tot_pieces} </td>
-                                    <td class="text-right"> ${k.tot_meters} </td>
-                                    <td class="text-right"> ${toINR.format(k.total)} </td>
-                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
-                                    <td class="text-right"> ${toINR.format(k.total_gst)} </td>
-                                    <td class=""> ${k.agent_name} </td>
-                                    <td class=""> ${k.supplier_invoice_no} </td>
-                                    <td class="text-right"> ${toINR.format(gross_amount)} </td>
-                                    <td class=""> ${k.transport_name} </td>
-                                    <td class=""> ${k.city_name} </td>
-                                    <td class=""> ${k.lr_mr_no} </td>
-                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.supplier_name} </a> </td>
-                                </tr>`;
-                            });
-                            html += `<tr>
-                                    <th class=""> Total</th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class="text-right"> ${total_pieces} </th>
-                                    <th class="text-right"> ${total_meters} </th>
-                                    <th class="text-right"> ${toINR.format(net_total)} </th>
-                                    <th class="text-right"> ${toINR.format(received_total)} </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class="text-right"> ${toINR.format(gross_total)} </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                    <th class=""> </th>
-                                </tr>`;
-                        }
+                                <td class=""> ${k.month_year} </td>
+                                <td class="text-right"> ${toINR.format(k.total_payment)} </td>
+                                <td class="text-right"> ${toINR.format(k.total_received)} </td>
+                                <td class="text-right"> ${toINR.format(k.total_pending)} </td>
+                            </tr>`;
+                        });
+                        html += `<tr>
+                                <th class=""> Total</th>
+                                <th class="text-right"> ${toINR.format(total_payment)} </th>
+                                <th class="text-right"> ${toINR.format(total_received)} </th>
+                                <th class="text-right"> ${toINR.format(total_pending)} </th>
+                            </tr>`;
                         $('#salesRegister tbody').html(html);
                     } else {
-                        if (this.show_detail == 1) {
-                            $('#salesRegister tbody').html('<tr><td colspan="4" class="text-center">No Records Found</td></tr>');
-                        } else {
-                            $('#salesRegister tbody').html('<tr><td colspan="15" class="text-center">No Records Found</td></tr>');
-                        }
+                        $('#salesRegister tbody').html('<tr><td colspan="4" class="text-center">No Records Found</td></tr>');
                     }
                 });
             },

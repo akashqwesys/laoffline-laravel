@@ -181,6 +181,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
+                    order: [[0, "desc"]],
                     columns: [
                         { data: 'id' },
                         { data: 'flag', orderable: false },
