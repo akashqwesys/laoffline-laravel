@@ -506,7 +506,7 @@ class InvoiceController extends Controller
         }
         $payment = $payment->where('p.is_deleted', 0)
             ->where('p.right_of_amount', 0)
-            // ->where('p.receipt_amount', 0)
+            ->where('p.receipt_amount', '<>', 0)
             ->orderBy('p.date', 'asc')
             ->get();
         $data_arr = [];
