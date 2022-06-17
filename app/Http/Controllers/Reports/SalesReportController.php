@@ -153,49 +153,44 @@ class SalesReportController extends Controller
 
     public function listConsolidateMonthlySales(Request $request)
     {
-        $data = DB::table('sale_bills');
-
-        $data = $data->selectRaw('SUM(total) as total, SUM(received_payment) as received_payment, SUM(CASE WHEN pending_payment = 0 THEN total ELSE pending_payment END) AS total_pending');
+        $data = DB::table('sale_bills')
+            ->selectRaw("date_trunc('month', select_date)::date as month_begin, (date_trunc('month', select_date) + interval '1 month -1 day')::date as month_end, SUM(total) as total_payment, SUM(CASE WHEN pending_payment = 0 and payment_status = 0 THEN total WHEN pending_payment <> 0 and payment_status = 0 THEN pending_payment ELSE 0 END) AS total_pending, SUM(received_payment) as total_received");
 
         if ($request->customer && $request->customer['id']) {
-            $data = $data->where('s.company_id', $request->customer['id']);
+            $data = $data->where('company_id', $request->customer['id']);
         }
         if ($request->supplier && $request->supplier['id']) {
-            $data = $data->where('s.supplier_id', $request->supplier['id']);
+            $data = $data->where('supplier_id', $request->supplier['id']);
         }
-        if ($request->payment_status && $request->payment_status['id'] == 1) {
-            $data = $data->where('s.payment_status', 0);
-        } else if ($request->payment_status && $request->payment_status['id'] == 2) {
-            $data = $data->where('s.payment_status', 1);
+        if ($request->agent && $request->agent['id'] != 0) {
+            $data = $data->where('agent_id', $request->agent['id']);
+        }
+        if ($request->category && $request->category['id']) {
+            $data = $data->whereRaw('product_category_id @> ' . $request->category['id']);
         }
         if ($request->start_date && $request->end_date) {
-            $data = $data->whereBetween('s.select_date', [$request->start_date, $request->end_date]);
+            $data = $data->whereBetween('select_date', [$request->start_date, $request->end_date]);
         }
-        if ($request->show_detail == 1) {
-            $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0')
-                ->groupByRaw('c.company_name, s.company_id, s.select_date')
-                ->orderByRaw('c.company_name, s.select_date asc')
-                ->get();
-        } else {
-            $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
-                ->groupByRaw('s.company_id, s.supplier_id, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name')
-                ->orderBy('s.sale_bill_id', 'asc')
-                ->get();
+        $data = $data->whereRaw('is_deleted = 0 AND sale_bill_flag = 0')
+            ->groupByRaw("date_trunc('month', select_date)")
+            ->orderByRaw("date_trunc('month', select_date) asc")
+            ->get();
+
+        foreach ($data as $k => $v) {
+            $v->month_year = date('F, Y', strtotime($v->month_begin));
         }
+
         if ($request->export_pdf == 1) {
-            $pdf = PDF::loadView('reports.sales_register_export_pdf', compact('data', 'request'))
+            $pdf = PDF::loadView('reports.consolidate_monthly_sales_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);
-            if ($request->show_detail == 0) {
-                $pdf = $pdf->setPaper('a4', 'landscape');
-            }
-            $path = storage_path('app/public/pdf/sales-register-reports');
-            $fileName =  'Sales-Register-Report-' . time() . '.pdf';
+            $path = storage_path('app/public/pdf/consolidate-monthly-sales-reports');
+            $fileName =  'Consolidate-Monthly-Sales-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
-            return response()->json(['url' => url('/storage/pdf/sales-register-reports/' . $fileName)]);
+            return response()->json(['url' => url('/storage/pdf/consolidate-monthly-sales-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
-            $fileName =  'Sales-Register-Report-' . time() . '.xlsx';
-            Excel::store(new SalesRegisterExport($data, $request), 'excel-sheets/sales-register-reports/' . $fileName, 'public');
-            return response()->json(['url' => url('/storage/excel-sheets/sales-register-reports/' . $fileName)]);
+            $fileName =  'Consolidate-Monthly-Sales-Report-' . time() . '.xlsx';
+            Excel::store(new ConsolidateMonthlySalesExport($data, $request), 'excel-sheets/consolidate-monthly-sales-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/consolidate-monthly-sales-reports/' . $fileName)]);
         } else {
             return response()->json($data);
         }

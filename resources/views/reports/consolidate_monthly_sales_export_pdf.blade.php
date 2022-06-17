@@ -37,7 +37,7 @@
         }
         table tr th,
         table tr td {
-            font-size: 10px;
+            font-size: 12px;
             padding: 3px;
             /* letter-spacing: 0px; */
             border: 1px solid black;
@@ -79,111 +79,46 @@
     <section class="sheet">
         <!-- Write HTML just like a web page -->
         <article>
-            <div class="logo">
-                <img src="/assets/images/logo_report.png" alt="Logo">
+            <div class="logo mb-4">
+                <img src="https://dev.laoffline.com/assets/images/logo_report.png" alt="Logo">
             </div>
-            <div class="text-center">
-                <b class="mt-2" style="font-size: 14px;">SALES REGISTER REPORT</b>
-                <br>
-                <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</b>
-            </div>
-            <table class="" width="100%">
+            <table class="" width="" align="center">
                 @php
-                    $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $i = 0;
+                    $total_payment = $total_received = $total_pending = 0;
                 @endphp
-                @if ($request->show_detail == 1)
                 <thead>
+                    <tr><th colspan="4" class="text-center" style="font-size: 18px;">MONTHLY SALES REPORT</th></tr>
+                    <tr><th colspan="4" class="text-center" >{{ $request->customer['name'] ?? 'All Parties' }}</th></tr>
+                    <tr><th colspan="4" class="text-center" >{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</th></tr>
+                    <tr><th colspan="4" class="text-center" >{{ $request->agent['name'] }}</th></tr>
                     <tr>
-                        <th>No</th>
-                        <th>Party</th>
-                        <th class="text-right">Net Amt</th>
-                        <th class="text-right">Rec. Amt</th>
+                        <th>Month</th>
+                        <th class="text-right">Gross Sales(Amt)</th>
+                        <th class="text-right">Net Sales(Amt)</th>
+                        <th class="text-right">Gross Pending(Amt)</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data as $d)
                     @php
-                        $net_total += floatval($d->total);
-                        $rec_total += floatval($d->received_payment);
+                        $total_payment += floatval($d->total_payment);
+                        $total_received += floatval($d->total_received);
+                        $total_pending += floatval($d->total_pending);
                     @endphp
                     <tr>
-                        <td class=""> {{ ++$i }} </td>
-                        <td class=""> {{ $d->company_name }} </td>
-                        <td class="text-right"> {{ number_format($d->total) }} </td>
-                        <td class="text-right"> {{ number_format($d->received_payment) }} </td>
+                        <td class=""> {{ $d->month_year }} </td>
+                        <td class="text-right"> {{ number_format($d->total_payment) }} </td>
+                        <td class="text-right"> {{ number_format($d->total_received) }} </td>
+                        <td class="text-right"> {{ number_format($d->total_pending) }} </td>
                     </tr>
                     @endforeach
                     <tr>
                         <th class=""> Total </th>
-                        <th class=""> </th>
-                        <th class="text-right"> {{ number_format($net_total) }} </th>
-                        <th class="text-right"> {{ number_format($rec_total) }} </th>
+                        <th class="text-right"> {{ number_format($total_payment) }} </th>
+                        <th class="text-right"> {{ number_format($total_received) }} </th>
+                        <th class="text-right"> {{ number_format($total_pending) }} </th>
                     </tr>
                 </tbody>
-                @else
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Sr</th>
-                        <th>Party</th>
-                        <th class="text-right">Pieces</th>
-                        <th class="text-right">Meters</th>
-                        <th class="text-right">Net Amt</th>
-                        <th>Agent</th>
-                        <th>Invoice</th>
-                        <th class="text-right">Gross Amt</th>
-                        <th>Transport</th>
-                        <th>City</th>
-                        <th>L.R.No.</th>
-                        <th>Purchase Party</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($data as $d)
-                    @php
-                        $total_pieces += floatval($d->tot_pieces);
-                        $total_meters += floatval($d->tot_meters);
-                        $net_total += floatval($d->total);
-                        if ($d->sign_change == '+') {
-                            $gross_amount = (floatval($d->total) - floatval($d->change_in_amount));
-                        } else {
-                            $gross_amount = (floatval($d->total) + floatval($d->change_in_amount));
-                        }
-                        $gross_total += $gross_amount;
-                    @endphp
-                    <tr>
-                        <td class=""> {{ $d->select_date }} </td>
-                        <td class=""> {{ $d->sale_bill_id }} </td>
-                        <td class=""> {{ $d->customer_name }} </td>
-                        <td class="text-right"> {{ $d->tot_pieces }} </td>
-                        <td class="text-right"> {{ $d->tot_meters }} </td>
-                        <td class="text-right"> {{ number_format($d->total) }} </td>
-                        <td class=""> {{ $d->agent_name }} </td>
-                        <td class=""> {{ $d->supplier_invoice_no }} </td>
-                        <td class="text-right"> {{ number_format($gross_amount) }} </td>
-                        <td class=""> {{ $d->transport_name }} </td>
-                        <td class=""> {{ $d->city_name }} </td>
-                        <td class=""> {{ $d->lr_mr_no }} </td>
-                        <td class=""> {{ $d->supplier_name }} </td>
-                    </tr>
-                    @endforeach
-                    <tr>
-                        <th class=""> Total </th>
-                        <th class=""> </th>
-                        <th class=""> </th>
-                        <th class="text-right"> {{ $total_pieces }} </th>
-                        <th class="text-right"> {{ $total_meters }} </th>
-                        <th class="text-right"> {{ number_format($net_total) }} </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                        <th class="text-right"> {{ number_format($gross_total) }} </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                    </tr>
-                </tbody>
-                @endif
             </table>
         </article>
     </section>
