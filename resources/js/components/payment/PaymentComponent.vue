@@ -38,6 +38,7 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
+                                            <th></th>
 				                            <th>IUID</th>
 				                            <th>OUID</th>
 				                            <th>Ref. ID</th>
@@ -203,6 +204,7 @@
                     order: [[ 0, "desc" ]],
                     columns: [
                         { data: 'id' },
+                        { data: 'sign', orderable: false},
                         { data: 'iuid' },
                         { data: 'ouid' },
                         { data: 'reference_id' },

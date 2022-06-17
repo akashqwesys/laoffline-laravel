@@ -743,7 +743,7 @@ class PaymentsController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('payments.id', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.customer_commission_status', 'payments.done_outward', 'payments.reciept_mode',DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.customer_commission_status', 'payments.done_outward', 'payments.reciept_mode',DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -781,6 +781,11 @@ class PaymentsController extends Controller
 
             $action = '';
             $id = $record->payment_id;
+            if ($record->reciept_mode == 'fullreturn') {
+                $sign = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-send"></em></a>';
+            } else {
+                $sign = '';
+            }
             $iuid = $record->iuid;
             $ouid = '';
             $ref_id = $record->reference_id;
@@ -833,6 +838,7 @@ class PaymentsController extends Controller
 
             $data_arr[] = array(
                 "id" => $id,
+                "sign" => $sign,
                 "iuid" => $iuid,
                 "ouid" => $ouid,
                 "reference_id" => $ref_id,
