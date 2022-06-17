@@ -413,22 +413,23 @@
 				                            <th>Supplier Invoice No</th>
 				                            <th>Date</th>
 				                            <th>Supplier</th>
+                                            <th>Pending</th>
                                             <th>Bill Amount</th>
                                             <th>Overdue</th>
 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="itm in items" :key="itm.sallbillid" class="text-center">
+                                        <tr v-for="itm in items" :key="itm.sallbillid" :class="itm.overdue > 90 ? 'text-danger' : ''" class="text-center">
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sallbillid" :value="{'id':itm.sallbillid, 'fid': itm.financialyear.id}"  required></td>
 				                            <td>{{ itm.sallbillid}}</td>
 				                            <td>{{ itm.financialyear.name }}</td>
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
 				                            <td>{{ itm.supplier }}</td>
+                                            <td>{{ itm.pending }}</td>
                                             <td>{{ itm.amount }}</td>
-                                            <td :class="itm.overdue > 90 ? 'text-danger' : ''">{{ itm.overdue }}</td>
-
+                                            <td>{{ itm.overdue }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -487,17 +488,17 @@
                         amount: '',
                         adjustamount: '',
                         status: {status: 'Complete', code: '1'},
-                        discount: '',
-                        discountamount: '',
-                        goodreturn: '',
-                        ratedifference: '',
-                        bankcommission: '',
-                        vatav: '',
-                        agentcommission: '',
-                        claim: '',
-                        short: '',
-                        interest: '',
-                        remark: '',
+                        discount: 0,
+                        discountamount: 0,
+                        goodreturn: 0,
+                        ratedifference: 0,
+                        bankcommission: 0,
+                        vatav: 0,
+                        agentcommission: 0,
+                        claim: 0,
+                        short: 0,
+                        interest: 0,
+                        remark: 0,
                 }],
                 salebilladjust : [],
                 chequeimage: [],
