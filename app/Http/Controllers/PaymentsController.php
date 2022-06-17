@@ -1250,7 +1250,7 @@ class PaymentsController extends Controller
                     $paymentDetail->amount = $salebill->amount ?? 0;
                     $paymentDetail->adjust_amount = 0;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
-                    $paymentDetail->remark = $salebill->remark;
+                    $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->rate_difference = 0;
                     $paymentDetail->save();
                     $tot_discount += 0;
