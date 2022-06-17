@@ -502,17 +502,16 @@ class InvoiceController extends Controller
                 $add_in = ' or "p"."supplier_id" in (' . implode(',', $link_companies) . ')';
             }
             $payment = $payment->whereRaw('("p"."supplier_id" = ' . $main_cmp_id . ' or "p"."customer_id" = ' . $main_cmp_id . ' ' . $add_in . ' )');
-                // ->whereIn('p.supplier_id', $link_companies);
         }
         $payment = $payment->where('p.is_deleted', 0)
             ->where('p.right_of_amount', 0)
-            // ->where('p.receipt_amount', 0)
+            ->where('p.receipt_amount', '<>', 0)
             ->orderBy('p.date', 'asc')
             ->get();
         $data_arr = [];
         if (count($payment)) {
             $payment_ids = collect($payment)->pluck('payment_id')->unique()->toArray();
-            $finan_ids = collect($payment)->pluck('payment_id')->unique()->toArray();
+            $finan_ids = collect($payment)->pluck('financial_year_id')->unique()->toArray();
 
             $commission = DB::table('commissions as c')
                 ->join('commission_details as cd', 'c.id', '=', 'cd.c_increment_id')
