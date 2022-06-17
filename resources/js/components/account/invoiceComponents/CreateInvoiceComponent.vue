@@ -178,6 +178,7 @@
                 if (this.company) {
                     axios.get('/account/commission/invoice/get-payments?company='+this.company.id+'&type='+this.company.company_type)
                     .then(response => {
+                        this.paymentData = [];
                         var data = response.data;
                         if (data.length > 0) {
                             data.forEach((k, i) => {
