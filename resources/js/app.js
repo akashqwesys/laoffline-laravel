@@ -135,7 +135,7 @@ import ReportsListComponent from './components/reports/ReportsListComponent.vue'
 import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
 import ConsolidateMonthlySalesComponent from './components/reports/ConsolidateMonthlySalesComponent.vue';
 import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
-
+import CommissionRegisterComponent from './components/reports/CommissionRegisterComponent.vue'
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -410,6 +410,7 @@ const routes = [
             { path: 'sales-register-report', component: SalesRegisterComponent },
             { path: 'consolidate-monthly-sales-report', component: ConsolidateMonthlySalesComponent },
             { path: 'payment-register-report', component: PaymentRegisterComponent },
+            { path: 'commission-register-report', component: CommissionRegisterComponent },
         ]
     },
 ];
@@ -523,5 +524,6 @@ createApp({
         SalesRegisterComponent,
         ConsolidateMonthlySalesComponent,
         PaymentRegisterComponent,
+        CommissionRegisterComponent,
     }
 }).use(router).mount('#app');

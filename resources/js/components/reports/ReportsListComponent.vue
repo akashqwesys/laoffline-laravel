@@ -54,7 +54,7 @@
                                             </tr>
                                             <tr>
                                                 <td>5</td>
-                                                <td><a target="_blank" href="/commission_report">Commission Register</a></td>
+                                                <td><a target="_blank" href="/reports/commission-register-report">Commission Register</a></td>
                                             </tr>
                                             <tr>
                                                 <td>6</td>

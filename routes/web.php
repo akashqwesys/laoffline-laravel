@@ -738,6 +738,7 @@ Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:acc
     Route::get('/view-commission/{id}', [App\Http\Controllers\CommissionController::class, 'viewCommission']);
     Route::get('/getbasicdata', [App\Http\Controllers\CommissionController::class, 'getBasicData']);
     Route::get('/list-data', [App\Http\Controllers\CommissionController::class, 'listData'])->name('list-data');
+    Route::get('/getReferenceForSaleBill', [App\Http\Controllers\CommissionController::class, 'getReferenceForSaleBill']);
     Route::get('/fetch-commission/{id}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
 });
 
@@ -757,14 +758,15 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/', [App\Http\Controllers\Reports\SalesReportController::class, 'index']);
     // Dropdown route start
     Route::get('/list-cities', [App\Http\Controllers\Reports\SalesReportController::class, 'listCities']);
+    Route::get('/list-agents', [App\Http\Controllers\Reports\CommissionReportController::class, 'listAgents']);
     // Dropdown route end
     Route::get('/sales-register-report', [App\Http\Controllers\Reports\SalesReportController::class, 'salesRegister']);
     Route::post('/list-sales-register-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSalesRegisterData']);
     Route::get('/consolidate-monthly-sales-report', [App\Http\Controllers\Reports\SalesReportController::class, 'consolidateMonthlySales']);
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
-    
-
+    Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
+    Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
 });
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

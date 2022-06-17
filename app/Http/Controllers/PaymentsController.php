@@ -1294,20 +1294,16 @@ class PaymentsController extends Controller
                     $paymentDetail->remark = isset($salebill->remark) ? intval($salebill->remark) : 0;
                     $paymentDetail->save();
 
-                    $tot_discount += $paymentDetail->discountamount;
-					$tot_vatav += $paymentDetail->vatav;
-					$tot_agent_commission += $paymentDetail->agentcommission;
-					$tot_bank_cpmmission += $paymentDetail->bankcommission;
-					$tot_claim += $paymentDetail->claim;
-					$tot_good_returns += $paymentDetail->goodreturn;
-					$tot_short += $paymentDetail->short;
-					$tot_interest += $paymentDetail->interest;
-					$tot_rate_difference += $paymentDetail->ratedifference;
-					$tot_adjust_amount += $paymentDetail->adjustamount;
+                    $vatav = isset($salebill->vatav) ? intval($salebill->vatav) : 0;
+                    $agentcommission = isset($salebill->agentcommission) ? intval($salebill->agentcommission) : 0;
+                    $claim = isset($salebill->claim) ? intval($salebill->claim) : 0;
+                    $bankcommission = isset($salebill->bankcommission) ? intval($salebill->bankcommission) : 0;
+                    $short = isset($salebill->short) ? intval($salebill->short) : 0;
+                    $interest = isset($salebill->interest) ? intval($salebill->interest) : 0;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
                     $bill->payment_status = $salebill->status->code;
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount;
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount + (int)$salebill->discountamount + (int)$bankcommission + (int)$agentcommission + (int)$vatav + (int)$claim + (int)$short - (int)$interest;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();

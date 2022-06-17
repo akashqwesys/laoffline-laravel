@@ -1254,7 +1254,7 @@
                     claim = 0;
                 }
 
-                let discount_amount = parseInt(discount) * parseInt(amount) / 100 ;
+                let discount_amount = Math.round(parseInt(discount) * parseInt(amount) / 100) ;
                 this.salebills[index-1].discountamount = discount_amount;
 
                 let diff = parseInt(amount) - (parseInt(ajdust_amount) + parseInt(discount_amount) + parseInt(goodreturn) + parseInt(bankcommossion) + parseInt(vatav) + parseInt(agentComm) + parseInt(short) - parseInt(interest) + parseInt(claim));
@@ -1313,7 +1313,7 @@
                         let newadjamount = this.salebills[index-1].adjustamount;
                         diff = amount - newadjamount;
                         discount = diff / amount * 100;
-                        this.salebills[index-1].discountamount = diff;
+                        this.salebills[index-1].discountamount = Math.round(diff);
                         this.salebills[index-1].discount = discount;   
                     })
                 }
@@ -1321,7 +1321,7 @@
                 if (parseInt(amount) > parseInt(adjamount)) {
                     diff = amount - adjamount;
                     discount = diff / amount * 100;
-                        this.salebills[index-1].discountamount = diff;
+                        this.salebills[index-1].discountamount = Math.round(diff);
                         this.salebills[index-1].discount = discount;
                 } else if (parseInt(amount) == parseInt(adjamount)) {
                     setTimeout(() => {

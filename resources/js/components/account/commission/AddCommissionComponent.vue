@@ -507,9 +507,10 @@
                     $('#error-validate-reference-div').text('');
                     $('#overlay').show();
                     $(".new").addClass("d-none");
-                    axios.get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
+                    axios.get('/commission/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
                     .then(response => {
                         this.old_reference_data = response.data;
+                        
                         $("#show-references").removeClass('d-none');
                         $('#show-references').slideDown();
                         setTimeout(() => {

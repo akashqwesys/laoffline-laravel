@@ -34,42 +34,55 @@
                                             <tr>
                                                 <th width="15%">Start Date</th>
                                                 <th width="15%">End Date</th>
-                                                <th width="10%">Mode</th>
+                                                <th width="8%">Mode</th>
                                                 <th width="15%">Account</th>
                                                 <th width="15%">Company</th>
-                                                <th width="10%">Sorting</th>
-                                                <th width="10%">Hide</th>
-                                                <th width="10%">Action</th>
+                                                <th width="12%">Sorting</th>
+                                                <th width="5%">Hide</th>
+                                                <th width="15%">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>
+                                                <td width="15%">
                                                     <input type="date" v-model="start_date" id="start_date"
                                                         class="form-control" autocomplete="off"
                                                         onfocus="this.showPicker();" :max="max_date">
                                                 </td>
-                                                <td>
+                                                <td width="15%">
                                                     <input type="date" v-model="end_date" id="end_date"
                                                         class="form-control" autocomplete="off"
                                                         onfocus="this.showPicker();" :max="max_date">
                                                 </td>
-                                                <td>
-                                                    <multiselect v-model="customer" :options="customer_options"
+                                                <td width="8%">
+                                                    <multiselect v-model="mode" :options="mode_option"
                                                         placeholder="Select One" label="name" track-by="id" id="">
                                                     </multiselect>
                                                 </td>
-                                                <td>
-                                                    <multiselect v-model="supplier" :options="supplier_options"
+                                                <td width="15%">
+                                                    <multiselect v-model="agent" :options="agent_options"
                                                         placeholder="Select One" label="name" track-by="id" id="">
                                                     </multiselect>
                                                 </td>
-                                                <td>
+                                                <td width="15%">
+                                                    <multiselect v-model="company" :options="company_options"
+                                                        placeholder="Select One" label="company_name" track-by="id" id="">
+                                                    </multiselect>
+                                                </td>
+                                                <td width="12%">
                                                     <multiselect v-model="sorting"
                                                         :options="sorting_options" label="name" track-by="id"
                                                         id="sorting"></multiselect>
                                                 </td>
-                                                <td class="">
+                                                <td class="text-center" width="5%" style="vertical-align: middle;">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            v-model="show_detail" id="show_detail" value="1"
+                                                            autocomplete="off"> <!-- onchange="hide_detail()" -->
+                                                        <label class="custom-control-label" for="show_detail"></label>
+                                                    </div>
+                                                </td>
+                                                <td width="15%">
                                                     <button class="btn btn-primary btn-round btn-sm mr-1"
                                                         @click="getData()">Go</button>
                                                     <button class="btn btn-light btn-round btn-sm"
@@ -84,16 +97,17 @@
                                         <thead>
                                             <tr v-if="detailed_table == true">
                                                 <th>Id</th>
-                                                <th>Supplier</th>
-                                                <th>Customer</th>
+                                                <th>Company</th>
                                                 <th>Date</th>
+                                                <th>Account</th>
                                                 <th>Mode</th>
                                                 <th>Dep.Bank</th>
                                                 <th>Chq.Date</th>
                                                 <th>Chq/DD No</th>
                                                 <th>Chq/DD Bank</th>
-                                                <th>Rec.Amt</th>
-                                                <th>Tot.Amt</th>
+                                                <th>Amount</th>
+                                                <th>TDS</th>
+                                                <th>S.T</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -130,14 +144,17 @@
         },
         data() {
             return {
-                customer_options: [],
-                supplier_options: [],
-                sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'}, {id: 3, name: 'Customer A -> Z'}, {id: 4, name: 'Customer Z -> A'}, {id: 5, name: 'Date L -> H'}, {id: 6, name: 'Date H -> L'},],
+                company_options: [],
+                agent_options: [],
+                mode_option: [{id: 0, name: 'All'}, {id: 1, name: 'cash'}, {id: 2, name: 'cheque'},],
+                mode: {id: 0, name: 'All'},
+                sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'}, {id: 3, name: 'Date L -> H'}, {id: 4, name: 'Date H -> L'},],
                 start_date: '',
                 end_date: '',
-                customer: '',
-                supplier: '',
-                sorting: {id: 5, name: 'Date L -> H'},
+                company: '',
+                agent: '',
+                show_detail: 0,
+                sorting: {id: 3, name: 'Date L -> H'},
                 max_date: '2022-01-01',
                 detailed_table: true,
                 export_sheet: 0,
@@ -151,10 +168,13 @@
             const y = String(date.getFullYear());
             this.max_date = [y, m, d].join('-');
 
-            axios.get('/account/sale-bill/list-customers-and-suppliers')
+            axios.get('/commission/list-company')
             .then(response => {
-                this.customer_options = response.data[0];
-                this.supplier_options = response.data[1];
+                this.company_options = response.data;
+            });
+            axios.get('/reports/list-agents')
+            .then(response => {
+                this.agent_options = response.data;
             });
         },
         methods: {
@@ -176,11 +196,13 @@
                 this.getData();
             },
             getData() {
-                axios.post('/reports/list-payment-register-data', {
+                axios.post('/reports/list-commission-register-data', {
                     start_date: this.start_date,
                     end_date: this.end_date,
-                    customer: this.customer,
-                    supplier: this.supplier,
+                    mode: this.mode,
+                    company: this.company,
+                    agent: this.agent,
+                    show_detail: this.show_detail,
                     sorting: this.sorting,
                     export_sheet: this.export_sheet,
                     export_pdf: this.export_pdf
@@ -197,10 +219,25 @@
                             // currency: 'INR',
                             // minimumFractionDigits: 0
                         });
-                        var receipt_amount = 0, total_amount = 0;
+                        var tcommission_payment_amount = 0, ttds = 0, tservice_tax= 0;
                         response.data.forEach((k, i) => {
-                                receipt_amount += parseFloat(k.receipt_amount);
-                                total_amount += parseFloat(k.total_amount);
+                                let commission_payment_amount = k.commission_payment_amount;
+                                if (!commission_payment_amount) {
+                                    commission_payment_amount = 0;
+                                }
+
+                                let tds = k.tds;
+                                if (!tds) {
+                                    tds = 0;
+                                }
+
+                                let service_tax = k.service_tax;
+                                if (!service_tax) {
+                                    service_tax = 0;
+                                }
+                                tcommission_payment_amount += parseFloat(commission_payment_amount);
+                                ttds += parseFloat(tds);
+                                tservice_tax += parseFloat(service_tax);
                         });
                         var html = '';
                         html += `<tr>
@@ -212,36 +249,58 @@
                                     <td align="left"></td>
                                     <td align="left"></td>
                                     <td align="left"></td>
-                                    <td align="left">Total</td>
-                                    <td align="left">${receipt_amount}</td>
-                                    <td align="right">${total_amount}</td>
+                                    <td align="left">Grand Total</td>
+                                    <td align="left">${tcommission_payment_amount}</td>
+                                    <td align="right">${ttds}</td>
+                                    <td align="right">${tservice_tax}</td>
                                 </tr>`;
                         
-                        var cheque_date = '', cheque_dd_no = '', cheque_bank = '';
+                        var cheque_date = '',company = '', bank_name= '', cheque_dd_no = '', cheque_bank = '';
                         response.data.forEach((k, i) => {
-                                receipt_amount += parseFloat(k.receipt_amount);
-                                total_amount += parseFloat(k.total_amount);
-                                if (k.reciept_mode != 'cheque') {
+                                let commission_payment_amount = k.commission_payment_amount;
+                                if (!commission_payment_amount) {
+                                    commission_payment_amount = 0;
+                                }
+
+                                let tds = k.tds;
+                                if (!tds) {
+                                    tds = 0;
+                                }
+
+                                let service_tax = k.service_tax;
+                                if (!service_tax) {
+                                    service_tax = 0;
+                                }
+                                if (k.commission_reciept_mode != 'cheque') {
                                     cheque_date = '-';
                                     cheque_dd_no = '-';
                                     cheque_bank = '-';
+                                    bank_name = '-'
                                 } else {
-                                    cheque_date = k.cheque_date;
-                                    cheque_dd_no = k.cheque_dd_no;
-                                    cheque_bank = k.cheque_bank;
+                                    cheque_date = k.commission_cheque_date;
+                                    cheque_dd_no = k.commission_cheque_dd_no;
+                                    cheque_bank = k.commission_cheque_dd_bank;
+                                    bank_name = k.bank_name;
                                 }
+                                if (k.customer_id = 0) {
+                                    company = k.supplier_name;
+                                } else if (k.supplier_id == 0) {
+                                    company = k.customer_name;
+                                }
+
                                 html += `<tr>
-                                    <td align="left">${k.payment_id}</td>
-                                    <td align="left">${k.supplier_name}</td>
-                                    <td align="left">${k.customer_name}</td>
-                                    <td align="left">${k.date}</td>
-                                    <td align="left">${k.reciept_mode}</td>
-                                    <td align="left">${k.bank_name}</td>
+                                    <td align="left">${k.commission_id}</td>
+                                    <td align="left">${company}</td>
+                                    <td align="left">${k.commission_date}</td>
+                                    <td align="left">${k.agent}</td>
+                                    <td align="left">${k.commission_reciept_mode}</td>
+                                    <td align="left">${bank_name}</td>
                                     <td align="left">${cheque_date}</td>
                                     <td align="left">${cheque_dd_no}</td>
                                     <td align="left">${cheque_bank}</td>
-                                    <td align="left">${k.receipt_amount}</td>
-                                    <td align="right">${k.total_amount}</td>
+                                    <td align="left">${commission_payment_amount}</td>
+                                    <td align="right">${tds}</td>
+                                    <td align="right">${service_tax}</td>
                                     
                                 </tr>`;
                             });
