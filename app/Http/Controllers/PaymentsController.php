@@ -782,7 +782,7 @@ class PaymentsController extends Controller
             $action = '';
             $id = $record->payment_id;
             if ($record->reciept_mode == 'fullreturn') {
-                $sign = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-send"></em></a>';
+                $sign = '<em class="icon ni ni-alert-fill"></em>';
             } else {
                 $sign = '';
             }
@@ -957,7 +957,7 @@ class PaymentsController extends Controller
             $status_c = new \stdClass;
             $status_c->code = 1;
             $status_c->status = 'Complete';
-            $salebill = array('id' => $salebills->sale_bill_id, 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c);
+            $salebill = array('id' => $salebills->sale_bill_id, 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
             array_push($salebill_data, $salebill);
         }
         $data['salebill'] = $salebill_data;
@@ -1342,11 +1342,7 @@ class PaymentsController extends Controller
         $payment1->save();
 
         if ($paymentData->recipt_mode == 'fullreturn') {
-            if ($paymentData->goodreturn != 0) {
-                $color_flag_id = 3;
-            } else {
-                $color_flag_id = 1;
-            }
+            $color_flag_id = 1;
         } else if($paymentData->recipt_mode == 'partreturn') {
             $color_flag_id = 1;
         } else {
@@ -1412,9 +1408,9 @@ class PaymentsController extends Controller
             $status_c->status = 'Complete';
             $overdue = floor((time() - strtotime($salebills->select_date)) / (60 * 60 * 24));
             if ($salebills->pending_payment != 0){
-                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->pending_payment, 'adjustamount' => $salebills->pending_payment, 'status' => $status_c, 'overdue' => $overdue);
+                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->pending_payment, 'adjustamount' => $salebills->pending_payment, 'status' => $status_c, 'overdue' => $overdue, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
             } else {
-                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'overdue' => $overdue);
+                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'overdue' => $overdue, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
             }
             array_push($salebill_data, $salebill);
 
@@ -1529,12 +1525,23 @@ class PaymentsController extends Controller
                         ->orderBy('sale_bill_id', 'desc')
                         ->get();
         foreach($salebills2 as $bills){
+            if ($bills->received_payment != 0){
+                $pendingpayment = $bills->total - $bills->received_payment;
+            } else {
+                $pendingpayment = $bills->total;
+            }
+            $bill_date = date('d-m-Y', strtotime($bills->select_date));
             $financialyear = FinancialYear::where('id', $bills->financial_year_id)->first();
             $overdue = floor((time() - strtotime($bills->select_date)) / (60 * 60 * 24));
-            $salebill2 = array('sallbillid' => $bills->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bills->supplier_invoice_no, 'date'=> $bills->select_date, 'supplier' => $seller->company_name, 'amount' => $bills->total, 'overdue' => $overdue);
+            $salebill2 = array('sallbillid' => $bills->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bills->supplier_invoice_no, 'date'=> $bill_date, 'supplier' => $seller->company_name,'pending' => $pendingpayment, 'amount' => $bills->total, 'overdue' => $overdue);
             array_push($salebill_data2, $salebill2);
         }
-
+        usort($salebill_data2, function($a, $b) {
+            if ($a['overdue'] == $b['overdue']) {
+              return 0;
+            }
+            return ($a['overdue'] > $b['overdue']) ? -1 : 1;
+        });
         $data['customer'] = $customer;
         $data['seller'] = $seller;
         $data['salebilldata'] = $salebill_data2;
