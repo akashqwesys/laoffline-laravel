@@ -89,67 +89,54 @@
             </div>
             <table class="" width="100%">
                 @php
-                    $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $i = 0;
+                    
                 @endphp
                 @if ($request->show_detail == 1)
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Party</th>
-                        <th class="text-right">Net Amt</th>
-                        <th class="text-right">Rec. Amt</th>
+                        <th>Supplier</th>
+                        <th class="text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data as $d)
                     @php
-                        $net_total += floatval($d->total);
-                        $rec_total += floatval($d->received_payment);
+                        $total += floatval($d->total);
                     @endphp
                     <tr>
                         <td class=""> {{ ++$i }} </td>
-                        <td class=""> {{ $d->company_name }} </td>
+                        <td class=""> {{ $d->supplier_name }} </td>
                         <td class="text-right"> {{ number_format($d->total) }} </td>
-                        <td class="text-right"> {{ number_format($d->received_payment) }} </td>
                     </tr>
                     @endforeach
                     <tr>
-                        <th class=""> Total </th>
                         <th class=""> </th>
-                        <th class="text-right"> {{ number_format($net_total) }} </th>
-                        <th class="text-right"> {{ number_format($rec_total) }} </th>
+                        <th class="text-right"> </th>
+                        <th class="text-right"> {{ number_format($total) }} </th>
                     </tr>
                 </tbody>
                 @else
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Sr</th>
-                        <th>Party</th>
-                        <th class="text-right">Pieces</th>
-                        <th class="text-right">Meters</th>
-                        <th class="text-right">Net Amt</th>
-                        <th>Agent</th>
-                        <th>Invoice</th>
-                        <th class="text-right">Gross Amt</th>
-                        <th>Transport</th>
-                        <th>City</th>
-                        <th>L.R.No.</th>
-                        <th>Purchase Party</th>
+                    <th>Id</th>
+                    <th>Company</th>
+                    <th>Date</th>
+                    <th>Account</th>
+                    <th>Mode</th>
+                    <th>Dep.Bank</th>
+                    <th>Chq.Date</th>
+                    <th>Chq/DD No</th>
+                    <th>Chq/DD Bank</th>
+                    <th>Amount</th>
+                    <th>TDS</th>
+                    <th>S.T</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data as $d)
                     @php
-                        $total_pieces += floatval($d->tot_pieces);
-                        $total_meters += floatval($d->tot_meters);
-                        $net_total += floatval($d->total);
-                        if ($d->sign_change == '+') {
-                            $gross_amount = (floatval($d->total) - floatval($d->change_in_amount));
-                        } else {
-                            $gross_amount = (floatval($d->total) + floatval($d->change_in_amount));
-                        }
-                        $gross_total += $gross_amount;
+                        
                     @endphp
                     <tr>
                         <td class=""> {{ $d->select_date }} </td>

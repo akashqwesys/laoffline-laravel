@@ -93,6 +93,7 @@
                                                         <th>Short</th>
                                                         <th>Interest</th>
                                                         <th>Remark</th>
+                                                        <th></th>
 							        		        </tr>
                                                 </thead>
                                                 <tbody>
@@ -113,6 +114,7 @@
                                                         <td>{{ salebill.short }}</td>
                                                         <td>{{ salebill.interest }}</td>
                                                         <td>{{ salebill.remark }}</td>
+                                                        <td><a :href="'/payments/view-goodreturn/'+ salebill.goodreturndata.goods_return_id">View GR</a></td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot class="total">
@@ -133,7 +135,7 @@
                                                         <td><b>{{ paymentData.tot_short }}</b></td>
                                                         <td><b>{{ paymentData.tot_interest }}</b></td>
                                                         <td></td>
-                                                        
+                                                        <td></td>
                                                     </tr>
                                                 </tfoot>
                                             </table>

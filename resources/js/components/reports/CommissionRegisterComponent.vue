@@ -109,6 +109,11 @@
                                                 <th>TDS</th>
                                                 <th>S.T</th>
                                             </tr>
+                                            <tr v-else>
+                                                <th>Id</th>
+                                                <th>Supplier</th>
+                                                <th>Total</th>
+                                            </tr>
                                         </thead>
                                         <tbody></tbody>
                                     </table>
@@ -191,11 +196,17 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearData() {
-                this.start_date = this.end_date = this.customer = this.supplier = '';
-                this.sorting = {id: 5, name: 'Date L -> H'};
+                this.start_date = this.end_date = this.agent = this.company = '';
+                this.sorting = {id: 3, name: 'Date L -> H'};
+                this.show_detail = 0;
                 this.getData();
             },
             getData() {
+                if (this.show_detail == 1) {
+                    this.detailed_table = false;
+                } else {
+                    this.detailed_table = true;
+                }
                 axios.post('/reports/list-commission-register-data', {
                     start_date: this.start_date,
                     end_date: this.end_date,
@@ -214,13 +225,31 @@
                         // return;
                     }
                     if (response.data.length > 0) {
+                        
                         const toINR = new Intl.NumberFormat('en-IN', {
-                            // style: 'currency',
-                            // currency: 'INR',
-                            // minimumFractionDigits: 0
+                            style: 'currency',
+                            currency: 'INR',
+                            minimumFractionDigits: 0
                         });
-                        var tcommission_payment_amount = 0, ttds = 0, tservice_tax= 0;
-                        response.data.forEach((k, i) => {
+                        
+                        if (this.show_detail == 1) {
+                            var tcommission_payment_amount = 0;
+                            response.data.forEach((k, i) => {
+                                tcommission_payment_amount += k.total; 
+                                html += `<tr>
+                                    <td class=""> ${i+1} </td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.supplier_id}"> ${k.supplier_name} </a> </td>
+                                    <td> ${toINR.format(k.total)} </td>
+                                </tr>`;
+                            });
+                            html += `<tr>
+                                <th></th>
+                                <th class="text-right">Total</th>
+                                <th>${toINR.format(tcommission_payment_amount)}</th>
+                                </tr>`;
+                        } else {
+                            var tcommission_payment_amount = 0, ttds = 0, tservice_tax= 0;
+                            response.data.forEach((k, i) => {
                                 let commission_payment_amount = k.commission_payment_amount;
                                 if (!commission_payment_amount) {
                                     commission_payment_amount = 0;
@@ -305,10 +334,14 @@
                                 </tr>`;
                             });
                             
-                        
+                        }
                         $('#salesRegister tbody').html(html);
                     } else {
-                        $('#salesRegister tbody').html('<tr><td colspan="15" class="text-center">No Records Found</td></tr>');
+                        if (this.show_detail == 1) {
+                            $('#salesRegister tbody').html('<tr><td colspan="4" class="text-center">No Records Found</td></tr>');
+                        } else {
+                            $('#salesRegister tbody').html('<tr><td colspan="15" class="text-center">No Records Found</td></tr>');
+                        }
                     }
                 });
             },

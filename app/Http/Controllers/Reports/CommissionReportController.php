@@ -52,7 +52,14 @@ class CommissionReportController extends Controller
 
     public function listCommissionRegisterData(Request $request)
     {
+        
         $data = DB::table('commissions as c');
+        if ($request->show_detail == 1) {
+            $data = $data->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'c.customer_id', '=', 'cc.id')
+                    ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'c.supplier_id', '=', 'cs.id')
+                    ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, c.supplier_id, c.customer_id, SUM(c.commission_payment_amount) as total')
+                    ->groupBy('c.supplier_id', 'c.customer_id','cc.company_name', 'cs.company_name');
+        } else {
         $data = $data->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'c.customer_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'c.supplier_id', '=', 'cs.id')
                 ->leftJoin(DB::raw('(SELECT "name", "id" FROM agents group by "name", "id") as "agent"'), 'c.commission_account', '=', 'agent.id')
@@ -60,34 +67,57 @@ class CommissionReportController extends Controller
                 ->leftJoin(DB::raw('(SELECT "name", "id" FROM bank_details group by "name", "id") as "bank"'), 'c.commission_deposite_bank', '=', 'bank.id')
                 ->leftJoin(DB::raw('(SELECT "name", "id" FROM bank_details group by "name", "id") as "cheque_bank"'), 'c.commission_cheque_dd_bank', '=', 'cheque_bank.id')
                 ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, agent.name as agent ,bank.name as bank_name, cheque_bank.name as commission_cheque_dd_bank, c.customer_id, c.supplier_id, to_char(c.commission_date, \'dd-mm-yyyy\') as commission_date, c.commission_id, c.financial_year_id, c.commission_reciept_mode, to_char(c.commission_cheque_date, \'dd-mm-yyyy\') as commission_cheque_date, c.commission_cheque_dd_no, c.commission_payment_amount, commission_details.tds, commission_details.service_tax');
-        
-        if ($request->customer && $request->customer['id']) {
-            $data = $data->where('p.customer_id', $request->customer['id']);
         }
-        if ($request->supplier && $request->supplier['id']) {
-            $data = $data->where('p.supplier_id', $request->supplier['id']);
+        if ($request->company && $request->company['id']) {
+            $company_details = Company::where('id', $request->company['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->company['id'])->get();
+            if (empty($link_companies)) {
+                $is_linked = LinkCompanies::where('link_companies_id', $request->company['id'])->get();
+                if (!empty($is_linked)) {
+                    $company_details = Company::where('id', $is_linked->company_id)->first();
+                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                }
+            }
+            if ($company_details) {
+                $main_cmp_id = $company_details->company_id;
+                $data = $data->where('c.supplier_id', $main_cmp_id)->OrWhere('c.customer_id', $main_cmp_id);
+                foreach ($link_companies as $row_link_companies) {
+                    $data = $data->OrWhere('c.supplier_id', $row_link_companies->link_companies_id)->OrWhere('c.customer_id', $row_link_companies->link_companies_id);
+                }
+            }
         }
-        
+
         if ($request->start_date && $request->end_date) {
-            $data = $data->whereBetween('p.date', [$request->start_date, $request->end_date]);
+            $data = $data->whereBetween('c.commission_date', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->agent && $request->agent['id']) {
+            $data = $data->where('c.commission_account', $request->agent['id']);
+        }
+
+        if ($request->mode && $request->mode['id']) {
+            $data = $data->where('c.commission_reciept_mode', $request->mode['name']);
         }
 
         if ($request->sorting && $request->sorting['id']) {
             $sorting = $request->sorting['id'];
-            if ($sorting == 5) {
-                $data = $data->orderBy('p.date', 'asc');
-            } else if ($sorting == 6) {
-                $data = $data->orderBy('p.date', 'desc');
-            } else if ($sorting == 1) {
-                $data = $data->orderBy('cs.company_name', 'asc');
-            } else if ($sorting == 2) {
-                $data = $data->orderBy('cs.company_name', 'desc');
-            } else if ($sorting == 3) {
-                $data = $data->orderBy('cc.company_name', 'asc');
-            }  else if ($sorting == 4) {
-                $data = $data->orderBy('cc.company_name', 'desc');
-            }
-            
+            if ($request->show_detail == 1) {
+                if ($sorting == 1) {
+                    $data = $data->orderBy('cs.company_name', 'asc');
+                } else if ($sorting == 2) {
+                    $data = $data->orderBy('cs.company_name', 'desc');
+                }   
+            } else {
+                if ($sorting == 3) {
+                    $data = $data->orderBy('c.commission_date', 'asc');
+                } else if ($sorting == 4) {
+                    $data = $data->orderBy('c.commission_date', 'desc');
+                } else if ($sorting == 1) {
+                    $data = $data->orderBy('cs.company_name', 'asc');
+                } else if ($sorting == 2) {
+                    $data = $data->orderBy('cs.company_name', 'desc');
+                } 
+            }  
         }
         $data = $data->get();
         if ($request->export_pdf == 1) {

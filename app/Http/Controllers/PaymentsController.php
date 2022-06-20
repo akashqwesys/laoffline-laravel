@@ -699,7 +699,7 @@ class PaymentsController extends Controller
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.supplier_id', $sp_id);
         }
-        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+        if (isset($columnName_arr[8]['search']['value']) &&  !empty($columnName_arr[8]['search']['value']) && is_int($columnName_arr[8]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
         }
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
@@ -735,7 +735,7 @@ class PaymentsController extends Controller
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
             $records = $records->whereIn('payments.supplier_id', $sp_id);
         }
-        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value']) && is_int($columnName_arr[8]['search']['value']) ) {
             $records = $records->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
         }
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
@@ -1223,7 +1223,7 @@ class PaymentsController extends Controller
                     $paymentDetail->status = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
-                    $paymentDetail->adjust_amount = (int)$salebill->amount - (int)$salebill->goodreturn;
+                    $paymentDetail->adjust_amount = 0;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
                     $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->rate_difference = 0;
@@ -1272,7 +1272,12 @@ class PaymentsController extends Controller
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
                     $bill->payment_status = 1;
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount;
                     $bill->save();
+
+                    $bill2 = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
+                    $bill2->pending_payment = $bill2->total - $bill2->received_payment;
+                    $bill2->save();
 
                 } else {
                     $paymentDetail = new PaymentDetail();
@@ -1632,12 +1637,19 @@ class PaymentsController extends Controller
             if ($details->status == 1) {
                 $status = array("status" => 'Complete', "code" => 1);
             }
+            if ($details->goods_return != 0) {
+                $goodreturn = GoodsReturn::where('p_increment_id', $details->p_increment_id)->where('sale_bill_id', $details->sr_no)->first(); 
+                $goodreturndata = $goodreturn;
+            } else {
+                $goodreturndata = array();
+            }
             $salebilldata = array('id'=> $details->sr_no, 'fid'=> $details->financial_year_id, 'sup_inv' => $details->supplier_invoice_no,
                         'amount' => $details->amount, 'adjustamount' => $details->adjust_amount, 'status' => $status,
                         'discount' => $details->discount, 'discountamount' => $details->discount_amount,
                         'goodreturn' => $details->goods_return, 'ratedifference' => $details->rate_difference,
                         'bankcommission' => $details->bank_commission, 'vatav' => $details->vatav, 'agentcommission' => $details->agent_commission,
                         'claim' => $details->claim, 'short' => $details->short, 'interest'=> $details->interest, 'remark' => $details->remark);
+            $salebilldata['goodreturndata'] = $goodreturndata;
             array_push($salebill, $salebilldata);
         }
         $data['paymentData'] = $payment;
