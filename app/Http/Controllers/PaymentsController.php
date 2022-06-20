@@ -1143,7 +1143,7 @@ class PaymentsController extends Controller
             $cheque_dd_bank = 0;
         }
 
-        if ($paymentData->recipt_mode == 'partreturn') {
+        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn') {
             $payment_tot_adjust_amount = 0;
         } else {
             $payment_tot_adjust_amount= $paymentData->totaladjustamount;
