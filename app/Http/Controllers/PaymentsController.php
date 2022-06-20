@@ -1231,7 +1231,7 @@ class PaymentsController extends Controller
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
                     $bill->payment_status = 0;
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->amount - (int)$salebill->goodreturn;
+                    $bill->received_payment = (int)$bill->received_payment - (int)$salebill->goodreturn;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
