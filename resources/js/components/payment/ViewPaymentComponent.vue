@@ -114,7 +114,8 @@
                                                         <td>{{ salebill.short }}</td>
                                                         <td>{{ salebill.interest }}</td>
                                                         <td>{{ salebill.remark }}</td>
-                                                        <td><a :href="'/payments/view-goodreturn/'+ salebill.goodreturndata.goods_return_id">View GR</a></td>
+                                                        <td v-if="salebill.goodreturn != 0"><a :href="'/payments/view-goodreturn/'+ salebill.goodreturndata.goods_return_id">View GR</a></td>
+                                                        <td v-else></td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot class="total">
