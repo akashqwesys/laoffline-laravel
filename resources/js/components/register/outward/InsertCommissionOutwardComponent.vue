@@ -180,7 +180,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in commission" :key="itm.commission_id" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.commission_id" :value="itm.commission_id"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.commission_id" :value="{'id':itm.commission_id, 'fid':itm.financial_year_id}"  required></td>
 				                            <td>{{ itm.commission_id }}</td>
                                             <td>{{ itm.iuid }}</td>
                                             <td>{{ itm.reference_id }}</td>
@@ -260,6 +260,8 @@
 
             axios.get('/register/list-agentcourier')
             .then(response => {
+                this.form.fromdate = response.data.today;
+                this.form.todate = response.data.today;
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
@@ -301,6 +303,8 @@
                         self.commission = response.data.commission;
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
+                        self.form.datetime = response.data.todaydate;
+                        self.form.recivetime = response.data.todaydate;
                     }, 500);
 
                 })
@@ -311,7 +315,7 @@
     };
 </script>
 
-<style>
+<style scoped>
 
     input[type=checkbox] + label {
         display: block;

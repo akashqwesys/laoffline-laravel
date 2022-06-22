@@ -11,6 +11,7 @@ class OutwardSaleBill extends Model
 
     protected $fillable = [
         'outward_id',
+        'financial_year_id',
         'sale_bill_id',
         'payment_id',
         'commission_id',

@@ -506,11 +506,13 @@ class RegisterController extends Controller
             }
 
             if ($record->inward_or_outward_via == 'Email') {
-                $iomedium = 'Email';
+                $iomedium = '<em class="icon ni ni-mail" title="Email"></em>';
             } else if($record->inward_or_outward_via == 'Hand') {
-                $iomedium = 'Hand';
+                $iomedium = '<em class="icon ni ni-thumbs-up" title="Hand"></em>';
             } else if($record->inward_or_outward_via == 'Courier') {
-                $iomedium = 'Courier';
+                $iomedium = '<em class="icon ni ni-inbox-out-fill" title="Courier"></em>';
+            } else if($record->inward_or_outward_via == 'Whatsapp') {
+                $iomedium = '<em class="icon ni ni-whatsapp" title="Whatsapp"></em>';
             } else {
                 $iomedium = '';
             }
@@ -582,9 +584,15 @@ class RegisterController extends Controller
             if ($record->system_module_id == 5) {
                 $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 6) {
-                $action = '';
+                $action = '<a href="/payments/view-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 7) {
-                $action = '';
+                $action = '<a href="/commission/view-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 20) {
+                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 19) {
+                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
+                $action = '<a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else {
                 $action = '';
             }
@@ -675,6 +683,7 @@ class RegisterController extends Controller
 
         $data['courier'] = $courier;
         $data['agent'] = $agent;
+        $data['today'] = Carbon::now()->format('Y-m-d');
         return $data;
     }
 
@@ -693,14 +702,15 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->buyer)->first();
         $salebill = SaleBill::join('companies', 'companies.id', '=', 'sale_bills.supplier_id')
                   ->where('sale_bills.company_id', $request->buyer)
-                  ->where('sale_bills.financial_year_id', $user->financial_year_id)
                   ->whereBetween('sale_bills.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
                   ->where('sale_bills.sale_bill_flag', 0)
                   ->whereNot('sale_bills.done_outward', 1)
+                  ->where('is_deleted', 0)
                   ->select('sale_bills.*', 'companies.company_name')
                   ->get();
         $data['salebill'] = $salebill;
         $data['company'] = $company;
+        $data['todaydate'] = Carbon::now()->format('Y-m-d');
         return $data;
     }
     public function searchPayment(Request $request) {
@@ -708,13 +718,14 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->supplier)->first();
         $payment = Payment::join('companies', 'companies.id', '=', 'payments.customer_id')
                   ->where('payments.supplier_id', $request->supplier)
-                  ->where('payments.financial_year_id', $user->financial_year_id)
                   ->whereBetween('payments.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
                   ->whereNot('payments.done_outward', 1)
+                  ->where('is_deleted', 0)
                   ->select('payments.*', 'companies.company_name')
                   ->get();
         $data['payment'] = $payment;
         $data['company'] = $company;
+        $data['todaydate'] = Carbon::now()->format('Y-m-d');
         return $data;
     }
 
@@ -722,12 +733,13 @@ class RegisterController extends Controller
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
         $commission = Commission::where('supplier_id', $request->supplier)
-                  ->where('financial_year_id', $user->financial_year_id)
                   ->whereBetween('created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
                   ->whereNot('done_outward', 1)
+                  ->where('is_deleted', 0)
                   ->get();
         $data['commission'] = $commission;
         $data['company'] = $company;
+        $data['todaydate'] = Carbon::now()->format('Y-m-d');
         return $data;
     }
 
@@ -735,12 +747,13 @@ class RegisterController extends Controller
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
         $commissioninvoice = CommissionInvoice::where('supplier_id', $request->supplier)
-                  ->where('financial_year_id', $user->financial_year_id)
                   ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
                   ->whereNot('done_outward', 1)
+                  ->where('is_deleted', 0)
                   ->get();
         $data['commissioninvoice'] = $commissioninvoice;
         $data['company'] = $company;
+        $data['todaydate'] = Carbon::now()->format('Y-m-d');
         return $data;
     }
 
@@ -748,7 +761,7 @@ class RegisterController extends Controller
         $referncedata = json_decode($request->refenceform);
         $salebilldata = json_decode($request->salebill);
         $reference = $referncedata->refrence;
-
+        
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -947,15 +960,16 @@ class RegisterController extends Controller
             $osb = new OutwardSaleBill();
             $osb->id = $outwardsalebill_id;
             $osb->outward_id = $outward_id;
-            $osb->sale_bill_id = $salebill;
+            $osb->sale_bill_id = $salebill->id;
+            $osb->financial_year_id = $salebill->fid;
             $osb->payment_id = 0;
             $osb->commission_id = 0;
             $osb->commission_invoice_id = 0;
             $osb->is_deleted = 0;
             $osb->save();
 
-            $sb = SaleBill::where('sale_bill_id', $salebill)
-                ->where('financial_year_id', $financialid)
+            $sb = SaleBill::where('sale_bill_id', $salebill->id)
+                ->where('financial_year_id', $salebill->fid)
                 ->first();
             $sb->done_outward = 1;
             $sb->save();
@@ -1162,14 +1176,15 @@ class RegisterController extends Controller
             $osb->id = $outwardpayment_id;
             $osb->outward_id = $outward_id;
             $osb->sale_bill_id = 0;
-            $osb->payment_id = $payment;
+            $osb->payment_id = $payment->id;
+            $osb->financial_year_id = $payment->fid;
             $osb->commission_id = 0;
             $osb->commission_invoice_id = 0;
             $osb->is_deleted = 0;
             $osb->save();
 
-            $sb = Payment::where('payment_id', $payment)
-                ->where('financial_year_id', $financialid)
+            $sb = Payment::where('payment_id', $payment->id)
+                ->where('financial_year_id', $payment->fid)
                 ->first();
             $sb->done_outward = 1;
             $sb->save();
@@ -1377,13 +1392,14 @@ class RegisterController extends Controller
             $osb->outward_id = $outward_id;
             $osb->sale_bill_id = 0;
             $osb->payment_id = 0;
-            $osb->commission_id = $commission;
+            $osb->commission_id = $commission->id;
+            $osb->financial_year_id = $commission->fid;
             $osb->commission_invoice_id = 0;
             $osb->is_deleted = 0;
             $osb->save();
 
-            $sb = Commission::where('commission_id', $commission)
-                ->where('financial_year_id', $financialid)
+            $sb = Commission::where('commission_id', $commission->id)
+                ->where('financial_year_id', $commission->fid)
                 ->first();
             $sb->done_outward = 1;
             $sb->save();
@@ -1603,12 +1619,13 @@ class RegisterController extends Controller
             $osb->sale_bill_id = 0;
             $osb->payment_id = 0;
             $osb->commission_id = 0;
-            $osb->commission_invoice_id = $invoice;
+            $osb->commission_invoice_id = $invoice->id;
+            $osb->financial_year_id = $invoice->fid;
             $osb->is_deleted = 0;
             $osb->save();
 
-            $sb = CommissionInvoice::where('id', $invoice)
-                ->where('financial_year_id', $financialid)
+            $sb = CommissionInvoice::where('id', $invoice->id)
+                ->where('financial_year_id', $invoice->fid)
                 ->first();
             $sb->done_outward = 1;
             $sb->save();
@@ -1883,7 +1900,7 @@ class RegisterController extends Controller
                             ->first();
                 $salebilldetail = DB::table('sale_bills')
                                 ->where('sale_bill_id', $salebill->sale_bill_id)
-                                ->where('financial_year_id', $user->financial_year_id)
+                                ->where('financial_year_id', $salebill->financial_year_id)
                                 ->where('is_deleted', 0)
                                 ->first();
                 $supplier = Company::where('id', $salebilldetail->supplier_id)->first();
@@ -1895,7 +1912,7 @@ class RegisterController extends Controller
             } else if ($type == 2) {
                 $paymentDetail = DB::table('payments')
                                 ->where('payment_id', $salebill->payment_id)
-                                ->where('financial_year_id', $user->financial_year_id)
+                                ->where('financial_year_id', $salebill->financial_year_id)
                                 ->where('is_deleted', 0)
                                 ->first();
                 $customer = Company::where('id', $paymentDetail->receipt_from)->first();
@@ -1906,7 +1923,7 @@ class RegisterController extends Controller
             } else if ($type == 3) {
                 $commissionDetail = DB::table('commissions')
                                 ->where('commission_id', $salebill->commission_id)
-                                ->where('financial_year_id', $user->financial_year_id)
+                                ->where('financial_year_id', $salebill->financial_year_id)
                                 ->where('is_deleted', 0)
                                 ->first();
                 $agent = Agent::where('id', $commissionDetail->commission_account)->first();
@@ -1922,12 +1939,25 @@ class RegisterController extends Controller
                 array_push($salebilldata, $salebill);
 
             } else if ($type == 4) {
-
+                $invoicedetail = DB::table('commission_invoices')
+                                ->where('id', $salebill->commission_invoice_id)
+                                ->where('financial_year_id', $salebill->financial_year_id)
+                                ->where('is_deleted', 0)
+                                ->first();
+                $customer = Company::where('id', $invoicedetail->supplier_id)->first();
+                $salebill['invoicedetail'] = $invoicedetail;
+                $salebill['billdate'] = date('d-m-Y', strtotime($invoicedetail->bill_date));
+                $salebill['date_add'] = date('d-m-Y H:i:s',strtotime($invoicedetail->created_at));  
+                $salebill['company_name'] = $customer->company_name;
+                array_push($salebilldata, $salebill);
             }
 
         }
-
-        $courier = TransportDetails::where('id', $outward->courier_name)->first();
+        $courier = '';
+        if (!empty($outward->courier_name)) {
+            $courier = TransportDetails::where('id', $outward->courier_name)->first();
+        }
+        
         $agent = Agent::where('id', $outward->courier_agent)->first();
         $data['salebill'] = $salebilldata;
         $data['outward'] = $outward;

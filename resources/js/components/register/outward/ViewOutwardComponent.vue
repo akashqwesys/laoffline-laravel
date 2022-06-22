@@ -78,6 +78,9 @@
                                                 </th>
                                             </tr>
                                             <tr>
+									            <th class="text-left">MS</th>
+								            </tr>
+                                            <tr>
 									            <th class="text-center">{{ Outward.company }}</th>
 								            </tr>
 											<tr>
@@ -294,20 +297,17 @@
 							    <table class="table table-striped m-b-none" id="div_table">
 								    <tbody>
                                         <tr>
-                                            <td><b>Commssion Id</b></td>
-                                            <td><b>Date</b></td>
-                                            <td><b>Cheque No</b></td>
-        									<td><b>Amount</b></td>
-		        							<td><b>Bank</b></td>
-                                            <td><b>Account Name</b></td>
+                                            <td><b>Invoice No</b></td>
+                                            <td><b>Bill No</b></td>
+                                            <td><b>Date Added</b></td>
+        									<td><b>Bill Date</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.commissionDetail.commission_id }}</td>
-                                            <td>{{ salebill.commissionDetail.commission_date}}</td>
-                                            <td>{{ salebill.commissionDetail.cheque_dd_no}}</td>
-        									<td>{{ salebill.commissionDetail.commission_payment_amount }}</td>
-		        							<td>{{ salebill.bank }}</td>
-                                            <td>{{ salebill.account }}</td>
+                                            <td>{{ salebill.invoicedetail.id }}</td>
+                                            <td>{{ salebill.invoicedetail.bill_no}}</td>
+                                            <td>{{ salebill.date_add }}</td>
+        									<td>{{ salebill.billdate}}</td>
+		        							
 				        				</tr>
                                         
     						        </tbody>
@@ -363,7 +363,7 @@
                         let total = 0;
                         this.Outward = gData.outward;
                         this.salebills = gData.salebill;
-                        this.agent = gData.agent.name
+                        this.agent = gData.outward.courier_agent.name
                         
                         this.outwardtype = gData.outward_type;
                         if (this.outwardtype == 1) {

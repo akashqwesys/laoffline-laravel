@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('outward_sale_bills', function (Blueprint $table) {
             $table->id();
             $table->integer('outward_id')->default(0);
+            $table->integer('financial_year_id')->default(0);
             $table->integer('sale_bill_id')->default(0);
             $table->integer('payment_id')->default(0);
             $table->integer('commission_id')->default(0);

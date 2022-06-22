@@ -223,7 +223,7 @@
 
                     if (pieces_meter == 1) {
                         amount = meter * value1.rate;
-                    } else if (pieces_meter == 2) {
+                    } else if (pieces_meter == 2 || pieces_meter == 0) {
                         amount = pieces * value1.rate;
                     }
                     setTimeout(() => {
@@ -253,7 +253,7 @@
                 let amount = 0;
                 if (pieces_meter  == 1) {
                     amount = meter * rate;
-                } else if (pieces_meter == 2) {
+                } else if (pieces_meter == 2 || pieces_meter == 0) {
                     amount = pieces * rate;
                 }
                 

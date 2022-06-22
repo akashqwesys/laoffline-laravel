@@ -172,7 +172,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in commissioninvoice" :key="itm.id" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.id" :value="itm.id"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.id" :value="{'id':itm.id, 'fid':itm.financial_year_id}"  required></td>
 				                            <td>{{ itm.bill_no }}</td>
                                             <td>{{ itm.created_at }}</td>
                                             <td>{{ itm.bill_date }}</td>
@@ -243,13 +243,16 @@
             }
         },
         created() {
+
+            
             axios.get('/register/list-suppliers')
             .then(response => {
                 this.supplier = response.data;
             });
-
+            
             axios.get('/register/list-agentcourier')
             .then(response => {
+                this.form.date = response.data.today;
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
@@ -290,6 +293,8 @@
                         self.commissioninvoice = response.data.commissioninvoice;
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
+                        self.form.datetime = response.data.todaydate;
+                        self.form.recivetime = response.data.todaydate;
                     }, 500);
 
                 })
@@ -300,7 +305,7 @@
     };
 </script>
 
-<style>
+<style scoped>
 
     input[type=checkbox] + label {
         display: block;

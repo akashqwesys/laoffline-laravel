@@ -71,8 +71,8 @@
         },
         data() {
             return {
-                create_inward: 'register/create-inward',
-                create_outward: 'register/create-outward',
+                create_inward: '/register/create-inward',
+                create_outward: '/register/create-outward',
             }
         },
         methods: {

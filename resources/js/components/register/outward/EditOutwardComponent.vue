@@ -222,11 +222,14 @@
                 } else {
                     this.form.companyid = gData.outward.supplier_id;
                 }
+               
                 this.form.company = gData.outward.company;
                 if (gData.outward.type_of_outward == 'Hand') {
                     this.form.referncevia = { name:'Hand' };
+                    $(".courrier").addClass("d-none");
                 } else {
                     this.form.referncevia = { name:'Courier'};
+                    $(".courrier").removeClass("d-none");
                 }
                 this.form.courrier = gData.outward.courier;
                 this.form.reciptno = gData.outward.courier_receipt_no;

@@ -166,7 +166,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in salebill" :key="itm.sale_bill_id" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sale_bill_id" :value="itm.sale_bill_id"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.sale_bill_id" :value="{'id' :itm.sale_bill_id, 'fid':itm.financial_year_id}"  required></td>
 				                            <td>{{ itm.sale_bill_id }}</td>
                                             <td>{{ itm.iuid }}</td>
                                             <td>{{ itm.general_ref_id }}</td>
@@ -246,6 +246,8 @@
             });
             axios.get('/register/list-agentcourier')
             .then(response => {
+                this.form.fromdate = response.data.today;
+                this.form.todate = response.data.today;
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
@@ -287,6 +289,8 @@
                         self.salebill = response.data.salebill;
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
+                        self.form.datetime = response.data.todaydate;
+                        self.form.recivetime = response.data.todaydate;
                     }, 500);
 
                 })
@@ -297,7 +301,7 @@
     };
 </script>
 
-<style>
+<style scoped>
 
     input[type=checkbox] + label {
         display: block;

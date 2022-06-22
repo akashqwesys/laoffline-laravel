@@ -129,6 +129,28 @@
                                             <input type="email" class="form-control" id="fv-emailfrom" v-model="form.emailfrom" >
                                             <span v-if="errors.emailfrom" class="invalid">{{errors.emailfrom}}</span>
                                         </div>
+                                        <div id="error-for-emailfrom" class="mt-2 text-danger"></div>
+                                    </div>
+                                </div>
+                                <div class="whatsapp d-none">
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-whatsapp">From Whatsapp No</label>
+                                         </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="fv-whatsapp" v-model="form.whatsapp" >
+                                            <span v-if="errors.whatsapp" class="invalid">{{errors.whatsapp}}</span>
+                                        </div>
+                                        <div id="error-for-fromno" class="mt-2 text-danger"></div>
+                                    </div>
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-reciveno">Reciver No</label>
+                                         </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="fv-reciveno" v-model="form.reciveno" >
+                                            <span v-if="errors.reciveno" class="invalid">{{errors.reciveno}}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 </div>
@@ -379,10 +401,12 @@
                                         </div>
                                         <div class="row gy-4">
                                             <div class="col-md-12">
+                                            <form action="#" class="form-validate" @submit.prevent="register()">    
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
-                                                    <button @click="register()" class="btn btn-primary">Save changes</button>
+                                                    <button type="submit" id="paymentsave" class="btn btn-primary">Save changes</button>
                                                 </div>
+                                            </form>
                                             </div>
                                         </div>
                                     </div>
@@ -473,7 +497,7 @@
                 extraAmount: '',
                 salebilldata :[],
                 isValidate: false,
-                referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'}],
+                referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'},{name: 'Whatsapp'}],
 
                 courier:[],
                 errors: {
@@ -514,6 +538,8 @@
                     courrier: '',
                     reciptno: '',
                     emailfrom: '',
+                    whatsapp: '',
+                    receiveno: '',
                     refrence_type: '',
                     recipt_mode: '',
                     reciptdate: '',
@@ -1463,24 +1489,44 @@
             getRefenceForm(option, id) {
                 let refernceby = option.name;
                 if (refernceby == 'Hand') {
+                    this.form.refrencevia = 'Hand';
                     $(".courier_hand").removeClass("d-none");
                     $(".courier").addClass("d-none");
                     $(".email").addClass("d-none");
+                    $(".whatsapp").addClass("d-none");
                 } else if (refernceby == 'Email') {
+                    this.form.refrencevia = 'Email';
                     $(".email").removeClass("d-none");
                     $(".courier").addClass("d-none");
                     $(".courier_hand").addClass("d-none");
+                    $(".whatsapp").addClass("d-none");
                 } else if(refernceby == 'Courier') {
+                    this.form.refrencevia = 'Courier';
                     $(".courier").removeClass("d-none");
                     $(".email").addClass("d-none");
                     $(".courier_hand").removeClass("d-none");
+                    $(".whatsapp").addClass("d-none");
+                } else if (refernceby == 'Whatsapp') {
+                    this.form.refrencevia = 'Whatsapp';
+                    $(".courier").addClass("d-none");
+                    $(".email").addClass("d-none");
+                    $(".courier_hand").addClass("d-none");
+                    $(".whatsapp").removeClass("d-none");
                 }
+                setTimeout(() => {
+                    if (this.form.refrence == '0') {
+                        this.getOldReferences();
+                    }
+                }, 500);
+               
             },
             register () {
                 $("#error-for-couurier").text("");
                 $("#error-for-reference").text("");
                 $("#error-for-recivedate").text("");
                 $("#error-for-chequedate").text("");
+                $("#error-for-emailfrom").text("");
+                $("#error-for-fromno").text("");
                 var paymentdata = new FormData();
                 if (this.scope == 'edit') {
 
@@ -1502,6 +1548,7 @@
                         $("#error-for-reference").text("Select Reference");
                         this.isValidate = false;
                     } else {
+                        if (this.form.refrence == 1) {
                         if (this.form.refrencevia && this.form.refrencevia.name == 'Courier') {
 
                             if (this.form.courrier == '') {
@@ -1526,7 +1573,27 @@
                                 $("#error-for-recivedate").text("");
                                 this.isValidate = true;
                             }
+                        } else if (this.form.refrencevia.name == 'Email') {
+                            if (this.form.emailfrom == '') {
+                                
+                                $("#error-for-emailfrom").text("Enter Email");
+                                this.isValidate = false;
+                            } else {
+                                $("#error-for-emailfrom").text("");
+                                this.isValidate = true;
+                            }
+                        } else if (this.form.refrencevia && this.form.refrencevia.name == 'Whatsapp') {
+                            if (this.form.recivedate == '') {
+                                $("#error-for-fromno").text("Enter From No");
+                                this.isValidate = false;
+                            } else {
+                                $("#error-for-fromno").text("");
+                                this.isValidate = true;
+                            }
                         }
+                    } else {
+                        this.isValidate = true;
+                    }
                     }
                     if (this.form.reciptdate == '') {
                         $("#error-for-reciptdate").text("Select Receipt Date");
@@ -1569,6 +1636,11 @@
             },
         },
         mounted() {
+            $(document).keypress(function(event) {
+            if (event.key === "Enter") {
+                $("#paymentsave").click();
+            }
+            });
             var main_url = location.href.split('/');
             if (main_url[main_url.length - 2] != 'edit-payment') {
                 var getsalbillforadd_url = '/payments/getsalbillforadd';

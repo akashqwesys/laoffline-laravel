@@ -183,7 +183,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="itm in payment" :key="itm.payment_id" class="text-center">
-                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.payment_id" :value="itm.payment_id"  required></td>
+                                            <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.payment_id" :value="{'id':itm.payment_id, 'fid':itm.financial_year_id}"  required></td>
 				                            <td>{{ itm.payment_id }}</td>
                                             <td>{{ itm.iuid }}</td>
                                             <td>{{ itm.reference_id }}</td>
@@ -258,6 +258,7 @@
             }
         },
         created() {
+            
             axios.get('/register/list-suppliers')
             .then(response => {
                 this.supplier = response.data;
@@ -265,6 +266,8 @@
 
             axios.get('/register/list-agentcourier')
             .then(response => {
+                this.form.fromdate = response.data.today;
+                this.form.todate = response.data.today;
                 this.agents = response.data.agent;
                 this.courier = response.data.courier;
             });
@@ -287,7 +290,7 @@
                 formdata.append("payment", JSON.stringify(this.selected));
                 axios.post('/register/insertpaymentoutward',formdata)
                 .then(function (responce) {
-                    window.location.href = '/register';
+                   window.location.href = '/register';
                 }).catch(function (error) {
                 });
             },
@@ -306,6 +309,8 @@
                         self.payment = response.data.payment;
                         self.form.company = response.data.company.company_name;
                         self.form.companyid = response.data.company.id;
+                        self.form.datetime = response.data.todaydate;
+                        self.form.recivetime = response.data.todaydate;
                     }, 500);
 
                 })
@@ -316,7 +321,7 @@
     };
 </script>
 
-<style>
+<style scoped>
 
     input[type=checkbox] + label {
         display: block;

@@ -365,6 +365,8 @@ class CommissionController extends Controller
             $refence->selection_date = Carbon::now()->format('Y-m-d');
             $refence->from_name = $commissionData->fromname;
             $refence->from_email_id = $commissionData->emailfrom;
+            $refence->from_number = $paymentData->whatsapp;
+            $refence->receiver_number = $paymentData->reciveno;
             $refence->courier_name = $courier_name;
             $refence->weight_of_parcel = $commissionData->weight;
             $refence->courier_receipt_no = $courier_receipt_no;
@@ -740,6 +742,8 @@ class CommissionController extends Controller
                 $refence->selection_date = Carbon::now()->format('Y-m-d');
                 $refence->from_name = $commissionData->fromname;
                 $refence->from_email_id = $commissionData->emailfrom;
+                $refence->from_number = $paymentData->whatsapp;
+                $refence->receiver_number = $paymentData->reciveno;
                 $refence->courier_name = $courier_name;
                 $refence->weight_of_parcel = $commissionData->weight;
                 $refence->courier_receipt_no = $courier_receipt_no;
@@ -749,7 +753,7 @@ class CommissionController extends Controller
 
                 $comboids->general_ref_id = $ref_id;
                 $comboids->inward_or_outward_via = $commissionData->refrencevia->name;
-                $comboids->attachments = serialize($attachments);
+                $comboids->attachments = json_encode($attachments);
                 $comboids->subject = 'For '. $companyName->name .' RS '.$commissionData->commissionamount .'/-';
                 $comboids->save();
 
