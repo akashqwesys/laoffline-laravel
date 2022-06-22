@@ -114,7 +114,7 @@ class ProductSubCategoryController extends Controller
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $records = $records->where(function ($q) use ($columnName_arr) {
-                $q->where('pc1.name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%'); 
+                $q->where('pc1.name', 'ILIKE', '%' . $columnName_arr[3]['search']['value'] . '%');
             });
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
@@ -122,7 +122,7 @@ class ProductSubCategoryController extends Controller
                 ->where('pfg.name', 'ILIKE', '%' . $columnName_arr[4]['search']['value'] . '%');
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $records = $records->whereRaw("company_id @> '\"" . strval($cc_id->id ?? 0) . "\"' company_id @> '" . strval($cc_id->id ?? 0) . "'");
+            $records = $records->whereRaw("product_categories.company_id @> '\"" . strval($cc_id->id ?? 0) . "\"' or product_categories.company_id @> '" . strval($cc_id->id ?? 0) . "'");
         }
         if ($columnName == 'main_category') {
             $columnName = 'product_categories.name';

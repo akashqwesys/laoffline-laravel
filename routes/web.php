@@ -25,6 +25,8 @@ Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'i
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [App\Http\Controllers\DashboardController::class, 'index'])->name('home');
+    Route::get('/common/list-customers-and-suppliers', [App\Http\Controllers\CommonController::class, 'getCustomersAndSuppliers']);
+    Route::get('/common/list-all-companies', [App\Http\Controllers\CommonController::class, 'getAllCompanies']);
 });
 
 Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:access-financial-year']], function () {

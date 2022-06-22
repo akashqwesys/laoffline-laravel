@@ -11,7 +11,7 @@
                                         <h3 class="nk-block-title page-title">Invoice List</h3>
                                     </div>
                                     <div class="col-md-8 text-right">
-                                        
+
 										<button @click="clearallfilter" class="btn btn-dark mx-1">
 				                            Clear All
 				                        </button>
@@ -69,6 +69,19 @@
         data() {
             return {
             }
+        },
+        created () {
+            axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('company_name'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
         },
         methods: {
             showModal: function(id) {
@@ -183,7 +196,7 @@
                     // }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm" placeholder="Invoice Date" max="'+nDate+'"> <input type="search" id="company_name" class="form-control form-control-sm" placeholder="Company" > <input type="search" id="agent_name" class="form-control form-control-sm" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm" placeholder="Amount"> <input type="search" id="commission_status" class="form-control form-control-sm" placeholder="Comm. Status"><input type="search" id="outward_status" class="form-control form-control-sm" placeholder="Outward Status No"><input type="search" id="due_days" class="form-control form-control-sm" placeholder="Due"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm" placeholder="Invoice Date" max="'+nDate+'"> <div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm" placeholder="Amount"> <input type="search" id="commission_status" class="form-control form-control-sm" placeholder="Comm. Status"><input type="search" id="outward_status" class="form-control form-control-sm" placeholder="Outward Status No"><input type="search" id="due_days" class="form-control form-control-sm" placeholder="Due"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -239,6 +252,11 @@
                     draw = 0;
                 }
             });
+            window.addEventListener('load', function () {
+                $('#company_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                    dt_table.clear().draw();
+                });
+            }, false);
 
             $(document).on('click', '.delete-invoice', function(e) {
                 if (confirm('Are you sure you want to delete?')) {

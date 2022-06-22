@@ -45,7 +45,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-first-name">Reference Via</label>
                                                     <div>
-                                                        <multiselect v-model="form.Reference_via" :options="options" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                                        <multiselect v-model="form.Reference_via" :options="options" placeholder="Select one" label="name" track-by="name" @select=""></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -60,21 +60,21 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group code-block">
                                                         <label class="form-label" for="fv-company">Company</label>
-                                                        <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#addCompany" title="Company Inserts"><span class="clipboard-text">Add New</span></button>
+                                                        <!-- <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#addCompany" title="Company Inserts"><span class="clipboard-text">Add New</span></button> -->
                                                         <div>
                                                             <multiselect v-model="form.companyName" :options="company" placeholder="Select one" label="company_name" track-by="id" @select="getFromName"></multiselect>
                                                         </div>
                                                     </div>
                                                 </div>
                                             <div class="col-md-4">
-                                                <div v-if="form.Reference_via.name == 'Hand' || form.Reference_via.name == 'Courier'">
+                                                <div v-if="form.Reference_via && (form.Reference_via.name == 'Hand' || form.Reference_via.name == 'Courier')">
                                                     <input type="checkbox" id="checkbox" v-model="form.markssample" />
                                                     <label for="checkbox">Mark As Sample</label>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div v-if="form.Reference_via.name == 'Call' || form.Reference_via.name == 'Message' || form.Reference_via.name == 'Whatsapp'">
+                                        <div v-if="form.Reference_via && (form.Reference_via.name == 'Call' || form.Reference_via.name == 'Message' || form.Reference_via.name == 'Whatsapp')">
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group code-block">
@@ -106,7 +106,7 @@
                                             </div>
                                         </div>
 
-                                        <div v-else-if="form.Reference_via.name == 'Email'">
+                                        <div v-else-if="form.Reference_via && form.Reference_via.name == 'Email'">
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
@@ -138,7 +138,7 @@
                                             </div>
                                         </div>
 
-                                        <div v-else-if="form.Reference_via.name == 'Hand'">
+                                        <div v-else-if="form.Reference_via && form.Reference_via.name == 'Hand'">
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
@@ -177,7 +177,7 @@
                                             </div>
                                         </div>
 
-                                        <div v-else-if="form.Reference_via.name == 'Courier'">
+                                        <div v-else-if="form.Reference_via && form.Reference_via.name == 'Courier'">
                                             <div class="row gy-4">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
@@ -235,7 +235,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
+                                                    <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary mr-2">Cancel</a>
                                                     <button type="submit" id="save_changes" class="btn btn-primary">Save changes</button>
                                                 </div>
                                             </div>
@@ -279,11 +279,11 @@ export default {
             courier:[],
             fromNames:[],
             options:[
-                { name: 'Call'},
+                // { name: 'Call'},
                 { name: 'Whatsapp'},
-                { name: 'Message'},
+                // { name: 'Message'},
                 { name: 'Email'},
-                { name: 'Letter'},
+                // { name: 'Letter'},
                 { name: 'Courier'},
                 { name: 'Hand'}
             ],
@@ -293,7 +293,7 @@ export default {
             InwardOrOutward: true,
             form: new Form({
                 inward_outward: 1,
-                Reference_via: '',
+                Reference_via: { name: '' },
                 Date_Time:'',
                 companyName:'',
                 markssample:'',
@@ -349,6 +349,11 @@ export default {
                 });
             }
         },
+        /* resetReferenceName: function (event) {
+            if (event && event.name == this.form.Reference_via.name) {
+                this.form.Reference_via.name = '';
+            }
+        }, */
         register() {
             $('#save_changes').attr('disabled', true);
             this.form.post('/reference/create-reference/create')

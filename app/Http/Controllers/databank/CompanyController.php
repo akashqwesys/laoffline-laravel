@@ -250,7 +250,7 @@ class CompanyController extends Controller
                 }
             }
 
-            $name = '<a href="./companies/view-company/'.$id.'">'.$cmp->company_name.'</a>';
+            $name = '<a href="#" class="view-details" data-id="'.$id.'" title="View Company">'.$cmp->company_name.'</a>';
 
             $officeNo = '<ul>
                             <li><b>L: </b> '.$cmp->company_landline.' </li>

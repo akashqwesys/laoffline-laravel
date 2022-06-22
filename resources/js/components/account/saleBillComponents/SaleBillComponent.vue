@@ -13,10 +13,10 @@
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="create_sale_bill" class="dropdown-toggle btn btn-icon btn-primary mr-2"><em class="icon ni ni-plus"></em></a>
-                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner">
                                 <table id="saleBill" class="table table-hover table-bordered">
@@ -71,6 +71,27 @@
             return {
                 create_sale_bill: 'sale-bill/create-sale-bill',
             }
+        },
+        created () {
+            axios.get('/common/list-customers-and-suppliers')
+                .then(response => {
+                    new Autocomplete(document.getElementById('customer_name'), {
+                        threshold: 2,
+                        data: response.data[0],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                    new Autocomplete(document.getElementById('supplier_name'), {
+                        threshold: 2,
+                        data: response.data[1],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
         },
         methods: {
             showModal: function(id) {
@@ -191,7 +212,7 @@
                     }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="sale_bill_filter"><input type="search" id="sale_bill_id" class="form-control form-control-sm" placeholder="Sale Bill ID"><input type="search" id="reference_id" class="form-control form-control-sm" placeholder="Reference ID"><input type="date" id="updated_at" class="form-control form-control-sm" placeholder="Updated At" max="'+nDate+'"><input type="date" id="bill_date" class="form-control form-control-sm" placeholder="Bill Date" max="'+nDate+'"><input type="search" id="customer_name" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"><input type="search" id="supplier_inv_no" class="form-control form-control-sm" placeholder="Supplier Invoice No"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="sale_bill_filter"><input type="search" id="sale_bill_id" class="form-control form-control-sm w-10" placeholder="Sale Bill ID"><input type="search" id="reference_id" class="form-control form-control-sm w-10" placeholder="Reference ID"><input type="date" id="updated_at" class="form-control form-control-sm w-10" placeholder="Updated At" max="'+nDate+'"><input type="date" id="bill_date" class="form-control form-control-sm w-10" placeholder="Bill Date" max="'+nDate+'"><div class="input-group w-20"><input type="text" id="customer_name" class="form-control form-control-sm" placeholder="Customer"></div><div class="input-group w-20"><input type="text" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"></div><input type="search" id="supplier_inv_no" class="form-control form-control-sm w-10" placeholder="Supplier Invoice No"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -233,6 +254,11 @@
                 // Requery the server with the new one-time export settings
                 dt.ajax.reload();
             }
+            window.addEventListener('load', function () {
+                $('#customer_name, #supplier_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                    dt_table.clear().draw();
+                });
+            }, false);
             var draw = 1;
             $(document).on('keyup', '#sale_bill_filter input', function(e) {
                 if ($(this).val() == '') {
@@ -267,6 +293,7 @@
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
             });
+
 
         },
     };

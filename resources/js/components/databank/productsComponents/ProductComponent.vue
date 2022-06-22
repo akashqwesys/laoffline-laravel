@@ -12,10 +12,10 @@
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="create_product_category" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
-                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner">
                                 <table id="product" class="table table-hover table-bordered">
@@ -61,6 +61,19 @@
             return {
                 create_product_category: 'catalog/create-products',
             }
+        },
+        created () {
+            axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('dt_company'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
         },
         methods: {
             edit_data(id){
@@ -144,7 +157,7 @@
                     buttons: buttons
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="product_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name/Catalogue/Brand/Model"><input type="search" id="dt_company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="dt_category" class="form-control form-control-sm" placeholder="Category"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="product_filter"><input type="search" id="dt_name" class="form-control form-control-sm" placeholder="Name/Catalogue/Brand/Model"><div class="input-group" ><input type="text" id="dt_company" class="form-control form-control-sm" placeholder="Company"></div><input type="search" id="dt_category" class="form-control form-control-sm" placeholder="Category"></div>').insertAfter('.dataTables_length');
                 } );
             }
             init_dt_table();
@@ -195,6 +208,11 @@
                     draw = 0;
                 }
             });
+            window.addEventListener('load', function () {
+                $('#dt_company').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                    dt_table.clear().draw();
+                });
+            }, false);
         },
     };
 </script>
