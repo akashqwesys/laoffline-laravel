@@ -73,25 +73,7 @@
             }
         },
         created () {
-            axios.get('/common/list-customers-and-suppliers')
-                .then(response => {
-                    new Autocomplete(document.getElementById('customer_name'), {
-                        threshold: 2,
-                        data: response.data[0],
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                    new Autocomplete(document.getElementById('supplier_name'), {
-                        threshold: 2,
-                        data: response.data[1],
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
+
         },
         methods: {
             showModal: function(id) {
@@ -255,6 +237,25 @@
                 dt.ajax.reload();
             }
             window.addEventListener('load', function () {
+                axios.get('/common/list-customers-and-suppliers')
+                .then(response => {
+                    new Autocomplete(document.getElementById('customer_name'), {
+                        threshold: 2,
+                        data: response.data[0],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                    new Autocomplete(document.getElementById('supplier_name'), {
+                        threshold: 2,
+                        data: response.data[1],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
                 $('#customer_name, #supplier_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
                     dt_table.clear().draw();
                 });
