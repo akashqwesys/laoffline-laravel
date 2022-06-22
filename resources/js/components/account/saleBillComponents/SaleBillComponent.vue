@@ -72,27 +72,7 @@
                 create_sale_bill: 'sale-bill/create-sale-bill',
             }
         },
-        created () {
-            axios.get('/common/list-customers-and-suppliers')
-                .then(response => {
-                    new Autocomplete(document.getElementById('customer_name'), {
-                        threshold: 2,
-                        data: response.data[0],
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                    new Autocomplete(document.getElementById('supplier_name'), {
-                        threshold: 2,
-                        data: response.data[1],
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
-        },
+        created () { },
         methods: {
             showModal: function(id) {
                 window.$('#overlay').show();
@@ -259,6 +239,25 @@
                     dt_table.clear().draw();
                 });
             }, false);
+            axios.get('/common/list-customers-and-suppliers')
+                .then(response => {
+                    new Autocomplete(document.getElementById('customer_name'), {
+                        threshold: 2,
+                        data: response.data[0],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                    new Autocomplete(document.getElementById('supplier_name'), {
+                        threshold: 2,
+                        data: response.data[1],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
             var draw = 1;
             $(document).on('keyup', '#sale_bill_filter input', function(e) {
                 if ($(this).val() == '') {
