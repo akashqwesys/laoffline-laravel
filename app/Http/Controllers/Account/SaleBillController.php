@@ -187,7 +187,7 @@ class SaleBillController extends Controller
             if ($s->done_outward == 0) {
                 $outward_status = '<em class="icon ni ni-cross" title="No"></em>';
             } else {
-                $outward_status = '<a href="' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
+                $outward_status = '<a href="/register/view-outward/' . ($s->outward_id) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             }
 
             $ref_id = '<a href="/reference/view-reference/' . $s->general_ref_id . '" class="" target="_blank">' . $s->general_ref_id . '</a>';
