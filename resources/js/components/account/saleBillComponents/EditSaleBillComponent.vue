@@ -271,6 +271,7 @@
                                                             </div>
                                                         </div>
                                                     </div>&nbsp;
+                                                    <button class="btn btn-sm btn-primary mr-2 hidden" type="button" id="refresh_product_details" @click="getProducts"><em class="icon ni ni-reload"></em></button>
                                                     <button class="btn btn-sm btn-primary hidden" type="button" id="add_product_details" @click="addProductDetailsRow"><em class="icon ni ni-plus"></em></button>
                                                     <button class="btn btn-sm btn-primary hidden" type="button" id="add_fabric_details" @click="addFabricDetailsRow"><em class="icon ni ni-plus"></em></button>
                                                 </div>
@@ -811,7 +812,7 @@
                         this.calculateTotalProducts(0);
                         $('#item_details_div, .dynamic_items').slideDown();
                     }
-                    $('#add_product_details').show();
+                    $('#add_product_details, #refresh_product_details').show();
                 } else if (data.sale_bill.sale_bill_for == 2) {
                     if (data.sale_bill_items.length > 0) {
                         this.fabric_options = data.subCategory;
@@ -1042,7 +1043,7 @@
                                     $('#product_sub_category_section_full').hide();
                                     this.fabric = [];
                                     this.fabric_options = response.data;
-                                    $('#add_product_details, .dynamic_items').hide();
+                                    $('#add_product_details, .dynamic_items, #refresh_product_details').hide();
                                     $('#add_fabric_details, .dynamic_items_fabrics').show();
                                     $('#add_new_fabric').show();
                                     $('#item_details_div').slideDown();
@@ -1189,7 +1190,7 @@
                     this.product = '';
                     if (response.data.length > 0) {
                         this.product_options = response.data;
-                        $('#add_product_details, .dynamic_items').slideDown();
+                        $('#add_product_details, .dynamic_items, #refresh_product_details').slideDown();
                         $('#item_details_div').slideDown();
                     } else {
                         this.product_options = [];
