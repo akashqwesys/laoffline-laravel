@@ -51,7 +51,7 @@ td .ni-sign-inr {
     width: 100%;
 }
 .dataTables_filter {
-    display: flex;
+    display: inline-block;
     margin-bottom: 10px;
 }
 .dataTables_filter input {
@@ -268,4 +268,6 @@ td .ni-sign-inr {
 /* .multiselect--active.multiselect .multiselect__select {
     top: 5px;
 } */
+.w-5 { width: 5% !important; }
 
+.w-10 { width: 10% !important; }

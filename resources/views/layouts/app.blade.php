@@ -182,6 +182,7 @@
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <script src="{{ asset('assets/js/charts/gd-default.js') }}"></script>
     <script src="{{ asset('assets/js/libs/datatable-btns.js') }}"></script>
+    <script src="/assets/js/bootstrap-5-autocomplete/autocomplete.js"></script>
     <script>
         function globalModuleSearch(module_name) {
             var main_search_text = $('#global_search_input').val();

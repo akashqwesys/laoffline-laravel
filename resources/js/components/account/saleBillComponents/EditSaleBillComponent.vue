@@ -92,6 +92,15 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <div class="hidden" id="from_whatsapp_section">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="from_whatsapp">From Whatsapp Number</label>
+                                                                    <div class="form-control-wrap">
+                                                                        <input type="text" v-model="from_whatsapp" id="from_whatsapp" class="form-control">
+                                                                        <div v-if="v$.from_whatsapp.$error" class="invalid mt-1">Enter Valid Whatsapp Number</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                             <div class="hidden" id="delivery_by_section">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="delivery_by">Delivery By</label>
@@ -566,6 +575,7 @@
                 reference_via: { name: '' },
                 new_old_sale_bill: 1,
                 from_email: '',
+                from_whatsapp: '',
                 delivery_by: '',
                 from_name: '',
                 reference_new: true,
@@ -657,6 +667,7 @@
                 product_category: { required },
                 agent: { required },
                 from_email: { /* required */ },
+                from_whatsapp: { /* required */ },
                 delivery_by: { /* required */ },
                 reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
                 from_name: { requiredIf: requiredIf(this.is_from_name_required) },
@@ -669,6 +680,8 @@
             if (this.reference_via) {
                 if (this.reference_via.name == "Email" && this.new_old_sale_bill == 1) {
                     localRules.from_email = { required };
+                } else if (this.reference_via.name == "Whatsapp" && this.new_old_sale_bill == 1) {
+                    localRules.from_whatsapp = { required };
                 } else if ((this.reference_via.name == "Courier" || this.reference_via.name == "Hand") && this.new_old_sale_bill == 1) {
                     localRules.delivery_by = { required };
                 }
@@ -846,7 +859,9 @@
         },
         watch: {
             customer (newValue, oldValue) {
-                this.getCustomerAddress(newValue);
+                if (newValue) {
+                    this.getCustomerAddress(newValue);
+                }
             },
         },
         methods: {
@@ -887,8 +902,8 @@
                 this.is_from_name_required = this.is_reference_via_required = true;
                 this.bill_date = '';
                 // $('#bill_date').attr('disabled', false);
-                this.customer = '';
-                $('#customer').attr('readonly', false);
+                // this.customer = '';
+                // $('#customer').attr('readonly', false);
                 this.supplier = '';
                 this.isSupplierDisabled = false;
                 // $('#transport_date').attr('readonly', false);
@@ -1044,8 +1059,8 @@
                 }
             },
             refUpdateForSaleBill (e) {
-                if (this.reference_via) {
-                    var url = '/account/sale_bill/getRefForSaleBillUpdate?supplier_id='+this.supplier.id+'&ref_via='+this.reference_via.name;
+                if (this.reference_via && this.reference_via.name) {
+                    var url = '/account/sale-bill/getRefForSaleBillUpdate?supplier_id='+this.supplier.id+'&ref_via='+this.reference_via.name;
                     this.getReferenceForSaleBillUpdate(e, url);
                 }
             },
@@ -1081,11 +1096,14 @@
                 if (event) {
                     $('#error-validate-reference-div').text('');
                     if (event.name == 'Email') {
-                        $('#delivery_by_section').hide();
+                        $('#delivery_by_section, #from_whatsapp_section').hide();
                         $('#from_email_section').show();
+                    } else if (event.name == 'Whatsapp') {
+                        $('#from_whatsapp_section').show();
+                        $('#from_email_section, #delivery_by_section').hide();
                     } else {
                         $('#delivery_by_section').show();
-                        $('#from_email_section').hide();
+                        $('#from_email_section, #from_whatsapp_section').hide();
                     }
                     if (this.new_old_sale_bill == 0) {
                         setTimeout(() => {
@@ -1307,6 +1325,7 @@
                     reference_via: this.reference_via,
                     new_old_sale_bill: this.new_old_sale_bill,
                     from_email: this.from_email,
+                    from_whatsapp: this.from_whatsapp,
                     delivery_by: this.delivery_by,
                     reference_new: this.reference_new,
                     reference_id: this.reference_id,

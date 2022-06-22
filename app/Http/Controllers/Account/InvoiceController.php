@@ -115,7 +115,7 @@ class InvoiceController extends Controller
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'ci.supplier_id', '=', 'cs.id')
             ->leftJoin('agents as a', 'ci.agent_id', '=', 'a.id')
             ->join('employees as e', 'ci.generated_by', '=', 'e.id')
-            ->select('ci.id', 'ci.bill_no', 'ci.bill_date', 'ci.final_amount', 'ci.commission_status', 'ci.created_at', 'ci.customer_id', 'ci.supplier_id', 'ci.generated_by', 'ci.financial_year_id', 'ci.done_outward', 'ci.total_payment_received_amount', 'cc.company_name as customer_name', 'cs.company_name as supplier_name',  DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "commission_invoice_id" = "ci"."id" ORDER BY "id" DESC LIMIT 1) as outward_id'), 'a.name as agent_name', DB::raw('(date_part(\'day\', now()) - date_part (\'day\', bill_date)) as due_days'), 'e.firstname')
+            ->select('ci.id', 'ci.bill_no', 'ci.bill_date', 'ci.final_amount', 'ci.commission_status', 'ci.created_at', 'ci.customer_id', 'ci.supplier_id', 'ci.generated_by', 'ci.financial_year_id', 'ci.done_outward', 'ci.total_payment_received_amount', 'cc.company_name as customer_name', 'cs.company_name as supplier_name',  DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "commission_invoice_id" = "ci"."id" ORDER BY "id" DESC LIMIT 1) as outward_id'), 'a.name as agent_name', DB::raw('(date_part(\'day\', now()) - date_part (\'day\', bill_date)) as due_days'), 'e.firstname'/* , DB::raw('(case when ci.commission_status <> 0 then (select commission_id from commissions where financial_year_id = ci.financial_year_id) else 0 end) as commission_id') */)
             ->where('ci.financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $invoice = $invoice->where('ci.bill_no', $columnName_arr[0]['search']['value']);
@@ -193,9 +193,9 @@ class InvoiceController extends Controller
                 $delete_flag = 1;
                 $commission_status = '<em class="icon ni ni-cross" title="None"></em>';
             } else if ($s->commission_status == 1) {
-                $commission_status = '<em class="icon ni ni-check-thick" title="Complete"></em>';
+                $commission_status = '<a href="/commission/view-commission/' . ($s->commission_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Complete"></em></a>';
             } else {
-                $commission_status = '<em class="icon ni ni-check-thick" title="Complete"></em>';
+                $commission_status = '<em class="icon ni ni-more-h" title="Pending"></em>';
             }
             if ($delete_flag == 1) {
                 $action .= ' <a href="javascript:void(0)" data-id="' . $s->id . '" class="btn btn-trigger btn-icon delete-invoice" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a> ';

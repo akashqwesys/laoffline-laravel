@@ -59,6 +59,15 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="hidden" id="from_whatsapp_section">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="from_whatsapp">From Whatsapp Number</label>
+                                                        <div class="form-control-wrap">
+                                                            <input type="text" v-model="from_whatsapp" id="from_whatsapp" class="form-control">
+                                                            <div v-if="v$.from_whatsapp.$error" class="invalid mt-1">Enter Valid Whatsapp Number</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="" id="delivery_by_section">
                                                     <div class="form-group">
                                                         <label class="form-label" for="delivery_by">Delivery By</label>
@@ -534,6 +543,7 @@
                 reference_via: { name: '' },
                 new_old_sale_bill: 1,
                 from_email: '',
+                from_whatsapp: '',
                 delivery_by: '',
                 reference_new: true,
                 reference_id: '',
@@ -618,6 +628,7 @@
                 product_category: { required },
                 agent: { required },
                 from_email: { /* required */ },
+                from_whatsapp: { /* required */ },
                 delivery_by: { /* required */ },
                 reference_via: { requiredIf: requiredIf(this.is_reference_via_required) },
                 supplier_invoice_no: { required },
@@ -630,6 +641,8 @@
             if (this.reference_via) {
                 if (this.reference_via.name == "Email" && this.new_old_sale_bill == 1) {
                     localRules.from_email = { required };
+                } else if (this.reference_via.name == "Whatsapp" && this.new_old_sale_bill == 1) {
+                    localRules.from_whatsapp = { required };
                 } else if ((this.reference_via.name == "Courier" || this.reference_via.name == "Hand") && this.new_old_sale_bill == 1) {
                     localRules.delivery_by = { required };
                 }
@@ -838,11 +851,14 @@
                 if (event) {
                     $('#error-validate-reference-div').text('');
                     if (event.name == 'Email') {
-                        $('#delivery_by_section').hide();
+                        $('#delivery_by_section, #from_whatsapp_section').hide();
                         $('#from_email_section').show();
+                    } else if (event.name == 'Whatsapp') {
+                        $('#from_whatsapp_section').show();
+                        $('#from_email_section, #delivery_by_section').hide();
                     } else {
                         $('#delivery_by_section').show();
-                        $('#from_email_section').hide();
+                        $('#from_email_section, #from_whatsapp_section').hide();
                     }
                     if (this.new_old_sale_bill == 0) {
                         setTimeout(() => {
@@ -1044,6 +1060,7 @@
                     reference_via: this.reference_via,
                     new_old_sale_bill: this.new_old_sale_bill,
                     from_email: this.from_email,
+                    from_whatsapp: this.from_whatsapp,
                     delivery_by: this.delivery_by,
                     reference_new: this.reference_new,
                     reference_id: this.reference_id,
@@ -1071,12 +1088,13 @@
                 formData.append('changeAmount', JSON.stringify(changeAmount));
                 formData.append('final_total', this.final_total);
                 formData.append('extra_attachment', this.extra_attachment);
-
+                $('#submit-form').attr('disabled', true);
                 axios.post('/account/sale-bill/create-sale-bill/create', formData)
                 .then(response => {
                     window.location.href = '/account/sale-bill';
                 })
                 .catch((error) => {
+                    $('#submit-form').attr('disabled', false);
                     /* var validationError = error.response.data.errors;
                     if(validationError) {
                         $('#supplier').focus();
@@ -1086,7 +1104,6 @@
             },
             async submitForm () {
                 const isFormCorrect = await this.v$.$validate();
-                console.log(isFormCorrect);
                 // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
                 if (!isFormCorrect) return;
                 // actually submit form

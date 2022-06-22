@@ -194,7 +194,7 @@ class SaleBillController extends Controller
 
             $payment_id = collect($payment_status_ids)->where('sr_no', $s->sale_bill_id)->values();
             if (count($payment_id)) {
-                $payment_status = '<a href="' . $payment_id[0]->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
+                $payment_status = '<a href="/payments/view-payment/' . $payment_id[0]->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             } else {
                 $payment_status = '<em class="icon ni ni-cross" title="No"></em>';
             }
@@ -333,9 +333,12 @@ class SaleBillController extends Controller
         $general_ref = $this->getReferenceDetails($referenceDetails->sale_bill_via, $referenceDetails->reference_via->name);
         if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
             $ref_via = $referenceDetails->reference_via->name;
-            $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = null;
+            $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = $from_number = null;
             if ($referenceDetails->reference_via->name == "Email") {
                 $from_email_id = $referenceDetails->from_email;
+                $latter_by_id = 0;
+            } else if ($referenceDetails->reference_via->name == "Whatsapp") {
+                $from_number = $referenceDetails->from_whatsapp;
                 $latter_by_id = 0;
             } else if ($referenceDetails->reference_via->name == "Courier") {
                 $latter_by_id = 1;
@@ -381,6 +384,7 @@ class SaleBillController extends Controller
                 'inward_or_outward' => 1,
                 'company_id' => $ref_company_id,
                 'selection_date' => $select_date,
+                'from_number' => $from_number,
                 'from_name' => $from_name,
                 'receiver_email_id' => $receiver_details,
                 'from_email_id' => $from_email_id,
@@ -933,7 +937,7 @@ class SaleBillController extends Controller
                 } else {
                     $empName = "Rec.";
                 }
-                $html .= '<tr><td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="' . $row_general_ref->reference_id . '" id="r-' . $row_general_ref->reference_id . '"><label class="custom-control-label" for="r-' . $row_general_ref->reference_id . '"></label></div></td><td>' . $row_general_ref->reference_id . '</td><td>' . $empName . '</td><td>' . date('Y-m-d', strtotime($row_general_ref->created_at)) . '</td><td>' . date('H:i A', strtotime($row_general_ref->created_at)) . '</td></tr>';
+                $html .= '<tr><td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="' . $row_general_ref->reference_id . '" id="r-' . $row_general_ref->reference_id . '"><label class="custom-control-label" for="r-' . $row_general_ref->reference_id . '"></label></div></td><td>' . $row_general_ref->reference_id . '</td><td>' . $empName . '</td><td>' . date('d-m-Y', strtotime($row_general_ref->created_at)) . '</td><td>' . date('H:i A', strtotime($row_general_ref->created_at)) . '</td></tr>';
             }
             $html .= '<tr><td colspan="5"><div class="input-group"><input type="text" class="form-control" name="sale_bill_ref_search" id="sale_bill_ref_search" placeholder="Enter Reference Number"><span class="input-group-btn"><button type="button" class="btn btn-primary" id="sale_bill_ref_search_btn">Go</button></span></div></td></tr><tr id="sale_bill_ref_msg"></tr>';
             $html .= '</tbody></table></div></div><label class="col-sm-2 control-label"></label></div>';
@@ -1968,7 +1972,7 @@ class SaleBillController extends Controller
             ->where('c.company_type', $request->sale_bill_via)
             ->where('r.financial_year_id', Session::get('user')->financial_year_id)
             ->where('r.inward_or_outward', 1)
-            ->whereRaw("(r.type_of_inward = 'Email' OR r.type_of_inward = 'Courier' OR r.type_of_inward = 'Hand')")
+            ->whereRaw("(r.type_of_inward = 'Email' OR r.type_of_inward = 'Courier' OR r.type_of_inward = 'Hand' OR r.type_of_inward = 'Whatsapp')")
             ->whereRaw("(r.employee_id = " . Session::get('user')->employee_id . " or r.employee_id = 15)")
             ->where('r.is_deleted', 0)
             ->limit(1)
