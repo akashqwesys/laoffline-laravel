@@ -50,13 +50,31 @@
                                             <td><b>Bill No</b></td>
                                             <td><b>Bill Date</b></td>
                                             <td><b>Bill Amount</b></td>
-        									<td><b>Net Amount</b></td>
+                                            <td v-if="paymentData.tot_discount != 0"><b>Discount</b></td>
+									        <td v-if="paymentData.tot_vatav != 0"><b>Vatav</b></td>
+									        <td v-if="paymentData.tot_agent_commission != 0"><b>Agent Commission</b></td>
+									        <td v-if="paymentData.tot_bank_cpmmission != 0"><b>Bank Commission</b></td>
+									        <td v-if="paymentData.tot_claim != 0"><b>Claim</b></td>
+									        <td v-if="paymentData.tot_good_returns != 0"><b>Goods Return</b></td>
+									        <td v-if="paymentData.tot_short != 0"><b>Short</b></td>
+									        <td v-if="paymentData.tot_interest != 0"><b>Interest</b></td>
+									        <td v-if="paymentData.tot_rate_difference != 0"><b>Rate Difference</b></td>
+                                            <td><b>Net Amount</b></td>
 		        							<td><b>Days</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
                                             <td>{{ salebill.sr_no }}</td>
                                             <td>{{ paymentData.date }}</td>
                                             <td>{{ salebill.amount }}</td>
+                                            <td v-if="paymentData.tot_discount != 0">{{ salebill.discount_amount }}</td>
+									        <td v-if="paymentData.tot_vatav != 0">{{ salebill.vatav }}</td>
+									        <td v-if="paymentData.tot_agent_commission != 0">{{ salebill.agent_commission }}</td>
+									        <td v-if="paymentData.tot_bank_cpmmission != 0">{{ salebill.bank_commission }}</td>
+									        <td v-if="paymentData.tot_claim != 0">{{ salebill.claim }}</td>
+									        <td v-if="paymentData.tot_good_returns != 0">{{ salebill.goods_return }}</td>
+									        <td v-if="paymentData.tot_short != 0">{{ salebill.short }}</td>
+									        <td v-if="paymentData.tot_interest != 0">{{ salebill.interest }}</td>
+									        <td v-if="paymentData.tot_rate_difference != 0">{{ salebill.rate_difference }}</td>
         									<td>{{ salebill.amount - salebill.discount_amount - salebill.vatav - salebill.goods_return - salebill.agent_commission - salebill.bank_commission - salebill.claim - salebill.short - salebill.interest - salebill.rate_difference }}</td>
 		        							<td>{{ salebill.day }}</td>
 				        				</tr>
@@ -64,7 +82,16 @@
                                             <td><b>Total</b></td>
                                             <td></td>
                                             <td><b>{{ paymentData.total_amount }}</b></td>
-        									<td><b>{{ paymentData.total_amount - paymentData.tot_discount - paymentData.tot_vatav - paymentData.tot_good_returns - paymentData.tot_agent_commission - paymentData.tot_bank_cpmmission - paymentData.tot_claim - paymentData.tot_short - paymentData.tot_interest }}</b></td>
+                                            <td v-if="paymentData.tot_discount != 0"><b>{{ paymentData.tot_discount }}</b></td>
+                                            <td v-if="paymentData.tot_vatav != 0"><b>{{ paymentData.tot_vatav }}</b></td>
+									        <td v-if="paymentData.tot_agent_commission != 0"><b>{{ paymentData.tot_agent_commission }}</b></td>
+									        <td v-if="paymentData.tot_bank_cpmmission != 0"><b>{{ paymentData.tot_bank_cpmmission }}</b></td>
+									        <td v-if="paymentData.tot_claim != 0"><b>{{ paymentData.tot_claim }}</b></td>
+                                            <td v-if="paymentData.tot_good_returns != 0"><b>{{ paymentData.tot_good_returns }}</b></td>
+									        <td v-if="paymentData.tot_short != 0"><b>{{ paymentData.tot_short }}</b></td>
+									        <td v-if="paymentData.tot_interest != 0"><b>{{ paymentData.tot_interest }}</b></td>
+									        <td v-if="paymentData.tot_rate_difference != 0"><b>{{ paymentData.tot_rate_difference }}</b></td>
+        									<td><b>{{ paymentData.total_amount - paymentData.tot_discount - paymentData.tot_vatav - paymentData.tot_good_returns - paymentData.tot_agent_commission - paymentData.tot_bank_cpmmission - paymentData.tot_claim - paymentData.tot_short - paymentData.tot_interest - paymentData.tot_rate_difference }}</b></td>
 		        							<td></td>
                                         </tr>
 							        </tbody>

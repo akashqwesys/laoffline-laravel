@@ -333,7 +333,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-if="(inwardType == 'letter' && form.letter_by.id == 2) || (inwardType == 'sample' && form.sample_via.id == 2)" class="col-md-4">
+                                            <div v-if="(inwardType == 'letter' && form.letter_by && form.letter_by.id == 2) || (inwardType == 'sample' && form.sample_via && form.sample_via.id == 2)" class="col-md-4">
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-courier_name">Courrier Name</label>
                                                     <div class="form-control-wrap">
@@ -341,7 +341,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-if="(inwardType == 'letter' && form.letter_by.id == 2) || (inwardType == 'sample' && form.sample_via.id == 2)" class="col-md-4">
+                                            <div v-if="(inwardType == 'letter' && form.letter_by && form.letter_by.id == 2) || (inwardType == 'sample' && form.sample_via && form.sample_via.id == 2) " class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-courier_receipt_number">Courrier Receipt No</label>
                                                     <div class="form-control-wrap">

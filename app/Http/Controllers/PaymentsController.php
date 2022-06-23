@@ -744,7 +744,7 @@ class PaymentsController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('payments.id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.customer_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.tot_good_returns','payments.customer_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -808,8 +808,11 @@ class PaymentsController extends Controller
             $customer = '<a href="#" class="view-details ' . $customer_color . '"  data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
             $seller = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
             $voucher = $record->payment_id;
-            $paid_amount = $record->tot_adjust_amount;
-
+            if ($record->reciept_mode == 'partreturn') {
+                $paid_amount = $record->tot_good_returns;
+            } else {
+                $paid_amount = $record->tot_adjust_amount;
+            }
             if (!$record->old_commission_status) {
                 $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
@@ -1153,8 +1156,10 @@ class PaymentsController extends Controller
             $cheque_dd_bank = 0;
         }
 
-        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn') {
+        if ($paymentData->recipt_mode == 'partreturn') {
             $payment_tot_adjust_amount = 0;
+        } else if ($paymentData->recipt_mode == 'fullreturn') {
+            $payment_tot_adjust_amount= $paymentData->totalamount;
         } else {
             $payment_tot_adjust_amount= $paymentData->totaladjustamount;
         }
@@ -1264,7 +1269,7 @@ class PaymentsController extends Controller
                     $paymentDetail->flag_sale_bill_sr_no = 1;
                     $paymentDetail->supplier_invoice_no = $salebill->sup_inv;
                     $paymentDetail->amount = $salebill->amount ?? 0;
-                    $paymentDetail->adjust_amount = 0;
+                    $paymentDetail->adjust_amount = $salebill->amount ?? 0;
                     $paymentDetail->goods_return = $salebill->goodreturn ?? 0;
                     $paymentDetail->remark = $salebill->remark ?? 0;
                     $paymentDetail->rate_difference = 0;
@@ -1320,11 +1325,12 @@ class PaymentsController extends Controller
                     $claim = isset($salebill->claim) ? intval($salebill->claim) : 0;
                     $bankcommission = isset($salebill->bankcommission) ? intval($salebill->bankcommission) : 0;
                     $short = isset($salebill->short) ? intval($salebill->short) : 0;
+                    $goodreturn = isset($salebill->goodreturn) ? intval($salebill->goodreturn) : 0;
                     $interest = isset($salebill->interest) ? intval($salebill->interest) : 0;
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
                     $bill->payment_status = $salebill->status->code;
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount + (int)$salebill->discountamount + (int)$bankcommission + (int)$agentcommission + (int)$vatav + (int)$claim + (int)$short - (int)$interest;
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount + (int)$salebill->discountamount + (int)$bankcommission + (int)$agentcommission + (int)$vatav + (int)$claim + (int)$short + (int)$goodretun - (int)$interest;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();
@@ -1335,18 +1341,18 @@ class PaymentsController extends Controller
                     $bill2->pending_payment = $bill2->total - $bill2->received_payment;
 
                     $bill2->save();
-
+                    $tot_adjust_amount += isset($salebill->adjustamount) ? (int)$salebill->adjustamount : 0;
                 }
             }
         }
-        if ($paymentData->recipt_mode == 'fullreturn') {
+        if ($paymentData->recipt_mode != 'fullreturn') {
             $tot_receipt_adjust_amt = (int)$paymentData->reciptamount - $tot_adjust_amount;
             if ($tot_receipt_adjust_amt != 0) {
                 $payment_ok_or_not = 0;
             } else {
                 $payment_ok_or_not = 1;
             }
-        } else if($paymentData->recipt_mode == 'partreturn') {
+        } else if($paymentData->recipt_mode != 'partreturn') {
             $payment_ok_or_not = 0;
         } else {
             $payment_ok_or_not = 1;
@@ -1356,9 +1362,13 @@ class PaymentsController extends Controller
         $payment1->payment_ok_or_not = $payment_ok_or_not;
         $payment1->save();
 
-        if ($paymentData->recipt_mode == 'fullreturn') {
-            $color_flag_id = 1;
-        } else if($paymentData->recipt_mode == 'partreturn') {
+        if ($paymentData->recipt_mode != 'fullreturn') {
+            if ($paymentData->goodreturn == 0) {
+                $color_flag_id = 3;
+            } else {
+                $color_flag_id = 1;
+            }
+        } else if($paymentData->recipt_mode != 'partreturn') {
             $color_flag_id = 1;
         } else {
             $color_flag_id = 3;
@@ -2465,14 +2475,14 @@ class PaymentsController extends Controller
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
-        $salebill = PaymentDetail::where('p_incerment_id', $payment->id)->get();
+        $salebill = PaymentDetail::where('p_increment_id', $payment->id)->get();
         $salebilldata = array();
         foreach($salebill as $sale) {
             $salebill_date = DB::table('sale_bills')->where('sale_bill_id', $sale->sr_no)->where('financial_year_id', $sale->financial_year_id)->first();
 
             $payment_date = strtotime($payment->date);
 			$salebill_date = strtotime($salebill_date->select_date);
-            $datediff  = $payment_date - $salebill_date;
+            $datediff  = $salebill_date - $payment_date;
 			$days = floor($datediff / (60 * 60 * 24));
             $data1 = $sale;
             $data1['day'] = $days;
