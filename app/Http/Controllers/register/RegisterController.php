@@ -331,11 +331,12 @@ class RegisterController extends Controller
         return $employees;
     }
 
-    public function getReferenceSampleData() {
+    public function getReferenceSampleData(Request $request) {
+        $type = $request->type['name'];
         $user = Session::get('user');
         $references = ReferenceId::join('companies', 'reference_ids.company_id', '=', 'companies.id')->
                                    whereIn('companies.company_type', [2,3])->
-                                   where('reference_ids.type_of_inward', 'Courier')->
+                                   where('reference_ids.type_of_inward', $type)->
                                    where('reference_ids.employee_id', 15)->
                                    where('reference_ids.inward_or_outward', 1)->
                                    where('reference_ids.financial_year_id', $user->financial_year_id)->
@@ -348,12 +349,25 @@ class RegisterController extends Controller
     }
 
     public function getOldReferenceDetails($inwardRefSearch, $typeOfInward, $inwardType) {
-        print_r($inwardRefSearch); echo "<br><br>";
-        print_r($typeOfInward); echo "<br><br>";
-        print_r($inwardType); echo "<br><br>";
+        $html = "";
+        $reference = DB::table('reference_ids as r')
+            ->join('companies as c', 'r.company_id', '=', 'c.id')
+            ->select('r.employee_id', 'r.reference_id', 'r.created_at', 'r.company_id', 'r.selection_date', 'r.type_of_inward', 'r.from_name', 'r.from_number', 'r.receiver_number', 'r.from_email_id', 'r.receiver_email_id', 'r.latter_by_id', 'r.courier_name', 'r.weight_of_parcel', 'r.courier_receipt_no', 'r.courier_received_time', 'r.delivery_by', 'c.company_name')
+            ->where('r.reference_id', $inwardRefSearch)
+            ->where('r.financial_year_id', Session::get('user')->financial_year_id)
+            ->where('r.inward_or_outward', 1)
+            ->where('r.type_of_inward', $typeOfInward)
+            ->where('r.is_deleted', 0)
+            ->limit(1)
+            ->first();
 
-
-        dd("HELLO");
+        if ($reference) {
+            $referenceid = $reference->reference_id;
+        } else {
+            $referenceid = 0;
+        }
+        $data['ref_id'] = $referenceid;
+        return $data;
     }
 
     public function listRegister(Request $request) {
@@ -2126,7 +2140,7 @@ class RegisterController extends Controller
         $ref_id = $inward_data->reference_sample_data;
 
 
-        if ($latterBy_id) {
+        if ($latterBy_id == 2) {
             $latter_by_id = $latterBy_id;
             $courier_name = $inward_data->courier_name->id;
             $weight_of_parcel = $inward_data->weight_of_parcel;

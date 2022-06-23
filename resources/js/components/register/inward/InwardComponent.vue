@@ -8,7 +8,7 @@
                             <div class="card-header">
                                 <div class="row">
                                     <div class="col-sm-4">
-                                        <h3 class="nk-block-title page-title">Inward Listss</h3>
+                                        <h3 class="nk-block-title page-title">Inward Lists</h3>
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="create_inward" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
@@ -63,7 +63,7 @@
         },
         data() {
             return {
-                create_inward: 'register/create-inward',
+                create_inward: '/register/create-inward',
             }
         },
         methods: {

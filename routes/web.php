@@ -372,7 +372,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:acces
     Route::get('/getSubProducts/{value}', [App\Http\Controllers\register\RegisterController::class, 'getSubProducts']);
     Route::get('/list-employees', [App\Http\Controllers\register\RegisterController::class, 'listAllEmployees']);
     Route::get('/main-categories', [App\Http\Controllers\register\RegisterController::class, 'getmainCategories']);
-    Route::get('/getReferenceSampleData', [App\Http\Controllers\register\RegisterController::class, 'getReferenceSampleData']);
+    Route::post('/getReferenceSampleData', [App\Http\Controllers\register\RegisterController::class, 'getReferenceSampleData']);
     Route::get('/getOldReferenceDetails/{inwardRefSearch}/{typeOfInward}/{inwardType}', [App\Http\Controllers\register\RegisterController::class, 'getOldReferenceDetails']);
     Route::get('/from-name/{id}', [App\Http\Controllers\register\RegisterController::class, 'fromName']);
 });

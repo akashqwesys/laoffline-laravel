@@ -51,7 +51,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-sample_via">Sample Via</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect v-model="form.sample_via" :options="letterBy" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                                        <multiselect v-model="form.sample_via" :options="letterBy" placeholder="Select one" label="name" track-by="name" @select="changesamplevia"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -72,7 +72,7 @@
                                                         <tr v-for="(refsample, index) in referenceSampleData" :key="index">
                                                             <td>
                                                                 <div class="custom-control custom-control-sm custom-radio notext">
-                                                                    <input type="radio" class="custom-control-input" :id="'referenceSample'+index" :value="refsample.reference_id" v-model="form.reference_sample_data">
+                                                                    <input type="radio" class="custom-control-input" :id="'referenceSample'+index" :value="refsample.reference_id" v-model="form.reference_sample_data" @change="refernceidchange">
                                                                     <label class="custom-control-label" :for="'referenceSample'+index"></label>
                                                                 </div>
                                                             </td>
@@ -95,6 +95,7 @@
                                                                 <button type="button" class="btn btn-outline-primary btn-dim" @click="getReferenceDataViaId(referenceNumber)">Go</button>
                                                             </div>
                                                         </div>
+                                                        <div id="oldrefence"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -426,9 +427,9 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-12 d-flex align-items-center">
-                                                <label v-if="form.sample_for.id == 1" class="form-label d-inline-block w-100">Products</label>
-                                                <label v-if="form.sample_for.id == 2" class="form-label d-inline-block w-100">Fabric</label>
-                                                <label v-if="form.sample_for.id == 3" class="form-label d-inline-block w-100">Unit</label>
+                                                <label v-if="form.sample_for && form.sample_for.id == 1" class="form-label d-inline-block w-100">Products</label>
+                                                <label v-if="form.sample_for && form.sample_for.id == 2" class="form-label d-inline-block w-100">Fabric</label>
+                                                <label v-if="form.sample_for && form.sample_for.id == 3" class="form-label d-inline-block w-100">Unit</label>
                                                 <li class="dropdown-toggle btn btn-icon btn-primary" @click="addSampleDataRow"><em class="icon ni ni-plus"></em></li>
                                             </div>
                                             <div class="row gy-4" style="padding-left: 15px;" v-for="(sample, index) in sampleData" :key="index">
@@ -911,7 +912,9 @@
             }
         },
         created() {
-            axios.get('/register/getReferenceSampleData')
+            axios.post('/register/getReferenceSampleData',{
+                type : this.form.sample_via
+            })
             .then(response => {
                 this.referenceSampleData = response.data;
                 this.form.reference_sample_data = response.data[0].reference_id;
@@ -981,6 +984,36 @@
             });
         },
         methods: {
+            changesamplevia (option, id) {
+                let inward_via = option;
+                axios.post('/register/getReferenceSampleData',{
+                    type : inward_via
+                })
+                .then(response => {
+                    this.referenceSampleData = response.data;
+                    this.form.reference_sample_data = response.data[0].reference_id;
+                });
+            },
+            refernceidchange (event) {
+                axios.post('/register/getalldetail',{
+                    refernceid : this.form.reference_sample_data
+                })
+                .then(response => {
+                    if (this.inwardType == 'sample') {
+                        this.form.company = response.data.company.company_name;
+                        this.form.companyid = response.data.company.id;
+                        this.form.companytype = response.data.company.company_type;
+                        this.form.from_name = response.data.reference.from_name;
+                    }
+                    this.form.courier_name = response.data.courier;
+                    this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
+                    this.form.delivery_by = response.data.reference.delivery_by;
+                    this.form.received_date_time = response.data.reference.courier_received_time;
+                    this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
+                    this.form.dateTime = response.data.reference.selection_date;
+                });
+                
+            },
             uploadImage (index, event) {
                 this.sampleData[index].image = event.target.files[index];
             },
@@ -991,11 +1024,34 @@
                 return mydate.getDate() + '-' + month + '-' + mydate.getFullYear() + " " + mydate.getHours() + ":" + mydate.getMinutes() + ":" + mydate.getSeconds();
             },
             getReferenceDataViaId(referenceId) {
+                
                 if (referenceId != '') {
                     if (this.inwardType == 'sample') {
                         axios.get('/register/getOldReferenceDetails/'+referenceId+'/'+this.form.sample_via.name+'/'+this.inwardType)
-                        .then(response => {
-
+                        .then(response1 => {
+                            if (response1.data.ref_id != 0) {
+                                this.referenceSampleError = 0;
+                                this.form.reference_sample_data = response1.data.ref_id;
+                                axios.post('/register/getalldetail',{
+                                    refernceid : response1.data.ref_id
+                                })
+                                .then(response => {
+                                    if (this.inwardType == 'sample') {
+                                        this.form.company = response.data.company.company_name;
+                                        this.form.companyid = response.data.company.id;
+                                        this.form.companytype = response.data.company.company_type;
+                                        this.form.from_name = response.data.reference.from_name;
+                                    }
+                                    this.form.courier_name = response.data.courier;
+                                    this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
+                                    this.form.delivery_by = response.data.reference.delivery_by;
+                                    this.form.received_date_time = response.data.reference.courier_received_time;
+                                    this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
+                                    this.form.dateTime = response.data.reference.selection_date;
+                                });
+                            } else {
+                                this.referenceSampleError = 1;
+                            }
                         });
                     }
                 }
@@ -1245,7 +1301,7 @@
                 })
                 axios.post('/register/insertinward/'+this.inwardType, paymentdata)
                     .then(( response ) => {
-                        //window.location.href = '/settings/agent';
+                        window.location.href = '/register/inward';
                 })
             },
         },
