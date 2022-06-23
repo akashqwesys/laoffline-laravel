@@ -70,19 +70,6 @@
             return {
             }
         },
-        created () {
-            axios.get('/common/list-all-companies')
-                .then(response => {
-                    new Autocomplete(document.getElementById('company_name'), {
-                        threshold: 2,
-                        data: response.data,
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
-        },
         methods: {
             showModal: function(id) {
                 window.$('#overlay').show();
@@ -97,8 +84,7 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearallfilter: function() {
-                $("#invoice_filter").find('input[type=search]').val("");
-                $("#invoice_filter").find('input[type=Date]').val("");
+                $("#invoice_filter").find('input').val("");
                 $('#invoiceTable').DataTable().clear().draw();
             },
         },
@@ -196,7 +182,7 @@
                     // }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm" placeholder="Invoice Date" max="'+nDate+'"> <div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm" placeholder="Amount"> <input type="search" id="commission_status" class="form-control form-control-sm" placeholder="Comm. Status"><input type="search" id="outward_status" class="form-control form-control-sm" placeholder="Outward Status No"><input type="search" id="due_days" class="form-control form-control-sm" placeholder="Due"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm w-20" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm w-15" placeholder="Invoice Date" max="'+nDate+'"> <div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm w-20" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm w-15" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm w-15" placeholder="Amount"> <input type="search" id="commission_status" class="form-control form-control-sm w-10" placeholder="Comm. Status"><input type="search" id="outward_status" class="form-control form-control-sm w-10" placeholder="Outward Status No"><input type="search" id="due_days" class="form-control form-control-sm w-10" placeholder="Due"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -253,9 +239,22 @@
                 }
             });
             window.addEventListener('load', function () {
-                $('#company_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
-                    dt_table.clear().draw();
+                axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('company_name'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
                 });
+                setTimeout(() => {
+                    $('#company_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
             }, false);
 
             $(document).on('click', '.delete-invoice', function(e) {

@@ -71,19 +71,6 @@
                 categoryName: '',
             }
         },
-        created () {
-            axios.get('/common/list-all-companies')
-                .then(response => {
-                    new Autocomplete(document.getElementById('dt_name'), {
-                        threshold: 2,
-                        data: response.data,
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
-        },
         methods: {
             getEssentialCompany() {
                 window.location.href = './companies/essential/';
@@ -137,7 +124,7 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearallfilter(event) {
-                $('#company_filter').find("input[type=search]").val('');
+                $('#company_filter').find("input").val('');
                 $('#companies').DataTable().clear().draw();
             },
         },
@@ -274,9 +261,22 @@
                 }
             });
             window.addEventListener('load', function () {
-                $('#dt_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
-                    dt_table.clear().draw();
+                axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('dt_name'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
                 });
+                setTimeout(() => {
+                    $('#dt_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
             }, false);
 
             $(document).on('click', '.view-details', function(e) {

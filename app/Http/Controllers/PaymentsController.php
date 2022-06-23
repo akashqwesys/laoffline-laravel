@@ -693,7 +693,7 @@ class PaymentsController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('payments.company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
@@ -1660,7 +1660,7 @@ class PaymentsController extends Controller
                 $status = array("status" => 'Complete', "code" => 1);
             }
             if ($details->goods_return != 0) {
-                $goodreturn = GoodsReturn::where('p_increment_id', $details->p_increment_id)->where('sale_bill_id', $details->sr_no)->first(); 
+                $goodreturn = GoodsReturn::where('p_increment_id', $details->p_increment_id)->where('sale_bill_id', $details->sr_no)->first();
                 $goodreturndata = $goodreturn;
             } else {
                 $goodreturndata = array();
@@ -1864,14 +1864,14 @@ class PaymentsController extends Controller
         foreach ($paymentsalebilldata as $salebilldata) {
             $pd = PaymentDetail::where('id', $salebilldata->id)->where('is_deleted', 0)->first();
             $recive_payment =(int)$pd->adjust_amount + (int)$pd->discount_amount + (int)$pd->vatav + (int)$pd->agent_commission + (int)$pd->bank_commission + (int)$pd->claim + (int)$pd->goods_return + $pd->short - (int)$pd->interest;
-                      
+
             $salebill = SaleBill::where('sale_bill_id', $salebilldata->sr_no)->where('financial_year_id', $salebilldata->financial_year_id)->where('is_deleted', 0)->first();
             $salebill->received_payment = $salebill->received_payment - $recive_payment;
             $salebill->pending_payment = $salebill->pending_payment + $recive_payment;
             $salebill->save();
         }
         PaymentDetail::where('p_increment_id', $p_increment_id)->delete();
-        
+
         if ($paymentSalebill) {
             $i=0;
 			$tot_discount = 0;
@@ -2385,7 +2385,7 @@ class PaymentsController extends Controller
             $salebill->payment_status = 0;
             $salebill->save();
         }
-        
+
         foreach ($paymentDetail as $pd) {
             $pdetail = PaymentDetail::where('id', $pd->id)->first();
             $pdetail->is_deleted = 1;
