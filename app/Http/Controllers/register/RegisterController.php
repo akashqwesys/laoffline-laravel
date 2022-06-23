@@ -2289,7 +2289,7 @@ class RegisterController extends Controller
         $inward->attachments = json_encode($files);
         $inward->remarks = $inward_data->remark;
         $inward->client_remark = $inward_data->remark ? $inward_data->remark : '';
-        $inward->employe_id = Session::get('user')->employee_id;
+        $inward->employee_id = Session::get('user')->employee_id;
         $inward->type_of_inward = $inward_data->sample_via->name;
         $inward->subject = $subject;
         $inward->notify_client = $notify_clients;
