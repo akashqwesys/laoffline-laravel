@@ -1842,7 +1842,7 @@ class RegisterController extends Controller
             $iuid = $record->iuid;
             $date = date_format($record->created_at, 'd/m/Y H:i:s');
             $subject = $record->subject;
-            $generatedby = Employee::where('id', $record->employe_id)->first()->firstname;
+            $generatedby = Employee::where('id', $record->employee_id)->first()->firstname;
             $type = $record->type_of_inward;
             $action = '<a href="/register/view-inward/'.$record->inward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
 
