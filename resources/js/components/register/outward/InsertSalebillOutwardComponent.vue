@@ -113,6 +113,7 @@
                                     <div class="col-sm-4">
                                         <multiselect v-model="form.referncevia" :options="referncevia" placeholder="Select one" label="name" track-by="name" @select="getRefencevia"></multiselect>
                                     </div>
+                                    <div id="error-for-referencevia" class="mt-2 text-danger"></div>
                                 </div>
                                 <div class="row gy-4 courrier">
                                     <div class="col-sm-2 text-right">
@@ -121,6 +122,7 @@
                                     <div class="col-sm-4">
                                         <multiselect v-model="form.courrier" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
                                     </div>
+                                    <div id="error-for-courrier" class="mt-2 text-danger"></div>
                                 </div>
                                 <div class="row gy-4 courrier">
                                     <div class="col-sm-2 text-right">
@@ -177,14 +179,15 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <div id="error-for-salebillselect" class="mt-2 text-danger"></div>
                                 <div class="row gy-4">
                                     <div class="col-sm-2 text-right">
                                         <label class="form-label" for="fv-delivery">Agent</label>
                                     </div>
                                     <div class="col-sm-4">
                                        <multiselect v-model="form.agent" :options="agents" placeholder="Select one" label="name" track-by="name"></multiselect>
-
                                     </div>
+                                    <div id="error-for-agent" class="mt-2 text-danger"></div>
                                 </div>
                                 <button class="btn btn-primary generatepayment mb-2 float-right disabled">Save Changes</button>
                                 <a v-bind:href="cancel_url" class="mx-2 btn btn-dim float-right btn-secondary">Cancel</a>
@@ -221,6 +224,7 @@
                 salebill: [],
                 agents: [],
                 courier: [],
+                isValidate: 0,
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
                     buyer: '',
@@ -249,6 +253,7 @@
                 this.form.fromdate = response.data.today;
                 this.form.todate = response.data.today;
                 this.agents = response.data.agent;
+                this.form.agent = response.data.agent[0];
                 this.courier = response.data.courier;
             });
         },
@@ -265,14 +270,50 @@
                 }
             },
             register (event) {
+                $("#error-for-referencevia").text("");
+                $("#error-for-courrier").text("");
+                $("#error-for-salebillselect").text("");
+                $("#error-for-agent").text("");
+                if (this.form.referncevia == ''){
+                    $("#error-for-referencevia").text("Select Reference Via");
+                    this.isValidate = 0;
+                } else {
+                    $("#error-for-referencevia").text("");
+                    if (this.form.referncevia.name == 'Courier') {
+                        if (this.form.courrier == '') {
+                            $("#error-for-courrier").text("Select Courier");
+                            this.isValidate = 0;
+                        } else {
+                            $("#error-for-courrier").text("");
+                            this.isValidate = 1;
+                        }
+                    } else {
+                        this.isValidate = 1;
+                    }
+                    if (this.selected.length == 0) {
+                        this.isValidate = 0;
+                        $("#error-for-salebillselect").text("Select Atleast 1 Salebill");
+                    } 
+                }
+                
+
+                
+
+                
+
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
                 formdata.append("salebill", JSON.stringify(this.selected));
-                axios.post('/register/insertcourier',formdata)
-                .then(function (responce) {
-                    window.location.href = '/register';
-                }).catch(function (error) {
-                });
+                if (this.isValidate == 1) {
+                    axios.post('/register/insertcourier',formdata)
+                    .then(function (responce) {
+                        window.location.href = '/register';
+                    }).catch(function (error) {
+                    })
+                } else {
+                    alert('Please Fill Required Field');
+                    return false;
+                }
             },
             searchSalebills(event) {
                 const self = this;
