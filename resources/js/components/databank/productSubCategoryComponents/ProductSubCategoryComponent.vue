@@ -60,19 +60,6 @@
                 create_product_sub_category: 'productsub-category/create-productsub-category',
             }
         },
-        created () {
-            axios.get('/common/list-all-companies')
-                .then(response => {
-                    new Autocomplete(document.getElementById('dt_company'), {
-                        threshold: 2,
-                        data: response.data,
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
-        },
         methods: {
             getCompanyName(id){
                 axios.get('./productsub-category/company-name/'+id)
@@ -91,7 +78,7 @@
                 });
             },
             clearallfilter(event) {
-                $('#product_filter').find("input[type=search]").val('');
+                $('#product_filter').find("input").val('');
                 $('#productSubCategory').DataTable().clear().draw();
             },
         },
@@ -212,9 +199,22 @@
                 }
             });
             window.addEventListener('load', function () {
-                $('#dt_company').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
-                    dt_table.clear().draw();
+                axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('dt_company'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
                 });
+                setTimeout(() => {
+                    $('#dt_company').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
             }, false);
         },
     };

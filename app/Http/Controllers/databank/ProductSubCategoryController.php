@@ -151,12 +151,12 @@ class ProductSubCategoryController extends Controller
                     $companyArr = json_decode($companyId);
                     foreach($companyArr as $key => $c) {
                         $company = Company::select('company_name')->where('id', $c)->first('company_name');
-                        $companyName[$key] = $company->company_name;
+                        $companyName[$key] = $company->company_name ?? '';
                     }
                 } else {
                     $cId = json_decode($companyId);
                     $company = Company::select('company_name')->where('id', $cId)->first('company_name');
-                    $companyName = $company->company_name;
+                    $companyName = $company->company_name ?? '';
                 }
                 $record['companyName'] = is_array($companyName) ? implode(", ", $companyName) : $companyName;
             } else {

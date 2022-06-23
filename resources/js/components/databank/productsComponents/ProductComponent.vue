@@ -62,19 +62,6 @@
                 create_product_category: 'catalog/create-products',
             }
         },
-        created () {
-            axios.get('/common/list-all-companies')
-                .then(response => {
-                    new Autocomplete(document.getElementById('dt_company'), {
-                        threshold: 2,
-                        data: response.data,
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
-        },
         methods: {
             edit_data(id){
                 window.location.href = './catalog/edit-products/'+id;
@@ -89,7 +76,7 @@
                 });
             },
             clearallfilter(event) {
-                $('#product_filter').find("input[type=search]").val('');
+                $('#product_filter').find("input").val('');
                 $('#product').DataTable().clear().draw();
             },
         },
@@ -209,9 +196,22 @@
                 }
             });
             window.addEventListener('load', function () {
-                $('#dt_company').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
-                    dt_table.clear().draw();
+                axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('dt_company'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
                 });
+                setTimeout(() => {
+                    $('#dt_company').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
             }, false);
         },
     };

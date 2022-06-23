@@ -4,7 +4,7 @@
             <div class="nk-content-inner">
                 <div class="nk-content-body">
                     <div class="nk-block-head nk-block-head-sm">
-                        
+
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
@@ -17,10 +17,10 @@
                                         <a v-bind:href="commissionivoicelink" class="dropdown-toggle btn btn-icon btn-warning px-2">Commission Invoice</a>
                                         <a href="/account/commission/invoice/create-invoice" class="dropdown-toggle btn btn-icon btn-secondary mx-2 px-2"><em class="icon ni ni-plus"></em> Commission Invoice</a>
                                         <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mr-2"><em class="icon ni ni-plus"></em></a>
-                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner">
                                 <div class="table-responsive">
@@ -150,10 +150,10 @@
                             } else {
                                 data.columns[3].search.value = $('#date_added').val();
                             }
-                            if ($('#company').val() == '') {
+                            if ($('#company_name').val() == '') {
                                 data.columns[4].search.value = '';
                             } else {
-                                data.columns[4].search.value = $('#company').val();
+                                data.columns[4].search.value = $('#company_name').val();
                             }
                             if ($('#recivedcommamount').val() == '') {
                                 data.columns[5].search.value = '';
@@ -165,6 +165,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: "Blrtip",
+                    order: [[3, "desc"]],
                     columns: [
                         { data: 'id' },
                         { data: 'iuid' },
@@ -182,7 +183,7 @@
                     buttons: buttons,
                 }).
                 on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="commission_filter"><input type="search" id="commission_no" class="form-control form-control-sm" placeholder="Commission Id"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="recivedcommamount" class="form-control form-control-sm" placeholder="Amount"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="commission_filter"><input type="search" id="commission_no" class="form-control form-control-sm w-10" placeholder="Commission ID"><input type="search" id="iuid" class="form-control form-control-sm w-10" placeholder="iuid"><input type="search" id="ref_no" class="form-control form-control-sm w-15" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm w-15" placeholder="Date Added" onclick="this.showPicker();"><div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm w-20" placeholder="Company"></div><input type="search" id="recivedcommamount" class="form-control form-control-sm w-15" placeholder="Amount"></div>').insertAfter('.dataTables_length');
                 });
             }
             init_dt_table();
@@ -233,6 +234,25 @@
                     draw = 0;
                 }
             });
+            window.addEventListener('load', function () {
+                axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('company_name'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
+                setTimeout(() => {
+                    $('#company_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
+            }, false);
+
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });
@@ -242,7 +262,7 @@
         },
     };
 </script>
-<style >
+<style scoped>
     .user-avatar img{
         width: 100%;
     }

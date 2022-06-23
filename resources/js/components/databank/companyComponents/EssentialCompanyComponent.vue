@@ -80,19 +80,6 @@
                 categoryName: '',
             }
         },
-        created () {
-            axios.get('/common/list-all-companies')
-                .then(response => {
-                    new Autocomplete(document.getElementById('dt_name'), {
-                        threshold: 2,
-                        data: response.data,
-                        maximumItems: 5,
-                        label: 'name',
-                        value: 'id',
-                        onSelectItem: ({ label, value }) => { }
-                    });
-                });
-        },
         methods: {
             isUnFavorite: function(id) {
                 window.$('#overlay').show();
@@ -269,9 +256,22 @@
                 }
             });
             window.addEventListener('load', function () {
-                $('#dt_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
-                    dt_table.clear().draw();
+                axios.get('/common/list-all-companies')
+                .then(response => {
+                    new Autocomplete(document.getElementById('dt_name'), {
+                        threshold: 2,
+                        data: response.data,
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
                 });
+                setTimeout(() => {
+                    $('#dt_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
             }, false);
 
             $(document).on('click', '.view-details', function(e) {
