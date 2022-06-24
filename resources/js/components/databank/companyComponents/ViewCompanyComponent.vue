@@ -156,7 +156,7 @@
                                                                             <td>{{ key + 1 }}</td>
                                                                             <td>
                                                                                 <div class="user-card">
-                                                                                    <div class="user-avatar user-avatar-sm bg-warning">
+                                                                                    <div class="user-avatar user-avatar-sm bg-warning open-new-tab">
                                                                                         <img v-if="owner.profile_pic != ''" v-bind:src="getProfilePic(owner.profile_pic)" alt="">
                                                                                         <span v-if="owner.profile_pic == ''">{{ owner.name.charAt(0).toUpperCase() }}</span>
                                                                                     </div>
@@ -197,7 +197,7 @@
                                                             <td>{{ key + 1 }}</td>
                                                             <td>
                                                                 <div class="user-card">
-                                                                    <div class="user-avatar user-avatar-sm bg-warning">
+                                                                    <div class="user-avatar user-avatar-sm bg-warning open-new-tab">
                                                                         <img v-if="contactDetail.contact_person_profile_pic != ''" v-bind:src="getProfilePic(contactDetail.contact_person_profile_pic)" alt="">
                                                                         <span v-if="contactDetail.contact_person_profile_pic == ''">{{ contactDetail.contact_person_name.charAt(0).toUpperCase() }}</span>
                                                                     </div>
@@ -409,6 +409,11 @@
                 this.bankDetail = companies.bank_details;
                 this.packagingDetail = companies.packaging_details;
                 this.referenceDetail = companies.references_details;
+            });
+
+            $(document).on('click', '.open-new-tab', function () {
+                console.log(123);
+                window.open($(this).find('img').attr('src'), '_blank');
             });
         },
     };

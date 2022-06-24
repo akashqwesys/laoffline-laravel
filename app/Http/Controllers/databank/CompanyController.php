@@ -975,7 +975,7 @@ class CompanyController extends Controller
         $bankDetails = json_decode($request->bank_details);
         $contactDetailsProfilePic = $request->contact_details_profile_pic;
         $multipleAddressProfilePic = $request->multiple_address_profile_pic;
-        dd($contactDetails);
+
         $id = $companyData->id;
 
         if(is_array($multipleAddresses) && !empty($multipleAddresses)) {
@@ -1082,8 +1082,12 @@ class CompanyController extends Controller
                 if (isset($contactDetail->id)) {
                     $companyContactDetails = CompanyContactDetails::where('company_id', $id)->where('id', $contactDetail->id)->first();
                 } else {
+                    $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
+                    $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
+
                     $companyContactDetails = new CompanyContactDetails;
                     $companyContactDetails->company_id = $id;
+                    $companyContactDetails->id = $companyContactId;
                 }
                 $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
                 $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
