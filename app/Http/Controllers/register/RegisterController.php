@@ -681,7 +681,7 @@ class RegisterController extends Controller
         $company = Company::where('id', $reference->company_id)
                    ->where('is_delete', 0)
                    ->first();
-        $data['courier_name'] = '';
+        $data['courier_name'] = [];
         if (!empty($reference->courier_name)){
             $courier = TransportDetails::where('name', $reference->courier_name)->where('is_delete', 0)->first();
             $data['courier_name'] = $courier;
@@ -2315,11 +2315,16 @@ class RegisterController extends Controller
                     $request->pimage[$key]->move(public_path('upload/InwardSample/'), $samplefile);
                 }
                 $inwardsample = new InwardSample();
-                if ($inward_data->sample_for->id == 1 || $inward_data->sample_for->id == 1) {
-                    $inwardsample->qty = $sample->quantity;
+                if ($sample->quantity == '') {
+                    $qty = 0;
+                } else {
+                    $qty = $sample->quantity;
+                }
+                if ($inward_data->sample_for->id == 1 || $inward_data->sample_for->id == 3) {
+                    $inwardsample->qty = $qty;
                     $inwardsample->meters = 0;
                 } else {
-                    $inwardsample->meters = $sample->quantity;
+                    $inwardsample->meters = $qty;
                     $inwardsample->qty = 0;
                 }
                 $insertLastid = InwardSample::orderBy('inward_sample_id', 'DESC')->first('inward_sample_id');
@@ -2327,7 +2332,7 @@ class RegisterController extends Controller
                 $inwardsample->inward_sample_id = $inwardsample_id;
                 $inwardsample->inward_id = $inward_id;
                 $inwardsample->name = $sample->name;
-                $inwardsample->price = $sample->price;
+                $inwardsample->price = $sample->price == '' ? 0 : $sample->price;
                 $inwardsample->image = $samplefile;
                 $inwardsample->is_deleted = 0;
                 $inwardsample->save();

@@ -54,6 +54,7 @@
                                                         <multiselect v-model="form.sample_via" :options="letterBy" placeholder="Select one" label="name" track-by="name" @select="changesamplevia"></multiselect>
                                                     </div>
                                                 </div>
+                                                <div id="error-for-sample_via" class="mt-2 text-danger"></div>
                                             </div>
                                         </div>
                                         <div v-if="inwardType == 'sample'" class="row gy-4">
@@ -340,7 +341,9 @@
                                                     <div class="form-control-wrap">
                                                         <multiselect :readonly="true" v-model="form.courier_name" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
                                                     </div>
+                                                    <div id="error-for-courier_name" class="mt-2 text-danger"></div>
                                                 </div>
+                                                
                                             </div>
                                             <div v-if="(inwardType == 'letter' && form.letter_by && form.letter_by.id == 2) || (inwardType == 'sample' && form.sample_via && form.sample_via.id == 2) " class="col-md-4">
                                                 <div class="form-group">
@@ -425,6 +428,7 @@
                                                         <multiselect v-model="form.sample_for" :options="sampleFor" placeholder="Select one" label="name" track-by="name" @input="getLinkWithData"></multiselect>
                                                     </div>
                                                 </div>
+                                                <div id="error-for-sample_for" class="mt-2 text-danger"></div>
                                             </div>
                                             <div class="col-md-12 d-flex align-items-center">
                                                 <label v-if="form.sample_for && form.sample_for.id == 1" class="form-label d-inline-block w-100">Products</label>
@@ -558,6 +562,7 @@
                                                         <multiselect v-model="form.assign_to" :options="assignTo" placeholder="Select one" label="name" track-by="name"></multiselect>
                                                     </div>
                                                 </div>
+                                                <div id="error-for-assign_to" class="mt-2 text-danger"></div>
                                             </div>
                                             <div class="col-md-12">
                                                 <div class="form-group">
@@ -752,6 +757,7 @@
         },
         data() {
             return {
+                isValidate: 0,
                 cancel_url: '/settings/agent',
                 subjectLinkWith: '"link with" for ',
                 subjectProduct: '"product" with ',
@@ -992,6 +998,7 @@
                 .then(response => {
                     this.referenceSampleData = response.data;
                     this.form.reference_sample_data = response.data[0].reference_id;
+                    this.refernceidchange();
                 });
             },
             refernceidchange (event) {
@@ -1005,7 +1012,7 @@
                         this.form.companytype = response.data.company.company_type;
                         this.form.from_name = response.data.reference.from_name;
                     }
-                    this.form.courier_name = response.data.courier;
+                    this.form.courier_name = response.data.courier_name;
                     this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
                     this.form.delivery_by = response.data.reference.delivery_by;
                     this.form.received_date_time = response.data.reference.courier_received_time;
@@ -1042,7 +1049,7 @@
                                         this.form.companytype = response.data.company.company_type;
                                         this.form.from_name = response.data.reference.from_name;
                                     }
-                                    this.form.courier_name = response.data.courier;
+                                    this.form.courier_name = response.data.courier_name;
                                     this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
                                     this.form.delivery_by = response.data.reference.delivery_by;
                                     this.form.received_date_time = response.data.reference.courier_received_time;
@@ -1284,6 +1291,42 @@
                 })
             },
             register () {
+                
+                $("#error-for-courier_name").text("");
+                $("#error-for-sample_via").text("");
+                $("#error-for-sample_for").text("");
+                $("#error-for-assign_to").text("");
+                if (this.form.courier_name == '' || this.form.sample_via == '' || this.form.sample_for == '' || this.form.assign_to == '') {
+                    this.isValidate = 0;
+                    console.log(this.form.courier_name);
+                    if (this.form.courier_name == null) {
+                        console.log('counrier not');
+                        $("#error-for-courier_name").text("Select Courier");
+                    } else {
+                        $("#error-for-courier_name").text("");
+                    }
+
+                    if (this.form.sample_via == '') {
+                        $("#error-for-sample_via").text("Select Sample Via");
+                    } else {
+                        $("#error-for-sample_via").text("");
+                    }
+
+                    if (this.form.sample_for == '') {
+                        $("#error-for-sample_for").text("Select Sample For");
+                    } else {
+                        $("#error-for-sample_for").text("");
+                    }
+
+                    if (this.form.assign_to == '') {
+                        $("#error-for-assign_to").text("Select Assign Employee");
+                    } else {
+                        $("#error-for-assign_to").text("");
+                    }
+                } else {
+                    this.isValidate = 1;
+                }
+                
                 var paymentdata = new FormData();
                 paymentdata.append('inwarddata', JSON.stringify(this.form));
                 paymentdata.append('sampleData', JSON.stringify(this.sampleData));
@@ -1299,10 +1342,16 @@
                         paymentdata.append(`pimage[${index}]`, null);
                     }
                 })
-                axios.post('/register/insertinward/'+this.inwardType, paymentdata)
-                    .then(( response ) => {
-                        window.location.href = '/register/inward';
-                })
+
+                if (this.isValidate == 1) {
+                    axios.post('/register/insertinward/'+this.inwardType, paymentdata)
+                        .then(( response ) => {
+                            window.location.href = '/register/inward';
+                    })
+                } else {
+                    alert('Fill All Required Feild');
+                    return false;
+                }
             },
         },
         mounted() {
@@ -1317,14 +1366,14 @@
                         this.form.companytype = response.data.company.company_type;
                         this.form.from_name = response.data.reference.from_name;
                     }
-                    this.form.courier_name = response.data.courier;
+                    this.form.courier_name = response.data.courier_name;
                     this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
                     this.form.delivery_by = response.data.reference.delivery_by;
                     this.form.received_date_time = response.data.reference.courier_received_time;
                     this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
                     this.form.dateTime = response.data.reference.selection_date;
                 });
-            }, 2100);
+            }, 1000);
             
            
             if(this.type == 1) {

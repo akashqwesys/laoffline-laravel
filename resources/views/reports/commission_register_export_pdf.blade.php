@@ -89,7 +89,7 @@
             </div>
             <table class="" width="100%">
                 @php
-                    
+                    $tcommission_payment_amount = 0; $ttds = 0; $tservice_tax= 0; $total = 0;$company = '';
                 @endphp
                 @if ($request->show_detail == 1)
                 <thead>
@@ -100,7 +100,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($data as $d)
+                    @foreach ($data as $i=>$d)
                     @php
                         $total += floatval($d->total);
                     @endphp
@@ -136,38 +136,74 @@
                 <tbody>
                     @foreach ($data as $d)
                     @php
+                        $commission_payment_amount = $d->commission_payment_amount;
                         
+                        if (!$commission_payment_amount) {
+                            $commission_payment_amount = 0;
+                        }
+
+                        $tds = $d->tds;
+                        
+                        if (!$tds) {
+                            $tds = 0;
+                        }
+                        
+                        $service_tax = $d->service_tax;
+                        
+                        if (!$service_tax) {
+                            $service_tax = 0;
+                        }
+                        
+                        $tcommission_payment_amount += floatval($commission_payment_amount);
+                        $ttds += floatval($tds);
+                        $tservice_tax += floatval($service_tax);
+                        
+                        if ($d->customer_id == 0) {
+                            $company = $d->supplier_name;
+                        } else if ($d->supplier_id == 0) {
+                            $company = $d->customer_name;
+                        }
+
+                        if ($d->commission_reciept_mode != 'cheque') {
+                            $cheque_date = '-';
+                            $cheque_dd_no = '-';
+                            $cheque_bank = '-';
+                            $bank_name = '-';
+                        } else {
+                            $cheque_date = $d->commission_cheque_date;
+                            $cheque_dd_no = $d->commission_cheque_dd_no;
+                            $cheque_bank = $d->commission_cheque_dd_bank;
+                            $bank_name = $d->bank_name;
+                        }
                     @endphp
                     <tr>
-                        <td class=""> {{ $d->select_date }} </td>
-                        <td class=""> {{ $d->sale_bill_id }} </td>
-                        <td class=""> {{ $d->customer_name }} </td>
-                        <td class="text-right"> {{ $d->tot_pieces }} </td>
-                        <td class="text-right"> {{ $d->tot_meters }} </td>
-                        <td class="text-right"> {{ number_format($d->total) }} </td>
-                        <td class=""> {{ $d->agent_name }} </td>
-                        <td class=""> {{ $d->supplier_invoice_no }} </td>
-                        <td class="text-right"> {{ number_format($gross_amount) }} </td>
-                        <td class=""> {{ $d->transport_name }} </td>
-                        <td class=""> {{ $d->city_name }} </td>
-                        <td class=""> {{ $d->lr_mr_no }} </td>
-                        <td class=""> {{ $d->supplier_name }} </td>
+                        <td class=""> {{ $d->commission_id }} </td>
+                        <td class=""> {{ $company }} </td>
+                        <td class=""> {{ $d->commission_date }} </td>
+                        <td class=""> {{ $d->agent }} </td>
+                        <td class=""> {{ $d->commission_reciept_mode }} </td>
+                        <td class=""> {{ $bank_name }} </td>
+                        <td class=""> {{ $cheque_date }} </td>
+                        <td class=""> {{ $cheque_dd_no }} </td>
+                        <td class=""> {{ $cheque_bank }} </td>
+                        <td class=""> {{ $commission_payment_amount }} </td>
+                        <td class=""> {{ $tds }} </td>
+                        <td class=""> {{ $service_tax }} </td>
                     </tr>
                     @endforeach
                     <tr>
+                        <th class=""> </th>
+                        <th class=""> </th>
+                        <th class=""> </th>
+                        <th class=""> </th>
+                        <th class=""> </th>
+                        <th class=""> </th>
+                        <th class=""> </th>
+                        <th class=""> </th>
                         <th class=""> Total </th>
-                        <th class=""> </th>
-                        <th class=""> </th>
-                        <th class="text-right"> {{ $total_pieces }} </th>
-                        <th class="text-right"> {{ $total_meters }} </th>
-                        <th class="text-right"> {{ number_format($net_total) }} </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                        <th class="text-right"> {{ number_format($gross_total) }} </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
-                        <th class="">  </th>
+                        <th class=""> {{ $tcommission_payment_amount }} </th>
+                        <th class=""> {{ $ttds }}</th>
+                        <th class=""> {{ $tservice_tax }}</th>
                     </tr>
                 </tbody>
                 @endif

@@ -220,9 +220,9 @@
                 })
                 .then(response => {
                     if (this.export_sheet == 1 || this.export_pdf == 1) {
-                        // this.export_sheet = this.export_pdf = 0;
-                        // window.open(response.data.url, '_blank');
-                        // return;
+                        this.export_sheet = this.export_pdf = 0;
+                        window.open(response.data.url, '_blank');
+                        return;
                     }
                     if (response.data.length > 0) {
                         
@@ -311,7 +311,7 @@
                                     cheque_bank = k.commission_cheque_dd_bank;
                                     bank_name = k.bank_name;
                                 }
-                                if (k.customer_id = 0) {
+                                if (k.customer_id == 0) {
                                     company = k.supplier_name;
                                 } else if (k.supplier_id == 0) {
                                     company = k.customer_name;

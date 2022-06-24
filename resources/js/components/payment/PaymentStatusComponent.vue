@@ -179,15 +179,15 @@
                             } else {
                                 data.columns[5].search.value = $('#paymentdate').val();
                             }
-                            if ($('#customer').val() == '') {
+                            if ($('#customer_name').val() == '') {
                                 data.columns[6].search.value = '';
                             } else {
-                                data.columns[6].search.value = $('#customer').val();
+                                data.columns[6].search.value = $('#customer_name').val();
                             }
-                            if ($('#supplier').val() == '') {
+                            if ($('#supplier_name').val() == '') {
                                 data.columns[7].search.value = '';
                             } else {
-                                data.columns[7].search.value = $('#supplier').val();
+                                data.columns[7].search.value = $('#supplier_name').val();
                             }
                             if ($('#voucher').val() == '') {
                                 data.columns[8].search.value = '';
@@ -226,7 +226,7 @@
                     buttons: buttons
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="search" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="paymentdate" class="form-control form-control-sm" placeholder="Payment Date"><input type="search" id="customer" class="form-control form-control-sm" placeholder="Customer"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="voucher" class="form-control form-control-sm" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm" placeholder="Amount"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm w-10" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm w-10" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm w-10" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm w-10" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm w-15" placeholder="Date Added" onclick="this.showPicker();"><input type="date" id="paymentdate" class="form-control form-control-sm w-15" placeholder="Payment Date" onclick="this.showPicker();"><div class="input-group"><input type="text" id="customer_name" class="form-control form-control-sm w-20" placeholder="Customer"></div><div class="input-group"><input type="text" id="supplier_name" class="form-control form-control-sm w-20" placeholder="Supplier"></div><input type="search" id="voucher" class="form-control form-control-sm w-10" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm w-10" placeholder="Amount"></div>').insertAfter('.dataTables_length');
                 });
             }
             init_dt_table();
@@ -277,6 +277,33 @@
                     draw = 0;
                 }
             });
+            window.addEventListener('load', function () {
+                axios.get('/common/list-customers-and-suppliers')
+                .then(response => {
+                    new Autocomplete(document.getElementById('customer_name'), {
+                        threshold: 2,
+                        data: response.data[0],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                    new Autocomplete(document.getElementById('supplier_name'), {
+                        threshold: 2,
+                        data: response.data[1],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
+                setTimeout(() => {
+                    $('#customer_name, #supplier_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
+            }, false);
+
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });
