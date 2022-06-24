@@ -975,7 +975,7 @@ class CompanyController extends Controller
         $bankDetails = json_decode($request->bank_details);
         $contactDetailsProfilePic = $request->contact_details_profile_pic;
         $multipleAddressProfilePic = $request->multiple_address_profile_pic;
-
+        dd($contactDetails);
         $id = $companyData->id;
 
         if(is_array($multipleAddresses) && !empty($multipleAddresses)) {
@@ -1079,7 +1079,12 @@ class CompanyController extends Controller
         // Contact Details Data
         if(is_array($contactDetails) && !empty($contactDetails)) {
             foreach($contactDetails as $contactDetail) {
-                $companyContactDetails = CompanyContactDetails::where('company_id', $id)->first();
+                if (isset($contactDetail->id)) {
+                    $companyContactDetails = CompanyContactDetails::where('company_id', $id)->where('id', $contactDetail->id)->first();
+                } else {
+                    $companyContactDetails = new CompanyContactDetails;
+                    $companyContactDetails->company_id = $id;
+                }
                 $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
                 $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
                 $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
