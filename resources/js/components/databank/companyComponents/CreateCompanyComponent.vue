@@ -135,7 +135,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fw-company_category">Company Category</label>
                                                     <div>
-                                                        <multiselect v-model="company.company_category" :options="companyCategoryList" placeholder="Select one" label="category_name" track-by="category_name" :multiple="true" :taggable="true"></multiselect>
+                                                        <multiselect v-model="company.company_category" :options="companyCategoryList" placeholder="Select one" label="category_name" track-by="id" :multiple="true" :taggable="true"></multiselect>
                                                     </div>
                                                 </div>
                                             </div>
@@ -177,7 +177,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-12 d-flex align-items-center">
                                                 <span class="preview-title-lg overline-title d-inline-block w-100">Contact Details</span>
-                                                <li class="dropdown-toggle btn btn-icon btn-primary" onclick="addContactDetailsRow();"><em class="icon ni ni-plus"></em></li>
+                                                <li class="dropdown-toggle btn btn-icon btn-primary" @click="addContactDetailsRow();"><em class="icon ni ni-plus"></em></li>
                                             </div>
                                         </div>
                                         <div class="row gy-4" v-for="(contactDetail, index) in contactDetails" :key="index">
@@ -805,6 +805,7 @@
                         // company Data
                         this.company = companies.company;
                         this.company.company_landline = companies.company.company_landline.toString();
+                        this.company_category = this.companyCategoryList.find(_ => _.id == companies.company.company_category)
 
                         // Contacts Data
                         this.contactDetails = companies.contact_details;

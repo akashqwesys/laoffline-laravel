@@ -108,7 +108,7 @@
                 });
             },
             getProfilePic(name){
-                return '/upload/company/multipleAddressProfilePic/' + name;
+                return '/upload/company/profilePic/' + name;
             },
             showModal: function(id) {
                 window.$('#overlay').show();

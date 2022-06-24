@@ -623,7 +623,8 @@ class CompanyController extends Controller
         foreach($companyContactDetails as $contact) {
             $contactDesignation = $contact->contact_person_designation;
             if (!empty($contactDesignation)) {
-                $contact->contact_person_designation = Designation::where('id', $contactDesignation)->where('is_delete', 0)->first();
+                $cpd = Designation::where('id', $contactDesignation)->where('is_delete', 0)->first();
+                $contact->contact_person_designation = $cpd ? $cpd->name : '';
             }
         }
 
@@ -1121,7 +1122,7 @@ class CompanyController extends Controller
         }
 
         // SWOT Data
-        if(!empty($swotDetails)) {
+        if(!empty($swotDetails) && count((array) $swotDetails)) {
             $swotData = CompanySwotDetails::where('company_id', $id)->first();
             $swotData->strength = $swotDetails->strength;
             $swotData->weakness = $swotDetails->weakness;
@@ -1131,7 +1132,7 @@ class CompanyController extends Controller
         }
 
         // Bank Data
-        if(!empty($bankDetails)) {
+        if(!empty($bankDetails) && count((array) $bankDetails)) {
             $bankDetail = CompanyBankDetails::where('company_id', $id)->first();
             $bankDetail->bank_name = $bankDetails->bank_name;
             $bankDetail->account_holder_name = $bankDetails->account_holder_name;
@@ -1142,7 +1143,7 @@ class CompanyController extends Controller
         }
 
         // Packaging Data
-        if(!empty($packagingDetails)) {
+        if(!empty($packagingDetails) && count((array) $packagingDetails)) {
             $package = CompanyPackagingDetails::where('company_id', $id)->first();
             $package->gst_no = $packagingDetails->gst_no;
             $package->cst_no = $packagingDetails->cst_no;
@@ -1152,7 +1153,7 @@ class CompanyController extends Controller
         }
 
         // Reference Data
-        if(!empty($referencesDetails)) {
+        if(!empty($referencesDetails) && count((array) $referencesDetails)) {
             $reference = CompanyReferences::where('company_id', $id)->first();
             $reference->ref_person_name = $referencesDetails->ref_person_name;
             $reference->ref_person_mobile = $referencesDetails->ref_person_mobile;

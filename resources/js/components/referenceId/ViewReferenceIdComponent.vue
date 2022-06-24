@@ -370,7 +370,7 @@ var references = [];
                 references = response.data;
 
                 this.referenceID = references.Reference;
-                this.referenceID.courier_name = references.Courier.name;
+                this.referenceID.courier_name = references.Courier ? references.Courier.name : '';
                 this.user = references.User;
                 this.company = references.Company;
                 this.inward_outward = references.inward_outward;
