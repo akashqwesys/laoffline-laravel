@@ -761,6 +761,7 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     // Dropdown route start
     Route::get('/list-cities', [App\Http\Controllers\Reports\SalesReportController::class, 'listCities']);
     Route::get('/list-agents', [App\Http\Controllers\Reports\CommissionReportController::class, 'listAgents']);
+    Route::get('/list-cities', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listCities']);
     // Dropdown route end
     Route::get('/sales-register-report', [App\Http\Controllers\Reports\SalesReportController::class, 'salesRegister']);
     Route::post('/list-sales-register-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSalesRegisterData']);
@@ -769,6 +770,10 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
 
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
+    Route::post('/list-outstanding-payment-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listOutstandingPaymentData']);
+    
+    Route::get('/outstanding-payment-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentReport']);
+
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
 });

@@ -42,7 +42,7 @@
                                             </tr>
                                             <tr>
                                                 <td>2</td>
-                                                <td><a target="_blank" href="/outstanding_receipt_report">Outstanding Payment Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-payment-report">Outstanding Payment Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>3</td>

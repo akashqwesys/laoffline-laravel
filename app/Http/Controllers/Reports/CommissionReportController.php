@@ -21,10 +21,12 @@ class CommissionReportController extends Controller
     {
         $this->middleware('auth');
     }
+    
     public function listAgents() {
         $agent = Agent::where('is_delete', '0')->get();
         return $agent;
     }
+
     public function commissionRegister(Request $request)
     {
         $page_title = 'Commission Register Report';

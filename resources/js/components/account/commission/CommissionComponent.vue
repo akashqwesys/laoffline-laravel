@@ -181,6 +181,16 @@
                         return: true
                     },
                     buttons: buttons,
+                    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+                        switch(aData['color_flag_id']){
+                            case 1:
+                                $('td', nRow).css('background-color', '#FFFFC8')
+                                break;
+                            case 3:
+                                $('td', nRow).css('background-color', '#C4FFC4')
+                                break;
+                        }
+                    }
                 }).
                 on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="commission_filter"><input type="search" id="commission_no" class="form-control form-control-sm w-10" placeholder="Commission ID"><input type="search" id="iuid" class="form-control form-control-sm w-10" placeholder="iuid"><input type="search" id="ref_no" class="form-control form-control-sm w-15" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm w-15" placeholder="Date Added" onclick="this.showPicker();"><div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm w-20" placeholder="Company"></div><input type="search" id="recivedcommamount" class="form-control form-control-sm w-15" placeholder="Amount"></div>').insertAfter('.dataTables_length');

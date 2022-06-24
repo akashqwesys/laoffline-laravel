@@ -133,7 +133,7 @@ class CommissionController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('*');
+        $records = $records->select('commissions.*', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."commission_id" = "commissions"."commission_id" and financial_year_id = commissions.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'), DB::raw('(SELECT "is_completed" FROM "comboids" WHERE "comboids"."commission_id" = "commissions"."commission_id" and financial_year_id = commissions.financial_year_id ORDER BY "id" DESC LIMIT 1) as is_completed'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->orderBy('commission_id', 'DESC')
@@ -163,8 +163,6 @@ class CommissionController extends Controller
                 $supplier_color = ' text-danger ';
             }
 
-            $iscompleted = Comboids::where('commission_id', $record->commission_id)->where('financial_year_id', $user->financial_year_id)
-                            ->where('is_deleted', 0)->select('is_completed','commission_id','color_flag_id')->first();
             $id = $record->commission_id;
             $iuid = $record->iuid;
             $ref_id = $record->reference_id;
@@ -172,7 +170,7 @@ class CommissionController extends Controller
             $seller = Company::where('id', $record->supplier_id)->first();
             $seller_id = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
             $paid_amount = $record->received_commission_amount;
-            if ($iscompleted && $iscompleted->is_completed == '1') {
+            if ($record->is_completed == '1') {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             } else {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
@@ -182,7 +180,7 @@ class CommissionController extends Controller
             } else {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
-
+            $color_flag_id = $record->color_flag_id;
             $action = '<a href="/commission/view-commission/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="/commission/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
@@ -195,6 +193,7 @@ class CommissionController extends Controller
                 "commission_payment_amount" => $paid_amount,
                 "completed" => $completed,
                 "outward_status" => $outward,
+                "color_flag_id" => $color_flag_id,
                 "action" => $action
             );
         }
