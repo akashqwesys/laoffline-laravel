@@ -1101,7 +1101,17 @@ class CompanyController extends Controller
         // Multiple Address Data
         if(is_array($multipleAddresses) && !empty($multipleAddresses)) {
             foreach($multipleAddresses as $multipleAddress) {
-                $companyAddress = CompanyAddress::where('company_id', $id)->first();
+                if (isset($multipleAddress->id)) {
+                    $companyAddress = CompanyAddress::where('id', $multipleAddress->id)->where('company_id', $id)->first();
+                } else {
+                    $companyAddressLastId = CompanyAddress::orderBy('id', 'DESC')->first('id');
+                    $companyAddressId = !empty($companyAddressLastId) ? $companyAddressLastId->id + 1 : 1;
+
+                    $companyAddress = new CompanyAddress;
+                    $companyAddress->id = $companyAddressId;
+                    $companyAddress->company_id = $id;
+                }
+
                 $companyAddress->address_type = !empty($multipleAddress->address_type) ? $multipleAddress->address_type->id : 0;
                 $companyAddress->address = $multipleAddress->address;
                 $companyAddress->mobile = $multipleAddress->mobile;
@@ -1109,7 +1119,17 @@ class CompanyController extends Controller
 
                 if(is_array($multipleAddress->multipleAddressesOwners) && !empty($multipleAddress->multipleAddressesOwners)) {
                     foreach($multipleAddress->multipleAddressesOwners as $owner) {
-                        $companyAddressOwner = CompanyAddressOwner::where('company_address_id', $companyAddress->id)->first();
+                        if (isset($owner->id)) {
+                            $companyAddressOwner = CompanyAddressOwner::where('id', $owner->id)->where('company_address_id', $companyAddress->id)->first();
+                        } else {
+                            $companyAddressOwnerLastId = CompanyAddressOwner::orderBy('id', 'DESC')->first('id');
+                            $companyAddressOwnerId = !empty($companyAddressOwnerLastId) ? $companyAddressOwnerLastId->id + 1 : 1;
+
+                            $companyAddressOwner = new CompanyAddressOwner;
+                            $companyAddressOwner->id = $companyAddressOwnerId;
+                            $companyAddressOwner->company_address_id = $companyAddress->id;
+                        }
+
                         $companyAddressOwner->name = $owner->name;
                         $companyAddressOwner->designation = $owner->designation;
                         $companyAddressOwner->profile_pic = $owner->profile_pic;
