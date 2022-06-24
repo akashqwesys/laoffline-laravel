@@ -85,13 +85,13 @@
             <div class="text-center">
                 <b class="mt-2" style="font-size: 14px;">SALES REGISTER REPORT</b>
                 <br>
-                <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</b>
+                <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request['start_date'])) . ' TO ' . date('d-m-Y', strtotime($request['end_date'])) }}</b>
             </div>
             <table class="" width="100%">
                 @php
                     $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $i = 0;
                 @endphp
-                @if ($request->show_detail == 1)
+                @if ($request['show_detail'] == 1)
                 <thead>
                     <tr>
                         <th>No</th>

@@ -10,13 +10,13 @@
     @php
         $total_pieces = $total_meters = $net_total = $gross_total = $rec_total = $gross_amount = $gst_total = $i = 0;
     @endphp
-    @if ($request->show_detail == 1)
+    @if ($request['show_detail'] == 1)
     <thead>
         <tr>
             <th colspan="4" align="center" style="font-size: 20px;"><b >SALES REGISTER REPORT</b></th>
         </tr>
         <tr>
-            <th colspan="4" align="center"><b>{{ date('d-m-Y', strtotime($request->start_date)) . ' - ' . date('d-m-Y', strtotime($request->end_date)) }}</b></th>
+            <th colspan="4" align="center"><b>{{ date('d-m-Y', strtotime($request['start_date'])) . ' - ' . date('d-m-Y', strtotime($request['end_date'])) }}</b></th>
         </tr>
         <tr>
             <th><b>No</b></th>
@@ -60,7 +60,7 @@
             <th></th>
         </tr>
         <tr>
-            <th colspan="11" align="center"><b>{{ date('d-m-Y', strtotime($request->start_date)) . ' - ' . date('d-m-Y', strtotime($request->end_date)) }}</b></th>
+            <th colspan="11" align="center"><b>{{ date('d-m-Y', strtotime($request['start_date'])) . ' - ' . date('d-m-Y', strtotime($request['end_date'])) }}</b></th>
             <th></th>
             <th></th>
             <th></th>

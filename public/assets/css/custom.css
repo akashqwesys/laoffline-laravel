@@ -271,3 +271,38 @@ td .ni-sign-inr {
 .w-5 { width: 5% !important; }
 
 .w-10 { width: 10% !important; }
+
+.position-sticky-top {
+    position: sticky;
+    top: 0;
+}
+
+.position-sticky-bottom {
+    position: sticky;
+    bottom: 0;
+}
+
+/* Scrollbar start */
+/* width */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 7px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #6576ff;
+    border-radius: 7px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #3f54f3;
+}
+/* Scrollbar end */
