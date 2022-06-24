@@ -764,7 +764,7 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/list-cities', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listCities']);
     // Dropdown route end
     Route::get('/sales-register-report', [App\Http\Controllers\Reports\SalesReportController::class, 'salesRegister']);
-    Route::post('/list-sales-register-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSalesRegisterData']);
+    Route::get('/list-sales-register-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSalesRegisterData']);
     Route::get('/consolidate-monthly-sales-report', [App\Http\Controllers\Reports\SalesReportController::class, 'consolidateMonthlySales']);
     Route::post('/list-consolidate-monthly-sales-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listConsolidateMonthlySales']);
 

@@ -178,10 +178,13 @@
                                             <div class="" id="product_sub_category_text">
                                                 <label class="form-label">Please Select Product Main Category And Supplier Field.</label>
                                             </div>
-                                            <div class="form-group hidden" id="product_sub_category_section">
-                                                <div class="form-control-wrap">
+                                            <div class="form-group hidden mb-6" id="product_sub_category_section">
+                                                <div class="form-control-wrap w-90 float-left">
                                                     <multiselect v-model="product_sub_category" :options="product_sub_category_options" :multiple="true" placeholder="Select One" label="name" track-by="id" id="product_sub_category" @close="getProducts($event)"></multiselect>
                                                 </div>
+                                                <!-- <div class="w-10 float-right">
+                                                    <button class="btn btn-sm btn-primary ml-2" type="button" id="refresh_product_sub_category" @click="getProductSubCategory()"><em class="icon ni ni-reload"></em></button>
+                                                </div> -->
                                             </div>
                                         </div>
                                         <hr>
@@ -1163,6 +1166,8 @@
     .dynamic_items .form-control, .dynamic_items_fabrics .form-control {
         padding: 0.4375rem 0.6rem;
     }
-
+    .mb-6 {
+        margin-bottom: 3.5rem;
+    }
 </style>
 

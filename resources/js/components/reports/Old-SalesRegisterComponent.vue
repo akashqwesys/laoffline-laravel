@@ -86,10 +86,10 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="table-responsive">
-                                    <table id="salesRegisterDT" class="table table-hover table-bordered-" v-if="detailed_table == true">
+                                <div class="table-responsive h-600">
+                                    <table id="salesRegister" class="table table-hover table-bordered-">
                                         <thead>
-                                            <tr class="">
+                                            <tr v-if="detailed_table == true" class="position-sticky-top bg-light">
                                                 <th width="8%">Date</th>
                                                 <th>Sr</th>
                                                 <th>Party</th>
@@ -106,11 +106,7 @@
                                                 <th>L.R.No.</th>
                                                 <th>Purchase Party</th>
                                             </tr>
-                                        </thead>
-                                    </table>
-                                    <table v-else id="salesRegister" class="table table-hover table-bordered-">
-                                        <thead>
-                                            <tr class="">
+                                            <tr v-else class="position-sticky-top bg-light">
                                                 <th>No</th>
                                                 <th>Party</th>
                                                 <th class="text-right">Net Amt</th>
@@ -161,7 +157,7 @@
                 detailed_table: true,
                 export_sheet: 0,
                 export_pdf: 0,
-                dt_table: null,
+                data_offset: 0,
             }
         },
         created() {
@@ -195,83 +191,111 @@
                 this.payment_status = { id: 0, name: 'All' };
                 this.show_detail = 0;
             },
-            init_dt_table () {
-                var self = this;
-                this.dt_table = $('#salesRegisterDT').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    responsive: true,
-                    ordering: false,
-                    ajax: {
-                        url: "./list-sales-register-data",
-                        data: function (data) {
-                            data.start_date = self.start_date;
-                            data.end_date = self.end_date;
-                            data.customer = self.customer;
-                            data.supplier = self.supplier;
-                            data.payment_status = self.payment_status;
-                            data.show_detail = self.show_detail;
-                            data.export_sheet = self.export_sheet;
-                            data.export_pdf = self.export_pdf;
-                        },
-                        complete: function (data) { }
-                    },
-                    pagingType: 'full_numbers',
-                    dom: 'lrtip',
-                    // order: [[ 0, "desc" ]],
-                    columns: [
-                        { data: 'select_date' },
-                        { data: 'sale_bill_id' },
-                        { data: 'customer_name' },
-                        { data: 'tot_pieces' },
-                        { data: 'tot_meters', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                        { data: 'total', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                        { data: 'received_payment', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                        { data: 'total_gst', render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                        { data: 'agent_name' },
-                        { data: 'supplier_invoice_no' },
-                        { data: 'gross_amount', orderable: false, render: $.fn.dataTable.render.number(',', '.', 0, '') },
-                        { data: 'transport_name' },
-                        { data: 'city_name' },
-                        { data: 'lr_mr_no' },
-                        { data: 'supplier_name' },
-                    ],
-                    search: { return: false },
-                    // createdRow: function( row, data, dataIndex ) { }
-                })
-                // .on( 'init.dt', function () { } );
-            },
             getData() {
-                if (this.start_date == '' || this.end_date == '') {
-                    alert('Please Select Both Start Date & End Date');
-                    return false;
-                }
                 if (this.show_detail == 1) {
-                    // this.dt_table.destroy();
                     this.detailed_table = false;
                 } else {
                     this.detailed_table = true;
                 }
-                if (this.export_sheet == 1 || this.export_pdf == 1) {
-                    axios.get('/reports/list-sales-register-data', {
-                        params: {
-                            start_date: this.start_date,
-                            end_date: this.end_date,
-                            customer: this.customer,
-                            supplier: this.supplier,
-                            payment_status: this.payment_status,
-                            show_detail: this.show_detail,
-                            export_sheet: this.export_sheet,
-                            export_pdf: this.export_pdf
-                        }
-                    })
-                    .then(response => {
+                axios.post('/reports/list-sales-register-data', {
+                    start_date: this.start_date,
+                    end_date: this.end_date,
+                    customer: this.customer,
+                    supplier: this.supplier,
+                    payment_status: this.payment_status,
+                    show_detail: this.show_detail,
+                    export_sheet: this.export_sheet,
+                    export_pdf: this.export_pdf
+                })
+                .then(response => {
+                    if (this.export_sheet == 1 || this.export_pdf == 1) {
                         this.export_sheet = this.export_pdf = 0;
                         window.open(response.data.url, '_blank');
-                    });
-                } else {
-                    this.dt_table.ajax.reload();
-                }
+                        return;
+                    }
+                    if (response.data.length > 0) {
+                        const toINR = new Intl.NumberFormat('en-IN', {
+                            // style: 'currency',
+                            // currency: 'INR',
+                            // minimumFractionDigits: 0
+                        });
+                        var html = '';
+                        var total_pieces = 0, total_meters = 0, net_total = 0, received_total = 0, gross_total = 0;
+                        var gross_amount = 0;
+                        if (this.show_detail == 1) {
+                            response.data.forEach((k, i) => {
+                                net_total += parseFloat(k.total);
+                                received_total += parseFloat(k.received_payment);
+                                html += `<tr>
+                                    <td class=""> ${i+1} </td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.company_name} </a> </td>
+                                    <td class="text-right"> ${toINR.format(k.total)} </td>
+                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
+                                </tr>`;
+                            });
+                            html += `<tr>
+                                    <th class=""> Total</th>
+                                    <th class=""> </th>
+                                    <th class="text-right"> ${toINR.format(net_total)} </th>
+                                    <th class="text-right"> ${toINR.format(received_total)} </th>
+                                </tr>`;
+                        } else {
+                            response.data.forEach((k, i) => {
+                                total_pieces += parseFloat(k.tot_pieces);
+                                total_meters += parseFloat(k.tot_meters);
+                                net_total += parseFloat(k.total);
+                                received_total += parseFloat(k.received_payment);
+                                if (k.sign_change == '+') {
+                                    gross_amount = (parseFloat(k.total) - parseFloat(k.change_in_amount));
+                                } else {
+                                    gross_amount = (parseFloat(k.total) + parseFloat(k.change_in_amount));
+                                }
+                                gross_total += gross_amount;
+                                html += `<tr>
+                                    <td class=""> ${k.select_date} </td>
+                                    <td class=""> <a href="/account/sale-bill/view-sale-bill/${k.sale_bill_id}/${k.financial_year_id}" class="" data-toggle="tooltip" data-placement="top" title="View"> ${k.sale_bill_id} </a></td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.customer_name} </a> </td>
+                                    <td class="text-right"> ${k.tot_pieces} </td>
+                                    <td class="text-right"> ${k.tot_meters} </td>
+                                    <td class="text-right"> ${toINR.format(k.total)} </td>
+                                    <td class="text-right"> ${toINR.format(k.received_payment)} </td>
+                                    <td class="text-right"> ${toINR.format(k.total_gst)} </td>
+                                    <td class=""> ${k.agent_name} </td>
+                                    <td class=""> ${k.supplier_invoice_no} </td>
+                                    <td class="text-right"> ${toINR.format(gross_amount)} </td>
+                                    <td class=""> ${k.transport_name} </td>
+                                    <td class=""> ${k.city_name} </td>
+                                    <td class=""> ${k.lr_mr_no} </td>
+                                    <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.supplier_name} </a> </td>
+                                </tr>`;
+                            });
+                            html += `<tr class="position-sticky-bottom bg-light">
+                                <th class=""> Total</th>
+                                <th class=""> </th>
+                                <th class=""> </th>
+                                <th class="text-right"> ${total_pieces} </th>
+                                <th class="text-right"> ${total_meters.toFixed(2)} </th>
+                                <th class="text-right"> ${toINR.format(net_total)} </th>
+                                <th class="text-right"> ${toINR.format(received_total)} </th>
+                                <th class=""> </th>
+                                <th class=""> </th>
+                                <th class=""> </th>
+                                <th class="text-right"> ${toINR.format(gross_total)} </th>
+                                <th class=""> </th>
+                                <th class=""> </th>
+                                <th class=""> </th>
+                                <th class=""> </th>
+                            </tr>`;
+                        }
+                        $('#salesRegister tbody').html(html);
+                    } else {
+                        if (this.show_detail == 1) {
+                            $('#salesRegister tbody').html('<tr><td colspan="4" class="text-center">No Records Found</td></tr>');
+                        } else {
+                            $('#salesRegister tbody').html('<tr><td colspan="15" class="text-center">No Records Found</td></tr>');
+                        }
+                    }
+                });
             },
             exportSheet() {
                 this.export_sheet = 1;
@@ -284,12 +308,12 @@
         },
         mounted() {
             const self = this;
+            var dt_table = null;
             /* const toINR = new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
                 // minimumFractionDigits: 2
             }); */
-            this.init_dt_table();
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
@@ -297,6 +321,9 @@
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
             });
+            function data_offset() {
+                self.data_offset += 20;
+            }
 
         },
     };
