@@ -172,7 +172,7 @@
                                                                                             <td>{{ key + 1 }}</td>
                                                                                             <td>
                                                                                                 <div class="user-card">
-                                                                                                    <div class="user-avatar user-avatar-sm bg-warning">
+                                                                                                    <div class="user-avatar user-avatar-sm bg-warning open-img-new-tab">
                                                                                                         <img v-if="owner.profile_pic != ''"  v-bind:src="this.$parent.getProfilePic(owner.profile_pic)" alt="">
                                                                                                         <span v-if="owner.profile_pic == ''" >{{ owner.name.charAt(0).toUpperCase() }}</span>
                                                                                                     </div>
@@ -213,7 +213,7 @@
                                                                             <td>{{ key + 1 }}</td>
                                                                             <td>
                                                                                 <div class="user-card">
-                                                                                    <div class="user-avatar user-avatar-sm bg-warning">
+                                                                                    <div class="user-avatar user-avatar-sm bg-warning open-img-new-tab">
                                                                                         <img v-if="contactDetail.contact_person_profile_pic != ''" v-bind:src="this.$parent.getProfilePic(contactDetail.contact_person_profile_pic)" alt="">
                                                                                         <span v-if="contactDetail.contact_person_profile_pic == ''">{{ contactDetail.contact_person_name.charAt(0).toUpperCase() }}</span>
                                                                                     </div>
@@ -422,6 +422,9 @@
             }
         },
         mounted() {
+            $(document).on('click', '.open-img-new-tab', function () {
+                window.open($(this).find('img').attr('src'), '_blank');
+            });
         },
     };
 </script>

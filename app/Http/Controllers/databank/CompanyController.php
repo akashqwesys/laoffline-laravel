@@ -623,7 +623,8 @@ class CompanyController extends Controller
         foreach($companyContactDetails as $contact) {
             $contactDesignation = $contact->contact_person_designation;
             if (!empty($contactDesignation)) {
-                $contact->contact_person_designation = Designation::where('id', $contactDesignation)->where('is_delete', 0)->first();
+                $cpd = Designation::where('id', $contactDesignation)->where('is_delete', 0)->first();
+                $contact->contact_person_designation = $cpd ? $cpd->name : '';
             }
         }
 
@@ -1078,7 +1079,16 @@ class CompanyController extends Controller
         // Contact Details Data
         if(is_array($contactDetails) && !empty($contactDetails)) {
             foreach($contactDetails as $contactDetail) {
-                $companyContactDetails = CompanyContactDetails::where('company_id', $id)->first();
+                if (isset($contactDetail->id)) {
+                    $companyContactDetails = CompanyContactDetails::where('company_id', $id)->where('id', $contactDetail->id)->first();
+                } else {
+                    $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
+                    $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
+
+                    $companyContactDetails = new CompanyContactDetails;
+                    $companyContactDetails->company_id = $id;
+                    $companyContactDetails->id = $companyContactId;
+                }
                 $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
                 $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
                 $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
@@ -1091,7 +1101,17 @@ class CompanyController extends Controller
         // Multiple Address Data
         if(is_array($multipleAddresses) && !empty($multipleAddresses)) {
             foreach($multipleAddresses as $multipleAddress) {
-                $companyAddress = CompanyAddress::where('company_id', $id)->first();
+                if (isset($multipleAddress->id)) {
+                    $companyAddress = CompanyAddress::where('id', $multipleAddress->id)->where('company_id', $id)->first();
+                } else {
+                    $companyAddressLastId = CompanyAddress::orderBy('id', 'DESC')->first('id');
+                    $companyAddressId = !empty($companyAddressLastId) ? $companyAddressLastId->id + 1 : 1;
+
+                    $companyAddress = new CompanyAddress;
+                    $companyAddress->id = $companyAddressId;
+                    $companyAddress->company_id = $id;
+                }
+
                 $companyAddress->address_type = !empty($multipleAddress->address_type) ? $multipleAddress->address_type->id : 0;
                 $companyAddress->address = $multipleAddress->address;
                 $companyAddress->mobile = $multipleAddress->mobile;
@@ -1099,7 +1119,17 @@ class CompanyController extends Controller
 
                 if(is_array($multipleAddress->multipleAddressesOwners) && !empty($multipleAddress->multipleAddressesOwners)) {
                     foreach($multipleAddress->multipleAddressesOwners as $owner) {
-                        $companyAddressOwner = CompanyAddressOwner::where('company_address_id', $companyAddress->id)->first();
+                        if (isset($owner->id)) {
+                            $companyAddressOwner = CompanyAddressOwner::where('id', $owner->id)->where('company_address_id', $companyAddress->id)->first();
+                        } else {
+                            $companyAddressOwnerLastId = CompanyAddressOwner::orderBy('id', 'DESC')->first('id');
+                            $companyAddressOwnerId = !empty($companyAddressOwnerLastId) ? $companyAddressOwnerLastId->id + 1 : 1;
+
+                            $companyAddressOwner = new CompanyAddressOwner;
+                            $companyAddressOwner->id = $companyAddressOwnerId;
+                            $companyAddressOwner->company_address_id = $companyAddress->id;
+                        }
+
                         $companyAddressOwner->name = $owner->name;
                         $companyAddressOwner->designation = $owner->designation;
                         $companyAddressOwner->profile_pic = $owner->profile_pic;
@@ -1121,7 +1151,7 @@ class CompanyController extends Controller
         }
 
         // SWOT Data
-        if(!empty($swotDetails)) {
+        if(!empty($swotDetails) && count((array) $swotDetails)) {
             $swotData = CompanySwotDetails::where('company_id', $id)->first();
             $swotData->strength = $swotDetails->strength;
             $swotData->weakness = $swotDetails->weakness;
@@ -1131,7 +1161,7 @@ class CompanyController extends Controller
         }
 
         // Bank Data
-        if(!empty($bankDetails)) {
+        if(!empty($bankDetails) && count((array) $bankDetails)) {
             $bankDetail = CompanyBankDetails::where('company_id', $id)->first();
             $bankDetail->bank_name = $bankDetails->bank_name;
             $bankDetail->account_holder_name = $bankDetails->account_holder_name;
@@ -1142,7 +1172,7 @@ class CompanyController extends Controller
         }
 
         // Packaging Data
-        if(!empty($packagingDetails)) {
+        if(!empty($packagingDetails) && count((array) $packagingDetails)) {
             $package = CompanyPackagingDetails::where('company_id', $id)->first();
             $package->gst_no = $packagingDetails->gst_no;
             $package->cst_no = $packagingDetails->cst_no;
@@ -1152,7 +1182,7 @@ class CompanyController extends Controller
         }
 
         // Reference Data
-        if(!empty($referencesDetails)) {
+        if(!empty($referencesDetails) && count((array) $referencesDetails)) {
             $reference = CompanyReferences::where('company_id', $id)->first();
             $reference->ref_person_name = $referencesDetails->ref_person_name;
             $reference->ref_person_mobile = $referencesDetails->ref_person_mobile;

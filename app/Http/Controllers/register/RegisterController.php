@@ -363,10 +363,19 @@ class RegisterController extends Controller
 
         if ($reference) {
             $referenceid = $reference->reference_id;
+            /* if ($reference->company_id != 0) {
+                if (Session::get('user')->employee_id == $reference->employee_id) {
+                    $empName = "Own";
+                } else {
+                    $empName = "Rec.";
+                }
+                $html .= '<table class="table table-hover table-bordered" > <tbody> <tr> <td> <div class="custom-control custom-control-sm custom-radio notext"> <input type="radio" class="custom-control-input" id="referenceSample5"  name="" value="' . $referenceid. '" > <label class="custom-control-label" for="referenceSample5"></label> </div> </td> <td>' . $referenceid . '</td> <td>Rec.</td> <td>' . date('Y-m-d', strtotime($reference->created_at)) . '</td> <td>' . date('H:i A', strtotime($reference->created_at)) . '</td> </tr> </tbody> </table>';
+            } */
         } else {
             $referenceid = 0;
         }
         $data['ref_id'] = $referenceid;
+        $data['reference'] = $reference;
         return $data;
     }
 
@@ -673,7 +682,7 @@ class RegisterController extends Controller
     public function getAllDetails(Request $request) {
        $user = Session::get('user');
        $referenceid = $request->input('refernceid');
-       
+
        $reference =  ReferenceId::where('reference_id', $referenceid)
                     ->where('financial_year_id', $user->financial_year_id)
                     ->where('is_deleted', 0)
@@ -775,7 +784,7 @@ class RegisterController extends Controller
         $referncedata = json_decode($request->refenceform);
         $salebilldata = json_decode($request->salebill);
         $reference = $referncedata->refrence;
-        
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -1961,7 +1970,7 @@ class RegisterController extends Controller
                 $customer = Company::where('id', $invoicedetail->supplier_id)->first();
                 $salebill['invoicedetail'] = $invoicedetail;
                 $salebill['billdate'] = date('d-m-Y', strtotime($invoicedetail->bill_date));
-                $salebill['date_add'] = date('d-m-Y H:i:s',strtotime($invoicedetail->created_at));  
+                $salebill['date_add'] = date('d-m-Y H:i:s',strtotime($invoicedetail->created_at));
                 $salebill['company_name'] = $customer->company_name;
                 array_push($salebilldata, $salebill);
             }
@@ -1971,7 +1980,7 @@ class RegisterController extends Controller
         if (!empty($outward->courier_name)) {
             $courier = TransportDetails::where('id', $outward->courier_name)->first();
         }
-        
+
         $agent = Agent::where('id', $outward->courier_agent)->first();
         $data['salebill'] = $salebilldata;
         $data['outward'] = $outward;
@@ -2121,7 +2130,7 @@ class RegisterController extends Controller
                 array_push($files, $attechmentfile);
             }
         }
-        
+
         $user = Session::get('user');
         $financialid = $user->financial_year_id;
         if($inward_data->notify_client) {
@@ -2166,7 +2175,7 @@ class RegisterController extends Controller
         $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
         $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
         $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-        
+
         if ($increment_id_details) {
             $iuid = $increment_id_details->iuid + 1;
             $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
@@ -2298,7 +2307,7 @@ class RegisterController extends Controller
         $inward->financial_year_id = $financialid;
         $inward->enquiry_complain_for = 0;
         $inward->product_qty = 0;
-        $inward->fabric_meters = 0; 
+        $inward->fabric_meters = 0;
         $inward->is_deleted = 0;
         $inward->save();
 

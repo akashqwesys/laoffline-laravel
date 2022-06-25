@@ -82,12 +82,34 @@
                                                             <td>{{ dateFormate(refsample.created_at) }}</td>
                                                             <td>{{ timeFormate(refsample.created_at) }}</td>
                                                         </tr>
+                                                        <tr v-if="inwardType == 'sample'">
+                                                            <td colspan="5">
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control" placeholder="Enter Reference number" v-model="referenceNumber">
+                                                                    <div class="input-group-append">
+                                                                        <button type="button" class="btn btn-outline-primary btn-dim" @click="getReferenceDataViaId(referenceNumber)">Go</button>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="hidden" id="oldrefence">
+                                                            <td>
+                                                                <div class="custom-control custom-control-sm custom-radio notext">
+                                                                    <input type="radio" class="custom-control-input" id="referenceSample5" value="" v-model="form.reference_sample_data" @change="refernceidchange">
+                                                                    <label class="custom-control-label" for="referenceSample5"></label>
+                                                                </div>
+                                                            </td>
+                                                            <td></td>
+                                                            <td>Rec.</td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
                                         <div v-if="inwardType == 'sample'" class="row gy-4">
-                                            <div class="col-md-12">
+                                            <!-- <div class="col-md-12">
                                                 <div class="form-group">
                                                     <div class="form-control-wrap">
                                                         <div class="input-group">
@@ -96,10 +118,27 @@
                                                                 <button type="button" class="btn btn-outline-primary btn-dim" @click="getReferenceDataViaId(referenceNumber)">Go</button>
                                                             </div>
                                                         </div>
-                                                        <div id="oldrefence"></div>
+                                                        <div id="oldrefence" class="mt-2 hidden">
+                                                            <table class="table table-hover table-bordered" v-if="1">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div class="custom-control custom-control-sm custom-radio notext">
+                                                                                <input type="radio" class="custom-control-input" id="referenceSample5" value="" v-model="form.reference_sample_data" @change="refernceidchange">
+                                                                                <label class="custom-control-label" for="referenceSample5"></label>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td></td>
+                                                                        <td>Rec.</td>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div v-if="referenceSampleError == 1" class="col-md-12">
                                                 <div class="form-group">
                                                     <div class="form-control-wrap">
@@ -108,7 +147,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row gy-4">
+                                        <div class="row gy-4 pt-2">
                                             <div v-if="inwardType != 'sample'" class="col-md-4" style="z-index: 0;">
                                                 <div class="preview-block">
                                                     <label class="form-label">Reference</label>
@@ -343,7 +382,7 @@
                                                     </div>
                                                     <div id="error-for-courier_name" class="mt-2 text-danger"></div>
                                                 </div>
-                                                
+
                                             </div>
                                             <div v-if="(inwardType == 'letter' && form.letter_by && form.letter_by.id == 2) || (inwardType == 'sample' && form.sample_via && form.sample_via.id == 2) " class="col-md-4">
                                                 <div class="form-group">
@@ -787,56 +826,23 @@
                 inwardProductError: '',
                 productWithSuppliers: '',
                 CallBy:[
-                    {
-                        id: '1',
-                        name: 'Own / Related',
-                    },
-                    {
-                        id: '2',
-                        name: 'Laveshbhai',
-                    },
-                    {
-                        id: '3',
-                        name: 'Narayanbhai',
-                    }
+                    { id: '1', name: 'Own / Related', },
+                    { id: '2', name: 'Laveshbhai', },
+                    { id: '3', name: 'Narayanbhai', }
                 ],
                 letterBy:[
-                    {
-                        id: '1',
-                        name: 'Hand',
-                    },
-                    {
-                        id: '2',
-                        name: 'Courier',
-                    },
+                    { id: '1', name: 'Hand', },
+                    { id: '2', name: 'Courier', },
                 ],
                 sampleFor:[
-                    {
-                        id: '1',
-                        name: 'Product',
-                    },
-                    {
-                        id: '2',
-                        name: 'Fabric',
-                    },
-                    {
-                        id: '3',
-                        name: 'Unit',
-                    },
+                    { id: '1', name: 'Product', },
+                    { id: '2', name: 'Fabric', },
+                    { id: '3', name: 'Unit', },
                 ],
                 enquiryComplainFor:[
-                    {
-                        id: '1',
-                        name: 'Product / Fabric',
-                    },
-                    {
-                        id: '2',
-                        name: 'Service',
-                    },
-                    {
-                        id: '3',
-                        name: 'Ledger',
-                    }
+                    { id: '1', name: 'Product / Fabric', },
+                    { id: '2', name: 'Service', },
+                    { id: '3', name: 'Ledger', }
                 ],
                 sampleData : [{
                     name: '',
@@ -865,10 +871,7 @@
                 form: new Form({
                     id: '',
                     call_by: [
-                        {
-                            id: '1',
-                            name: 'Own / Related',
-                        }
+                        { id: '1', name: 'Own / Related', }
                     ],
                     reference_via: '',
                     inward_reference: 1,
@@ -896,18 +899,9 @@
                     sub_products: '',
                     receiver_number: '',
                     receiver_email_id: '',
-                    letter_by: {
-                        id: '2',
-                        name: 'Courier',
-                    },
-                    sample_via: {
-                        id: '2',
-                        name: 'Courier',
-                    },
-                    sample_for: {
-                        id: '1',
-                        name: 'Product',
-                    },
+                    letter_by: { id: '2', name: 'Courier', },
+                    sample_via: { id: '2', name: 'Courier', },
+                    sample_for: { id: '1', name: 'Product', },
                     courier_name: '',
                     courier_receipt_number: '',
                     weight_of_parcel: '',
@@ -1020,7 +1014,7 @@
                     this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
                     this.form.dateTime = response.data.reference.selection_date;
                 });
-                
+
             },
             uploadImage (index, event) {
                 this.sampleData[index].image = event.target.files[index];
@@ -1032,7 +1026,7 @@
                 return mydate.getDate() + '-' + month + '-' + mydate.getFullYear() + " " + mydate.getHours() + ":" + mydate.getMinutes() + ":" + mydate.getSeconds();
             },
             getReferenceDataViaId(referenceId) {
-                
+
                 if (referenceId != '') {
                     if (this.inwardType == 'sample') {
                         axios.get('/register/getOldReferenceDetails/'+referenceId+'/'+this.form.sample_via.name+'/'+this.inwardType)
@@ -1040,24 +1034,11 @@
                             if (response1.data.ref_id != 0) {
                                 this.referenceSampleError = 0;
                                 this.form.reference_sample_data = response1.data.ref_id;
-                                axios.post('/register/getalldetail',{
-                                    refernceid : response1.data.ref_id
-                                })
-                                .then(response => {
-
-                                    if (this.inwardType == 'sample') {
-                                        this.form.company = response.data.company.company_name;
-                                        this.form.companyid = response.data.company.id;
-                                        this.form.companytype = response.data.company.company_type;
-                                        this.form.from_name = response.data.reference.from_name;
-                                    }
-                                    this.form.courier_name = response.data.courier_name;
-                                    this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
-                                    this.form.delivery_by = response.data.reference.delivery_by;
-                                    this.form.received_date_time = response.data.reference.courier_received_time;
-                                    this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
-                                    this.form.dateTime = response.data.reference.selection_date;
-                                });
+                                $('#oldrefence').find('td').eq(1).text(response1.data.ref_id);
+                                $('#oldrefence').find('td').eq(3).text(this.dateFormate(response1.data.reference.created_at));
+                                $('#oldrefence').find('td').eq(4).text(this.timeFormate(response1.data.reference.created_at));
+                                $('#oldrefence').removeClass('hidden');
+                                // this.refernceidchange();
                             } else {
                                 this.referenceSampleError = 1;
                             }
@@ -1165,9 +1146,7 @@
                             this.subjectLinkWith = '"link with" for ';
                             this.inwardProductError = 'Please Select Supplier First.';
                         }
-                    } else {
-
-                    }
+                    } else { }
                 }
 
             },
@@ -1293,7 +1272,7 @@
                 })
             },
             register () {
-                
+
                 $("#error-for-courier_name").text("");
                 $("#error-for-sample_via").text("");
                 $("#error-for-sample_for").text("");
@@ -1328,7 +1307,7 @@
                 } else {
                     this.isValidate = 1;
                 }
-                
+
                 var paymentdata = new FormData();
                 paymentdata.append('inwarddata', JSON.stringify(this.form));
                 paymentdata.append('sampleData', JSON.stringify(this.sampleData));
@@ -1351,7 +1330,7 @@
                             window.location.href = '/register/inward';
                     })
                 } else {
-                    alert('Fill All Required Feild');
+                    alert('Fill All Required Field');
                     return false;
                 }
             },
@@ -1376,8 +1355,7 @@
                     this.form.dateTime = response.data.reference.selection_date;
                 });
             }, 1000);
-            
-           
+
             if(this.type == 1) {
                 this.inwardType = 'call';
             } else if(this.type == 2) {
@@ -1405,7 +1383,7 @@
         },
     };
 </script>
-<style>
+<style scoped>
     .invalid {
         color: #e85347;
         font-size: 11px;
