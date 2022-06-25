@@ -13,10 +13,10 @@
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="create_outward" class="dropdown-toggle btn btn-icon btn-primary pr-2"><em class="icon ni ni-plus"></em> Outward</a>
                                         <a v-bind:href="create_inward" class="dropdown-toggle btn btn-icon btn-primary pr-2 mx-2"><em class="icon ni ni-plus"></em> Inward</a>
-                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner table-responsive">
                                 <table class="table table-hover" id="register">
@@ -71,7 +71,7 @@
         },
         data() {
             return {
-                create_inward: '/register/create-inward',
+                create_inward: '/register/inward/sample',
                 create_outward: '/register/create-outward',
             }
         },
@@ -221,7 +221,7 @@
 
                         }
                     }
-                    
+
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="register_filter"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="iotype" class="form-control form-control-sm" placeholder="IO Type"><input type="search" id="iomedium" class="form-control form-control-sm" placeholder="IO Medium"><input type="search" id="company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="cmptype" class="form-control form-control-sm" placeholder="CMP type"><input type="search" id="generatedby" class="form-control form-control-sm" placeholder="Generate By"><input type="search" id="assignto" class="form-control form-control-sm" placeholder="Assign to"></div>').insertAfter('.dataTables_length');

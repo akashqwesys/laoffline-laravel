@@ -157,7 +157,7 @@ const routes = [
         children: [
             { path: 'create-inward', component: CreateInwardComponent },
             { path: 'create-outward', component: CreateOutwardComponent },
-            { path: 'inward/{type}', component: InsertInwardComponent },
+            { path: 'inward/:type', component: InsertInwardComponent },
             { path: 'inward', component: InwardComponent},
             { path: 'outward', component: OutwardComponent},
             { path: 'outward/salebill', component: InsertSalebillOutwardComponent },
