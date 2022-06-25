@@ -95,7 +95,7 @@
                                                         <tr class="hidden" id="oldrefence">
                                                             <td>
                                                                 <div class="custom-control custom-control-sm custom-radio notext">
-                                                                    <input type="radio" class="custom-control-input" id="referenceSample5" value="" v-model="form.reference_sample_data" @change="refernceidchange">
+                                                                    <input type="radio" class="custom-control-input" id="referenceSample5" :value="oldrefid" v-model="form.reference_sample_data" @change="refernceidchange">
                                                                     <label class="custom-control-label" for="referenceSample5"></label>
                                                                 </div>
                                                             </td>
@@ -844,6 +844,7 @@
                     { id: '2', name: 'Service', },
                     { id: '3', name: 'Ledger', }
                 ],
+                oldrefid: '',
                 sampleData : [{
                     name: '',
                     image: '',
@@ -1035,10 +1036,11 @@
                                 this.referenceSampleError = 0;
                                 this.form.reference_sample_data = response1.data.ref_id;
                                 $('#oldrefence').find('td').eq(1).text(response1.data.ref_id);
+                                this.oldrefid = response1.data.ref_id;
                                 $('#oldrefence').find('td').eq(3).text(this.dateFormate(response1.data.reference.created_at));
                                 $('#oldrefence').find('td').eq(4).text(this.timeFormate(response1.data.reference.created_at));
                                 $('#oldrefence').removeClass('hidden');
-                                // this.refernceidchange();
+                                this.refernceidchange();
                             } else {
                                 this.referenceSampleError = 1;
                             }

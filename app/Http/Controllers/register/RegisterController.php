@@ -692,7 +692,7 @@ class RegisterController extends Controller
                    ->first();
         $data['courier_name'] = [];
         if (!empty($reference->courier_name)){
-            $courier = TransportDetails::where('name', $reference->courier_name)->where('is_delete', 0)->first();
+            $courier = TransportDetails::where('id', $reference->courier_name)->where('is_delete', 0)->first();
             $data['courier_name'] = $courier;
         }
         $data['reference'] = $reference;
