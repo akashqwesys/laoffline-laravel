@@ -323,7 +323,7 @@
                 if (this.isValidate == 1) {
                     axios.post('/register/insertpaymentoutward',formdata)
                     .then(function (responce) {
-                        window.location.href = '/register';
+                        window.location.href = '/register/outward/outward-view/'+responce.data.outwardid;
                     }).catch(function (error) {
 
                     });

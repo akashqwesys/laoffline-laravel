@@ -353,6 +353,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:acces
     Route::get('/outward', [App\Http\Controllers\register\RegisterController::class, 'outward']);
     Route::get('/inward', [App\Http\Controllers\register\RegisterController::class, 'inward']);
     Route::get('/view-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'viewOutward']);
+    Route::get('/view-inward/{id}', [App\Http\Controllers\register\RegisterController::class, 'viewInward']);
     Route::get('/fetch-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'fetchOutward']);
     Route::get('/edit-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'editOutward']);
     Route::get('/list', [App\Http\Controllers\register\RegisterController::class, 'listRegister'])->name('list');
@@ -382,6 +383,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::get('/create-outward', [App\Http\Controllers\register\RegisterController::class, 'createOutward']);
     Route::get('/inward/{type}', [App\Http\Controllers\register\RegisterController::class, 'addInward']);
     Route::get('/outward/salebill', [App\Http\Controllers\register\RegisterController::class, 'addSalebillOutward']);
+    Route::get('/outward/outward-view/{id}', [App\Http\Controllers\register\RegisterController::class, 'outwardView']);
     Route::get('/outward/payment', [App\Http\Controllers\register\RegisterController::class, 'addPaymentOutward']);
     Route::get('/outward/commission', [App\Http\Controllers\register\RegisterController::class, 'addCommissionOutward']);
     Route::get('/outward/commissioninvoice', [App\Http\Controllers\register\RegisterController::class, 'addCommissionInvoiceOutward']);

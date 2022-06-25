@@ -997,6 +997,8 @@ class RegisterController extends Controller
             $sb->done_outward = 1;
             $sb->save();
         }
+        $data['outwardid'] = $outward_id;
+        return $data;
     }
 
     public function insertPaymentOutward(Request $request) {
@@ -1212,6 +1214,8 @@ class RegisterController extends Controller
             $sb->done_outward = 1;
             $sb->save();
         }
+        $data['outwardid'] = $outward_id;
+        return $data;
     }
 
     public function insertCommissionOutward(Request $request) {
@@ -1427,6 +1431,8 @@ class RegisterController extends Controller
             $sb->done_outward = 1;
             $sb->save();
         }
+        $data['outwardid'] = $outward_id;
+        return $data;
     }
 
     public function insertCommissionInvoiceOutward(Request $request) {
@@ -1653,6 +1659,8 @@ class RegisterController extends Controller
             $sb->done_outward = 1;
             $sb->save();
         }
+        $data['outwardid'] = $outward_id;
+        return $data;
     }
 
     public function outward() {
@@ -1885,6 +1893,26 @@ class RegisterController extends Controller
         $employees['excelAccess'] = $user->excel_access;
         $employees['id'] = $id;
         return view('register.outward.viewoutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function outwardView($id) {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['excelAccess'] = $user->excel_access;
+        $employees['id'] = $id;
+        return view('register.outward.outwardview',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function viewInward($id) {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['excelAccess'] = $user->excel_access;
+        $employees['id'] = $id;
+        return view('register.inward.viewinward',compact('financialYear'))->with('employees', $employees);
     }
 
     public function fetchOutward($id) {

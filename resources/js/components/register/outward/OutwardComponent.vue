@@ -63,7 +63,7 @@
         },
         data() {
             return {
-                create_outward: 'register/create-outward',
+                create_outward: '/register/create-outward',
             }
         },
         methods: {

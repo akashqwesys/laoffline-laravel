@@ -19,7 +19,9 @@ import CreateOutwardComponent from './components/register/outward/CreateOutwardC
 import OutwardComponent from './components/register/outward/OutwardComponent.vue';
 import InwardComponent from './components/register/inward/InwardComponent.vue';
 import ViewOutwardComponent from './components/register/outward/ViewOutwardComponent.vue';
+import OutwardViewComponent from './components/register/outward/OutwardViewComponent.vue';
 import EditOutwardComponent from './components/register/outward/EditOutwardComponent.vue';
+import ViewInwardComponent from './components/register/inward/ViewInwardComponent.vue';
 // Databank Menu
 import UserGroupComponent from './components/databank/userGroupComponents/UserGroupComponent.vue';
 import CreateUserGroupComponent from './components/databank/userGroupComponents/CreateUserGroupComponent.vue';
@@ -165,6 +167,9 @@ const routes = [
             { path: 'outward/commission', component: InsertCommissionOutwardComponent },
             { path: 'outward/commissioninvoice', component: InsertCommissionInvoiceOutwardComponent },
             { path: 'view-outward/:id', component: ViewOutwardComponent },
+            { path: 'outward-view/:id', component: OutwardViewComponent },
+            
+            { path: 'view-inward/:id', component: ViewInwardComponent },
             { path: 'edit-outward/:id', component: EditOutwardComponent }
         ]
     },
@@ -458,7 +463,9 @@ createApp({
         InsertCommissionOutwardComponent,
         InsertCommissionInvoiceOutwardComponent,
         ViewOutwardComponent,
+        OutwardViewComponent,
         EditOutwardComponent,
+        ViewInwardComponent,
 
         ReferenceIdComponent,
         CreateReferenceIdComponent,
