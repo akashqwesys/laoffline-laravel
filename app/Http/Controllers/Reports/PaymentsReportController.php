@@ -131,6 +131,6 @@ class PaymentsReportController extends Controller
     }
 
     public function listOutstandingPaymentData(Request $request) {
-        print_r($request->all());exit;
+        
     }
 }

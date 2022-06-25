@@ -1006,6 +1006,7 @@
                     refernceid : this.form.reference_sample_data
                 })
                 .then(response => {
+                    this.referenceSampleError = 0;
                     if (this.inwardType == 'sample') {
                         this.form.company = response.data.company.company_name;
                         this.form.companyid = response.data.company.id;
@@ -1043,6 +1044,7 @@
                                     refernceid : response1.data.ref_id
                                 })
                                 .then(response => {
+
                                     if (this.inwardType == 'sample') {
                                         this.form.company = response.data.company.company_name;
                                         this.form.companyid = response.data.company.id;
