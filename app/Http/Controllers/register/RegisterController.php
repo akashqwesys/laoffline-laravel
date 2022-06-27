@@ -334,16 +334,17 @@ class RegisterController extends Controller
     public function getReferenceSampleData(Request $request) {
         $type = $request->type['name'];
         $user = Session::get('user');
-        $references = ReferenceId::join('companies', 'reference_ids.company_id', '=', 'companies.id')->
-                                   whereIn('companies.company_type', [2,3])->
-                                   where('reference_ids.type_of_inward', $type)->
-                                   where('reference_ids.employee_id', 15)->
-                                   where('reference_ids.inward_or_outward', 1)->
-                                   where('reference_ids.financial_year_id', $user->financial_year_id)->
-                                   where('reference_ids.is_deleted', 0)->
-                                   orderBy('reference_ids.reference_id', 'DESC')->
-                                   take('5')->
-                                   get(['reference_ids.*']);
+        $references = ReferenceId::join('companies', 'reference_ids.company_id', '=', 'companies.id')
+            ->select('reference_ids.*')
+            ->whereIn('companies.company_type', [2,3])
+            ->where('reference_ids.type_of_inward', $type)
+            ->where('reference_ids.employee_id', 15)
+            ->where('reference_ids.inward_or_outward', 1)
+            ->where('reference_ids.financial_year_id', $user->financial_year_id)
+            ->where('reference_ids.is_deleted', 0)
+            ->orderBy('reference_ids.id', 'desc')
+            ->take('5')
+            ->get();
 
         return $references;
     }
@@ -1921,20 +1922,20 @@ class RegisterController extends Controller
                 ->first();
         $created_at = $date = date_format($inward->created_at, 'Y/m/d H:i:s');
         $employee = Employee::where('id', $inward->employee_id)->first()->firstname;
-        
-        
+
+
 
         if ($inward->company_id) {
             $company = Company::where('id', $inward->company_id)->first()->company_name;
         } else {
             $company = Company::where('id', $inward->supplier_id)->first()->company_name;
         }
-        
+
         $courier = '';
         if (!empty($inward->courier_name)) {
             $courier = TransportDetails::where('id', $inward->courier_name)->first();
         }
-        
+
         $data['inward'] = $inward;
         if ($inward->sample_for  == 1) {
             $data['inward']['samplefor'] = 'Product';
