@@ -334,12 +334,15 @@ class RegisterController extends Controller
     public function getReferenceSampleData(Request $request) {
         $type = $request->type['name'];
         $user = Session::get('user');
+
         $references = ReferenceId::join('companies', 'reference_ids.company_id', '=', 'companies.id')
             ->select('reference_ids.*')
             ->whereIn('companies.company_type', [2,3])
-            ->where('reference_ids.type_of_inward', $type)
-            ->where('reference_ids.employee_id', 15)
-            ->where('reference_ids.inward_or_outward', 1)
+            ->where('reference_ids.type_of_inward', $type);
+        if ($user->id == 15) {
+            $references = $references->where('reference_ids.employee_id', 15);
+        }
+        $references = $references->where('reference_ids.inward_or_outward', 1)
             ->where('reference_ids.financial_year_id', $user->financial_year_id)
             ->where('reference_ids.is_deleted', 0)
             ->orderBy('reference_ids.id', 'desc')
