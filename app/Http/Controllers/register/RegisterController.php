@@ -1915,6 +1915,52 @@ class RegisterController extends Controller
         return view('register.inward.viewinward',compact('financialYear'))->with('employees', $employees);
     }
 
+    public function fetchInward($id) {
+        $user = Session::get('user');
+        $inward = Inward::where('inward_id', $id)
+                ->first();
+        $created_at = $date = date_format($inward->created_at, 'Y/m/d H:i:s');
+        $employee = Employee::where('id', $inward->employee_id)->first()->firstname;
+        
+        
+
+        if ($inward->company_id) {
+            $company = Company::where('id', $inward->company_id)->first()->company_name;
+        } else {
+            $company = Company::where('id', $inward->supplier_id)->first()->company_name;
+        }
+        
+        $courier = '';
+        if (!empty($inward->courier_name)) {
+            $courier = TransportDetails::where('id', $inward->courier_name)->first();
+        }
+        
+        $data['inward'] = $inward;
+        if ($inward->sample_for  == 1) {
+            $data['inward']['samplefor'] = 'Product';
+        } else if ($inward->sample_for  == 2) {
+            $data['inward']['samplefor'] = 'Fabric';
+        } else if ($inward->sample_for  == 3) {
+            $data['inward']['samplefor'] = 'Unit';
+        } else {
+            $data['inward']['samplefor'] = '';
+        }
+        $attch = explode(',', trim(trim($inward->attachments,'"[\"'), '\"]"'));
+        $itmdata = array();
+        foreach ($attch as $itm) {
+            $item = trim(trim($itm,'"'), '\"');
+            array_push($itmdata, $item);
+        }
+        $data['inward']['courier'] = $courier;
+        $data['inward']['todaydate'] = Carbon::now()->format('Y-m-d');
+        $data['inward']['recivedate'] = substr($inward->courier_received_time,0,10);
+
+        $data['inward']['generatedate'] = $created_at;
+        $data['inward']['generateby'] = $employee;
+        $data['inward']['company'] = $company;
+        return $data;
+    }
+
     public function fetchOutward($id) {
         $user = Session::get('user');
         $outward = Outward::where('outward_id', $id)
@@ -2327,7 +2373,7 @@ class RegisterController extends Controller
         $inward->remarks = $inward_data->remark;
         $inward->client_remark = $inward_data->remark ? $inward_data->remark : '';
         $inward->employee_id = Session::get('user')->employee_id;
-        $inward->type_of_inward = $inward_data->sample_via->name;
+        $inward->type_of_inward = 'Sample';
         $inward->subject = $subject;
         $inward->notify_client = $notify_clients;
         $inward->notify_md = $notify_md;

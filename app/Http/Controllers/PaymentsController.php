@@ -1330,7 +1330,7 @@ class PaymentsController extends Controller
 
                     $bill = SaleBill::where('sale_bill_id', $salebill->id)->where('financial_year_id', $salebill->fid)->first();
                     $bill->payment_status = $salebill->status->code;
-                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount + (int)$salebill->discountamount + (int)$bankcommission + (int)$agentcommission + (int)$vatav + (int)$claim + (int)$short + (int)$goodretun - (int)$interest;
+                    $bill->received_payment = (int)$bill->received_payment + (int)$salebill->adjustamount + (int)$salebill->discountamount + (int)$bankcommission + (int)$agentcommission + (int)$vatav + (int)$claim + (int)$short + (int)$goodreturn - (int)$interest;
                     $bill->save();
 
                     $paymentDetail2 = PaymentDetail::where('sr_no', $salebill->id)->where('financial_year_id', $salebill->fid)->where('is_deleted', '0')->first();

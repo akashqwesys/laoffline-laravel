@@ -19,42 +19,32 @@
                                 <span><strong>Ourward Salebill Detail</strong></span>
                             </div>
                             <div class="card-inner">
-                            <div class="print_area1">
-                                <div style="float:left; width:100%; border:1px solid">
+                            <div id="print_area1">
+                                <div style="float:left; width:100%; border:1px solid; padding: 0px 5px;">
 							        <table class="table m-b-none">
 								        <tbody>
                                             <tr>
-                                                <th>
-                                                    <div class="row">
-                                                        <div class="col-sm-3 text-left">
-                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
-                                                        </div>
-                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                            <span>Kind Attention to {{ Outward.companyperson }}</span>
-                                                        </div>
-                                                        <div class="col-sm-3 text-right">
-                                                            <span>{{ Outward.todaydate }}</span>
-                                                        </div>
-                                                    </div>
-                                                </th>
+                                                <td width="16%"><img src="https://laoffline.com/img/logo_report.png" style="width: 100px;"></td>
+                                                <td width="66%" class="text-center"><span>Kind Attention to {{ Outward.companyperson }}</span></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
                                             </tr>
                                             <tr>
-									            <th class="text-left">MS</th>
+									            <td colspan="3" class="text-left">MS</td>
 								            </tr>
                                             <tr>
-									            <th class="text-center">{{ Outward.company }}</th>
+									            <td colspan="3" class="text-center">{{ Outward.company }}</td>
 								            </tr>
 											<tr>
-									            <th class="text-center">Greetings From {{ agent }}</th>
+									            <td colspan="3" class="text-center">Greetings From {{ agent }}</td>
             								</tr>
 											<tr>
-				            					<th>Please Find The Details Below</th>
+				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
 								            
 							            </tbody>
                                 </table>
 
-							    <table class="table table-striped m-b-none" id="div_table">
+							    <table class="table table-striped m-b-none">
 								    <tbody>
                                         <tr>
                                             <td><b>LR No.</b></td>
@@ -95,37 +85,27 @@
                                 <span><strong>Ourward Payment Detail</strong></span>
                             </div>
                             <div class="card-inner">
-                            <div class="print_area1">
-                                <div style="float:left; width:100%; border:1px solid">
+                            <div id="print_area1">
+                                <div style="float:left; width:100%; border:1px solid;padding: 0px 5px;">
 							        <table class="table m-b-none">
 								        <tbody>
                                             <tr>
-                                                <th>
-                                                    <div class="row">
-                                                        <div class="col-sm-3 text-left">
-                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
-                                                        </div>
-                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                            <span>Payment Outward Slip</span>
-                                                        </div>
-                                                        <div class="col-sm-3 text-right" style="padding-top:3%">
-                                                            <span>{{ Outward.todaydate }}</span>
-                                                        </div>
-                                                    </div>
-                                                </th>
+                                                <td width="16%"><img src="https://laoffline.com/img/logo_report.png" style="width: 100px;"></td>
+                                                <td width="66%" class="text-center"><span>Payment Outward Slip</span></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
                                             </tr>
                                             <tr>
-									            <th class="text-left">{{ Outward.company }}</th>
+									            <td colspan="3" class="text-left">{{ Outward.company }}</td>
 								            </tr>
 											
 											<tr>
-				            					<th>Please Find The Details Below</th>
+				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
 								            
 							            </tbody>
                                 </table>
 
-							    <table class="table table-striped m-b-none" id="div_table">
+							    <table class="table table-striped m-b-none">
 								    <tbody>
                                         <tr>
                                             <td><b>Voucher No.</b></td>
@@ -162,29 +142,17 @@
                                 <span><strong>Ourward Commission Detail</strong></span>
                             </div>
                             <div class="card-inner">
-                            <div class="print_area1">
-                                <div style="float:left; width:100%; border:1px solid">
+                            <div id="print_area1">
+                                <div style="float:left; width:100%; border:1px solid; padding: 0px 5px;">
 							        <table class="table m-b-none">
 								        <tbody>
                                             <tr>
-                                                <th>
-                                                    <div class="row">
-                                                        <div class="col-sm-3 text-left">
-                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
-                                                        </div>
-                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                            <span>{{ Outward.company }}</span>
-                                                        </div>
-                                                        <div class="col-sm-3 text-right" style="padding-top:3%">
-                                                            <span>{{ Outward.todaydate }}</span>
-                                                        </div>
-                                                    </div>
-                                                </th>
+                                                <td width="16%"><img src="https://laoffline.com/img/logo_report.png" style="width: 100px;"></td>
+                                                <td width="66%" class="text-center"><span>{{ Outward.company }}</span></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
                                             </tr>
-                                            
-											
-											<tr>
-				            					<th>Please Find The Details Below</th>
+                                            <tr>
+				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
 								            
 							            </tbody>
@@ -227,29 +195,17 @@
                                 <span><strong>Ourward Commission Invoice Detail</strong></span>
                             </div>
                             <div class="card-inner">
-                            <div class="print_area1">
-                                <div style="float:left; width:100%; border:1px solid">
+                            <div id="print_area1">
+                                <div style="float:left; width:100%; border:1px solid; padding:0px 5px">
 							        <table class="table m-b-none">
 								        <tbody>
                                             <tr>
-                                                <th>
-                                                    <div class="row">
-                                                        <div class="col-sm-3 text-left">
-                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
-                                                        </div>
-                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                            <span>{{ Outward.company }}</span>
-                                                        </div>
-                                                        <div class="col-sm-3 text-right" style="padding-top:3%">
-                                                            <span>{{ Outward.todaydate }}</span>
-                                                        </div>
-                                                    </div>
-                                                </th>
+                                                <td width="16%"><img src="https://laoffline.com/img/logo_report.png" style="width: 100px;"></td>
+                                                <td width="66%" class="text-center"><span>{{ Outward.company }}</span></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
                                             </tr>
-                                            
-											
-											<tr>
-				            					<th>Please Find The Details Below</th>
+                                            <tr>
+				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
 								            
 							            </tbody>
@@ -274,8 +230,8 @@
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
-						                      	<td colspan="3" class="text-left">Prepared by<br><br><br><br></td>
-                                                <td colspan="3" class="text-right">Delivery by</td>
+						                      	<td colspan="2" class="text-left">Prepared by<br><br><br><br></td>
+                                                <td colspan="2" class="text-right">Delivery by</td>
                                               </tr>
 						                </tfoot>
                                 </table>
@@ -284,8 +240,9 @@
                             </div>
                             </div><!-- .card -->
                         </div>
+                        
                         <div class="text-center mt-2">
-                            <button class="btn btn-dark">Print</button>
+                            <button class="btn btn-dark" @click="printOutward">Print</button>
                         </div>
                     </div><!-- .nk-block -->
                 </div>
@@ -339,7 +296,14 @@
                 });    
         },
         methods: {
-        
+            printOutward (event) {
+                var printContents = document.getElementById("print_area1").innerHTML;
+                var originalContents = document.body.innerHTML;
+                var popupWin = window.open('', '_blank', 'width=900,height=900');
+                popupWin.document.open()
+                popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
+                popupWin.document.close();  
+            }
         },
         mounted() {
             

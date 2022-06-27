@@ -13,15 +13,13 @@
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                            <div class="print_area">
-                                <div class="form-group">
-							        <div class="col-sm-12 text-center">
-								        <img src="https://laoffline.com/img/logo_report.png" style="width: 150px;margin-bottom:20px">
-							        </div>
-						        </div>
-                                <div style="float:left; width:100%; border:1px solid">
-							        <table class="table table-striped m-b-none">
+                            <div id="print_area1">
+                                <div style="border:1px solid; padding: 0px 5px; margin: 0px 5px;">
+							        <table class="table m-b-none">
 								        <tbody>
+                                            <tr class="text-center py-2">
+                                                <td colspan="5"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
+                                            </tr>
                                             <tr>
 									            <th colspan="5" class="text-center">PAYMENT VOUCHER</th>
 								            </tr>
@@ -97,7 +95,7 @@
 							        </tbody>
                                     
                                 </table>
-							    <table class="cheque table table-striped m-b-none">
+							    <table v-if="paymentData.reciept_mode == 'cheque'" class="table table-striped m-b-none">
 		    						<tbody>
                                         <tr>
 								        	<th colspan="1" style="border-bottom: 3px double;">CHEQUE DETAILS</th>
@@ -126,7 +124,7 @@
                                         </tr>
                                         <tr>
                                             <th>CHQ AMOUNT</th>
-                                            <td>557,700</td>
+                                            <td>{{ paymentData.total_amount }}</td>
                                             <td></td>
                                             <td>Approved by: </td>
                                             <td></td>
@@ -136,6 +134,9 @@
 						    </div>
                             </div>
                             </div><!-- .card -->
+                        </div>
+                        <div class="text-center mt-2">
+                            <button class="btn btn-dark" @click="printOutward">Print</button>
                         </div>
                     </div><!-- .nk-block -->
                 </div>
@@ -187,7 +188,14 @@
                 });    
         },
         methods: {
-        
+            printOutward (event) {
+                var printContents = document.getElementById("print_area1").innerHTML;
+                var originalContents = document.body.innerHTML;
+                var popupWin = window.open('', '_blank', 'width=900,height=900');
+                popupWin.document.open()
+                popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
+                popupWin.document.close();  
+            }
         },
         mounted() {
             
