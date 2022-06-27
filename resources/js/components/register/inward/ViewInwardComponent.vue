@@ -100,7 +100,7 @@
                                     <div class="card-inner">
                                         <div class="row">
                                             <label class="form-label">Multiple Attachments : </label>
-                                            <div class="row">
+                                            <div class="row w-100">
                                                 <div class="col-md-2" v-for="(attachment,index) in attachments"
                                                     :key="index">
                                                     <a :href="'/upload/Inwards/'+attachment" target="_blank">
