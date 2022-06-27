@@ -357,6 +357,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:acces
     Route::get('/fetch-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'fetchOutward']);
     Route::get('/fetch-inward/{id}', [App\Http\Controllers\register\RegisterController::class, 'fetchInward']);
     Route::get('/edit-outward/{id}', [App\Http\Controllers\register\RegisterController::class, 'editOutward']);
+    Route::get('/edit-inward/{id}', [App\Http\Controllers\register\RegisterController::class, 'editInward']);
     Route::get('/list', [App\Http\Controllers\register\RegisterController::class, 'listRegister'])->name('list');
     Route::get('/list-buyer', [App\Http\Controllers\register\RegisterController::class, 'listBuyer']);
     Route::get('/outwardlist', [App\Http\Controllers\register\RegisterController::class, 'outwardList']);

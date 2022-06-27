@@ -6,9 +6,9 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <!-- <h3 v-if="scope == 'edit'" class="nk-block-title page-title">Edit Agent</h3> -->
-                                <!-- <h3 v-else class="nk-block-title page-title">Add Agent</h3> -->
-                                <h3 class="nk-block-title page-title">Add Inward</h3>
+                                <h3 v-if="scope == 'edit'" class="nk-block-title page-title">Edit Inward</h3>
+                                <h3 v-else class="nk-block-title page-title">Add Inward</h3> 
+                                
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
@@ -17,11 +17,15 @@
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered">
+                            <div class="card-header">
+                                <h3>Update Inward Details (Reference Id : {{ form.reference_sample_data }})</h3>
+                            </div>
                             <div class="card-inner">
                                 <form action="#" @submit.prevent="register()">
-                                    <!-- <input type="hidden" v-if="scope == 'edit'" id="fv-group-id" v-model="form.id"> -->
+                                    <input type="hidden" v-if="scope == 'edit'" id="fv-group-id" v-model="form.id">
                                     <div class="preview-block">
-                                        <span class="preview-title-lg overline-title">Insert Inward Details</span>
+                                        <span v-if="scope == 'edit'" class="preview-title-lg overline-title">Update Inward Details</span>
+                                        <span v-else class="preview-title-lg overline-title">Update Inward Details</span>
                                         <div class="row gy-4">
                                             <div v-if="inwardType == 'call'" class="col-md-4">
                                                 <div class="form-group">
@@ -47,7 +51,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-if="inwardType == 'sample'" class="col-md-12">
+                                            <div v-if="inwardType == 'sample' && scope != 'edit'" class="col-md-12">
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-sample_via">Sample Via</label>
                                                     <div class="form-control-wrap">
@@ -57,7 +61,7 @@
                                                 <div id="error-for-sample_via" class="mt-2 text-danger"></div>
                                             </div>
                                         </div>
-                                        <div v-if="inwardType == 'sample'" class="row gy-4">
+                                        <div v-if="inwardType == 'sample' && scope != 'edit'" class="row gy-4">
                                             <div class="col-md-12" style="z-index:0">
                                                 <table class="table table-hover table-bordered" id="agent">
                                                     <thead>
@@ -82,7 +86,7 @@
                                                             <td>{{ dateFormate(refsample.created_at) }}</td>
                                                             <td>{{ timeFormate(refsample.created_at) }}</td>
                                                         </tr>
-                                                        <tr v-if="inwardType == 'sample'">
+                                                        <tr v-if="inwardType == 'sample' && scope != 'edit'">
                                                             <td colspan="5">
                                                                 <div class="input-group">
                                                                     <input type="text" class="form-control" placeholder="Enter Reference number" v-model="referenceNumber">
@@ -108,7 +112,7 @@
                                                 </table>
                                             </div>
                                         </div>
-                                        <div v-if="inwardType == 'sample'" class="row gy-4">
+                                        <div v-if="inwardType == 'sample' && scope != 'edit'" class="row gy-4">
                                             <!-- <div class="col-md-12">
                                                 <div class="form-group">
                                                     <div class="form-control-wrap">
@@ -789,6 +793,8 @@
         name: 'inserInward',
         props: {
             type: Number,
+            scope: String,
+            id: Number,
         },
         components: {
             Multiselect,
@@ -983,6 +989,27 @@
             .then(response => {
                 this.assignTo = response.data;
             });
+            if (this.scope != 'edit') {
+            setTimeout(() => {
+                axios.post('/register/getalldetail',{
+                    refernceid : this.form.reference_sample_data
+                })
+                .then(response => {
+                    if (this.inwardType == 'sample') {
+                        this.form.company = response.data.company.company_name;
+                        this.form.companyid = response.data.company.id;
+                        this.form.companytype = response.data.company.company_type;
+                        this.form.from_name = response.data.reference.from_name;
+                    }
+                    this.form.courier_name = response.data.courier_name;
+                    this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
+                    this.form.delivery_by = response.data.reference.delivery_by;
+                    this.form.received_date_time = response.data.reference.courier_received_time;
+                    this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
+                    this.form.dateTime = response.data.reference.selection_date;
+                });
+            }, 1000);
+            }
         },
         methods: {
             changesamplevia (option, id) {
@@ -1338,25 +1365,20 @@
             },
         },
         mounted() {
-            setTimeout(() => {
-                axios.post('/register/getalldetail',{
-                    refernceid : this.form.reference_sample_data
-                })
-                .then(response => {
-                    if (this.inwardType == 'sample') {
-                        this.form.company = response.data.company.company_name;
-                        this.form.companyid = response.data.company.id;
-                        this.form.companytype = response.data.company.company_type;
-                        this.form.from_name = response.data.reference.from_name;
-                    }
-                    this.form.courier_name = response.data.courier_name;
-                    this.form.courier_receipt_number = response.data.reference.courier_receipt_no;
-                    this.form.delivery_by = response.data.reference.delivery_by;
-                    this.form.received_date_time = response.data.reference.courier_received_time;
-                    this.form.weight_of_parcel = response.data.reference.weight_of_parcel;
-                    this.form.dateTime = response.data.reference.selection_date;
-                });
-            }, 1000);
+            switch (this.scope) {
+                case 'edit' :
+                    axios.get(`/register/fetch-inward/${this.id}`)
+                    .then(response => {
+                        this.form.dateTime = response.data.inward.inward_date;
+                        this.form.company = response.data.inward.company.company_name;
+                        this.form.companyid = response.data.inward.company.id
+                        this.form.companyType = response.data.inward.company.company_type;
+                        this.form.from_name = response.data.inward.from_name;
+                        this.form.courier = response.data.inward.courier;
+                    });
+                    break; 
+            }
+            
 
             if(this.type == 1) {
                 this.inwardType = 'call';

@@ -1925,9 +1925,9 @@ class RegisterController extends Controller
         
 
         if ($inward->company_id) {
-            $company = Company::where('id', $inward->company_id)->first()->company_name;
+            $company = Company::where('id', $inward->company_id)->first();
         } else {
-            $company = Company::where('id', $inward->supplier_id)->first()->company_name;
+            $company = Company::where('id', $inward->supplier_id)->first();
         }
         
         $courier = '';
@@ -1951,10 +1951,12 @@ class RegisterController extends Controller
             $item = trim(trim($itm,'"'), '\"');
             array_push($itmdata, $item);
         }
+        $sample = InwardSample::where('inward_id', $id)->where('is_deleted', 0)->get();
+        $data['inward']['attachment'] = $itmdata;
         $data['inward']['courier'] = $courier;
         $data['inward']['todaydate'] = Carbon::now()->format('Y-m-d');
         $data['inward']['recivedate'] = substr($inward->courier_received_time,0,10);
-
+        $data['sample'] = $sample;
         $data['inward']['generatedate'] = $created_at;
         $data['inward']['generateby'] = $employee;
         $data['inward']['company'] = $company;
@@ -2077,6 +2079,32 @@ class RegisterController extends Controller
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
         $employees['editedId'] = $id;
         return view('register.outward.editoutward',compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function editInward($id){
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $inward = Inward::where('inward_id', $id)->first();
+        
+        if ($inward->type_of_inward == 'call'){
+            $type = 1;
+        } else if ($inward->type_of_inward == 'message') {
+            $type = 2;
+        } else if ($inward->type_of_inward == 'whatsapp') {
+            $type = 3;
+        } else if ($inward->type_of_inward == 'letter') {
+            $type = 4;
+        } else if ($inward->type_of_inward == 'sample') {
+            $type = 5;
+        } else if ($inward->type_of_inward == 'email') {
+            $type = 6;
+        }
+        $employees['inwardType'] =  $type; 
+        $employees['editedId'] = $id;
+        $employees['scope'] = 'edit';
+        return view('register.inward.editinward',compact('financialYear'))->with('employees', $employees);
     }
 
     public function updateOutward(Request $request) {

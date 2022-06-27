@@ -55,7 +55,10 @@
                                             <label class="form-label">Received Date Time :  </label>{{ Inward.courier_received_time }} 
                                         </div>
                                         <div class="row">
-                                            <label class="form-label">Company : </label> {{ Inward.company }}
+                                            <label class="form-label">Company : </label> {{ Inward.company.company_name }}
+                                        </div>
+                                        <div class="row">
+                                            <label class="form-label">From Name : </label> {{ Inward.from_name }}
                                         </div>
                                         <div class="row">
                                             <label class="form-label">To Name : </label> {{ Inward.to_name }}
@@ -84,7 +87,13 @@
                                     <div class="card-inner">
                                         <div class="row">
                                             <label class="form-label">Multiple Attachments  :  </label>
-                                            {{ attachments }}
+                                            <ul>
+                                                <li v-for="(attachment,index) in attachments" :key="index">
+                                                    <a :href="'/upload/inwards/'+attachment" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </div>
                                         <div class="row">
                                             <label class="form-label">Remark  :  </label>
@@ -94,7 +103,36 @@
                                 </div>
                             </div>
                         </div>
-                                                
+                        <div class="mt-2 card card-bordered card-stretch">
+                                <div class="card-header">
+                                    <h6>Sample Details</h6>
+                                </div>
+                                <div class="class-inner">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+
+                                                <th>Sr no</th>
+	    								        <th>Name</th>
+		    									<th>Attachment</th>
+			    			        			<th>Price</th>
+                                                <th v-if="Inward.sample_for == 1 || Inward.sample_for == 3">Main Qty</th>
+                                                <th v-else>Meter</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(sample,index) in samples" :key="index">
+                                                <td>{{ ++index }}</td>
+                                                <td>{{ sample.name }}</td>
+                                                <td>{{ sample.image }}</td>
+                                                <td>{{ sample.price }}</td>
+                                                <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3">{{ sample.qty}}</td>
+                                                <td v-else>{{ sample.meters }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div>                       
                     </div><!-- .nk-block -->
                 </div>
             </div>
@@ -122,6 +160,7 @@
             return {
                 Inward: [],
                 attachments: [],
+                samples: [],
             }
         },
         created() {
@@ -130,7 +169,8 @@
                         gData = response.data;
                         let total = 0;
                         this.Inward = gData.inward;
-                        this.attachments = gData.inward.attechment;
+                        this.attachments = gData.inward.attachment;
+                        this.samples = gData.sample;
                 });    
         },
         methods: {
