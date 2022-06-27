@@ -27,7 +27,7 @@
                                         <input type="text" v-model="commission" class="form-control" placeholder="Commission">
                                     </div>
                                     <div class="col-md-4">
-                                        <button class="btn btn-primary"> ADD</button>
+                                        <button class="btn btn-primary" @click="addCommission"> ADD</button>
                                     </div>
                                 </div>
                                 <hr>
@@ -67,7 +67,22 @@
         },
         methods: {
             isVerified: function(id) {
-                axios.post('./companies/verify/'+id)
+                axios.post('/companies/update-commission', {
+                    customer: this.customer,
+                    supplier: this.supplier,
+                    commission: this.commission,
+                    flag: 1
+                })
+                .then(response => {
+                    location.reload();
+                });
+            },
+            addCommission () {
+                axios.post('/companies/add-commission', {
+                    customer: this.customer,
+                    supplier: this.supplier,
+                    commission: this.commission
+                })
                 .then(response => {
                     location.reload();
                 });
