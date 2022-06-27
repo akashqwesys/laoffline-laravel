@@ -795,7 +795,7 @@ class CompanyController extends Controller
         $company->company_type = !empty($companyData->company_type) ? $companyData->company_type->id : 0;
         $company->company_country = !empty($companyData->company_country) ? $companyData->company_country->id : 0;
         $company->company_state = !empty($companyData->company_state) ? $companyData->company_state->id : 0;
-        $company->company_city = !empty($companyData->company_city) ? $companyData->company_city->id : 0;
+        $company->company_city = !empty($companyData->company_city) ? $companyData->company_city->name : 0;
         $company->company_website = $companyData->company_website;
         $company->company_landline = $companyData->company_landline ? $companyData->company_landline : '[]';
         $company->company_mobile = $companyData->company_mobile ? $companyData->company_mobile : '[]';
@@ -1061,10 +1061,10 @@ class CompanyController extends Controller
         $company->company_type = !empty($companyData->company_type) ? $companyData->company_type->id : 0;
         $company->company_country = !empty($companyData->company_country) ? $companyData->company_country->id : 0;
         $company->company_state = !empty($companyData->company_state) ? $companyData->company_state->id : 0;
-        $company->company_city = !empty($companyData->company_city) ? $companyData->company_city->id : 0;
+        $company->company_city = !empty($companyData->company_city) ? $companyData->company_city->name : 0;
         $company->company_website = $companyData->company_website;
-        $company->company_landline = $companyData->company_landline ?? '[]';
-        $company->company_mobile = $companyData->company_mobile ?? '[]';
+        $company->company_landline = $companyData->company_landline ? $companyData->company_landline : '[]';
+        $company->company_mobile = $companyData->company_mobile ? $companyData->company_mobile : '[]';
         $company->company_watchout = $companyData->company_watchout;
         $company->company_remark_watchout = $companyData->company_remark_watchout;
         $company->company_about = $companyData->company_about;

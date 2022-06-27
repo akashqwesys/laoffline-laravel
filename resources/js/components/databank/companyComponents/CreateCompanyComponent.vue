@@ -522,6 +522,7 @@
 </template>
 
 <script>
+    import $ from 'jquery';
     import Multiselect from 'vue-multiselect';
     import AddCity from './modal/AddNewCityModelComponent';
     import AddTransport from './modal/AddNewTransportModelComponent';
@@ -800,12 +801,16 @@
                 case 'edit' :
                     axios.get(`/databank/companies/fetch-company/${this.id}`)
                     .then(response => {
+                        window.$('#overlay').show();
                         companies = response.data;
 
                         // company Data
                         this.company = companies.company;
                         this.company.company_landline = companies.company.company_landline.toString();
                         this.company_category = this.companyCategoryList.find(_ => _.id == companies.company.company_category)
+                        this.company.company_country = this.countryList.find(_ => _.id == companies.company.company_country.id);
+                        this.getStateList(companies.company.company_country);
+                        this.getCityList(companies.company.company_state);
 
                         // Contacts Data
                         this.contactDetails = companies.contact_details;
@@ -827,6 +832,7 @@
 
                         // Bank
                         this.bank = companies.bank_details ?? {};
+                        window.$('#overlay').hide();
                     });
                     break;
                 default:
