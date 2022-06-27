@@ -1767,7 +1767,7 @@ class RegisterController extends Controller
             $data_arr[] = array(
                 "outward_id" => $outward_id,
                 "ouid" => $ouid,
-                "date" => $date,
+                "created_at" => $date,
                 "subject" => $subject,
                 "generatedby" => $generatedby,
                 "type" => $type,
@@ -2303,7 +2303,7 @@ class RegisterController extends Controller
         $iuid_data->financial_year_id = $financialid;
         $iuid_data->save();
 
-        $subject = "Sample for". $inward_data->company;
+        $subject = "Sample for ". $inward_data->company;
         $comboids = new Comboids();
         if ($companytype == 3) {
             $comboids->supplier_id = $inward_data->companyid;
