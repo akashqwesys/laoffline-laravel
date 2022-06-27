@@ -12,10 +12,10 @@
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="create_inward" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
-                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner table-responsive">
                                 <table class="table table-hover" id="inward">
@@ -143,6 +143,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: "Blrtip",
+                    order: [[0, "desc"]],
                     columns: [
                         { data: 'inward_id' },
                         { data: 'iuid' },
@@ -150,7 +151,7 @@
                         { data: 'subject' },
                         { data: 'generatedby', orderable: false},
                         { data: 'type_of_inward' },
-                        { data: 'action', orderable: false}, 
+                        { data: 'action', orderable: false},
                     ],
                     search: {
                         return: true
@@ -209,7 +210,7 @@
                     draw = 0;
                 }
             });
-            
+
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });
