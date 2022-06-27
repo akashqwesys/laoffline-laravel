@@ -41,6 +41,7 @@ import CreateProductComponent from './components/databank/productsComponents/Cre
 import CompanyComponent from './components/databank/companyComponents/CompanyComponent.vue';
 import CreateCompanyComponent from './components/databank/companyComponents/CreateCompanyComponent.vue';
 import ViewCompanyComponent from './components/databank/companyComponents/ViewCompanyComponent.vue';
+import CompanyCommissionComponent from './components/databank/companyComponents/CompanyCommissionComponent.vue';
 import EssentialCompanyComponent from './components/databank/companyComponents/EssentialCompanyComponent.vue';
 
 import CompanyCategoryComponent from './components/databank/companyCategoryComponents/CompanyCategoryComponent.vue';
@@ -168,7 +169,7 @@ const routes = [
             { path: 'outward/commissioninvoice', component: InsertCommissionInvoiceOutwardComponent },
             { path: 'view-outward/:id', component: ViewOutwardComponent },
             { path: 'outward-view/:id', component: OutwardViewComponent },
-            
+
             { path: 'view-inward/:id', component: ViewInwardComponent },
             { path: 'edit-outward/:id', component: EditOutwardComponent }
         ]
@@ -221,6 +222,7 @@ const routes = [
             { path: 'edit-company/:id', component: CreateCompanyComponent },
             { path: 'view-company/:id', component: ViewCompanyComponent },
             { path: 'essential', component: EssentialCompanyComponent },
+            { path: 'company-commission/:company/:type', component: CompanyCommissionComponent },
         ]
     },
     {
@@ -446,6 +448,7 @@ createApp({
         CreateCompanyComponent,
         ViewCompanyComponent,
         EssentialCompanyComponent,
+        CompanyCommissionComponent,
         CompanyCategoryComponent,
         CreateCompanyCategoryComponent,
         // ViewCompanyDetailsModelComponent,

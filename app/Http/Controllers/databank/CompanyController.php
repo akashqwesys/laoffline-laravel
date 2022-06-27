@@ -260,7 +260,7 @@ class CompanyController extends Controller
             $action = '<a href="#" class="btn btn-trigger btn-icon icon-verify view-details" data-id="'.$id.'" title="View Company"><em class="icon ni ni-eye"></em></a>
             <a href="./companies/edit-company/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="./companies/delete/'.$id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>
-            <a href="#" class="btn btn-trigger btn-icon commission" data-id="' . $id . '" title="Commission"><em class="icon ni ni-sign-inr"></em></a>';
+            <a href="./companies/company-commission/' . $id . '/' . $cmp->company_type . '" class="btn btn-trigger btn-icon commission" title="Commission"><em class="icon ni ni-sign-inr"></em></a>';
 
             if($cmp->favorite_flag == 0) {
                 $flag = '<em class="icon ni ni-star text-primary mark-favourite" data-id="'.$id.'"></em>';
@@ -797,8 +797,8 @@ class CompanyController extends Controller
         $company->company_state = !empty($companyData->company_state) ? $companyData->company_state->id : 0;
         $company->company_city = !empty($companyData->company_city) ? $companyData->company_city->id : 0;
         $company->company_website = $companyData->company_website;
-        $company->company_landline = $companyData->company_landline ?? '[]';
-        $company->company_mobile = $companyData->company_mobile ?? '[]';
+        $company->company_landline = $companyData->company_landline ? $companyData->company_landline : '[]';
+        $company->company_mobile = $companyData->company_mobile ? $companyData->company_mobile : '[]';
         $company->company_watchout = $companyData->company_watchout;
         $company->company_remark_watchout = $companyData->company_remark_watchout;
         $company->company_about = $companyData->company_about;
@@ -1201,5 +1201,23 @@ class CompanyController extends Controller
         $logs->log_subject = 'Company - "'.$companyData->company_name.'" was updated from '.Session::get('user')->username.'.';
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
+    }
+
+    public function companyCommissionView(Request $request, $company, $type)
+    {
+        $page_title = 'Company Commission';
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+
+        $cmp_data = DB::table('companies')->select('company_name')->where('id', $company)->first();
+        $company_name = $cmp_data ? $cmp_data->company_name : '';
+
+        return view('databank.companies.companyCommission', compact('financialYear', 'page_title', 'company', 'type', 'company_name'))->with('employees', $employees);
+    }
+
+    public function updateCompanyCommission(Request $request)
+    {
+        # code...
     }
 }
