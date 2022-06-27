@@ -12,10 +12,10 @@
                                     </div>
                                     <div class="col-md-8 text-right">
                                         <a v-bind:href="create_product_category" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
-                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
+                                        <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-inner">
                                 <table id="productCategory" class="table table-hover table-bordered">
@@ -115,6 +115,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
+                    order: [[0, "desc"]],
                     columns: [
                         { data: 'id' },
                         { data: 'default_category' },

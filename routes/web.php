@@ -177,6 +177,7 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:acces
         Route::get('/essential', [App\Http\Controllers\databank\CompanyController::class, 'essentialCompany'])->name('essential');
         Route::get('/essential/list-essential', [App\Http\Controllers\databank\CompanyController::class, 'listEssentialCompany'])->name('list-essential');
         Route::get('/fetch-company/{id}', [App\Http\Controllers\databank\CompanyController::class, 'fetchCompany']);
+        Route::get('/company-commission/{company}/{type}', [App\Http\Controllers\databank\CompanyController::class, 'companyCommissionView']);
     });
 });
 
@@ -775,7 +776,7 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
     Route::post('/list-outstanding-payment-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listOutstandingPaymentData']);
-    
+
     Route::get('/outstanding-payment-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentReport']);
 
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
