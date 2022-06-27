@@ -807,13 +807,25 @@
                         // company Data
                         this.company = companies.company;
                         this.company.company_landline = companies.company.company_landline.toString();
-                        this.company_category = this.companyCategoryList.find(_ => _.id == companies.company.company_category)
-                        this.company.company_country = this.countryList.find(_ => _.id == companies.company.company_country.id);
+                        if (companies.company.company_category != '0' || companies.company.company_category != 0) {
+                            this.company.company_category = this.companyCategoryList.find(_ => _.id == companies.company.company_category);
+                        } else {
+                            this.company.company_category = '';
+                        }
+                        if (companies.company.company_transport != '0' || companies.company.company_transport != 0) {
+                            this.company.company_transport = this.transportList.find(_ => _.id == companies.company.company_transport);
+                        } else {
+                            this.company.company_transport = '';
+                        }
+                        // this.company.company_country = this.countryList.find(_ => _.id == companies.company.company_country.id);
                         this.getStateList(companies.company.company_country);
                         this.getCityList(companies.company.company_state);
 
                         // Contacts Data
                         this.contactDetails = companies.contact_details;
+                        companies.contact_details.forEach((k, i) => {
+                            this.contactDetails[i].contact_person_designation = this.designationList.find(_ => _.name == k.contact_person_designation);
+                        });
 
                         // Multiple Address
                         this.multipleAddresses = companies.multiple_address;
