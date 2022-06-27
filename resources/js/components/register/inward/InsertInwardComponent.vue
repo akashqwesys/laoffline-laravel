@@ -7,8 +7,8 @@
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
                                 <h3 v-if="scope == 'edit'" class="nk-block-title page-title">Edit Inward</h3>
-                                <h3 v-else class="nk-block-title page-title">Add Inward</h3> 
-                                
+                                <h3 v-else class="nk-block-title page-title">Add Inward</h3>
+
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
@@ -1045,7 +1045,7 @@
 
             },
             uploadImage (index, event) {
-                this.sampleData[index].image = event.target.files[index];
+                this.sampleData[index].image = event.target.files[0];
             },
             dateFormate(createdDate) {
                 var mydate = new Date(createdDate);
@@ -1103,7 +1103,6 @@
                 files.forEach((value,index) =>{
                     this.multiple_attachment[index] = value;
                 });
-                console.log(this.multiple_attachment);
             },
             getSubProduct: function(event) {
                 var productName = '';
@@ -1244,7 +1243,6 @@
                     this.oldReference = 1;
                     axios.get('/register/get-reference-details/'+referenceUrl)
                     .then(response => {
-                        console.log(response.data);
                     });
                 } else {
                     this.oldReference = 0;
@@ -1285,7 +1283,6 @@
             },
             registerFabrics() {
                 this.FabricsData.supplierId = this.form.supplier;
-                console.log(this.FabricsData);
                 this.FabricsData.post('/register/inward/'+this.inwardType+'/add-fabrics-details')
                     .then(( response ) => {
                         window.location.href = '/register/inward/'+this.inwardType;
@@ -1308,9 +1305,9 @@
                 $("#error-for-assign_to").text("");
                 if (this.form.courier_name == '' || this.form.sample_via == '' || this.form.sample_for == '' || this.form.assign_to == '') {
                     this.isValidate = 0;
-                    console.log(this.form.courier_name);
+
                     if (this.form.courier_name == null) {
-                        console.log('counrier not');
+
                         $("#error-for-courier_name").text("Select Courier");
                     } else {
                         $("#error-for-courier_name").text("");
@@ -1376,9 +1373,8 @@
                         this.form.from_name = response.data.inward.from_name;
                         this.form.courier = response.data.inward.courier;
                     });
-                    break; 
+                    break;
             }
-            
 
             if(this.type == 1) {
                 this.inwardType = 'call';

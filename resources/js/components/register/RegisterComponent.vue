@@ -182,6 +182,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: "Blrtip",
+                    order: [[3, "desc"]],
                     columns: [
                         { data: 'iuid' },
                         { data: 'ouid' },
