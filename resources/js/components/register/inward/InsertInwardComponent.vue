@@ -300,7 +300,8 @@
                                                     <label class="form-label" for="fw-company">Company</label>
                                                     <button type="button" class="btn btn-sm clipboard-init" @click="assignCompanyType('1-2')"><span class="clipboard-text">Add New</span></button>
                                                     <div v-if="inwardType == 'sample'">
-                                                        <input :readonly="true" type="text" class="form-control" v-model="form.company">
+                                                        <input v-if="scope != 'edit'" :readonly="true" type="text" class="form-control" v-model="form.company">
+                                                        <multiselect v-else v-model="form.company" :options="companies" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                         <input type="hidden" class="form-control" v-model="form.companyid">
                                                         <input type="hidden" class="form-control" v-model="form.companytype">
                                                     </div>
@@ -323,7 +324,8 @@
                                                     <label class="form-label" for="fv-from_name">From Name</label>
                                                     <button type="button" class="btn btn-sm clipboard-init" data-toggle="modal" data-target="#AddPerson" title="Person Detail"><span class="clipboard-text">Add New</span></button>
                                                     <div v-if="inwardType == 'sample'" class="form-control-wrap">
-                                                        <input :readonly="true" type="text" class="form-control" id="fv-from_name" v-model="form.from_name" placeholder="Enter From Name">
+                                                        <input v-if="scope != 'edit'" :readonly="true" type="text" class="form-control" id="fv-from_name" v-model="form.from_name" placeholder="Enter From Name">
+                                                        <input v-else type="text" class="form-control" id="fv-from_name" v-model="form.from_name" placeholder="Enter From Name">
                                                     </div>
                                                     <div v-else class="form-control-wrap">
                                                         <input type="text" class="form-control" id="fv-from_name" v-model="form.from_name" placeholder="Enter From Name">
@@ -382,7 +384,8 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-courier_name">Courrier Name</label>
                                                     <div class="form-control-wrap">
-                                                        <multiselect :readonly="true" v-model="form.courier_name" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                                        <multiselect v-if="scope != 'edit'" :readonly="true" v-model="form.courier_name" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
+                                                        <multiselect v-else v-model="form.courier_name" :options="courier" placeholder="Select one" label="name" track-by="name"></multiselect>
                                                     </div>
                                                     <div id="error-for-courier_name" class="mt-2 text-danger"></div>
                                                 </div>
@@ -392,7 +395,8 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-courier_receipt_number">Courrier Receipt No</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" :readonly="true" class="form-control" id="fv-courier_receipt_number" v-model="form.courier_receipt_number" placeholder="Enter From Number">
+                                                        <input type="text" v-if="scope != 'edit'" :readonly="true" class="form-control" id="fv-courier_receipt_number" v-model="form.courier_receipt_number" placeholder="Enter From Number">
+                                                        <input type="text" v-else class="form-control" id="fv-courier_receipt_number" v-model="form.courier_receipt_number" placeholder="Enter From Number">
                                                     </div>
                                                 </div>
                                             </div>
@@ -400,7 +404,8 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-weight_of_parcel">Weight Of Parcel</label>
                                                     <div class="form-control-wrap">
-                                                        <input :readonly="true" type="text" class="form-control" id="fv-weight_of_parcel" v-model="form.weight_of_parcel" placeholder="Enter To Name">
+                                                        <input v-if="scope != 'edit'" :readonly="true" type="text" class="form-control" id="fv-weight_of_parcel" v-model="form.weight_of_parcel" placeholder="Enter To Name">
+                                                        <input v-else type="text" class="form-control" id="fv-weight_of_parcel" v-model="form.weight_of_parcel" placeholder="Enter To Name">
                                                     </div>
                                                 </div>
                                             </div>
@@ -408,7 +413,8 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-received_date_time">Received Date Time</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" :readonly="true" class="form-control" id="fv-received_date_time" placeholder="Enter Receiver number" v-model="form.received_date_time">
+                                                        <input type="text" v-if="scope != 'edit'" :readonly="true" class="form-control" id="fv-received_date_time" placeholder="Enter Receiver number" v-model="form.received_date_time">
+                                                        <input type="datetime-local" v-else class="form-control" id="fv-received_date_time" placeholder="Enter Receiver number" v-model="form.received_date_time">
                                                     </div>
                                                 </div>
                                             </div>
@@ -416,7 +422,8 @@
                                                 <div class="form-group code-block">
                                                     <label class="form-label" for="fv-delivery_by">Delivery By</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" :readonly="true" class="form-control" id="fv-delivery_by" v-model="form.delivery_by" placeholder="Enter To Name">
+                                                        <input type="text" v-if="scope != 'edit'" :readonly="true" class="form-control" id="fv-delivery_by" v-model="form.delivery_by" placeholder="Enter To Name">
+                                                        <input type="text" v-else class="form-control" id="fv-delivery_by" v-model="form.delivery_by" placeholder="Enter To Name">
                                                     </div>
                                                 </div>
                                             </div>
@@ -495,6 +502,7 @@
                                                             <div>
                                                                 <input type="file" class="custom-file-input" :id="'fv-image'+index" @change="uploadImage(index, $event)">
                                                                 <label class="custom-file-label" :for="'fv-image'+index">Choose photo</label>
+                                                                
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1301,7 +1309,27 @@
                 })
             },
             register () {
-
+                if (this.scope == 'edit') {
+                    var paymentdata = new FormData();
+                    paymentdata.append('inwarddata', JSON.stringify(this.form));
+                    paymentdata.append('sampleData', JSON.stringify(this.sampleData));
+                    this.multiple_attachment.forEach((contact,index)=>{
+                        if(contact){
+                            paymentdata.append(`attechment[${index}]`, contact);
+                        }
+                    })
+                    this.sampleData.forEach((value, index) => {
+                        if(value.image) {
+                            paymentdata.append(`pimage[${index}]`, value.image);
+                        } else {
+                            paymentdata.append(`pimage[${index}]`, null);
+                        }
+                    })
+                    axios.post('/register/updateinward', paymentdata)
+                        .then(( response ) => {
+                            //window.location.href = '/register/inward';
+                    })
+                } else {
                 $("#error-for-courier_name").text("");
                 $("#error-for-sample_via").text("");
                 $("#error-for-sample_for").text("");
@@ -1352,7 +1380,7 @@
                         paymentdata.append(`pimage[${index}]`, null);
                     }
                 })
-
+                
                 if (this.isValidate == 1) {
                     axios.post('/register/insertinward/'+this.inwardType, paymentdata)
                         .then(( response ) => {
@@ -1362,6 +1390,7 @@
                     alert('Fill All Required Field');
                     return false;
                 }
+                }
             },
         },
         mounted() {
@@ -1369,12 +1398,47 @@
                 case 'edit' :
                     axios.get(`/register/fetch-inward/${this.id}`)
                     .then(response => {
+                        this.form.id = this.id;
+                        this.form.reference_sample_data = response.data.inward.comboids.general_ref_id;
+                        this.form.assign_to = response.data.inward.assignemp;
                         this.form.dateTime = response.data.inward.inward_date;
-                        this.form.company = response.data.inward.company.company_name;
-                        this.form.companyid = response.data.inward.company.id
-                        this.form.companyType = response.data.inward.company.company_type;
+                        this.form.company = response.data.inward.company;
                         this.form.from_name = response.data.inward.from_name;
-                        this.form.courier = response.data.inward.courier;
+                        this.form.courier_name = response.data.inward.courier;
+                        this.form.courier_receipt_number = response.data.inward.courier_receipt_no;
+                        this.form.weight_of_parcel = response.data.inward.weight_of_parcel;
+                        this.form.received_date_time = response.data.inward.recivedateedit;
+                        this.form.delivery_by = response.data.inward.delivery_by;
+                        var samplefor = response.data.inward.samplefor;
+                        if (samplefor == 'Product') {
+                            this.form.sample_for = { id: '1', name: 'Product'};
+                        } else if (samplefor == 'Fabric') {
+                            this.form.sample_for = { id: '2', name: 'Fabric'};
+                        } else if (samplefor == 'Unit') {
+                            this.form.sample_for = { id: '3', name: 'Unit'};
+                        }
+
+                        var samplevia = response.data.inward.sample_via;
+                        if (samplevia == 'Hand') {
+                            this.form.sample_via = {id: '1', name: 'Hand'};
+                        } else if (samplevia == 'Courier') {
+                            this.form.sample_via = {id: '2', name: 'Courier'};
+                        }
+                        this.sampleData = response.data.sample;
+                        this.form.notify_client = response.data.inward.notify_client;
+                        this.form.notify_md = response.data.inward.notify_md;
+                        this.form.remark = response.data.inward.remarks;
+                        this.form.client_comments = response.data.inward.client_remark;
+                        this.form.assignToDateTime = response.data.inward.comboids.action_date;
+                        this.form.instruction = response.data.inward.comboids.action_instruction;
+                        
+                        if (response.data.inward.notify_client) {
+                            $("#fv-notify_client").click();
+                        }
+                        if (response.data.inward.notify_md) {
+                            $("#fv-notify_md").click();
+                        }
+                        console.log(this.form);
                     });
                     break; 
             }

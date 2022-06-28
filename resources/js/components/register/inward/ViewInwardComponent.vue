@@ -1,5 +1,5 @@
 <template>
-    <div class="nk-content ">
+    <div class="nk-content">
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
@@ -89,9 +89,10 @@
                                             <label class="form-label">Multiple Attachments  :  </label>
                                             <ul>
                                                 <li v-for="(attachment,index) in attachments" :key="index">
-                                                    <a :href="'/upload/inwards/'+attachment" target="_blank">
+                                                    <a v-if="attachment != ''" :href="'/upload/inwards/'+attachment" target="_blank">
                                                         <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
                                                     </a>
+                                                    <span v-else>-</span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -124,9 +125,11 @@
                                             <tr v-for="(sample,index) in samples" :key="index">
                                                 <td>{{ ++index }}</td>
                                                 <td>{{ sample.name }}</td>
-                                                <td>{{ sample.image }}</td>
+                                                <td><a :href="'/upload/InwardSample/'+sample.image" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                    </a></td>
                                                 <td>{{ sample.price }}</td>
-                                                <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3">{{ sample.qty}}</td>
+                                                <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3">{{ sample.quantity }}</td>
                                                 <td v-else>{{ sample.meters }}</td>
                                             </tr>
                                         </tbody>
