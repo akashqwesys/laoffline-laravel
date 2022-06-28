@@ -301,7 +301,7 @@ class ProductsController extends Controller
     }
 
     public function listCompanies() {
-        $company = Company::get(['id', 'company_name']);
+        $company = Company::get(['id', 'company_name', 'company_type']);
 
         return $company;
     }

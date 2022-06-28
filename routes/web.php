@@ -401,6 +401,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::post('/insertcommissionoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionOutward']);
     Route::post('/insertcommissioninvoiceoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionInvoiceOutward']);
     Route::post('/insertinward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertInward']);
+    Route::post('/updateinward', [App\Http\Controllers\register\RegisterController::class, 'updateInward']);
     Route::post('/inward/{type}/add-fabrics-details', [App\Http\Controllers\register\RegisterController::class, 'addFabricDetails']);
 });
 

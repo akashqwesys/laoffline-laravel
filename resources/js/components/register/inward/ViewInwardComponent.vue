@@ -1,5 +1,5 @@
 <template>
-    <div class="nk-content ">
+    <div class="nk-content">
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
@@ -99,17 +99,15 @@
                                     </div>
                                     <div class="card-inner">
                                         <div class="row">
-                                            <label class="form-label">Multiple Attachments : </label>
-                                            <div class="row w-100">
-                                                <div class="col-md-2" v-for="(attachment,index) in attachments"
-                                                    :key="index">
-                                                    <a :href="'/upload/Inwards/'+attachment" target="_blank">
-                                                        <img height="65" width="50" id="preview-img"
-                                                            src="/assets/images/icons/file-media.svg"
-                                                            style="opacity: 0.5; padding-top: 5px;">
+                                            <label class="form-label">Multiple Attachments  :  </label>
+                                            <ul>
+                                                <li v-for="(attachment,index) in attachments" :key="index">
+                                                    <a v-if="attachment != ''" :href="'/upload/inwards/'+attachment" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
                                                     </a>
-                                                </div>
-                                            </div>
+                                                    <span v-else>-</span>
+                                                </li>
+                                            </ul>
                                         </div>
                                         <div class="row">
                                             <label class="form-label">Remark : </label>
@@ -120,39 +118,37 @@
                             </div>
                         </div>
                         <div class="mt-2 card card-bordered card-stretch">
-                            <div class="card-header">
-                                <h6>Sample Details</h6>
-                            </div>
-                            <div class="class-inner">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Sr no</th>
-                                            <th>Name</th>
-                                            <th>Attachment</th>
-                                            <th>Price</th>
-                                            <th v-if="Inward.sample_for == 1 || Inward.sample_for == 3">Main Qty</th>
-                                            <th v-else>Meter</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(sample,index) in samples" :key="index">
-                                            <td>{{ ++index }}</td>
-                                            <td>{{ sample.name }}</td>
-                                            <td>
-                                                <a :href="'/upload/InwardSample/'+sample.image" target="_blank">
-                                                    {{ sample.image }}
-                                                </a>
-                                            </td>
-                                            <td>{{ sample.price }}</td>
-                                            <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3">{{ sample.qty}}
-                                            </td>
-                                            <td v-else>{{ sample.meters }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                <div class="card-header">
+                                    <h6>Sample Details</h6>
+                                </div>
+                                <div class="class-inner">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+
+                                                <th>Sr no</th>
+	    								        <th>Name</th>
+		    									<th>Attachment</th>
+			    			        			<th>Price</th>
+                                                <th v-if="Inward.sample_for == 1 || Inward.sample_for == 3">Main Qty</th>
+                                                <th v-else>Meter</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(sample,index) in samples" :key="index">
+                                                <td>{{ ++index }}</td>
+                                                <td>{{ sample.name }}</td>
+                                                <td><a :href="'/upload/InwardSample/'+sample.image" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                    </a></td>
+                                                <td>{{ sample.price }}</td>
+                                                <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3">{{ sample.quantity }}</td>
+                                                <td v-else>{{ sample.meters }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div>                       
                     </div><!-- .nk-block -->
                 </div>
             </div>

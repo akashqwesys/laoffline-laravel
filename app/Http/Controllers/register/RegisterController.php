@@ -1925,15 +1925,14 @@ class RegisterController extends Controller
                 ->first();
         $created_at = $date = date_format($inward->created_at, 'Y/m/d H:i:s');
         $employee = Employee::where('id', $inward->employee_id)->first()->firstname;
-
-
-
+        
         if ($inward->company_id) {
             $company = Company::where('id', $inward->company_id)->first();
         } else {
             $company = Company::where('id', $inward->supplier_id)->first();
         }
-
+        $comboid = Comboids::where('inward_or_outward_id', $id)->where('iuid', $inward->iuid)->where('financial_year_id', $inward->financial_year_id)->first();
+        $assignemp = Employee::select("*", DB::raw("CONCAT(firstname,' ',lastname) as name"))->where('id', $comboid->assigned_to)->first();
         $courier = '';
         if (!empty($inward->courier_name)) {
             $courier = TransportDetails::where('id', $inward->courier_name)->first();
@@ -1956,14 +1955,23 @@ class RegisterController extends Controller
             array_push($itmdata, $item);
         }
         $sample = InwardSample::where('inward_id', $id)->where('is_deleted', 0)->get();
+        $sampledata = array();
+        foreach ($sample as $itm) {
+            array_push($sampledata, array('name'=> $itm->name, 'price' => $itm->price, 'quantity' => $itm->qty, 'image' => $itm->image, 'meter' => $itm->meters));
+        }
+
         $data['inward']['attachment'] = $itmdata;
         $data['inward']['courier'] = $courier;
         $data['inward']['todaydate'] = Carbon::now()->format('Y-m-d');
         $data['inward']['recivedate'] = substr($inward->courier_received_time,0,10);
-        $data['sample'] = $sample;
+        $data['inward']['recivedateedit'] = str_replace(" ", "T", $inward->courier_received_time);
+        $data['sample'] = $sampledata;
+
+        $data['inward']['assignemp'] = $assignemp;
         $data['inward']['generatedate'] = $created_at;
         $data['inward']['generateby'] = $employee;
         $data['inward']['company'] = $company;
+        $data['inward']['comboids'] = $comboid;
         return $data;
     }
 
@@ -2100,7 +2108,7 @@ class RegisterController extends Controller
             $type = 3;
         } else if ($inward->type_of_inward == 'letter') {
             $type = 4;
-        } else if ($inward->type_of_inward == 'sample') {
+        } else if ($inward->type_of_inward == 'Sample') {
             $type = 5;
         } else if ($inward->type_of_inward == 'email') {
             $type = 6;
@@ -2375,7 +2383,7 @@ class RegisterController extends Controller
             $inward->supplier_id = 0;
             $inward->company_id = $inward_data->companyid;
         }
-        $insertLastid = inward::orderBy('inward_id', 'DESC')->first('inward_id');
+        $insertLastid = Inward::orderBy('inward_id', 'DESC')->first('inward_id');
         $inward_id = !empty($insertLastid) ? $insertLastid->inward_id + 1 : 1;
 
         $inward->inward_id = $inward_id;
@@ -2446,6 +2454,216 @@ class RegisterController extends Controller
                 $inwardsample_id = !empty($insertLastid) ? $insertLastid->inward_sample_id + 1 : 1;
                 $inwardsample->inward_sample_id = $inwardsample_id;
                 $inwardsample->inward_id = $inward_id;
+                $inwardsample->name = $sample->name;
+                $inwardsample->price = $sample->price == '' ? 0 : $sample->price;
+                $inwardsample->image = $samplefile;
+                $inwardsample->is_deleted = 0;
+                $inwardsample->save();
+                $key++;
+            }
+        }
+    }
+
+    public function updateInward(Request $request) {
+
+        $inward_data = json_decode($request->inwarddata);
+        $sampledata =  json_decode($request->sampleData);
+        
+        $updateinward = Inward::where('inward_id', $inward_data->id)->first();
+        $attechments = $request->attechment;
+        $files = array();
+        if ($attechments) {
+            foreach ($attechments as $attechment) {
+                $attechmentfile = date('YmdHis') . "_inward." . $attechment->getClientOriginalExtension();
+                $attechment->move(public_path('upload/Inwards/'), $attechmentfile);
+                array_push($files, $attechmentfile);
+            }
+        }
+
+        $user = Session::get('user');
+        $financialid = $updateinward->financial_year_id;
+        if($inward_data->notify_client) {
+            $notify_clients = 1;
+        } else {
+            $notify_clients = 0;
+        }
+
+        if($inward_data->notify_md) {
+            $notify_md = 1;
+        } else {
+            $notify_md = 0;
+        }
+
+        $latterBy_id = $inward_data->sample_via->id;
+        $ref_id = $inward_data->reference_sample_data;
+
+        $typeName = DB::table('company_types')->where('id', $inward_data->company->company_type)->first();
+        if ($latterBy_id == 2) {
+            $latter_by_id = $latterBy_id;
+            $courier_name = $inward_data->courier_name->id;
+            $weight_of_parcel = $inward_data->weight_of_parcel;
+            $courier_receipt_no = $inward_data->courier_receipt_number;
+            $courier_received_time = date('Y-m-d',strtotime($inward_data->received_date_time));
+            $delivery_by = $inward_data->delivery_by;
+        } else {
+            $latter_by_id = $latterBy_id;
+            $courier_name = '';
+            $weight_of_parcel = $inward_data->weight_of_parcel;
+            $courier_receipt_no = '';
+            $courier_received_time = date('Y-m-d',strtotime($inward_data->received_date_time));
+            $delivery_by = $inward_data->delivery_by;
+        }
+
+        $receiver_number = '';
+		$from_number = '';
+		$from_name = $inward_data->from_name;
+        if ($updateinward->company_id == $inward_data->company->id || $updateinward->supplier_id == $inward_data->company->id)
+        {
+            $general_ref_no = $inward_data->reference_sample_data;
+            $companyId = $inward_data->company->id;
+        } else {
+            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
+            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
+            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
+            $companyId = $inward_data->company->id;
+            if ($increment_id_details) {
+                $general_ref_no = $increment_id_details->reference_id + 1;
+                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
+                $increment_id->reference_id = $general_ref_no;
+                $increment_id->save();
+            } else {
+                $general_ref_no = '1';
+                $increment_id = new IncrementId();
+                $increment_id->id = $Incrementids;
+                $increment_id->reference_id = $general_ref_no;
+                $increment_id->financial_year_id = $financialid;
+                $increment_id->save();
+            }
+
+            $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
+            $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
+            $refence = new ReferenceId();
+            $refence->id = $refrenceid;
+            $refence->reference_id = $general_ref_no;
+            $refence->financial_year_id = $financialid;
+            $refence->employee_id = $user->employee_id;
+            $refence->inward_or_outward = 1;
+            $refence->type_of_inward = $inward_data->sample_via->name;
+            $refence->company_id = $inward_data->company->id;
+            $refence->selection_date = $inward_data->dateTime;
+            $refence->from_name = $inward_data->from_name;
+            $refence->from_number = $from_number;
+            $refence->receiver_number = $receiver_number;
+            $refence->from_email_id = '';
+            $refence->courier_name = $courier_name;
+            $refence->weight_of_parcel = $weight_of_parcel;
+            $refence->courier_receipt_no = $courier_receipt_no;
+            $refence->courier_received_time = $courier_received_time;
+            $refence->delivery_by = $delivery_by;
+            $refence->save();
+        } 
+
+        $subject = "Sample for". $inward_data->company->company_name;
+        $comboids = Comboids::where('iuid', $updateinward->iuid)->where('financial_year_id', $updateinward->financial_year_id)->first();
+        if ($inward_data->company->company_type == 3) {
+            $comboids->supplier_id = $inward_data->company->id;
+            $comboids->company_id = 0;
+        } else {
+            $comboids->supplier_id = 0;
+            $comboids->company_id = $inward_data->company->id;
+        }
+        $comboids->general_ref_id = $general_ref_no;
+        $comboids->assigned_to = $inward_data->assign_to->id;
+        $comboids->company_type = $typeName->name;
+        $comboids->followup_via = $inward_data->sample_via->name;
+        $comboids->inward_or_outward_via = $inward_data->sample_via->name;
+        $comboids->selection_date = $inward_data->dateTime;
+        $comboids->from_name = $inward_data->from_name;
+        //$combo_id->receiver_number = "".$inward_data['receiver_number'];
+        //$combo_id->receiver_email_id = $inward_data['receiver_email'];
+        $comboids->receipt_mode = 0;
+        $comboids->receipt_amount = 0;
+        $comboids->total = 0;
+        $comboids->subject = $subject;
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = json_encode($files);
+        $comboids->action_date = $inward_data->assignToDateTime;
+        $comboids->action_instruction = $inward_data->instruction;
+        $comboids->updated_by = Session::get('user')->employee_id;
+        
+        $comboids->save();
+
+        $inward = Inward::where('inward_id', $inward_data->id)->first();
+        if ($inward_data->company->company_type == 3) {
+            $inward->supplier_id = $inward_data->company->id;
+            $inward->company_id = 0;
+        } else {
+            $inward->supplier_id = 0;
+            $inward->company_id = $inward_data->company->id;
+        }
+        
+        $inward->inward_date = $inward_data->dateTime;
+        $inward->inward_ref_via = $inward_data->sample_via->id;
+        $inward->sample_via = $inward_data->sample_via->name;
+        $inward->sample_for = $inward_data->sample_for->id;
+        
+        $inward->general_input_ref_id = $general_ref_no;
+        $inward->receiver_number = $inward_data->receiver_number;
+        //$inward->from_number = '';
+        $inward->latter_by_id = $latter_by_id;
+        $inward->courier_name = (int)$courier_name;
+        $inward->weight_of_parcel = $weight_of_parcel;
+        $inward->courier_receipt_no = $courier_receipt_no;
+        $inward->courier_received_time = $courier_received_time;
+        $inward->delivery_by = $delivery_by;
+        $inward->from_name = $from_name;
+        $inward->to_name = '';
+        $inward->delivery_period = 0;
+        $inward->attachments = json_encode($files);
+        $inward->remarks = $inward_data->remark;
+        $inward->client_remark = $inward_data->client_comments ? $inward_data->client_comments : '';
+        $inward->employee_id = Session::get('user')->employee_id;
+        $inward->subject = $subject;
+        $inward->notify_client = $notify_clients;
+        $inward->notify_md = $notify_md;
+        $inward->financial_year_id = $financialid;
+        $inward->enquiry_complain_for = 0;
+        $inward->product_qty = 0;
+        $inward->fabric_meters = 0;
+        $inward->is_deleted = 0;
+        
+        $inward->save();
+
+        if ($sampledata){
+            $key = 0;
+            InwardSample::where('inward_id', $inward_data->id)->delete();
+            foreach($sampledata as $sample) {
+                $samplefile = '';
+                if($request->pimage[$key] != 'null') {
+                    if (is_file($request->pimage[$key])){
+                        $samplefile = date('YmdHis') . "_inwardsample." . $request->pimage[$key]->getClientOriginalExtension();
+                        $request->pimage[$key]->move(public_path('upload/InwardSample/'), $samplefile);
+                    } else {
+                        $samplefile = $sample->image;
+                    }
+                }
+                $inwardsample = new InwardSample();
+                if ($sample->quantity == '') {
+                    $qty = 0;
+                } else {
+                    $qty = $sample->quantity;
+                }
+                if ($inward_data->sample_for->id == 1 || $inward_data->sample_for->id == 3) {
+                    $inwardsample->qty = $qty;
+                    $inwardsample->meters = 0;
+                } else {
+                    $inwardsample->meters = $qty;
+                    $inwardsample->qty = 0;
+                }
+                $insertLastid = InwardSample::orderBy('inward_sample_id', 'DESC')->first('inward_sample_id');
+                $inwardsample_id = !empty($insertLastid) ? $insertLastid->inward_sample_id + 1 : 1;
+                $inwardsample->inward_sample_id = $inwardsample_id;
+                $inwardsample->inward_id = $inward_data->id;
                 $inwardsample->name = $sample->name;
                 $inwardsample->price = $sample->price == '' ? 0 : $sample->price;
                 $inwardsample->image = $samplefile;
