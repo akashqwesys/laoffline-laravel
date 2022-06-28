@@ -1222,10 +1222,12 @@ class CompanyController extends Controller
             ->select('cc.id', 'cc.commission_percentage', 'cc.flag', 'c.id as company_id', 'c.company_name');
         if ($request->companyType == 2) {
             $data = $data->join('companies as c', 'cc.supplier_id', '=', 'c.id')
-                ->where('cc.customer_id', $request->company);
+                ->where('cc.customer_id', $request->company)
+                ->where('flag', 2);
         } else if ($request->companyType == 3) {
             $data = $data->join('companies as c', 'cc.customer_id', '=', 'c.id')
-                ->where('cc.supplier_id', $request->company);
+                ->where('cc.supplier_id', $request->company)
+                ->where('flag', 1);
         }
         $data = $data->where('c.is_delete', 0)
             ->orderBy('id', 'asc')
