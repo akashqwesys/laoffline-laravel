@@ -111,7 +111,11 @@
                 })
                 .then(response => {
                     this.customer = this.supplier = this.commission = '';
-                    this.fetchData();
+                    if (response.data == 'exist') {
+                        alert('Company already exist');
+                    } else {
+                        this.fetchData();
+                    }
                 });
             },
         },
