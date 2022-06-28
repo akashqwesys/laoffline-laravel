@@ -93,7 +93,7 @@ class TypeOfAddressController extends Controller
             $id = $record->id;
             $name = $record->name;
             $action = '<a href="./type-of-address/edit-type-of-address/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="./type-of-address/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+            <a href="./type-of-address/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
