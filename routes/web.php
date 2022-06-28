@@ -178,6 +178,7 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:acces
         Route::get('/essential/list-essential', [App\Http\Controllers\databank\CompanyController::class, 'listEssentialCompany'])->name('list-essential');
         Route::get('/fetch-company/{id}', [App\Http\Controllers\databank\CompanyController::class, 'fetchCompany']);
         Route::get('/company-commission/{company}/{type}', [App\Http\Controllers\databank\CompanyController::class, 'companyCommissionView']);
+        Route::post('/fetch-company-commission', [App\Http\Controllers\databank\CompanyController::class, 'fetchCompanyCommission']);
     });
 });
 
@@ -192,6 +193,8 @@ Route::group(['prefix' => 'databank', 'middleware' => ['auth', 'permission:modif
         Route::get('/view-company/{id}', [App\Http\Controllers\databank\CompanyController::class, 'viewCompany']);
         Route::get('/edit-company/{id}', [App\Http\Controllers\databank\CompanyController::class, 'editCompany']);
         Route::get('/delete/{id}', [App\Http\Controllers\databank\CompanyController::class, 'deleteCompany'])->name('delete');
+        Route::post('/add-commission', [App\Http\Controllers\databank\CompanyController::class, 'addCompanyCommission']);
+        Route::post('/update-commission', [App\Http\Controllers\databank\CompanyController::class, 'updateCompanyCommission']);
     });
 });
 
