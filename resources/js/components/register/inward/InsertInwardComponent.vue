@@ -1324,7 +1324,7 @@
                     })
                     axios.post('/register/updateinward', paymentdata)
                         .then(( response ) => {
-                            //window.location.href = '/register/inward';
+                            window.location.href = '/register/inward';
                     })
                 } else {
                 $("#error-for-courier_name").text("");
