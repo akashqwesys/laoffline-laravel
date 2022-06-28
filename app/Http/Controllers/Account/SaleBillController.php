@@ -1210,6 +1210,7 @@ class SaleBillController extends Controller
         }
         $supplier_row = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $sale_bill->supplier_id . '">' . $sale_bill->supplier_name . '</a>';
         $final_address = collect($company_addresses)->where('id', intval($sale_bill->address))->toArray();
+        $final_address = count($final_address) ? array_values($final_address) : [];
 
         $station = DB::table('cities')
             ->select('name')

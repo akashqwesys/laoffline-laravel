@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -11,7 +11,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -36,9 +36,9 @@
                                                         <input type="text" class="form-control" id="fv-gstin" v-model="form.gstin" required>
                                                     </div>
                                                 </div>
-                                            </div> 
+                                            </div>
                                         </div>
-                                        <hr class="preview-hr">                                        
+                                        <hr class="preview-hr">
                                         <div class="row gy-4">
                                             <div class="col-md-12 d-flex align-items-center">
                                                 <span class="preview-title-lg overline-title d-inline-block w-100">Multiple Addresses</span>
@@ -85,7 +85,7 @@
                                             </div>
                                         </div>
                                         <hr class="preview-hr">
-                                        <div class="row gy-4">                                        
+                                        <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
@@ -152,7 +152,7 @@
                 } else {
                     this.form.post('/settings/transport-details/create')
                         .then(( response ) => {
-                            //window.location.href = '/settings/transport-details';
+                            window.location.href = '/settings/transport-details';
                     })
                 }
             },

@@ -143,7 +143,7 @@
                     },
                     pagingType: 'full_numbers',
                     dom: "Blrtip",
-                    order: [[0, "desc"]],
+                    order: [[2, "desc"]],
                     columns: [
                         { data: 'inward_id' },
                         { data: 'iuid' },
