@@ -846,7 +846,7 @@ class CompanyController extends Controller
                 $companyAddress->company_id = $companyId;
                 $companyAddress->address_type = !empty($multipleAddress->address_type) ? $multipleAddress->address_type->id : 0;
                 $companyAddress->address = $multipleAddress->address;
-                $companyAddress->country_code = $multipleAddress->country_code;
+                $companyAddress->country_code = $multipleAddress->country_code ? $multipleAddress->country_code : '+91';
                 $companyAddress->mobile = $multipleAddress->mobile;
                 $companyAddress->save();
 
@@ -1214,6 +1214,15 @@ class CompanyController extends Controller
         $company_name = $cmp_data ? $cmp_data->company_name : '';
 
         return view('databank.companies.companyCommission', compact('financialYear', 'page_title', 'company', 'type', 'company_name'))->with('employees', $employees);
+    }
+
+    public function fetchCompanyCommission(Request $request)
+    {
+        $data = DB::table('company_commissions')
+            ->select('id', 'customer_id', 'supplier_id', 'commission_percentage', 'flag')
+            ->where('customer_id', $request->customer)
+            ->where('customer_id', $request->customer)
+            ->get();
     }
 
     public function updateCompanyCommission(Request $request)
