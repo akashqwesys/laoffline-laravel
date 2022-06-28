@@ -1277,7 +1277,7 @@ class CompanyController extends Controller
 
     public function addCompanyCommission(Request $request)
     {
-        $exist = DB::table('company_commissions')->select('id')->where('customer_id', $request->customer)->where('supplier_id', $request->supplier)->first();
+        $exist = DB::table('company_commissions')->select('id')->where('customer_id', $request->customer)->where('supplier_id', $request->supplier)->where('flag', ($request->companyType == 2 ? 2 : 1))->first();
         if ($exist) {
             return response()->json('exist');
         }
