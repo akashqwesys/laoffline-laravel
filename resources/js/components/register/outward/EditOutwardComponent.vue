@@ -12,7 +12,7 @@
                     </div><!-- .nk-block-head -->
 
                     <div class="nk-block">
-                        <div class="card card-bordered">
+                        
                         <div class="card card-bordered salebill">
                             <div class="card-header">
                                 <h6>Edit Outward Detail</h6>
@@ -58,7 +58,7 @@
                                         <label class="form-label" for="fv-company">Company</label>
                                     </div>
                                     <div class="col-sm-4">
-                                       <input type="text" class="form-control" id="fv-company" v-model="form.company">
+                                       <input :readonly="true" type="text" class="form-control" id="fv-company" v-model="form.company">
                                        <input type="hidden" class="form-control" v-model="form.companyid" >
                                     </div>
                                 </div>
@@ -134,13 +134,281 @@
                             </div>
                             </form>
                         </div><!-- .card -->
+                        <div v-if="outwardtype == 1" class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <span><strong>Ourward Salebill Detail</strong></span>
+                            </div>
+                            <div class="card-inner">
+                            <div class="print_area1">
+                                <div style="float:left; width:100%; border:1px solid">
+							        <table class="table m-b-none">
+								        <tbody>
+                                            <tr>
+                                                <th>
+                                                    <div class="row">
+                                                        <div class="col-sm-3 text-left">
+                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                        </div>
+                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
+                                                            <span>Kind Attention to {{ Outward.companyperson }}</span>
+                                                        </div>
+                                                        <div class="col-sm-3 text-right">
+                                                            <span>{{ Outward.todaydate }}</span>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <tr>
+									            <th class="text-left">MS</th>
+								            </tr>
+                                            <tr>
+									            <th class="text-center">{{ Outward.company }}</th>
+								            </tr>
+											<tr>
+									            <th class="text-center">Greetings From {{ agent }}</th>
+            								</tr>
+											<tr>
+				            					<th>Please Find The Details Below</th>
+							            	</tr>
+								            
+							            </tbody>
+                                </table>
 
+							    <table class="table table-striped m-b-none" id="div_table">
+								    <tbody>
+                                        <tr>
+                                            <td><b>LR No.</b></td>
+                                            <td><b>Date</b></td>
+                                            <td><b>Supplier</b></td>
+        									<td><b>No of parcel</b></td>
+		        							<td><b>Transport</b></td>
+				        				</tr>
+                                        <tr v-for="(salebill,index) in salebills" :key="index">
+                                            <td>{{ salebill.transport.lr_mr_no }}</td>
+                                            <td>{{ salebill.salebilldetail.select_date}}</td>
+                                            <td>{{ salebill.company_name}}</td>
+        									<td>{{ salebill.transport.cases }}</td>
+		        							<td>{{ salebill.transport.name }}</td>
+				        				</tr>
+                                        
+    						        </tbody>
+                                    <tfoot>
+						                  	<tr>
+						                  		<td colspan="3" class="text-right">Total Parcel Quantity : </td>
+						                  		<td colspan="2">{{ totalParcel }}</td>
+						                  	</tr>
+						                  	<tr>
+						                      	<td colspan="5" class="text-right">Thank you<br><br><br><br></td>
+						                  	</tr>
+						                  	<tr>
+						                      	<td colspan="5" class="text-right">(Signature)</td>
+						                  	</tr>
+						                </tfoot>
+                                </table>
+							    
+						    </div>
+                            </div>
+                            </div><!-- .card -->
+                        </div>
+                        <div v-if="outwardtype == 2" class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <span><strong>Ourward Payment Detail</strong></span>
+                            </div>
+                            <div class="card-inner">
+                            <div class="print_area1">
+                                <div style="float:left; width:100%; border:1px solid">
+							        <table class="table m-b-none">
+								        <tbody>
+                                            <tr>
+                                                <th>
+                                                    <div class="row">
+                                                        <div class="col-sm-3 text-left">
+                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                        </div>
+                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
+                                                            <span>Payment Outward Slip</span>
+                                                        </div>
+                                                        <div class="col-sm-3 text-right" style="padding-top:3%">
+                                                            <span>{{ Outward.todaydate }}</span>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <tr>
+									            <th class="text-left">{{ Outward.company }}</th>
+								            </tr>
+											
+											<tr>
+				            					<th>Please Find The Details Below</th>
+							            	</tr>
+								            
+							            </tbody>
+                                </table>
+
+							    <table class="table table-striped m-b-none" id="div_table">
+								    <tbody>
+                                        <tr>
+                                            <td><b>Voucher No.</b></td>
+                                            <td><b>CHQ No</b></td>
+                                            <td><b>CHQ Date</b></td>
+        									<td><b>Customer</b></td>
+		        							<td><b>Amount</b></td>
+				        				</tr>
+                                        <tr v-for="(salebill,index) in salebills" :key="index">
+                                            <td>{{ salebill.paymentdetail.payment_id }}</td>
+                                            <td>{{ salebill.paymentdetail.cheque_dd_no}}</td>
+                                            <td>{{ salebill.paymentdetail.cheque_date}}</td>
+        									<td>{{ salebill.company_name }}</td>
+		        							<td>{{ salebill.paymentdetail.tot_adjust_amount }}</td>
+				        				</tr>
+                                        
+    						        </tbody>
+                                    <tfoot>
+						                  	<tr>
+						                      	<td colspan="5" class="text-right">Thank you<br><br><br><br></td>
+						                  	</tr>
+						                  	<tr>
+						                      	<td colspan="5" class="text-right">(Signature)</td>
+						                  	</tr>
+						                </tfoot>
+                                </table>
+							    
+						    </div>
+                            </div>
+                            </div><!-- .card -->
+                        </div>
+                        <div v-if="outwardtype == 3" class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <span><strong>Ourward Commission Detail</strong></span>
+                            </div>
+                            <div class="card-inner">
+                            <div class="print_area1">
+                                <div style="float:left; width:100%; border:1px solid">
+							        <table class="table m-b-none">
+								        <tbody>
+                                            <tr>
+                                                <th>
+                                                    <div class="row">
+                                                        <div class="col-sm-3 text-left">
+                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                        </div>
+                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
+                                                            <span>{{ Outward.company }}</span>
+                                                        </div>
+                                                        <div class="col-sm-3 text-right" style="padding-top:3%">
+                                                            <span>{{ Outward.todaydate }}</span>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            
+											
+											<tr>
+				            					<th>Please Find The Details Below</th>
+							            	</tr>
+								            
+							            </tbody>
+                                </table>
+
+							    <table class="table table-striped m-b-none" id="div_table">
+								    <tbody>
+                                        <tr>
+                                            <td><b>Commssion Id</b></td>
+                                            <td><b>Date</b></td>
+                                            <td><b>Cheque No</b></td>
+        									<td><b>Amount</b></td>
+		        							<td><b>Bank</b></td>
+                                            <td><b>Account Name</b></td>
+				        				</tr>
+                                        <tr v-for="(salebill,index) in salebills" :key="index">
+                                            <td>{{ salebill.commissionDetail.commission_id }}</td>
+                                            <td>{{ salebill.commissionDetail.commission_date}}</td>
+                                            <td>{{ salebill.commissionDetail.cheque_dd_no}}</td>
+        									<td>{{ salebill.commissionDetail.commission_payment_amount }}</td>
+		        							<td>{{ salebill.bank }}</td>
+                                            <td>{{ salebill.account }}</td>
+				        				</tr>
+                                        
+    						        </tbody>
+                                    <tfoot>
+						                  	<tr>
+						                      	<td colspan="3" class="text-left">Prepared by<br><br><br><br></td>
+                                                <td colspan="3" class="text-right">Delivery by</td>
+                                              </tr>
+						                </tfoot>
+                                </table>
+							    
+						    </div>
+                            </div>
+                            </div><!-- .card -->
+                        </div>
+                        <div v-if="outwardtype == 4" class="card card-bordered card-stretch">
+                            <div class="card-header">
+                                <span><strong>Ourward Commission Invoice Detail</strong></span>
+                            </div>
+                            <div class="card-inner">
+                            <div class="print_area1">
+                                <div style="float:left; width:100%; border:1px solid">
+							        <table class="table m-b-none">
+								        <tbody>
+                                            <tr>
+                                                <th>
+                                                    <div class="row">
+                                                        <div class="col-sm-3 text-left">
+                                                            <img src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                        </div>
+                                                        <div class="col-sm-6 text-center" style="padding-top:3%">
+                                                            <span>{{ Outward.company }}</span>
+                                                        </div>
+                                                        <div class="col-sm-3 text-right" style="padding-top:3%">
+                                                            <span>{{ Outward.todaydate }}</span>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            
+											
+											<tr>
+				            					<th>Please Find The Details Below</th>
+							            	</tr>
+								            
+							            </tbody>
+                                </table>
+
+							    <table class="table table-striped m-b-none" id="div_table">
+								    <tbody>
+                                        <tr>
+                                            <td><b>Invoice No</b></td>
+                                            <td><b>Bill No</b></td>
+                                            <td><b>Date Added</b></td>
+        									<td><b>Bill Date</b></td>
+				        				</tr>
+                                        <tr v-for="(salebill,index) in salebills" :key="index">
+                                            <td>{{ salebill.invoicedetail.id }}</td>
+                                            <td>{{ salebill.invoicedetail.bill_no}}</td>
+                                            <td>{{ salebill.date_add }}</td>
+        									<td>{{ salebill.billdate}}</td>
+		        							
+				        				</tr>
+                                        
+    						        </tbody>
+                                    <tfoot>
+						                  	<tr>
+						                      	<td colspan="3" class="text-left">Prepared by<br><br><br><br></td>
+                                                <td colspan="3" class="text-right">Delivery by</td>
+                                              </tr>
+						                </tfoot>
+                                </table>
+							    
+						    </div>
+                            </div>
+                            </div><!-- .card -->
+                        </div>
                     </div><!-- .nk-block -->
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 </template>
 
 <script>
@@ -162,6 +430,11 @@
                 buyer: [],
                 agents: [],
                 courier: [],
+                Outward: [],
+                salebills: [],
+                agent: '',
+                outwardtype: '',
+                totalParcel: 0,
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
                     id: '',
@@ -192,6 +465,9 @@
             });
         },
         methods: {
+            getOldReferences: function (event) {
+                this.form.refrence = 1;
+            },
             getRefencevia (option, id) {
                 let refernceby = option.name;
                 if (refernceby == 'Hand') {
@@ -205,7 +481,7 @@
                 formdata.append("refenceform", JSON.stringify(this.form));
                 axios.post('/register/updateoutward',formdata)
                 .then(function (responce) {
-
+                    window.location.href = '/register/outward';
                 }).catch(function (error) {
                 });
             },
@@ -231,6 +507,20 @@
                     this.form.referncevia = { name:'Courier'};
                     $(".courrier").removeClass("d-none");
                 }
+
+                let total = 0;
+                this.Outward = gData.outward;
+                this.salebills = gData.salebill;
+                this.agent = gData.outward.courier_agent.name
+                        
+                this.outwardtype = gData.outward_type;
+                if (this.outwardtype == 1) {
+                this.salebills.forEach((value)=>{
+                    total += parseInt(value.transport.cases);
+                });
+                }
+                this.totalParcel = total;
+
                 this.form.courrier = gData.outward.courier;
                 this.form.reciptno = gData.outward.courier_receipt_no;
                 this.form.recivetime = gData.outward.recivedate;

@@ -620,6 +620,8 @@ class RegisterController extends Controller
                 $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
                 $action = '<a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 15) {
+                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else {
                 $action = '';
             }
@@ -2108,7 +2110,7 @@ class RegisterController extends Controller
             $type = 3;
         } else if ($inward->type_of_inward == 'letter') {
             $type = 4;
-        } else if ($inward->type_of_inward == 'Sample') {
+        } else if ($inward->type_of_inward == 'sample') {
             $type = 5;
         } else if ($inward->type_of_inward == 'email') {
             $type = 6;
@@ -2413,7 +2415,7 @@ class RegisterController extends Controller
         $inward->remarks = $inward_data->remark;
         $inward->client_remark = $inward_data->remark ? $inward_data->remark : '';
         $inward->employee_id = Session::get('user')->employee_id;
-        $inward->type_of_inward = 'Sample';
+        $inward->type_of_inward = 'sample';
         $inward->subject = $subject;
         $inward->notify_client = $notify_clients;
         $inward->notify_md = $notify_md;
