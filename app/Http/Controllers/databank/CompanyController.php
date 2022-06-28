@@ -1218,15 +1218,99 @@ class CompanyController extends Controller
 
     public function fetchCompanyCommission(Request $request)
     {
-        $data = DB::table('company_commissions')
-            ->select('id', 'customer_id', 'supplier_id', 'commission_percentage', 'flag')
-            ->where('customer_id', $request->customer)
-            ->where('customer_id', $request->customer)
+        $data = DB::table('company_commissions as cc')
+            ->select('cc.id', 'cc.commission_percentage', 'cc.flag', 'c.id as company_id', 'c.company_name');
+        if ($request->companyType == 2) {
+            $data = $data->join('companies as c', 'cc.supplier_id', '=', 'c.id')
+                ->where('cc.customer_id', $request->company)
+                ->where('flag', 2);
+        } else if ($request->companyType == 3) {
+            $data = $data->join('companies as c', 'cc.customer_id', '=', 'c.id')
+                ->where('cc.supplier_id', $request->company)
+                ->where('flag', 1);
+        }
+        $data = $data->where('c.is_delete', 0)
+            ->orderBy('id', 'asc')
             ->get();
+
+        return response()->json($data);
     }
 
     public function updateCompanyCommission(Request $request)
     {
-        # code...
+        if ($request->commission == 0 || $request->commission == '') {
+
+            DB::table('company_commissions')->where('id', $request->id)->delete();
+
+            $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+            $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+            $logs = new Logs;
+            $logs->id = $logsId;
+            $logs->employee_id = Session::get('user')->employee_id;
+            $logs->log_path = 'Company commission / delete';
+            $logs->log_subject = 'Company commission for ' . $request->name_1 . ' and ' . $request->name_2 . ' is deleted';
+            $logs->log_url = url('/') . '/databank/companies/company-commission/' . $request->company . '/' . $request->companyType;
+            $logs->save();
+
+            return response()->json('deleted');
+        } else {
+
+            DB::table('company_commissions')->where('id', $request->id)->update([
+                'commission_percentage' => $request->commission
+            ]);
+
+            $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+            $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+            $logs = new Logs;
+            $logs->id = $logsId;
+            $logs->employee_id = Session::get('user')->employee_id;
+            $logs->log_path = 'Company commission / update';
+            $logs->log_subject = 'Company commission for ' . $request->name_1 . ' and ' . $request->name_2 . ' is updated';
+            $logs->log_url = url('/') . '/databank/companies/company-commission/' . $request->company . '/' . $request->companyType;
+            $logs->save();
+
+            return response()->json('updated');
+        }
+    }
+
+    public function addCompanyCommission(Request $request)
+    {
+        $exist = DB::table('company_commissions')->select('id')->where('customer_id', $request->customer)->where('supplier_id', $request->supplier)->where('flag', ($request->companyType == 2 ? 2 : 1))->first();
+        if ($exist) {
+            return response()->json('exist');
+        }
+
+        $data = [
+            'id' => (getLastID('company_commissions', 'id') + 1),
+            'customer_id' => $request->customer,
+            'supplier_id' => $request->supplier,
+            'commission_percentage' => $request->commission,
+            'flag' => 0,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if ($request->companyType == 2) {
+            $data['flag'] = 2;
+        } else if ($request->companyType == 3) {
+            $data['flag'] = 1;
+        }
+
+        DB::table('company_commissions')->insert($data);
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Company commission / create';
+        $logs->log_subject = 'Company commission for ' . $request->name_1 . ' and ' . $request->name_2 . ' is added';
+        $logs->log_url = url('/') . '/databank/companies/company-commission/' . $request->company . '/' . $request->companyType;
+        $logs->save();
+
+        return response()->json('added');
     }
 }
