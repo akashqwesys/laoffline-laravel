@@ -754,6 +754,7 @@ class RegisterController extends Controller
                   ->whereRaw("payments.created_at::date <= '" . $request->todate . "'" )
                   ->whereNot('payments.done_outward', 1)
                   ->where('is_deleted', 0)
+                  ->where('payments.reciept_mode', 'cheque')
                   ->select('payments.*', 'companies.company_name')
                   ->get();
         $data['payment'] = $payment;
