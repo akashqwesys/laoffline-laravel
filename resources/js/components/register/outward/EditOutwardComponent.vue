@@ -484,7 +484,7 @@
                 this.outwardtype = gData.outward_type;
                 if (this.outwardtype == 1) {
                 this.salebills.forEach((value)=>{
-                    total += parseInt(value.transport.cases);
+                    total += parseInt(value.transport ? value.transport.cases : 0);
                 });
                 }
                 this.totalParcel = total;
