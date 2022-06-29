@@ -85,7 +85,7 @@
 											<tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                         </table>
 
@@ -99,11 +99,11 @@
                                                     <td><b>Transport</b></td>
                                                 </tr>
                                                 <tr v-for="(salebill,index) in salebills" :key="index">
-                                                    <td>{{ salebill.transport.lr_mr_no }}</td>
-                                                    <td>{{ salebill.salebilldetail.select_date}}</td>
+                                                    <td>{{ salebill.transport ? salebill.transport.lr_mr_no : '' }}</td>
+                                                    <td>{{ salebill.salebilldetail ? salebill.salebilldetail.select_date : ''}}</td>
                                                     <td>{{ salebill.company_name}}</td>
-                                                    <td>{{ salebill.transport.cases }}</td>
-                                                    <td>{{ salebill.transport.name }}</td>
+                                                    <td>{{ salebill.transport ? salebill.transport.cases : '' }}</td>
+                                                    <td>{{ salebill.transport ? salebill.transport.name : '' }}</td>
                                                 </tr>
 
                                             </tbody>
@@ -145,11 +145,11 @@
                                             <tr>
 									            <td colspan="3" class="text-left">{{ Outward.company }}</td>
 								            </tr>
-											
+
 											<tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                         </table>
 
@@ -163,11 +163,11 @@
                                                     <td><b>Amount</b></td>
                                                 </tr>
                                                 <tr v-for="(salebill,index) in salebills" :key="index">
-                                                    <td>{{ salebill.paymentdetail.payment_id }}</td>
-                                                    <td>{{ salebill.paymentdetail.cheque_dd_no}}</td>
-                                                    <td>{{ salebill.paymentdetail.cheque_date}}</td>
+                                                    <td>{{ salebill.paymentdetail ? salebill.paymentdetail.payment_id : '' }}</td>
+                                                    <td>{{ salebill.paymentdetail ? salebill.paymentdetail.cheque_dd_no : ''}}</td>
+                                                    <td>{{ salebill.paymentdetail ? salebill.paymentdetail.cheque_date : ''}}</td>
                                                     <td>{{ salebill.company_name }}</td>
-                                                    <td>{{ salebill.paymentdetail.tot_adjust_amount }}</td>
+                                                    <td>{{ salebill.paymentdetail ? salebill.paymentdetail.tot_adjust_amount : '' }}</td>
                                                 </tr>
 
                                             </tbody>
@@ -205,7 +205,7 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                         </table>
 
@@ -220,10 +220,10 @@
                                                     <td><b>Account Name</b></td>
                                                 </tr>
                                                 <tr v-for="(salebill,index) in salebills" :key="index">
-                                                    <td>{{ salebill.commissionDetail.commission_id }}</td>
-                                                    <td>{{ salebill.commissionDetail.commission_date}}</td>
-                                                    <td>{{ salebill.commissionDetail.cheque_dd_no}}</td>
-                                                    <td>{{ salebill.commissionDetail.commission_payment_amount }}</td>
+                                                    <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_id : '' }}</td>
+                                                    <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_date : ''}}</td>
+                                                    <td>{{ salebill.commissionDetail ? salebill.commissionDetail.cheque_dd_no : ''}}</td>
+                                                    <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_payment_amount : '' }}</td>
                                                     <td>{{ salebill.bank }}</td>
                                                     <td>{{ salebill.account }}</td>
                                                 </tr>
@@ -261,7 +261,7 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                         </table>
 
@@ -274,8 +274,8 @@
                                                     <td><b>Bill Date</b></td>
                                                 </tr>
                                                 <tr v-for="(salebill,index) in salebills" :key="index">
-                                                    <td>{{ salebill.invoicedetail.id }}</td>
-                                                    <td>{{ salebill.invoicedetail.bill_no}}</td>
+                                                    <td>{{ salebill.invoicedetail ? salebill.invoicedetail.id : '' }}</td>
+                                                    <td>{{ salebill.invoicedetail ? salebill.invoicedetail.bill_no : ''}}</td>
                                                     <td>{{ salebill.date_add }}</td>
                                                     <td>{{ salebill.billdate}}</td>
 

@@ -12,7 +12,7 @@
                     </div><!-- .nk-block-head -->
 
                     <div class="nk-block">
-                        
+
                         <div class="card card-bordered salebill">
                             <div class="card-header">
                                 <h6>Edit Outward Detail</h6>
@@ -163,7 +163,7 @@
 											<tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -183,7 +183,7 @@
         									<td>{{ salebill.transport.cases }}</td>
 		        							<td>{{ salebill.transport.name }}</td>
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -198,7 +198,7 @@
 						                  	</tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -223,11 +223,11 @@
                                             <tr>
 									            <td colspan="3" class="text-left">{{ Outward.company }}</td>
 								            </tr>
-											
+
 											<tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -241,13 +241,13 @@
 		        							<td><b>Amount</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.paymentdetail.payment_id }}</td>
-                                            <td>{{ salebill.paymentdetail.cheque_dd_no}}</td>
-                                            <td>{{ salebill.paymentdetail.cheque_date}}</td>
+                                            <td>{{ salebill.paymentdetail ? salebill.paymentdetail.payment_id : '' }}</td>
+                                            <td>{{ salebill.paymentdetail ? salebill.paymentdetail.cheque_dd_no : ''}}</td>
+                                            <td>{{ salebill.paymentdetail ? salebill.paymentdetail.cheque_date : ''}}</td>
         									<td>{{ salebill.company_name }}</td>
-		        							<td>{{ salebill.paymentdetail.tot_adjust_amount }}</td>
+		        							<td>{{ salebill.paymentdetail ? salebill.paymentdetail.tot_adjust_amount : '' }}</td>
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -258,7 +258,7 @@
 						                  	</tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -283,7 +283,7 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -298,14 +298,14 @@
                                             <td><b>Account Name</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.commissionDetail.commission_id }}</td>
-                                            <td>{{ salebill.commissionDetail.commission_date}}</td>
-                                            <td>{{ salebill.commissionDetail.cheque_dd_no}}</td>
-        									<td>{{ salebill.commissionDetail.commission_payment_amount }}</td>
+                                            <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_id : '' }}</td>
+                                            <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_date : ''}}</td>
+                                            <td>{{ salebill.commissionDetail ? salebill.commissionDetail.cheque_dd_no : ''}}</td>
+        									<td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_payment_amount : '' }}</td>
 		        							<td>{{ salebill.bank }}</td>
                                             <td>{{ salebill.account }}</td>
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -314,7 +314,7 @@
                                               </tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -339,7 +339,7 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -352,13 +352,13 @@
         									<td><b>Bill Date</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.invoicedetail.id }}</td>
-                                            <td>{{ salebill.invoicedetail.bill_no}}</td>
+                                            <td>{{ salebill.invoicedetail ? salebill.invoicedetail.id : '' }}</td>
+                                            <td>{{ salebill.invoicedetail ? salebill.invoicedetail.bill_no : ''}}</td>
                                             <td>{{ salebill.date_add }}</td>
         									<td>{{ salebill.billdate}}</td>
-		        							
+
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -367,7 +367,7 @@
                                               </tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -466,7 +466,7 @@
                 } else {
                     this.form.companyid = gData.outward.supplier_id;
                 }
-               
+
                 this.form.company = gData.outward.company;
                 if (gData.outward.type_of_outward == 'Hand') {
                     this.form.referncevia = { name:'Hand' };
@@ -480,7 +480,7 @@
                 this.Outward = gData.outward;
                 this.salebills = gData.salebill;
                 this.agent = gData.outward.courier_agent.name
-                        
+
                 this.outwardtype = gData.outward_type;
                 if (this.outwardtype == 1) {
                 this.salebills.forEach((value)=>{
