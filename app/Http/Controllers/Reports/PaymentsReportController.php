@@ -8,6 +8,8 @@ use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Employee;
 use App\Models\settings\Cities;
+use App\Models\Company\Company;
+use App\Models\LinkCompanies;
 use Illuminate\Support\Facades\Session;
 use DB;
 use PDF;
@@ -131,6 +133,129 @@ class PaymentsReportController extends Controller
     }
 
     public function listOutstandingPaymentData(Request $request) {
+        $data1 = DB::table('sale_bills as s');
+        $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+                ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+                ->where('s.sale_bill_flag', 0)
+                ->where('s.is_deleted', 0)
+                ->where('s.payment_status', 0)
+                ->selectRaw('s.*,cc.company_name as customer_name, cs.company_name as supplier_name');
+
+        if ($request->agent && $request->agent['id']) {
+            $data1 = $data1->where('s.agent_id', $request->agent['id']);
+        }
+
+        if ($request->city && $request->city['id']) {
+            $data1 = $data1->where('cc_city_name', $request->city['name'])
+                    ->orWhere('cs_city_name', $request->city['name']);
+        }
+
+        if ($request->customer && $request->customer['id']) {
+            $company = array();
+            $company_data=array();
+            $company_details = Company::where('id', $request->customer['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
+            if (empty($link_companies)) {
+                $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
+                if (!empty($is_linked)) {
+                    $company_details = Company::where('id', $is_linked->company_id)->first();
+                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                }
+            }
+            if ($company_details) {
+                $main_cmp_id = $company_details->id;
+                array_push($company, $main_cmp_id);
+                foreach ($link_companies as $row_link_companies) {
+                    array_push($company, $row_link_companies->link_companies_id);
+                }
+                $data1 = $data1->WhereIn('s.company_id', $company); 
+            }
+            
+            foreach($company as $row) {
+                $companydata = Company::where('id', $row)->select('company_name')->first();
+                if ($companydata) {
+                    $company_data[] = $companydata->company_name;
+                }
+            }
+            $data['cus_disp_name'] = implode(', ', $company_data);    
+        }
+        if ($request->supplier && $request->supplier['id']) {
+            $supplier = array();
+            
+            $company_details = Company::where('id', $request->supplier['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
+            if (empty($link_companies)) {
+                $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
+                if (!empty($is_linked)) {
+                    $company_details = Company::where('id', $is_linked->company_id)->first();
+                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                }
+            }
+            if ($company_details) {
+                $main_cmp_id = $company_details->id;
+                array_push($supplier, $main_cmp_id);
+                foreach ($link_companies as $row_link_companies) {
+                    array_push($supplier, $row_link_companies->link_companies_id);
+                }
+                $data1 = $data1->WhereIn('s.supplier_id', $supplier);
+                foreach($supplier as $row) {
+                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                }
+                $data['sup_disp_name'] = implode(',  ', $supplier_data);
+            }
+           
+        }
+
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 5) {
+                $data1 = $data1->orderBy('s.select_date', 'asc');
+            } else if ($sorting == 6) {
+                $data1 = $data1->orderBy('s.select_date', 'desc');
+            } else if ($sorting == 1) {
+                $data1 = $data1->orderBy('cs.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data1 = $data1->orderBy('cs.company_name', 'desc');
+            } else if ($sorting == 3) {
+                $data1 = $data1->orderBy('cc.company_name', 'asc');
+            }  else if ($sorting == 4) {
+                $data1 = $data1->orderBy('cc.company_name', 'desc');
+            } else if ($sorting == 7) {
+                $data1 = $data1->orderBy('s.total', 'asc');
+            } else if ($sorting == 8) {
+                $data1 = $data1->orderBy('c.total', 'desc');
+            }
+        }
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereBetween('s.select_date', [$request->start_date, $request->end_date]);
+        }
+        if ($request->group) {
+            $supplier_data = array();
+            foreach($supplier as $row) {
+                $supplier_data[] = Company::where('id', $row)->select('company_name')->first();
+            }
+            $data['sup_disp_name'] = implode(',  ', $supplier_data);
+        }
+        $data1 = $data1->get();
         
+        $data['customer_details'] = $data1;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.payments_register_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/payments-register-reports');
+            $fileName =  'Payments-Register-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/payments-register-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Payments-Register-Report-' . time() . '.xlsx';
+            Excel::store(new PaymentsRegisterExport($data, $request), 'excel-sheets/payments-register-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/payments-register-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+
+
+        
+
     }
 }

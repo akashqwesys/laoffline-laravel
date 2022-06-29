@@ -114,22 +114,7 @@
                                     </table>
                                 </div>
                                 <div class="table-responsive">
-                                    <table id="salesRegister" class="table table-hover table-bordered-">
-                                        <thead>
-                                            <tr v-if="detailed_table == true">
-                                                <th>Id</th>
-                                                <th>Supplier</th>
-                                                <th>Customer</th>
-                                                <th>Date</th>
-                                                <th>Mode</th>
-                                                <th>Dep.Bank</th>
-                                                <th>Chq.Date</th>
-                                                <th>Chq/DD No</th>
-                                                <th>Chq/DD Bank</th>
-                                                <th>Rec.Amt</th>
-                                                <th>Tot.Amt</th>
-                                            </tr>
-                                        </thead>
+                                    <table id="salesRegister" class="table table-hover table-bordered">
                                         <tbody></tbody>
                                     </table>
                                 </div>
@@ -248,16 +233,11 @@
                         window.open(response.data.url, '_blank');
                         return;
                     }
-                    if (response.data.length > 0) {
+                    if (response.data.customer_details) {
                         const toINR = new Intl.NumberFormat('en-IN', {
                             // style: 'currency',
                             // currency: 'INR',
                             // minimumFractionDigits: 0
-                        });
-                        var receipt_amount = 0, total_amount = 0;
-                        response.data.forEach((k, i) => {
-                                receipt_amount += parseFloat(k.receipt_amount);
-                                total_amount += parseFloat(k.total_amount);
                         });
                         var html = '';
                         var morethan = '';
@@ -267,65 +247,43 @@
                             morethan = "";
                         }
                         var sup="";
+                        var agent="";
+                        if (this.agent == '') {
+                            agent += 'All Agents';  
+                        } else {
+                            agent += this.agent.name;
+                        }
                         if (this.customer != '') {
-                            sup = "Customer: " + cus_disp_name + "<br>";
+                            sup = "Customer: " + response.data.cus_disp_name + "<br>";
                         }
 
                         if (this.supplier != '') {
-                            if(isset($sup_disp_name)) {
-					            sup += "Supplier: "+ sup_disp_name + "<br>";
+                            if(response.data.sup_disp_name) {
+					            sup += "Supplier: "+ response.data.sup_disp_name + "<br>";
 		    				} else {
-					        	sup += "Supplier: " + report_supplier_name + "<br>";
+					        	sup += "Supplier: " + this.supplier.company_name + "<br>";
 	        				}
                         }
 
-                        if(this.customer.company_name == '' && this.supplier.company_name == '') {
+                        if(this.customer == '' && this.supplier == '') {
 					        sup += "All Parties";
 	        			}
                         sup += morethan
+
                         html += `<tr>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left"></td>
-                                    <td align="left">Total</td>
-                                    <td align="left">${receipt_amount}</td>
-                                    <td align="right">${total_amount}</td>
-                                </tr>`;
-                        
-                        var cheque_date = '', cheque_dd_no = '', cheque_bank = '';
-                        response.data.forEach((k, i) => {
-                                receipt_amount += parseFloat(k.receipt_amount);
-                                total_amount += parseFloat(k.total_amount);
-                                if (k.reciept_mode != 'cheque') {
-                                    cheque_date = '-';
-                                    cheque_dd_no = '-';
-                                    cheque_bank = '-';
-                                } else {
-                                    cheque_date = k.cheque_date;
-                                    cheque_dd_no = k.cheque_dd_no;
-                                    cheque_bank = k.cheque_bank;
-                                }
-                                html += `<tr>
-                                    <td align="left">${k.payment_id}</td>
-                                    <td align="left">${k.supplier_name}</td>
-                                    <td align="left">${k.customer_name}</td>
-                                    <td align="left">${k.date}</td>
-                                    <td align="left">${k.reciept_mode}</td>
-                                    <td align="left">${k.bank_name}</td>
-                                    <td align="left">${cheque_date}</td>
-                                    <td align="left">${cheque_dd_no}</td>
-                                    <td align="left">${cheque_bank}</td>
-                                    <td align="left">${k.receipt_amount}</td>
-                                    <td align="right">${k.total_amount}</td>
-                                    
-                                </tr>`;
-                            });
-                            
+                                    <th colspan="6" class="text-center">${sup}</th>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" class="text-center">${agent}</td>
+                                </tr>
+                                <tr>
+				                    <th>Bill Date</th>
+				                    <th>Sr.</th>
+				                    <th>Bill Amount</th>
+				                    <th>Days</th>
+				                    <th>Purchase Party</th>
+				                    <th>Bill No</th>
+				                </tr>`;    
                         
                         $('#salesRegister tbody').html(html);
                     } else {

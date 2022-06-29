@@ -168,7 +168,7 @@ const routes = [
             { path: 'outward/commission', component: InsertCommissionOutwardComponent },
             { path: 'outward/commissioninvoice', component: InsertCommissionInvoiceOutwardComponent },
             { path: 'view-outward/:id', component: ViewOutwardComponent },
-            { path: 'outward-view/:id', component: OutwardViewComponent },
+            { path: 'outward/outward-view/:id', component: OutwardViewComponent },
             { path: 'view-inward/:id', component: ViewInwardComponent },
             { path: 'edit-outward/:id', component: EditOutwardComponent },
             { path: 'edit-inward/:id', component: InsertInwardComponent },
