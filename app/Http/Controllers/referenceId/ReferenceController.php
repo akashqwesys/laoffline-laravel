@@ -78,10 +78,12 @@ class ReferenceController extends Controller
             ->where('id', '!=', '0')
             ->where('financial_year_id', $user->financial_year_id)
             ->where('reference_id', '!=', '0')
+            ->where('inward_or_outward', 1)
             ->count();
         $totalRecordswithFilter = ReferenceId::selectRaw('count(id) as allcount')
             ->where('financial_year_id', $user->financial_year_id)
             ->where('reference_id', '!=', '0')
+            ->where('inward_or_outward', 1)
             ->where('id', '!=', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[0]['search']['value']);
@@ -128,6 +130,7 @@ class ReferenceController extends Controller
             ->select('reference_ids.id', 'reference_ids.reference_id', 'reference_ids.created_at', 'reference_ids.selection_date', 'reference_ids.type_of_inward', 'reference_ids.inward_or_outward', 'reference_ids.company_id', 'companies.company_name', 'employees.firstname', 'employees.lastname')
             ->where('reference_ids.financial_year_id', $user->financial_year_id)
             ->where('reference_ids.reference_id', '!=', '0')
+            ->where('reference_ids.inward_or_outward', 1)
             ->where('reference_ids.is_deleted', '0');
             if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $ReferenceId = $ReferenceId->where('reference_id', '=', $columnName_arr[0]['search']['value']);
