@@ -11,7 +11,7 @@
                                 <h3 v-if="outwardtype == 3" class="nk-block-title page-title">Outward Commission Detail</h3>
                                 <h3 v-if="outwardtype == 4" class="nk-block-title page-title">Outward Commission Invoice Detail</h3>
                             </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between --> 
+                        </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div v-if="outwardtype == 1" class="card card-bordered card-stretch">
@@ -43,7 +43,7 @@
 											<tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -57,13 +57,13 @@
 		        							<td><b>Transport</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.transport.lr_mr_no }}</td>
-                                            <td>{{ salebill.salebilldetail.select_date}}</td>
+                                            <td>{{ salebill.transport ? salebill.transport.lr_mr_no : '' }}</td>
+                                            <td>{{ salebill.salebilldetail ? salebill.salebilldetail.select_date : ''}}</td>
                                             <td>{{ salebill.company_name}}</td>
-        									<td>{{ salebill.transport.cases }}</td>
-		        							<td>{{ salebill.transport.name }}</td>
+        									<td>{{ salebill.transport ? salebill.transport.cases : '' }}</td>
+		        							<td>{{ salebill.transport ? salebill.transport.name : '' }}</td>
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -78,7 +78,7 @@
 						                  	</tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -103,11 +103,11 @@
                                             <tr>
 									            <td colspan="3" class="text-left">{{ Outward.company }}</td>
 								            </tr>
-											
+
 											<tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -121,13 +121,13 @@
 		        							<td><b>Amount</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.paymentdetail.payment_id }}</td>
-                                            <td>{{ salebill.paymentdetail.cheque_dd_no}}</td>
-                                            <td>{{ salebill.paymentdetail.cheque_date}}</td>
+                                            <td>{{ salebill.paymentdetail ? salebill.paymentdetail.payment_id : '' }}</td>
+                                            <td>{{ salebill.paymentdetail ? salebill.paymentdetail.cheque_dd_no : ''}}</td>
+                                            <td>{{ salebill.paymentdetail ? salebill.paymentdetail.cheque_date : ''}}</td>
         									<td>{{ salebill.company_name }}</td>
-		        							<td>{{ salebill.paymentdetail.tot_adjust_amount }}</td>
+		        							<td>{{ salebill.paymentdetail ? salebill.paymentdetail.tot_adjust_amount : '' }}</td>
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -138,7 +138,7 @@
 						                  	</tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -163,7 +163,7 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -178,14 +178,14 @@
                                             <td><b>Account Name</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.commissionDetail.commission_id }}</td>
-                                            <td>{{ salebill.commissionDetail.commission_date}}</td>
-                                            <td>{{ salebill.commissionDetail.cheque_dd_no}}</td>
-        									<td>{{ salebill.commissionDetail.commission_payment_amount }}</td>
+                                            <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_id : '' }}</td>
+                                            <td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_date : ''}}</td>
+                                            <td>{{ salebill.commissionDetail ? salebill.commissionDetail.cheque_dd_no : ''}}</td>
+        									<td>{{ salebill.commissionDetail ? salebill.commissionDetail.commission_payment_amount : '' }}</td>
 		        							<td>{{ salebill.bank }}</td>
                                             <td>{{ salebill.account }}</td>
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -194,7 +194,7 @@
                                               </tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
@@ -219,7 +219,7 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-								            
+
 							            </tbody>
                                 </table>
 
@@ -232,13 +232,13 @@
         									<td><b>Bill Date</b></td>
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
-                                            <td>{{ salebill.invoicedetail.id }}</td>
-                                            <td>{{ salebill.invoicedetail.bill_no}}</td>
+                                            <td>{{ salebill.invoicedetail ? salebill.invoicedetail.id : '' }}</td>
+                                            <td>{{ salebill.invoicedetail ? salebill.invoicedetail.bill_no : ''}}</td>
                                             <td>{{ salebill.date_add }}</td>
         									<td>{{ salebill.billdate}}</td>
-		        							
+
 				        				</tr>
-                                        
+
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
@@ -247,12 +247,12 @@
                                               </tr>
 						                </tfoot>
                                 </table>
-							    
+
 						    </div>
                             </div>
                             </div><!-- .card -->
                         </div>
-                        
+
                         <div class="text-center mt-2">
                             <button class="btn btn-dark" @click="printOutward">Print</button>
                         </div>
@@ -291,21 +291,21 @@
         created() {
              axios.get(`/register/fetch-outward/${this.id}`)
                 .then(response => {
-                        
+
                         gData = response.data;
                         let total = 0;
                         this.Outward = gData.outward;
                         this.salebills = gData.salebill;
                         this.agent = gData.outward.courier_agent.name
-                        
+
                         this.outwardtype = gData.outward_type;
                         if (this.outwardtype == 1) {
                             this.salebills.forEach((value)=>{
-                                total += parseInt(value.transport.cases);
+                                total += parseInt(value.transport ? value.transport.cases : '');
                             });
                         }
                         this.totalParcel = total;
-                });    
+                });
         },
         methods: {
             printOutward (event) {
@@ -314,11 +314,11 @@
                 var popupWin = window.open('', '_blank', 'width=900,height=900');
                 popupWin.document.open()
                 popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
-                popupWin.document.close();  
+                popupWin.document.close();
             }
         },
         mounted() {
-            
+
         },
     };
 </script>
