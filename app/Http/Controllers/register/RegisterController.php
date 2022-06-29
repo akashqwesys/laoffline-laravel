@@ -783,8 +783,8 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->supplier)->first();
         $commissioninvoice = CommissionInvoice::where('supplier_id', $request->supplier)
                 //   ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
-                  ->whereRaw("sale_bills.created_at::date >= '" . $request->date . "'")
-                  ->whereRaw("sale_bills.created_at::date <= '" . $request->date . "'" )
+                  ->whereRaw("created_at::date >= '" . $request->date . "'")
+                  ->whereRaw("created_at::date <= '" . $request->date . "'" )
                   ->whereNot('done_outward', 1)
                   ->where('is_deleted', 0)
                   ->get();
