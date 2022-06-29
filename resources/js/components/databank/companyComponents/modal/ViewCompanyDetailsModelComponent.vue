@@ -173,7 +173,7 @@
                                                                                             <td>
                                                                                                 <div class="user-card">
                                                                                                     <div class="user-avatar user-avatar-sm bg-warning open-img-new-tab">
-                                                                                                        <img v-if="owner.profile_pic != ''"  v-bind:src="this.$parent.getProfilePic(owner.profile_pic)" alt="">
+                                                                                                        <img v-if="owner.profile_pic != ''"  v-bind:src="getProfilePic(owner.profile_pic)" alt="">
                                                                                                         <span v-if="owner.profile_pic == ''" >{{ owner.name.charAt(0).toUpperCase() }}</span>
                                                                                                     </div>
                                                                                                     <div class="user-name"><span class="tb-lead">{{ owner.name }}</span></div>
@@ -214,7 +214,7 @@
                                                                             <td>
                                                                                 <div class="user-card">
                                                                                     <div class="user-avatar user-avatar-sm bg-warning open-img-new-tab">
-                                                                                        <img v-if="contactDetail.contact_person_profile_pic != ''" v-bind:src="this.$parent.getProfilePic(contactDetail.contact_person_profile_pic)" alt="">
+                                                                                        <img v-if="contactDetail.contact_person_profile_pic != ''" v-bind:src="getProfilePic(contactDetail.contact_person_profile_pic)" alt="">
                                                                                         <span v-if="contactDetail.contact_person_profile_pic == ''">{{ contactDetail.contact_person_name.charAt(0).toUpperCase() }}</span>
                                                                                     </div>
                                                                                     <div class="user-name"><span class="tb-lead">{{ contactDetail.contact_person_name }}</span></div>
@@ -419,7 +419,10 @@
                     this.packagingDetail = response.data.packaging_details;
                     this.referenceDetail = response.data.references_details ?? {};
                 });
-            }
+            },
+            getProfilePic(name) {
+                return '/upload/company/profilePic/' + name;
+            },
         },
         mounted() {
             $(document).on('click', '.open-img-new-tab', function () {
