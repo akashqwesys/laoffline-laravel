@@ -1040,7 +1040,7 @@ class PaymentsController extends Controller
                 $courier_receipt_no = '';
                 $courier_received_time = date('Y-m-d H:i:s', strtotime($paymentData->recivedate));
             } else {
-                $courier_name = $paymentData->courrier->name;
+                $courier_name = $paymentData->courrier ? $paymentData->courrier->name : '';
                 $courier_receipt_no = $paymentData->reciptno;
                 $courier_received_time = date('Y-m-d H:i:s', strtotime($paymentData->recivedate));
             }
@@ -1058,10 +1058,10 @@ class PaymentsController extends Controller
             $refence->type_of_inward = $paymentData->refrencevia->name;
             $refence->company_id = $request->session()->get('customer');
             $refence->selection_date = Carbon::now()->format('Y-m-d');
-            $refence->from_name = $paymentData->fromname;
-            $refence->from_number = $paymentData->whatsapp;
-            $refence->receiver_number = $paymentData->reciveno;
-            $refence->from_email_id = $paymentData->emailfrom;
+            $refence->from_name = $paymentData->fromname ?? '';
+            $refence->from_number = $paymentData->whatsapp ?? '';
+            $refence->receiver_number = $paymentData->reciveno ?? '';
+            $refence->from_email_id = $paymentData->emailfrom ?? '';
             $refence->courier_name = $courier_name;
             $refence->weight_of_parcel = $paymentData->weight;
             $refence->courier_receipt_no = $courier_receipt_no;

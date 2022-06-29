@@ -8,7 +8,7 @@
                             <div class="nk-block-head-content">
                                 <h3  class="nk-block-title page-title">View Payment Detail</h3>
                             </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between --> 
+                        </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
@@ -66,7 +66,7 @@
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Cheques Attachment : </b>  </label>
                                         <span v-if="paymentData.attachments">
-                                        <a :href="'/upload/payments/'+paymentData.attachment" target="_blank">
+                                        <a :href="'/upload/payments/'+paymentData.attachments" target="_blank">
                                             <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
                                         </a>
                                         </span>
@@ -173,13 +173,13 @@
                 salebills: [],
                 customer: [],
                 supplier: [],
-                created_at: '', 
+                created_at: '',
             }
         },
         created() {
              axios.get(`/payments/fetch-payment/${this.id}`)
                 .then(response => {
-                        
+
                         gData = response.data;
                         if (gData.paymentData.reciept_mode == 'cash') {
                             $(".cash").removeClass("d-none");
@@ -199,17 +199,17 @@
                         this.customer = gData.customer;
                         this.supplier = gData.supplier;
                         this.created_at = gData.created_at;
-                });    
+                });
         },
         methods: {
-        
+
         },
         mounted() {
-            
+
         },
     };
 </script>
-<style >
+<style scoped>
     .user-avatar img{
         width: 100%;
     }
