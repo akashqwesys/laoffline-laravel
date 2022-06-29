@@ -731,7 +731,9 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->buyer)->first();
         $salebill = SaleBill::join('companies', 'companies.id', '=', 'sale_bills.supplier_id')
                   ->where('sale_bills.company_id', $request->buyer)
-                  ->whereBetween('sale_bills.created_at', [$request->fromdate, $request->todate])
+            //   ->whereBetween('sale_bills.created_at', [$request->fromdate, $request->todate])
+                ->whereRaw("sale_bills.created_at::date >= '" . $request->fromdate . "'")
+                ->whereRaw("sale_bills.created_at::date <= '" . $request->todate . "'")
                   ->where('sale_bills.sale_bill_flag', 0)
                   ->whereNot('sale_bills.done_outward', 1)
                   ->where('is_deleted', 0)
@@ -747,7 +749,9 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->supplier)->first();
         $payment = Payment::join('companies', 'companies.id', '=', 'payments.customer_id')
                   ->where('payments.supplier_id', $request->supplier)
-                  ->whereBetween('payments.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                //   ->whereBetween('payments.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                  ->whereRaw("payments.created_at::date >= '" . $request->fromdate . "'")
+                  ->whereRaw("payments.created_at::date <= '" . $request->todate . "'" )
                   ->whereNot('payments.done_outward', 1)
                   ->where('is_deleted', 0)
                   ->select('payments.*', 'companies.company_name')
@@ -762,7 +766,9 @@ class RegisterController extends Controller
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
         $commission = Commission::where('supplier_id', $request->supplier)
-                  ->whereBetween('created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                //   ->whereBetween('created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                  ->whereRaw("created_at::date >= '" . $request->fromdate . "'")
+                  ->whereRaw("created_at::date <= '" . $request->todate . "'" )
                   ->whereNot('done_outward', 1)
                   ->where('is_deleted', 0)
                   ->get();
@@ -776,7 +782,9 @@ class RegisterController extends Controller
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
         $commissioninvoice = CommissionInvoice::where('supplier_id', $request->supplier)
-                  ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
+                //   ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
+                  ->whereRaw("sale_bills.created_at::date >= '" . $request->date . "'")
+                  ->whereRaw("sale_bills.created_at::date <= '" . $request->date . "'" )
                   ->whereNot('done_outward', 1)
                   ->where('is_deleted', 0)
                   ->get();
