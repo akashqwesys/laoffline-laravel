@@ -1074,6 +1074,7 @@ class SaleBillController extends Controller
             ->join('companies as c', 'i.company_id', '=', 'c.id')
             ->select('c.id', 'c.company_name as name')
             ->where('inward_id', $sale_bill->inward_id)
+            ->where('c.is_delete', 0)
             ->get();
 
         $all = [
@@ -1870,6 +1871,7 @@ class SaleBillController extends Controller
             ->join('inwards as i', 'c.id', '=', 'i.company_id')
             ->select('c.id', 'c.company_name as name')
             ->where('inward_id', $id)
+            ->where('c.is_delete', 0)
             ->get();
 
         return response()->json($companies);
@@ -1880,10 +1882,12 @@ class SaleBillController extends Controller
         $customers = DB::table('companies')
             ->select('id', 'company_name as name')
             ->where('company_type', 2)
+            ->where('is_delete', 0)
             ->get();
         $suppliers = DB::table('companies')
             ->select('id', 'company_name as name')
             ->where('company_type', 3)
+            ->where('is_delete', 0)
             ->get();
 
         return response()->json([$customers, $suppliers]);

@@ -105,7 +105,7 @@
                                             <label class="form-label">Multiple Attachments  :  </label>
                                             <ul>
                                                 <li v-for="(attachment,index) in attachments" :key="index">
-                                                    <a v-if="attachment != ''" :href="'/upload/inwards/'+attachment" target="_blank">
+                                                    <a v-if="attachment != ''" :href="'/upload/Inwards/'+attachment" target="_blank">
                                                         <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
                                                     </a>
                                                     <span v-else>-</span>
@@ -151,7 +151,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                        </div>                       
+                        </div>
                     </div><!-- .nk-block -->
                 </div>
             </div>

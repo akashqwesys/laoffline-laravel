@@ -13,11 +13,13 @@ class CommonController extends Controller
         $customers = DB::table('companies')
             ->select('id', 'company_name as name')
             ->where('company_type', 2)
+            ->where('is_delete', 0)
             ->orderBy('company_name', 'asc')
             ->get();
         $suppliers = DB::table('companies')
             ->select('id', 'company_name as name')
             ->where('company_type', 3)
+            ->where('is_delete', 0)
             ->orderBy('company_name', 'asc')
             ->get();
 
@@ -26,7 +28,7 @@ class CommonController extends Controller
 
     public function getAllCompanies()
     {
-        $companies = DB::table('companies')->select('id', 'company_name as name')->orderBy('company_name', 'asc')->get();
+        $companies = DB::table('companies')->select('id', 'company_name as name')->where('is_delete', 0)->orderBy('company_name', 'asc')->get();
 
         return response()->json($companies);
     }

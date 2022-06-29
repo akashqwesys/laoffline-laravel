@@ -630,6 +630,7 @@ class InvoiceController extends Controller
             ->leftJoin('company_addresses as ca', 'c.id', '=', 'ca.company_id')
             ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address')
             ->where('c.id', session()->get('commission_supplier'))
+            ->where('c.is_delete', 0)
             ->first();
 
         $bill = DB::table('commission_invoices')
@@ -853,6 +854,7 @@ class InvoiceController extends Controller
             ->leftJoin('states as s', 'c.company_state', '=', 's.id')
             ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address', 's.name as state_name')
             ->where('c.id', $invoice_details->supplier_id)
+            ->where('c.is_delete', 0)
             ->first();
 
         $customer = DB::table('companies as c')
@@ -861,6 +863,7 @@ class InvoiceController extends Controller
             ->leftJoin('states as s', 'c.company_state', '=', 's.id')
             ->select('c.id', 'c.company_name', 'c.company_type', 'cpd.gst_no', 'c.company_state', 'ca.address', 's.name as state_name')
             ->where('c.id', $invoice_details->customer_id)
+            ->where('c.is_delete', 0)
             ->first();
 
         $commission_details = DB::table('commission_details')

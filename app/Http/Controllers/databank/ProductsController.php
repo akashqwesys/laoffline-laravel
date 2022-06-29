@@ -301,7 +301,7 @@ class ProductsController extends Controller
     }
 
     public function listCompanies() {
-        $company = Company::get(['id', 'company_name', 'company_type']);
+        $company = Company::where('is_delete', 0)->get(['id', 'company_name', 'company_type']);
 
         return $company;
     }

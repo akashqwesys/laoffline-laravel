@@ -156,7 +156,7 @@ class RegisterController extends Controller
     }
 
     public function listSuppliers() {
-        $suppliers = Company::where('company_type', 3)->get();
+        $suppliers = Company::where('company_type', 3)->where('is_delete', 0)->get();
 
         return $suppliers;
     }
@@ -1276,7 +1276,7 @@ class RegisterController extends Controller
     }
 
     public function listBuyer() {
-        $buyer = Company::where('company_type', 2)->get();
+        $buyer = Company::where('company_type', 2)->where('is_delete', 0)->get();
 
         $data['buyer'] = $buyer;
 
@@ -1314,7 +1314,7 @@ class RegisterController extends Controller
     }
 
     public function listSupplier() {
-        $supplier = Company::where('company_type', 3)->get();
+        $supplier = Company::where('company_type', 3)->where('is_delete', 0)->get();
         $courier = TransportDetails::where('is_delete', 0)->get();
         $agent = Agent::where('is_delete', 0)->get();
         $data['supplier'] = $supplier;
@@ -1328,7 +1328,9 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->buyer)->first();
         $salebill = SaleBill::join('companies', 'companies.id', '=', 'sale_bills.supplier_id')
                   ->where('sale_bills.company_id', $request->buyer)
-                  ->whereBetween('sale_bills.created_at', [$request->fromdate, $request->todate])
+            //   ->whereBetween('sale_bills.created_at', [$request->fromdate, $request->todate])
+                ->whereRaw("sale_bills.created_at::date >= '" . $request->fromdate . "'")
+                ->whereRaw("sale_bills.created_at::date <= '" . $request->todate . "'")
                   ->where('sale_bills.sale_bill_flag', 0)
                   ->whereNot('sale_bills.done_outward', 1)
                   ->where('is_deleted', 0)
@@ -1344,9 +1346,12 @@ class RegisterController extends Controller
         $company = Company::where('id', $request->supplier)->first();
         $payment = Payment::join('companies', 'companies.id', '=', 'payments.customer_id')
                   ->where('payments.supplier_id', $request->supplier)
-                  ->whereBetween('payments.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                //   ->whereBetween('payments.created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                  ->whereRaw("payments.created_at::date >= '" . $request->fromdate . "'")
+                  ->whereRaw("payments.created_at::date <= '" . $request->todate . "'" )
                   ->whereNot('payments.done_outward', 1)
                   ->where('is_deleted', 0)
+                  ->where('payments.reciept_mode', 'cheque')
                   ->select('payments.*', 'companies.company_name')
                   ->get();
         $data['payment'] = $payment;
@@ -1359,7 +1364,9 @@ class RegisterController extends Controller
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
         $commission = Commission::where('supplier_id', $request->supplier)
-                  ->whereBetween('created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                //   ->whereBetween('created_at', [$request->fromdate." 00:00:00", $request->todate." 00:00:00"])
+                  ->whereRaw("created_at::date >= '" . $request->fromdate . "'")
+                  ->whereRaw("created_at::date <= '" . $request->todate . "'" )
                   ->whereNot('done_outward', 1)
                   ->where('is_deleted', 0)
                   ->get();
@@ -1373,7 +1380,9 @@ class RegisterController extends Controller
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
         $commissioninvoice = CommissionInvoice::where('supplier_id', $request->supplier)
-                  ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
+                //   ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
+                  ->whereRaw("created_at::date >= '" . $request->date . "'")
+                  ->whereRaw("created_at::date <= '" . $request->date . "'" )
                   ->whereNot('done_outward', 1)
                   ->where('is_deleted', 0)
                   ->get();
@@ -2524,7 +2533,7 @@ class RegisterController extends Controller
                 ->first();
         $created_at = $date = date_format($inward->created_at, 'Y/m/d H:i:s');
         $employee = Employee::where('id', $inward->employee_id)->first()->firstname;
-        
+
         if ($inward->company_id) {
             $company = Company::where('id', $inward->company_id)->first();
         } else {
@@ -3069,7 +3078,7 @@ class RegisterController extends Controller
 
         $inward_data = json_decode($request->inwarddata);
         $sampledata =  json_decode($request->sampleData);
-        
+
         $updateinward = Inward::where('inward_id', $inward_data->id)->first();
         $attechments = $request->attechment;
         $files = array();
@@ -3162,7 +3171,7 @@ class RegisterController extends Controller
             $refence->courier_received_time = $courier_received_time;
             $refence->delivery_by = $delivery_by;
             $refence->save();
-        } 
+        }
 
         $subject = "Sample for". $inward_data->company->company_name;
         $comboids = Comboids::where('iuid', $updateinward->iuid)->where('financial_year_id', $updateinward->financial_year_id)->first();
@@ -3191,7 +3200,7 @@ class RegisterController extends Controller
         $comboids->action_date = $inward_data->assignToDateTime;
         $comboids->action_instruction = $inward_data->instruction;
         $comboids->updated_by = Session::get('user')->employee_id;
-        
+
         $comboids->save();
 
         $inward = Inward::where('inward_id', $inward_data->id)->first();
@@ -3202,12 +3211,12 @@ class RegisterController extends Controller
             $inward->supplier_id = 0;
             $inward->company_id = $inward_data->company->id;
         }
-        
+
         $inward->inward_date = $inward_data->dateTime;
         $inward->inward_ref_via = $inward_data->sample_via->id;
         $inward->sample_via = $inward_data->sample_via->name;
         $inward->sample_for = $inward_data->sample_for->id;
-        
+
         $inward->general_input_ref_id = $general_ref_no;
         $inward->receiver_number = $inward_data->receiver_number;
         //$inward->from_number = '';
@@ -3232,7 +3241,7 @@ class RegisterController extends Controller
         $inward->product_qty = 0;
         $inward->fabric_meters = 0;
         $inward->is_deleted = 0;
-        
+
         $inward->save();
 
         if ($sampledata){
