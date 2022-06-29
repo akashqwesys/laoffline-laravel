@@ -144,7 +144,7 @@ class LinkCompaniesController extends Controller
     }
 
     public function listCompanies() {
-        $linkCompanies = Company::get(['id', 'company_name']);
+        $linkCompanies = Company::where('is_delete', 0)->get(['id', 'company_name']);
 
         return $linkCompanies;
     }

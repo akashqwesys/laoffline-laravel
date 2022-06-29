@@ -229,7 +229,7 @@ class ProductSubCategoryController extends Controller
     }
 
     public function listCompanies() {
-        $companies = Company::get(['company_name', 'id']);
+        $companies = Company::where('is_delete', 0)->get(['company_name', 'id']);
 
         return $companies;
     }

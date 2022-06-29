@@ -249,7 +249,7 @@ class ReferenceController extends Controller
 
     public function getCompany()
     {
-        $company = Company::select('id', 'company_name', 'company_type')->get();
+        $company = Company::select('id', 'company_name', 'company_type')->where('is_delete', 0)->get();
 
         return $company;
     }

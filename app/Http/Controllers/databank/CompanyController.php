@@ -117,7 +117,7 @@ class CompanyController extends Controller
         $searchValue = $search_arr['value']; // Search value
 
         // Total records
-        $totalRecords = Company::select('count(*) as allcount')->count();
+        $totalRecords = Company::select('count(*) as allcount')->where('is_delete', 0)->count();
         $totalRecordswithFilter = Company::select('count(*) as allcount')
             ->where('companies.is_delete', 0);
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
@@ -315,7 +315,7 @@ class CompanyController extends Controller
         $searchValue = $search_arr['value']; // Search value
 
         // Total records
-        $totalRecords = Company::select('count(*) as allcount')->count();
+        $totalRecords = Company::where('is_delete', 0)->select('count(*) as allcount')->count();
         $totalRecordswithFilter = Company::select('count(*) as allcount')
             ->where('companies.is_delete', 0)
             ->where('favorite_flag', '1');

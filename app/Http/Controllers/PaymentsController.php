@@ -884,12 +884,12 @@ class PaymentsController extends Controller
     }
 
     public function listSeller() {
-        $seller = Company::where('company_type',3)->get();
+        $seller = Company::where('is_delete', 0)->where('company_type',3)->get();
         return $seller;
     }
 
     public function listCustomer() {
-        $customer = Company::where('company_type',2)->get();
+        $customer = Company::where('is_delete', 0)->where('company_type',2)->get();
         return $customer;
     }
 
