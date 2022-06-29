@@ -136,10 +136,11 @@ class PaymentsReportController extends Controller
         $data1 = DB::table('sale_bills as s');
         $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
                 ->where('s.sale_bill_flag', 0)
                 ->where('s.is_deleted', 0)
                 ->where('s.payment_status', 0)
-                ->selectRaw('s.*,cc.company_name as customer_name, cs.company_name as supplier_name');
+                ->selectRaw('s.*,cc.company_name as customer_name, cs.company_name as supplier_name, cadd.address as company_address');
 
         if ($request->agent && $request->agent['id']) {
             $data1 = $data1->where('s.agent_id', $request->agent['id']);
@@ -237,6 +238,39 @@ class PaymentsReportController extends Controller
             $data['sup_disp_name'] = implode(',  ', $supplier_data);
         }
         $data1 = $data1->get();
+        $customer_details = array();
+        $privious_company = 0;
+        $report_days = $request->day->report_days;
+        $grand_total = 0;
+		$prev_company='';
+		$prev_company_id='';
+		$prev_address='';
+		$incr=0;
+		$total = 0;
+		$hincr=0;
+        $k=-1;
+        foreach($data1 as $datas) {
+            $cnt = 0;
+			$hincr+=1;
+            $startTimeStamp = strtotime($datas->select_date);
+			$endTimeStamp = strtotime(date('Y-m-d'));
+			$timeDiff = abs($endTimeStamp - $startTimeStamp);
+			$numberDays = $timeDiff/86400;
+			$numberDays = intval($numberDays);
+
+            if ($numberDays >= $report_days){
+                $startTimeStamp = strtotime($datas->select_date);
+				$endTimeStamp = strtotime(date('Y-m-d'));
+				$timeDiff = abs($endTimeStamp - $startTimeStamp);
+				$numberDays = $timeDiff/86400;
+                $numberDays = intval($numberDays);
+
+                if ($datas->customer_name != $privious_company){
+                    
+                }
+            }
+
+        }
         
         $data['customer_details'] = $data1;
         if ($request->export_pdf == 1) {

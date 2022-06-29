@@ -91,6 +91,9 @@
                                         <div class="row">
                                             <label class="form-label">Sample For : </label> {{ Inward.samplefor }}
                                         </div>
+                                        <div class="row">
+                                            <label class="form-label">Assign For : </label> {{ Inward.assignemp.name }}
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card card-bordered card-stretch">

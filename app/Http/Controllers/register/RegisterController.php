@@ -138,7 +138,14 @@ class RegisterController extends Controller
 
         return view('register.outward.insertCommissionOutward',compact('financialYear'))->with('employees', $employees);
     }
-
+    public function inwardOutwardRegister(Request $request) {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
+                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['inward_outward'] = $request->id;
+        return view('register.registerinwardoutward',compact('financialYear'))->with('employees', $employees);
+    }
     public function addCommissionInvoiceOutward() {
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
@@ -381,6 +388,596 @@ class RegisterController extends Controller
         $data['ref_id'] = $referenceid;
         $data['reference'] = $reference;
         return $data;
+    }
+
+    public function listInwardRegister(Request $request) {
+        $user = Session::get('user');
+
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+        if($columnName == 'active') {
+            $columnName = 'users.is_active';
+        } else {
+            $columnName = 'comboids.'.$columnName;
+        }
+
+        $totalRecords = Comboids::where('financial_year_id', $user->financial_year_id)->whereNot('iuid', 0)->where('is_deleted', '0')->select('count(*) as allcount')->count();
+
+        $totalRecordswithFilter = Comboids::where('financial_year_id', $user->financial_year_id)->whereNot('iuid', 0)->where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('system_module_id', '=', $columnName_arr[4]['search']['value']);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('inward_or_outward_via', 'ilike', '%' . $columnName_arr[5]['search']['value']. '%');
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
+        }
+        if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
+            $sc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $sc_id);
+        }
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('company_type', '=', $columnName_arr[8]['search']['value']);
+        }
+        if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
+            $generated_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[9]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->where('generated_by', '=', $generated_id);
+        }
+        if (isset($columnName_arr[10]['search']['value']) && !empty($columnName_arr[10]['search']['value'])) {
+            $assign_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->where('assigned_to', '=', $assign_id);
+        }
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
+
+
+        $records = Comboids::where('financial_year_id', $user->financial_year_id)->whereNot('iuid', 0)->where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $records = $records->where('iuid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $records = $records->where('ouid', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $records = $records->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $records = $records->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $records = $records->where('system_module_id', '=', $columnName_arr[4]['search']['value']);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $records = $records->where('inward_or_outward_via', 'ilike', '%' . $columnName_arr[5]['search']['value']. '%');
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('company_id', $cc_id);
+        }
+        if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
+            $sc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('supplier_id', $sc_id);
+        }
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+            $records = $records->where('company_type', 'ilike', '%' . $columnName_arr[8]['search']['value'] . '%');
+        }
+        if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
+            $generated_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[9]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->where('generated_by', '=', $generated_id);
+        }
+        if (isset($columnName_arr[10]['search']['value']) && !empty($columnName_arr[10]['search']['value'])) {
+            $assign_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->where('assigned_to', '=', $assign_id);
+        }
+
+        // Fetch records
+        $records = $records->select('*');
+
+        $records = $records->orderBy($columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
+            ->get();
+
+        $data_arr = array();
+        foreach($records as $record){
+            $iuid = $record->iuid;
+            $ouid = $record->ouid;
+            $ref_id = $record->general_ref_id;
+            $date = date_format($record->created_at, 'Y/m/d H:i:s');
+            $timecompleted = '';
+            if ($record->system_module_id == 1 || $record->system_module_id == 8) {
+                $iotype = "Enquiry";
+            } elseif ($record->system_module_id == 2 || $record->system_module_id == 9) {
+                $iotype =  "Order";
+            } elseif ($record->system_module_id == 3 || $record->system_module_id == 10) {
+                $iotype =  "Complain";
+            } elseif ($record->system_module_id == 4 || $record->system_module_id == 11) {
+                $iotype =  "General";
+            } elseif ($record->system_module_id == 15) {
+                $iotype =  "Sample";
+            } elseif ($record->system_module_id == 5) {
+                $iotype = "Sale Bill";
+            } elseif ($record->system_module_id == 6) {
+                $iotype =  "Payment";
+            } elseif ($record->system_module_id == 7) {
+                $iotype =  "Commission";
+            }  elseif ($record->system_module_id == 16) {
+                $iotype =  "Outward Sale Bill";
+            }  elseif ($record->system_module_id == 17) {
+                $iotype =  "Outward Payment";
+            }  elseif ($record->system_module_id == 18) {
+                $iotype =  "Outward Commission";
+            }  elseif ($record->system_module_id == 19) {
+                $iotype =  "Commission Invoice";
+            }  elseif ($record->system_module_id == 20) {
+                $iotype =  "Goods Return";
+            } elseif ($record->system_module_id == 21) {
+                $iotype =  "Outward Commission Invoice";
+            }
+
+            if ($record->inward_or_outward_via == 'Email') {
+                $iomedium = '<em class="icon ni ni-mail" title="Email"></em>';
+            } else if($record->inward_or_outward_via == 'Hand') {
+                $iomedium = '<em class="icon ni ni-thumbs-up" title="Hand"></em>';
+            } else if($record->inward_or_outward_via == 'Courier') {
+                $iomedium = '<em class="icon ni ni-inbox-out-fill" title="Courier"></em>';
+            } else if($record->inward_or_outward_via == 'Whatsapp') {
+                $iomedium = '<em class="icon ni ni-whatsapp" title="Whatsapp"></em>';
+            } else {
+                $iomedium = '';
+            }
+            $iodetail = $record->subject;
+            $customer_company = Company::where('id', $record->company_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->company_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->company_id)
+                            ->get();
+
+            $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+
+
+            if (empty($customer_company)) {
+                $company = '';
+            } else {
+                if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                    $customer_color = '';
+                } else {
+                    $customer_color = ' text-danger ';
+                }
+                $company = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            }
+            if (empty($seller_company)) {
+                $supplier = '';
+            } else {
+                if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                    $seller_color = '';
+                } else {
+                    $seller_color = ' text-danger ';
+                }
+                $supplier = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+            }
+
+            $cmptype = $record->company_type;
+            $genrateby = Employee::where('id', $record->generated_by)->first();
+            $assignto = Employee::where('id', $record->assigned_to)->first();
+
+            if (!empty($genrateby)) {
+                $genratebyname =  $genrateby->firstname;
+            } else {
+                $genratebyname = '';
+            }
+
+            if (!empty($assignto)) {
+                $assigntoname =  $assignto->firstname;
+            } else {
+                $assigntoname = '';
+            }
+
+            if ($record->system_module_id == 5) {
+                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 6) {
+                $action = '<a href="/payments/view-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 7) {
+                $action = '<a href="/commission/view-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 20) {
+                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 19) {
+                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
+                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print"><em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 15) {
+                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else {
+                $action = '';
+            }
+            $color_flag = $record->color_flag_id;
+            $timecompleted = 00;
+            if ($record->color_flag_id == 3 && $record->inward_or_outward_flag == 1 ) {
+                $complete = Comboids::where('inward_or_outward_id', $record->inward_or_outward_id)
+                            ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
+                            ->first();
+                if ($complete) {
+                    $date_add = DB::table('inwards')->where('is_deleted', 0)->where('inward_id', $record->inward_or_outward_id)
+                                ->where('financial_year_id', $user->financial_year_id)->first();
+                    $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
+                }
+            } else if ($record->color_flag_id == 3 && $record->sale_bill_id != 0 ) {
+                $complete = Comboids::where('sale_bill_id', $record->sale_bill_id)
+                            ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
+                            ->first();
+                if ($complete) {
+                    $date_add = DB::table('sale_bills')->where('is_deleted', 0)->where('sale_bill_id', $record->sale_bill_id)
+                                ->where('financial_year_id', $user->financial_year_id)->first();
+                    $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
+                }
+            }
+
+
+            $data_arr[] = array(
+                "iuid" => $iuid,
+                "ouid" => $ouid,
+                "reference_id" => $ref_id,
+                "created_at" => $date,
+                "timecompleted" => $timecompleted,
+                "iotype" => $iotype,
+                "iomedium" => $iomedium,
+                "iodetail" => $iodetail,
+                "company" => $company,
+                "supplier" => $supplier,
+                "cmptype" => $cmptype,
+                "genby" => $genratebyname,
+                "assignto" => $assigntoname,
+                "color_flag" => $color_flag,
+                "action" => $action
+            );
+        }
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "aaData" => $data_arr
+        );
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function listOutwardRegister(Request $request) {
+        $user = Session::get('user');
+
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+        if($columnName == 'active') {
+            $columnName = 'users.is_active';
+        } else {
+            $columnName = 'comboids.'.$columnName;
+        }
+
+        $totalRecords = Comboids::where('financial_year_id', $user->financial_year_id)->whereNot('ouid', 0)->where('is_deleted', '0')->select('count(*) as allcount')->count();
+
+        $totalRecordswithFilter = Comboids::where('financial_year_id', $user->financial_year_id)->whereNot('ouid', 0)->where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('iuid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('system_module_id', '=', $columnName_arr[4]['search']['value']);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('inward_or_outward_via', 'ilike', '%' . $columnName_arr[5]['search']['value']. '%');
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
+        }
+        if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
+            $sc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $sc_id);
+        }
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->where('company_type', '=', $columnName_arr[8]['search']['value']);
+        }
+        if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
+            $generated_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[9]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->where('generated_by', '=', $generated_id);
+        }
+        if (isset($columnName_arr[10]['search']['value']) && !empty($columnName_arr[10]['search']['value'])) {
+            $assign_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $totalRecordswithFilter = $totalRecordswithFilter->where('assigned_to', '=', $assign_id);
+        }
+        $totalRecordswithFilter = $totalRecordswithFilter->count();
+
+
+        $records = Comboids::where('financial_year_id', $user->financial_year_id)->whereNot('ouid', 0)->where('is_deleted', '0');
+        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
+            $records = $records->where('iuid', '=', $columnName_arr[0]['search']['value']);
+        }
+        if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
+            $records = $records->where('ouid', '=', $columnName_arr[1]['search']['value']);
+        }
+        if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
+            $records = $records->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+        }
+        if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
+            $records = $records->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
+        }
+        if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
+            $records = $records->where('system_module_id', '=', $columnName_arr[4]['search']['value']);
+        }
+        if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
+            $records = $records->where('inward_or_outward_via', 'ilike', '%' . $columnName_arr[5]['search']['value']. '%');
+        }
+        if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('company_id', $cc_id);
+        }
+        if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
+            $sc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->whereIn('supplier_id', $sc_id);
+        }
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+            $records = $records->where('company_type', 'ilike', '%' . $columnName_arr[8]['search']['value'] . '%');
+        }
+        if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
+            $generated_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[9]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->where('generated_by', '=', $generated_id);
+        }
+        if (isset($columnName_arr[10]['search']['value']) && !empty($columnName_arr[10]['search']['value'])) {
+            $assign_id = DB::table('employees')->select('id')->where('firstname', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $records = $records->where('assigned_to', '=', $assign_id);
+        }
+
+        // Fetch records
+        $records = $records->select('*');
+
+        $records = $records->orderBy($columnName,$columnSortOrder)
+            ->skip($start)
+            ->take($rowperpage == 'all' ? $totalRecords : $rowperpage)
+            ->get();
+
+        $data_arr = array();
+        foreach($records as $record){
+            $iuid = $record->iuid;
+            $ouid = $record->ouid;
+            $ref_id = $record->general_ref_id;
+            $date = date_format($record->created_at, 'Y/m/d H:i:s');
+            $timecompleted = '';
+            if ($record->system_module_id == 1 || $record->system_module_id == 8) {
+                $iotype = "Enquiry";
+            } elseif ($record->system_module_id == 2 || $record->system_module_id == 9) {
+                $iotype =  "Order";
+            } elseif ($record->system_module_id == 3 || $record->system_module_id == 10) {
+                $iotype =  "Complain";
+            } elseif ($record->system_module_id == 4 || $record->system_module_id == 11) {
+                $iotype =  "General";
+            } elseif ($record->system_module_id == 15) {
+                $iotype =  "Sample";
+            } elseif ($record->system_module_id == 5) {
+                $iotype = "Sale Bill";
+            } elseif ($record->system_module_id == 6) {
+                $iotype =  "Payment";
+            } elseif ($record->system_module_id == 7) {
+                $iotype =  "Commission";
+            }  elseif ($record->system_module_id == 16) {
+                $iotype =  "Outward Sale Bill";
+            }  elseif ($record->system_module_id == 17) {
+                $iotype =  "Outward Payment";
+            }  elseif ($record->system_module_id == 18) {
+                $iotype =  "Outward Commission";
+            }  elseif ($record->system_module_id == 19) {
+                $iotype =  "Commission Invoice";
+            }  elseif ($record->system_module_id == 20) {
+                $iotype =  "Goods Return";
+            } elseif ($record->system_module_id == 21) {
+                $iotype =  "Outward Commission Invoice";
+            }
+
+            if ($record->inward_or_outward_via == 'Email') {
+                $iomedium = '<em class="icon ni ni-mail" title="Email"></em>';
+            } else if($record->inward_or_outward_via == 'Hand') {
+                $iomedium = '<em class="icon ni ni-thumbs-up" title="Hand"></em>';
+            } else if($record->inward_or_outward_via == 'Courier') {
+                $iomedium = '<em class="icon ni ni-inbox-out-fill" title="Courier"></em>';
+            } else if($record->inward_or_outward_via == 'Whatsapp') {
+                $iomedium = '<em class="icon ni ni-whatsapp" title="Whatsapp"></em>';
+            } else {
+                $iomedium = '';
+            }
+            $iodetail = $record->subject;
+            $customer_company = Company::where('id', $record->company_id)->first();
+            $customer_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->company_id)
+                                ->get();
+            $customer_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->company_id)
+                            ->get();
+
+            $seller_company = Company::where('id', $record->supplier_id)->first();
+            $seller_address = DB::table('company_addresses')
+                                ->select('id', 'company_id')
+                                ->whereRaw("(address is not null or address <> '')")
+                                ->where('company_id', $record->supplier_id)
+                                ->get();
+            $seller_owners = DB::table('company_address_owners as cao')
+                            ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
+                            ->select('cao.id', 'ca.company_id')
+                            ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
+                            ->where('ca.company_id', $record->supplier_id)
+                            ->get();
+
+
+            if (empty($customer_company)) {
+                $company = '';
+            } else {
+                if ((count($customer_address) == 0 || count($customer_owners) == 0)) {
+                    $customer_color = '';
+                } else {
+                    $customer_color = ' text-danger ';
+                }
+                $company = '<a href="#" class="view-details ' . $customer_color . '" data-id="' . $customer_company->id . '">' . $customer_company->company_name . '</a>';
+            }
+            if (empty($seller_company)) {
+                $supplier = '';
+            } else {
+                if ((count($seller_address) == 0 || count($seller_owners) == 0)) {
+                    $seller_color = '';
+                } else {
+                    $seller_color = ' text-danger ';
+                }
+                $supplier = '<a href="#" class="view-details ' . $seller_color . '" data-id="' . $seller_company->id . '">' . $seller_company->company_name . '</a>';
+            }
+
+            $cmptype = $record->company_type;
+            $genrateby = Employee::where('id', $record->generated_by)->first();
+            $assignto = Employee::where('id', $record->assigned_to)->first();
+
+            if (!empty($genrateby)) {
+                $genratebyname =  $genrateby->firstname;
+            } else {
+                $genratebyname = '';
+            }
+
+            if (!empty($assignto)) {
+                $assigntoname =  $assignto->firstname;
+            } else {
+                $assigntoname = '';
+            }
+
+            if ($record->system_module_id == 5) {
+                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 6) {
+                $action = '<a href="/payments/view-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 7) {
+                $action = '<a href="/commission/view-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 20) {
+                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 19) {
+                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
+                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print"><em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else if ($record->system_module_id == 15) {
+                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            } else {
+                $action = '';
+            }
+            $color_flag = $record->color_flag_id;
+            $timecompleted = 00;
+            if ($record->color_flag_id == 3 && $record->inward_or_outward_flag == 1 ) {
+                $complete = Comboids::where('inward_or_outward_id', $record->inward_or_outward_id)
+                            ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
+                            ->first();
+                if ($complete) {
+                    $date_add = DB::table('inwards')->where('is_deleted', 0)->where('inward_id', $record->inward_or_outward_id)
+                                ->where('financial_year_id', $user->financial_year_id)->first();
+                    $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
+                }
+            } else if ($record->color_flag_id == 3 && $record->sale_bill_id != 0 ) {
+                $complete = Comboids::where('sale_bill_id', $record->sale_bill_id)
+                            ->where('is_deleted', 0)->where('finanacial_year_id', $user->financial_year_id)
+                            ->first();
+                if ($complete) {
+                    $date_add = DB::table('sale_bills')->where('is_deleted', 0)->where('sale_bill_id', $record->sale_bill_id)
+                                ->where('financial_year_id', $user->financial_year_id)->first();
+                    $timecompleted = time_elapsed_string(date('Y-m-d H:i',strtotime($complete->created_at)),date('Y-m-d H:i',strtotime($date_add->created_at)));
+                }
+            }
+
+
+            $data_arr[] = array(
+                "iuid" => $iuid,
+                "ouid" => $ouid,
+                "reference_id" => $ref_id,
+                "created_at" => $date,
+                "timecompleted" => $timecompleted,
+                "iotype" => $iotype,
+                "iomedium" => $iomedium,
+                "iodetail" => $iodetail,
+                "company" => $company,
+                "supplier" => $supplier,
+                "cmptype" => $cmptype,
+                "genby" => $genratebyname,
+                "assignto" => $assigntoname,
+                "color_flag" => $color_flag,
+                "action" => $action
+            );
+        }
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecordswithFilter,
+            "aaData" => $data_arr
+        );
+
+        echo json_encode($response);
+        exit;
     }
 
     public function listRegister(Request $request) {
@@ -1994,9 +2591,10 @@ class RegisterController extends Controller
             $type = 4;
         }
 
-
+        $personname = '';
         if ($outward->company_id) {
             $company = Company::where('id', $outward->company_id)->first()->company_name;
+            $personname = CompanyContactDetails::where('company_id', $outward->company_id)->first()->contact_person_name;
         } else {
             $company = Company::where('id', $outward->supplier_id)->first()->company_name;
         }
@@ -2074,6 +2672,7 @@ class RegisterController extends Controller
         $agent = Agent::where('id', $outward->courier_agent)->first();
         $data['salebill'] = $salebilldata;
         $data['outward'] = $outward;
+        $data['outward']['personname'] = $personname;
         $data['outward']['courier_agent'] = $agent;
         $data['outward_type'] = $type;
         $data['outward']['courier'] = $courier;

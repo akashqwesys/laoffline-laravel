@@ -25,12 +25,10 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
-                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                                <th width="66%" class="text-center"><img class="mb-1" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <br><span class="mt-2">Kind Attention to {{ Outward.personname }}</span></th>
+                                                <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
-                                            <tr>
-									            <td colspan="3" class="text-center"><span class="mt-2">Kind Attention to {{ Outward.companyperson }}</span></td>
-								            </tr>
                                             <tr>
 									            <td colspan="3" class="text-left">MS</td>
 								            </tr>
@@ -71,7 +69,7 @@
 						                  		<td colspan="2">{{ totalParcel }}</td>
 						                  	</tr>
 						                  	<tr>
-						                      	<td colspan="5" class="text-right">Thank you<br><br><br><br></td>
+						                      	<td colspan="5" class="text-right">Thank you<br><br></td>
 						                  	</tr>
 						                  	<tr>
 						                      	<td colspan="5" class="text-right">(Signature)</td>
@@ -94,12 +92,10 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
-                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                                <th width="66%" class="text-center"><img class="mb-2" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <br><span>Payment Outward Slip</span></th>
+                                                <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
-                                            <tr>
-									            <td colspan="3" class="text-center"><span>Payment Outward Slip</span></td>
-								            </tr>
                                             <tr>
 									            <td colspan="3" class="text-left">{{ Outward.company }}</td>
 								            </tr>
@@ -131,7 +127,7 @@
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
-						                      	<td colspan="5" class="text-right">Thank you<br><br><br><br></td>
+						                      	<td colspan="5" class="text-right">Thank you<br><br></td>
 						                  	</tr>
 						                  	<tr>
 						                      	<td colspan="5" class="text-right">(Signature)</td>
@@ -154,12 +150,10 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
-                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                                <th width="66%" class="text-center"><img class="mb-2" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <br><span>{{ Outward.company }}</span></th>
+                                                <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
-                                            <tr>
-				            					<td colspan="3" class="text-center"><span>{{ Outward.company }}</span></td>
-							            	</tr>
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
@@ -189,7 +183,7 @@
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
-						                      	<td colspan="3" class="text-left">Prepared by<br><br><br><br></td>
+						                      	<td colspan="3" class="text-left">Prepared by<br><br></td>
                                                 <td colspan="3" class="text-right">Delivery by</td>
                                               </tr>
 						                </tfoot>
@@ -210,12 +204,10 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
-                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                                <th width="66%" class="text-center"><img class="mb-2" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <br><span>{{ Outward.company }}</span></th>
+                                                <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
-                                            <tr>
-				            					<td colspan="3" class="text-center"><span>{{ Outward.company }}</span></td>
-							            	</tr>
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
@@ -242,7 +234,7 @@
     						        </tbody>
                                     <tfoot>
 						                  	<tr>
-						                      	<td colspan="2" class="text-left">Prepared by<br><br><br><br></td>
+						                      	<td colspan="2" class="text-left">Prepared by<br><br></td>
                                                 <td colspan="2" class="text-right">Delivery by</td>
                                               </tr>
 						                </tfoot>
@@ -311,7 +303,7 @@
             printOutward (event) {
                 var printContents = document.getElementById("print_area1").innerHTML;
                 var originalContents = document.body.innerHTML;
-                var popupWin = window.open('', '_blank', 'width=900,height=900');
+                var popupWin = window.open('', '_blank', 'width=1000,height=1000');
                 popupWin.document.open()
                 popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
                 popupWin.document.close();  

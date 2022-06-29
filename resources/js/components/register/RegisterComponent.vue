@@ -11,8 +11,8 @@
                                         <h3 class="nk-block-title page-title">Register Lists</h3>
                                     </div>
                                     <div class="col-md-8 text-right">
-                                        <a href="/register/inward" class="mr-3">Inward</a>
-                                        <a href="/register/outward" class="mr-3">Outward</a>
+                                        <a href="/register/inward_outward=1" class="mr-3">Inward</a>
+                                        <a href="/register/inward_outward=2" class="mr-3">Outward</a>
                                         <a v-bind:href="create_outward" class="dropdown-toggle btn btn-icon btn-primary pr-2"><em class="icon ni ni-plus"></em> Outward</a>
                                         <a v-bind:href="create_inward" class="dropdown-toggle btn btn-icon btn-primary pr-2 mx-2"><em class="icon ni ni-plus"></em> Inward</a>
                                         <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
@@ -67,6 +67,7 @@
         name: 'companyCategory',
         props: {
             excelAccess: Number,
+            inward_outward: Number,
         },
         components: {
             ViewCompanyDetails
@@ -100,6 +101,12 @@
             const self = this;
             var buttons = [];
             var dt_table = null;
+            var url = "/register/list";
+            if (this.inward_outward == 1) {
+                url = "/register/inwardregisterlist";
+            } else if (this.inward_outward == 2) {
+                url = "/register/outwardregisterlist";
+            }
             if(this.excelAccess == 1) {
                 buttons = [{
                     extend: 'excelHtml5',
@@ -122,7 +129,7 @@
                     serverSide: true,
                     lengthChange: true,
                     ajax: {
-                        url: "/register/list",
+                        url: url,
                         data: function (data) {
                             if ($('#iuid').val() == '') {
                                 data.columns[0].search.value = '';
