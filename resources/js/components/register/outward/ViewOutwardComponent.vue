@@ -65,37 +65,28 @@
                                     <div style="float:left; width:100%; border:1px solid">
                                         <table class="table m-b-none">
                                             <tbody>
-                                                <tr>
-                                                    <th>
-                                                        <div class="row">
-                                                            <div class="col-sm-3 text-left">
-                                                                <img src="https://laoffline.com/img/logo_report.png"
-                                                                    style="width: 100px;">
-                                                            </div>
-                                                            <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                                <span>Kind Attention to {{ Outward.companyperson
-                                                                }}</span>
-                                                            </div>
-                                                            <div class="col-sm-3 text-right">
-                                                                <span>{{ Outward.todaydate }}</span>
-                                                            </div>
-                                                        </div>
-                                                    </th>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-left">MS</th>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-center">{{ Outward.company }}</th>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-center">Greetings From {{ agent }}</th>
-                                                </tr>
-                                                <tr>
-                                                    <th>Please Find The Details Below</th>
-                                                </tr>
-
-                                            </tbody>
+                                            <tr>
+                                                <td width="16%"></td>
+                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                            </tr>
+                                            <tr>
+									            <td colspan="3" class="text-center"><span class="mt-2">Kind Attention to {{ Outward.companyperson }}</span></td>
+								            </tr>
+                                            <tr>
+									            <td colspan="3" class="text-left">MS</td>
+								            </tr>
+                                            <tr>
+									            <td colspan="3" class="text-center">{{ Outward.company }}</td>
+								            </tr>
+											<tr>
+									            <td colspan="3" class="text-center">Greetings From {{ agent }}</td>
+            								</tr>
+											<tr>
+				            					<td colspan="3">Please Find The Details Below</td>
+							            	</tr>
+								            
+							            </tbody>
                                         </table>
 
                                         <table class="table table-striped m-b-none" id="div_table">
@@ -143,31 +134,23 @@
                                     <div style="float:left; width:100%; border:1px solid">
                                         <table class="table m-b-none">
                                             <tbody>
-                                                <tr>
-                                                    <th>
-                                                        <div class="row">
-                                                            <div class="col-sm-3 text-left">
-                                                                <img src="https://laoffline.com/img/logo_report.png"
-                                                                    style="width: 100px;">
-                                                            </div>
-                                                            <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                                <span>Payment Outward Slip</span>
-                                                            </div>
-                                                            <div class="col-sm-3 text-right" style="padding-top:3%">
-                                                                <span>{{ Outward.todaydate }}</span>
-                                                            </div>
-                                                        </div>
-                                                    </th>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-left">{{ Outward.company }}</th>
-                                                </tr>
-
-                                                <tr>
-                                                    <th>Please Find The Details Below</th>
-                                                </tr>
-
-                                            </tbody>
+                                            <tr>
+                                                <td width="16%"></td>
+                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                            </tr>
+                                            <tr>
+									            <td colspan="3" class="text-center"><span>Payment Outward Slip</span></td>
+								            </tr>
+                                            <tr>
+									            <td colspan="3" class="text-left">{{ Outward.company }}</td>
+								            </tr>
+											
+											<tr>
+				            					<td colspan="3">Please Find The Details Below</td>
+							            	</tr>
+								            
+							            </tbody>
                                         </table>
 
                                         <table class="table table-striped m-b-none" id="div_table">
@@ -211,29 +194,19 @@
                                     <div style="float:left; width:100%; border:1px solid">
                                         <table class="table m-b-none">
                                             <tbody>
-                                                <tr>
-                                                    <th>
-                                                        <div class="row">
-                                                            <div class="col-sm-3 text-left">
-                                                                <img src="https://laoffline.com/img/logo_report.png"
-                                                                    style="width: 100px;">
-                                                            </div>
-                                                            <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                                <span>{{ Outward.company }}</span>
-                                                            </div>
-                                                            <div class="col-sm-3 text-right" style="padding-top:3%">
-                                                                <span>{{ Outward.todaydate }}</span>
-                                                            </div>
-                                                        </div>
-                                                    </th>
-                                                </tr>
-
-
-                                                <tr>
-                                                    <th>Please Find The Details Below</th>
-                                                </tr>
-
-                                            </tbody>
+                                            <tr>
+                                                <td width="16%"></td>
+                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                            </tr>
+                                            <tr>
+				            					<td colspan="3" class="text-center"><span>{{ Outward.company }}</span></td>
+							            	</tr>
+                                            <tr>
+				            					<td colspan="3">Please Find The Details Below</td>
+							            	</tr>
+								            
+							            </tbody>
                                         </table>
 
                                         <table class="table table-striped m-b-none" id="div_table">
@@ -277,29 +250,19 @@
                                     <div style="float:left; width:100%; border:1px solid">
                                         <table class="table m-b-none">
                                             <tbody>
-                                                <tr>
-                                                    <th>
-                                                        <div class="row">
-                                                            <div class="col-sm-3 text-left">
-                                                                <img src="https://laoffline.com/img/logo_report.png"
-                                                                    style="width: 100px;">
-                                                            </div>
-                                                            <div class="col-sm-6 text-center" style="padding-top:3%">
-                                                                <span>{{ Outward.company }}</span>
-                                                            </div>
-                                                            <div class="col-sm-3 text-right" style="padding-top:3%">
-                                                                <span>{{ Outward.todaydate }}</span>
-                                                            </div>
-                                                        </div>
-                                                    </th>
-                                                </tr>
-
-
-                                                <tr>
-                                                    <th>Please Find The Details Below</th>
-                                                </tr>
-
-                                            </tbody>
+                                            <tr>
+                                                <td width="16%"></td>
+                                                <td width="66%" class="text-center"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
+                                                <td width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></td>
+                                            </tr>
+                                            <tr>
+				            					<td colspan="3" class="text-center"><span>{{ Outward.company }}</span></td>
+							            	</tr>
+                                            <tr>
+				            					<td colspan="3">Please Find The Details Below</td>
+							            	</tr>
+								            
+							            </tbody>
                                         </table>
 
                                         <table class="table table-striped m-b-none" id="div_table">
