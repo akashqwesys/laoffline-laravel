@@ -541,7 +541,14 @@ class InvoiceController extends Controller
                         ->where('payment_id', $p->payment_id)
                         ->where('financial_year_id', $p->financial_year_id)
                         ->toArray();
-                    if (count($invoice_exist) == 0) {
+                    $company_commission = DB::table('company_commissions')
+                        ->select('id')
+                        ->where('customer_id', $p->receipt_from)
+                        ->where('supplier_id', $p->supplier_id)
+                        ->where('flag', $flag)
+                        ->limit(1)
+                        ->first();
+                    if (count($invoice_exist) == 0 && !empty($company_commission)) {
                         $date = date('d-m-Y', strtotime($p->date));
                         $data_arr[] = array(
                             'payment_id' => $p->payment_id,
