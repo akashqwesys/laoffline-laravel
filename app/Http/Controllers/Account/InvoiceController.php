@@ -504,6 +504,7 @@ class InvoiceController extends Controller
             $payment = $payment->whereRaw('("p"."supplier_id" = ' . $main_cmp_id . ' or "p"."customer_id" = ' . $main_cmp_id . ' ' . $add_in . ' )');
         }
         $payment = $payment->where('p.is_deleted', 0)
+            ->where('p.receipt_mode', 'cheque')
             ->where('p.right_of_amount', 0)
             ->where('p.receipt_amount', '<>', 0)
             ->orderBy('p.date', 'asc')
