@@ -313,21 +313,11 @@ class LinkCompaniesController extends Controller
                     }
                     $this->updateTables('comboids', 'company_id', $row_cmp, 'company_id', $companyId['id']);
                     $this->updateTables('inwards', 'company_id', $row_cmp, 'company_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
-                    $this->updateTables('sale_bill', 'company_id', $row_cmp, 'company_id', $companyId['id']);
-
-
+                    $this->updateTables('sale_bills', 'company_id', $row_cmp, 'company_id', $companyId['id']);
                     $this->updateTables('outwards', 'company_id', $row_cmp, 'company_id', $companyId['id']);
                     $this->updateTables('products', 'company', $row_cmp, 'company', $companyId['id']);
                     $this->updateTables('reference_ids', 'company_id', $row_cmp, 'company_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
                     $this->updateTables('payments', 'receipt_from', $row_cmp, 'receipt_from', $companyId['id']);
-
-
                 }
             }
         } elseif ($companyType->company_type == 3) {
@@ -435,16 +425,8 @@ class LinkCompaniesController extends Controller
                     }
                     $this->updateTables('comboids', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('inwards', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
-                    $this->updateTables('sale_bill', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
-                    $this->updateTables('payment', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
-
-
+                    $this->updateTables('sale_bills', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
+                    $this->updateTables('payments', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('commissions', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('outwards', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('products', 'company', $row_cmp, 'company', $companyId['id']);
