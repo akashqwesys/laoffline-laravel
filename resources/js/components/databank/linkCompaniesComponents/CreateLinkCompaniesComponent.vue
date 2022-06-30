@@ -32,7 +32,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-link_companies_id">Link Companies</label>
                                                     <div v-if="linkCompanies == 1">
-                                                        <multiselect v-model="form.link_companies_id" :options="companies" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
+                                                        <multiselect v-model="form.link_companies_id" :options="left_companies" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
                                                     <div v-if="linkedCompaniesList == 1">
                                                         <span class="form-note" v-for="(linkCompany, index) in linkedCompaniesLists" :key="index">{{ linkCompany.linkedCompanies.company_name }}</span>
@@ -77,6 +77,7 @@
                 linkedCompaniesList: 0,
                 linkedCompaniesLists: [],
                 companies: [],
+                left_companies: [],
                 form: new Form({
                     id: '',
                     company_id: '',
@@ -100,7 +101,8 @@
                             this.linkCompanies = 1;
                             axios.get(`/databank/link-company/getLinkedCompanyById/${event.id}`)
                             .then(result => {
-                                this.linkedCompaniesLists = result.data;
+                                this.linkedCompaniesLists = result.data[0];
+                                this.left_companies = result.data[1];
                                 if(this.linkedCompaniesLists.length != 0) {
                                     this.linkedCompaniesList = 1;
                                 }

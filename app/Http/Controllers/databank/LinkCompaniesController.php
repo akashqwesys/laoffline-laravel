@@ -164,8 +164,14 @@ class LinkCompaniesController extends Controller
             $company = Company::where('id', $company->link_companies_id)->first(['id','company_name']);
             $linkedCompanyDetails[$key]['linkedCompanies'] = $company;
         }
+        $not_ids = collect($linkedCompany)->where('company_id', $id)->pluck('link_companies_id')->toArray();
+        array_push($not_ids, $id);
+        $left_companies = Company::select('id', 'company_name')
+            ->whereNotIn('id', $not_ids)
+            ->where('is_delete', 0)
+            ->get();
 
-        return $linkedCompanyDetails;
+        return response()->json([$linkedCompanyDetails, $left_companies]);
     }
 
     public function editLinkCompanies($id) {
