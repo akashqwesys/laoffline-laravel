@@ -480,9 +480,9 @@ class InvoiceController extends Controller
             }
         }
         $flag = 0;
-        if ($request->company_type == 3) {
+        if ($request->type == 3) {
             $flag = 1; // for supplier
-        } else if ($request->company_type == 2) {
+        } else if ($request->type == 2) {
             $flag = 2; // for customer
         }
         $payment = DB::table('payments as p')
