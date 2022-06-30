@@ -2486,12 +2486,14 @@ class PaymentsController extends Controller
         $salebilldata = array();
         foreach($salebill as $sale) {
             $salebill_date = DB::table('sale_bills')->where('sale_bill_id', $sale->sr_no)->where('financial_year_id', $sale->financial_year_id)->first();
-
+            
+            $bill_date = date('d-m-Y', strtotime($salebill_date->select_date));
             $payment_date = strtotime($payment->date);
 			$salebill_date = strtotime($salebill_date->select_date);
-            $datediff  = $salebill_date - $payment_date;
+            $datediff  = $payment_date - $salebill_date;
 			$days = floor($datediff / (60 * 60 * 24));
             $data1 = $sale;
+            $data1['bill_date'] = $bill_date;
             $data1['day'] = $days;
             array_push($salebilldata, $data1);
         }

@@ -235,18 +235,18 @@ class PaymentsReportController extends Controller
         }
         $data1 = $data1->get();
         $customer_details = array();
-        $report_days = $request->day['report_days'];
+        $report_days = $request->day ? $request->day['report_days'] : 0;
         $grand_total = 0;
-		$prev_company='';
-		$prev_company_id='';
-		$prev_address='';
-		$incr=0;
+		$prev_company = '';
+		$prev_company_id = '';
+		$prev_address = '';
+		$incr = 0;
 		$total = 0;
-		$hincr=0;
+		$hincr = 0;
         $k=-1;
         foreach($data1 as $datas) {
             $cnt = 0;
-			$hincr+=1;
+			$hincr += 1;
             $startTimeStamp = strtotime($datas->select_date);
 			$endTimeStamp = strtotime(date('Y-m-d'));
 			$timeDiff = abs($endTimeStamp - $startTimeStamp);
@@ -254,20 +254,14 @@ class PaymentsReportController extends Controller
 			$numberDays = intval($numberDays);
 
             if ($numberDays >= $report_days){
-                $startTimeStamp = strtotime($datas->select_date);
-				$endTimeStamp = strtotime(date('Y-m-d'));
-				$timeDiff = abs($endTimeStamp - $startTimeStamp);
-				$numberDays = $timeDiff/86400;
-                $numberDays = intval($numberDays);
-
                 if ($datas->customer_name != $prev_company){
                     $k=0;
                     $address=$datas->company_address;
                     if($incr != 0) {
-                        $maindata[]=array('company_id'=>$prev_company_id, 'name'=> $prev_company, 'address' => $prev_address, 'total'=>$total);
+                        $maindata[]=array('company_id'=>$prev_company_id, 'name'=> $prev_company, 'address' => $prev_address);
                         $total=0;
                     }
-                    $incr+=1;
+                    $incr += 1;
                     $prev_company_id = $datas->company_id;
                     $prev_company = $datas->customer_name;
                     $prev_address = $address;
@@ -294,17 +288,17 @@ class PaymentsReportController extends Controller
                 $data2[$datas->company_id]['numberDays'][$k] = $numberDays;
                 $data2[$datas->company_id]['supplier'][$k] = $datas->supplier_name;
                 $data2[$datas->company_id]['bill_no'][$k] = $datas->supplier_invoice_no;
+                if(!empty($company_id)) {
+                    $maindata[]=array('company_id'=>$company_id, 'name'=>$company_name, 'address' => $company_address);
+                }
             }
-            if(!empty($company_id)) {
-                $maindata[]=array('company_id'=>$company_id, 'name'=>$company_name, 'address' => $company_address, 'total'=>$company_total);
-            }
+            
 
             if(!empty($maindata)) {
                 foreach ($maindata as $key => $row) {
                     $company_id1[$key]  = $row['company_id'];
                     $name1[$key]  = $row['name'];
                     $address1[$key] = $row['address'];
-                    $total1[$key] = $row['total'];
                 }
                 if($sorting == 7) {
                     array_multisort($total1, SORT_ASC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $maindata);
@@ -313,9 +307,11 @@ class PaymentsReportController extends Controller
                 }
             }
         }
-        print_r($company_id1);
-        print_r($data2);exit;
-        $data['customer_details'] = $data1;
+        $temp = array_unique(array_column($maindata, 'company_id'));
+        $maindata = array_intersect_key($maindata, $temp);   
+        
+        $data['customer_details'] = $maindata;
+        $data['salebill__data'] = $data2;
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.payments_register_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);

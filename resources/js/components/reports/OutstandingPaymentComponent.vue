@@ -234,6 +234,13 @@
                         return;
                     }
                     if (response.data.customer_details) {
+                        var customer =  $.map(response.data.customer_details, function(value, index) {
+                            return [value];
+                        });
+                        var salebills =  $.map(response.data.salebill__data, function(value, index) {
+                            return [value];
+                        });
+                        console.log(customer);
                         const toINR = new Intl.NumberFormat('en-IN', {
                             // style: 'currency',
                             // currency: 'INR',
@@ -283,7 +290,30 @@
 				                    <th>Days</th>
 				                    <th>Purchase Party</th>
 				                    <th>Bill No</th>
-				                </tr>`;    
+				                </tr>`;
+                        customer.forEach((k, i) => {
+                            html += `
+                                <tr>
+                                    <td colspan="6"></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">${k.name}</th>
+                                    <th colspan="6">${k.address}</th>
+                                </tr>`;
+                            salebills.forEach((v, j) => {
+                                    if (j == k.company_id){
+                                        html += `<tr>
+                                        <td>${v.date}</td>
+                                        <td>${v.srno}</td>
+                                        <td>${v.amount}</td>
+                                        <td>${v.numberDays}</td>
+                                        <td>${v.supplier}</td>
+                                        <td>${v.bill_no}</td>
+                                    </tr>`;
+                                    }
+                                    
+                            });
+                            });   
                         
                         $('#salesRegister tbody').html(html);
                     } else {

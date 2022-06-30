@@ -62,7 +62,7 @@
 				        				</tr>
                                         <tr v-for="(salebill,index) in salebills" :key="index">
                                             <td>{{ salebill.sr_no }}</td>
-                                            <td>{{ paymentData.date }}</td>
+                                            <td>{{ salebill.bill_date }}</td>
                                             <td>{{ salebill.amount }}</td>
                                             <td v-if="paymentData.tot_discount != 0">{{ salebill.discount_amount }}</td>
 									        <td v-if="paymentData.tot_vatav != 0">{{ salebill.vatav }}</td>
