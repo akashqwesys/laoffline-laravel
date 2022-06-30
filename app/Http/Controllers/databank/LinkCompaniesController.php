@@ -121,8 +121,9 @@ class LinkCompaniesController extends Controller
         $data_arr = array();
 
         foreach ($records as $record) {
-
-            $action = '<button type="button" class="btn btn-primary showModal" data-toggle="modal" data-target="#mergeCompany'.$record->id.'" title="Merge company" data-id="'.$record->id.'"  data-company="'.$record->company_id.'" >Merge</button>';
+            // WORKING MERGE DON'T DELETE IT
+            // $action = '<button type="button" class="btn btn-primary showModal" data-toggle="modal" data-target="#mergeCompany'.$record->id.'" title="Merge company" data-id="'.$record->id.'"  data-company="'.$record->company_id.'" >Merge</button>';
+            $action = '';
 
             $data_arr[] = array(
                 "id" => $record->id,
