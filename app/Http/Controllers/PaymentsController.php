@@ -1655,6 +1655,11 @@ class PaymentsController extends Controller
         $paymentDetail = PaymentDetail::where('p_increment_id', $payment->id)->get();
         $salebill = array();
         foreach ($paymentDetail as $details) {
+            $bill = SaleBill::where('sale_bill_id', $details->sr_no)
+                    ->where('financial_year_id', $details->financial_year_id)
+                    ->first();
+            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
+            $bill_date = date('d-m-Y', strtotime($bill->select_date));
             $status = array("status" => 'Pending', "code" => 0);
             if ($details->status == 1) {
                 $status = array("status" => 'Complete', "code" => 1);
@@ -1672,6 +1677,8 @@ class PaymentsController extends Controller
                         'bankcommission' => $details->bank_commission, 'vatav' => $details->vatav, 'agentcommission' => $details->agent_commission,
                         'claim' => $details->claim, 'short' => $details->short, 'interest'=> $details->interest, 'remark' => $details->remark);
             $salebilldata['goodreturndata'] = $goodreturndata;
+            $salebilldata['bill_date'] = $bill_date;
+            $salebilldata['day'] = $overdue;
             array_push($salebill, $salebilldata);
         }
         $data['paymentData'] = $payment;

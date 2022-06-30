@@ -221,10 +221,6 @@ class PaymentsReportController extends Controller
                 $data1 = $data1->orderBy('cc.company_name', 'asc');
             }  else if ($sorting == 4) {
                 $data1 = $data1->orderBy('cc.company_name', 'desc');
-            } else if ($sorting == 7) {
-                $data1 = $data1->orderBy('s.total', 'asc');
-            } else if ($sorting == 8) {
-                $data1 = $data1->orderBy('c.total', 'desc');
             }
         }
         if ($request->start_date && $request->end_date) {
@@ -239,8 +235,7 @@ class PaymentsReportController extends Controller
         }
         $data1 = $data1->get();
         $customer_details = array();
-        $privious_company = 0;
-        $report_days = $request->day->report_days;
+        $report_days = $request->day['report_days'];
         $grand_total = 0;
 		$prev_company='';
 		$prev_company_id='';
@@ -265,13 +260,61 @@ class PaymentsReportController extends Controller
 				$numberDays = $timeDiff/86400;
                 $numberDays = intval($numberDays);
 
-                if ($datas->customer_name != $privious_company){
-                    
+                if ($datas->customer_name != $prev_company){
+                    $k=0;
+                    $address=$datas->company_address;
+                    if($incr != 0) {
+                        $maindata[]=array('company_id'=>$prev_company_id, 'name'=> $prev_company, 'address' => $prev_address, 'total'=>$total);
+                        $total=0;
+                    }
+                    $incr+=1;
+                    $prev_company_id = $datas->company_id;
+                    $prev_company = $datas->customer_name;
+                    $prev_address = $address;
+                    $prev_total = $total;
+                } else {
+                    $k++;
                 }
+                if($datas->pending_payment == 0) {
+                    $final_amount=$datas->total;
+                } else {
+                    $final_amount=$datas->pending_payment;
+                }
+                $total += $final_amount;
+                $grand_total += $final_amount;
+                $company_id = $datas->company_id;
+
+                $company_name = $datas->customer_name;
+                $company_address = $address;
+                $company_total = $total;
+                $data2[$datas->company_id]['date'][$k] = date('d-m-Y',strtotime($datas->select_date));
+                $data2[$datas->company_id]['srno'][$k] = $datas->sale_bill_id;
+                $data2[$datas->company_id]['financial_year_id'][$k] = $datas->financial_year_id;
+                $data2[$datas->company_id]['amount'][$k] = $final_amount;
+                $data2[$datas->company_id]['numberDays'][$k] = $numberDays;
+                $data2[$datas->company_id]['supplier'][$k] = $datas->supplier_name;
+                $data2[$datas->company_id]['bill_no'][$k] = $datas->supplier_invoice_no;
+            }
+            if(!empty($company_id)) {
+                $maindata[]=array('company_id'=>$company_id, 'name'=>$company_name, 'address' => $company_address, 'total'=>$company_total);
             }
 
+            if(!empty($maindata)) {
+                foreach ($maindata as $key => $row) {
+                    $company_id1[$key]  = $row['company_id'];
+                    $name1[$key]  = $row['name'];
+                    $address1[$key] = $row['address'];
+                    $total1[$key] = $row['total'];
+                }
+                if($sorting == 7) {
+                    array_multisort($total1, SORT_ASC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $maindata);
+                } elseif($sorting == 8) {
+                    array_multisort($total1, SORT_DESC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $maindata);
+                }
+            }
         }
-        
+        print_r($company_id1);
+        print_r($data2);exit;
         $data['customer_details'] = $data1;
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.payments_register_export_pdf', compact('data', 'request'))

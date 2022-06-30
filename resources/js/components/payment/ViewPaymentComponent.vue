@@ -77,6 +77,8 @@
                                     <table class="table mb-2 table table-striped m-b-none salebilltable">
                                                 <thead>
                                                     <tr>
+                                                        <th>Bill Date</th>
+                                                        <th>Day</th>
                                                         <th>S.No.</th>
                                                         <th>Sup Inv No</th>
                                                         <th>Amount</th>
@@ -98,8 +100,10 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr class="salebillrow" v-for="(salebill,index) in salebills" :key="index">
+                                                        <td>{{ salebill.bill_date}}</td>
+                                                        <td>{{ salebill.day}}</td>
                                                         <td>{{ salebill.id}}</td>
-                                                        <td>{{ salebill.sup_inv}}</td>
+                                                        <td><a :href="'/account/sale-bill/view-sale-bill/'+ salebill.id+'/'+ salebill.fid">{{ salebill.sup_inv}}</a></td>
                                                         <td>{{ salebill.amount}}</td>
                                                         <td>{{ salebill.adjustamount}}</td>
                                                         <td>{{ salebill.status.status}}</td>
@@ -122,6 +126,8 @@
                                                     <tr>
                                                         <td><b>Total</b></td>
                                                         <td></td>
+                                                        <td></td>
+                                                        <td></td>    
                                                         <td><b>{{ paymentData.total_amount }}</b></td>
                                                         <td><b>{{ paymentData.tot_adjust_amount }}</b></td>
                                                         <td></td>
