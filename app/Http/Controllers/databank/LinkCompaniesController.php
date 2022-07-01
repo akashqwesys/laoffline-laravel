@@ -119,18 +119,22 @@ class LinkCompaniesController extends Controller
             ->get();
 
         $data_arr = array();
-
-        foreach ($records as $record) {
+        $linkCompanies = '';
+        foreach ($records as $k => $v) {
             // WORKING MERGE DON'T DELETE IT
             // $action = '<button type="button" class="btn btn-primary showModal" data-toggle="modal" data-target="#mergeCompany'.$record->id.'" title="Merge company" data-id="'.$record->id.'"  data-company="'.$record->company_id.'" >Merge</button>';
-            $action = '';
-
-            $data_arr[] = array(
-                "id" => $record->id,
-                "company_id" => '<a href="./companies/view-company/'.$record->company_id.'">' . $record->company_name . '</a>',
-                "link_companies_id" => '<a href="./companies/view-company/' . $record->link_companies_id . '">' . $record->link_company_name . '</a>',
-                "action" => $action
-            );
+            $linkCompanies .= '<div class="mb-2"><a href="#" class="view-details" data-id="' . $v->link_companies_id . '" title="View Company">' . $v->link_company_name . '</a> </div>';
+            if (isset($records[$k + 1]) && ($records[$k + 1]->company_id == $v->company_id)) {
+                continue;
+            } else {
+                $data_arr[] = array(
+                    // "id" => $v->id,
+                    "company_id" => '<a href="#" class="view-details" data-id="' . $v->company_id . '" title="View Company">' . $v->company_name . '</a> ',
+                    "link_companies_id" => $linkCompanies,
+                    // "action" => $action
+                );
+                $linkCompanies = '';
+            }
         }
 
         $response = array(

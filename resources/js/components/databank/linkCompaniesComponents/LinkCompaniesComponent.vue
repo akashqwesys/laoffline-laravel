@@ -1,6 +1,5 @@
 <template>
     <div class="nk-content ">
-        <vue-loader v-if="showLoader"></vue-loader>
         <div class="container-fluid">
             <div class="nk-content-inner">
                 <div class="nk-content-body">
@@ -25,10 +24,10 @@
                                     <table id="linkCompanies" class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>No</th>
-                                            <th>Company</th>
+                                            <!-- <th>No</th> -->
+                                            <th style="width: 30%;" >Company</th>
                                             <th>Link With Company</th>
-                                            <th>Action</th>
+                                            <!-- <th>Action</th> -->
                                         </tr>
                                     </thead>
                                 </table>
@@ -85,6 +84,7 @@
             </div>
         </div>
     </div>
+    <ViewCompanyDetails ref="company"></ViewCompanyDetails>
 </template>
 
 <script>
@@ -98,7 +98,7 @@
     import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
-    import VueLoader from './../../../VueLoader';
+    import ViewCompanyDetails from '../companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
 
     export default {
         name: 'linkCompany',
@@ -107,7 +107,7 @@
         },
         components: {
             Multiselect,
-            VueLoader,
+            ViewCompanyDetails,
         },
         data() {
             return {
@@ -157,9 +157,21 @@
             },
             register () {
                 this.form.post('/databank/link-company/merge')
-                    .then(( response ) => {
-                        // window.location.href = '/databank/link-company';
+                .then(( response ) => {
+                    // window.location.href = '/databank/link-company';
                 })
+            },
+            showModal: function (id) {
+                window.$('#overlay').show();
+                this.$refs.company.fetch_company(id)
+                window.$("#viewCompany1").modal('show');
+                $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                $('body').addClass('modal-open').css('overflow', 'hidden').css('padding-right', '17px');
+            },
+            closeModal: function () {
+                window.$('#viewCompany1').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').removeAttr('style');
             },
             clearallfilter(event) {
                 $('input[type=search]').val('');
@@ -202,16 +214,18 @@
                             $('#totalLinkCompanies').text(data.responseJSON.iTotalRecords);
                         }
                     },
-                    pagingType: 'full_numbers',
-                    // dom: 'Bfrtip',
+                    // pagingType: 'full_numbers',
+                    // pageLength: 25,
+                    paging: false,
+                    dom: 'Bfrtip',
                     dom: "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-4'B>>" +
                         "<'row'<'col-sm-12'tr>>" +
                         "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                     columns: [
-                        { data: 'id' },
+                        // { data: 'id' },
                         { data: 'company_id' },
                         { data: 'link_companies_id' },
-                        { data: 'action', orderable: false },
+                        // { data: 'action', orderable: false },
                     ],
                     search: {
                         return: true
@@ -272,6 +286,14 @@
 
             $(document).on('click', '.showModal', function(e) {
                 self.showModel($(this).attr('data-id'), $(this).attr('data-company'));
+            });
+
+            $(document).on('click', '.view-details', function (e) {
+                self.showModal($(this).attr('data-id'));
+            });
+
+            document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
+                $('.modal-backdrop').remove();
             });
         },
     };
