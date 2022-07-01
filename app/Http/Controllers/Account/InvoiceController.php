@@ -689,7 +689,7 @@ class InvoiceController extends Controller
         $pay_n_pay_det = DB::table('payments as p')
             ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
-            ->where('p.id', $p_ids)
+            ->whereIn('p.id', $p_ids)
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
