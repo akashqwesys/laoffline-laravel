@@ -388,7 +388,7 @@ class InvoiceController extends Controller
                 $igst_amt = $new_req['igst_amount'];
             }
         }
-        if (isset($new_req['comm_invoice_tds'])) {
+        if (isset($new_req['comm_invoice_tds']) && $new_req['comm_invoice_tds'] == 1) {
             $tds_flag = 1;
             $tds_amt  = $new_req['tds_amount'];
         }
@@ -951,7 +951,7 @@ class InvoiceController extends Controller
                 $igst_amt = $new_req['igst_amount'];
             }
         }
-        if (isset($new_req['comm_invoice_tds'])) {
+        if (isset($new_req['comm_invoice_tds']) && $new_req['comm_invoice_tds'] == 1) {
             $tds_flag = 1;
             $tds_amt  = $new_req['tds_amount'];
         }
@@ -1022,14 +1022,14 @@ class InvoiceController extends Controller
         $with_without_gst = $invinfo->with_without_gst;
         $total_inv_amount = $amount;
         $paymentinfo = DB::table('payments')
-            ->select('receipt_amount', DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"))
+            ->select('receipt_amount', /* DB::raw("TO_CHAR(date, 'dd-mm-yyyy') as date") */ 'date')
             ->where('payment_id', $payment_id)
             ->where('financial_year_id', $financial_year_id)
             ->where('is_deleted', 0)
             ->first();
         $receipt_amount = $paymentinfo->receipt_amount;
 
-        $invpaymentinfo = InvoicePaymentDetails::select('id', 'received_amount')
+        $invpaymentinfo = InvoicePaymentDetails::select('id', 'received_amount', 'payment_date', 'updated_at')
             ->where('id', $id)
             ->first();
         $rec_amount = $invpaymentinfo->received_amount;
@@ -1039,12 +1039,12 @@ class InvoiceController extends Controller
             $new_rec_amount       = $rec_amount - $diff_amount;
             $new_total_inv_amount = $total_inv_amount - $diff_amount;
             $invpaymentinfo->received_amount = $new_rec_amount;
-            $invpaymentinfo->save();
+
         } else if ($with_without_gst == 1 && $diff_amount < 0) {
             $new_rec_amount       = $rec_amount + abs($diff_amount);
             $new_total_inv_amount = $total_inv_amount + abs($diff_amount);
             $invpaymentinfo->received_amount = $new_rec_amount;
-            $invpaymentinfo->save();
+
         } else {
             if ($diff_amount >= 0) {
                 $new_rec_amount = $rec_amount - $diff_amount;
@@ -1052,13 +1052,15 @@ class InvoiceController extends Controller
                 $new_rec_amount = $rec_amount + abs($diff_amount);
             }
             $invpaymentinfo->received_amount = $new_rec_amount;
-            $invpaymentinfo->save();
+
             $res = DB::table('invoice_payment_details')
                 ->selectRaw('SUM(rec_amount) as total_rec_amount')
                 ->where('commission_invoice_id', $invoice_id)
                 ->first();
             $new_total_inv_amount = $res->total_rec_amount;
         }
+        $invpaymentinfo->payment_date = $paymentinfo->date;
+        $invpaymentinfo->save();
         $data = array('success' => 1, "new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount), 'date' => $paymentinfo->date);
         echo json_encode($data);
         exit;
