@@ -813,7 +813,8 @@ class InvoiceController extends Controller
             ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id', 'financial_year_id')
             ->where('commission_invoice_id', $id)
             ->get();
-        $p_ids = collect($invoice_payment_details)->pluck('payment_id')->toArray();
+        $p_ids = implode(',', collect($invoice_payment_details)->pluck('payment_id')->toArray());
+        $f_ids = implode(',', collect($invoice_payment_details)->pluck('financial_year_id')->toArray());
 
         $payment_details = DB::table('payments as p')
             ->leftJoin('companies as c', function ($j) {
@@ -821,7 +822,9 @@ class InvoiceController extends Controller
                 ->orOn('p.supplier_id', '=', 'c.id');
             })
             ->select('c.id as company_id', 'c.company_name')
-            ->whereIn('p.payment_id', $p_ids)
+            ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
+            // ->whereIn('p.payment_id', $p_ids)
+            // ->whereIn('p.financial_year_id', $f_ids)
             ->get();
 
         foreach ($invoice_payment_details as $v) {
@@ -830,9 +833,9 @@ class InvoiceController extends Controller
         }
 
         $pay_n_pay_det = DB::table('payments as p')
-            ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
+            ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
-            ->where('p.id', $p_ids)
+            ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
