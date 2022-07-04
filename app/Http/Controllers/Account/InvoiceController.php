@@ -959,7 +959,7 @@ class InvoiceController extends Controller
             $tds_amt  = $new_req['tds_amount'];
         }
         $invoice = CommissionInvoice::where('id', $new_req['id'])->first();
-        $invoice->bill_no            = $new_req['full_bill_no'];
+        // $invoice->bill_no            = $new_req['full_bill_no'];
         $invoice->bill_period_to     = date('Y-m-d', strtotime($new_req['bill_period_to']));
         $invoice->bill_period_from   = date('Y-m-d', strtotime($new_req['bill_period_from']));
         $invoice->bill_date          = date('Y-m-d', strtotime($new_req['invoice_bill_date']));
