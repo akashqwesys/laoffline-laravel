@@ -230,14 +230,16 @@ class InvoiceController extends Controller
                 "created_at" => $created_at,
                 "company" => $company_row,
                 'agent_id' => $s->agent_name,
-                'total_payment_received_amount' => $s->total_payment_received_amount,
+                // 'total_payment_received_amount' => $s->total_payment_received_amount,
+                'final_amount' => $s->final_amount,
                 'commission_status' => $commission_status,
                 "outward_status" => $outward_status,
                 'due_days' => floor((time() - strtotime($s->bill_date)) / (60 * 60 * 24)),
                 'generated_by' => $s->firstname,
                 "action" => $action
             );
-            $d_total += $s->total_payment_received_amount;
+            // $d_total += $s->total_payment_received_amount;
+            $d_total += $s->final_amount;
         }
         $response = array(
             "draw" => intval($draw),
@@ -808,7 +810,7 @@ class InvoiceController extends Controller
             ->where('commission_invoice_id', $id)
             ->get(); */
         $invoice_payment_details = DB::table('invoice_payment_details')
-            ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id')
+            ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id', 'financial_year_id')
             ->where('commission_invoice_id', $id)
             ->get();
         $p_ids = collect($invoice_payment_details)->pluck('payment_id')->toArray();
@@ -1019,9 +1021,8 @@ class InvoiceController extends Controller
 
         $with_without_gst = $invinfo->with_without_gst;
         $total_inv_amount = $amount;
-
         $paymentinfo = DB::table('payments')
-            ->select('receipt_amount')
+            ->select('receipt_amount', DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"))
             ->where('payment_id', $payment_id)
             ->where('financial_year_id', $financial_year_id)
             ->where('is_deleted', 0)
@@ -1058,7 +1059,7 @@ class InvoiceController extends Controller
                 ->first();
             $new_total_inv_amount = $res->total_rec_amount;
         }
-        $data = array("new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount));
+        $data = array('success' => 1, "new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount), 'date' => $paymentinfo->date);
         echo json_encode($data);
         exit;
     }
