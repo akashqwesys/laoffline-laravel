@@ -826,6 +826,7 @@ class SaleBillController extends Controller
             $this->insertIncrementIds($data_sale_bill_id);
         }
         $sale_bill = new SaleBill;
+        $sale_bill->id                       = (getLastID('sale_bills', 'id') + 1);
         $sale_bill->sale_bill_id             = $sale_bill_id;
         $sale_bill->sale_bill_for            = $getsalebill->sale_bill_for;
         $sale_bill->general_ref_id           = $getsalebill->general_ref_id;

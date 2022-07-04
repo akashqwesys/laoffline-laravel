@@ -14,9 +14,9 @@
                                         <h3 class="nk-block-title page-title">Commission List</h3>
                                     </div>
                                     <div class="col-md-8 text-right">
-                                        <a v-bind:href="commissionivoicelink" class="dropdown-toggle btn btn-icon btn-warning px-2">Commission Invoice</a>
-                                        <a href="/account/commission/invoice/create-invoice" class="dropdown-toggle btn btn-icon btn-secondary mx-2 px-2"><em class="icon ni ni-plus"></em> Commission Invoice</a>
-                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-icon btn-primary mr-2"><em class="icon ni ni-plus"></em></a>
+                                        <a v-bind:href="commissionivoicelink" class="dropdown-toggle btn btn-icon- btn-primary px-2">Invoice List</a>
+                                        <a href="/account/commission/invoice/create-invoice" class="dropdown-toggle btn btn-icon- btn-success mx-2 px-2"><em class="icon ni ni-plus"></em> Add Invoice</a>
+                                        <a v-bind:href="create_commission" class="dropdown-toggle btn btn-- btn-success mr-2"><em class="icon ni ni-plus"></em> Add Commission</a>
                                         <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>
 				                    </div>
                                 </div>

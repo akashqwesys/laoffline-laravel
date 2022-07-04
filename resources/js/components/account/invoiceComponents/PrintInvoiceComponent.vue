@@ -204,7 +204,7 @@
                         <tr>
                             <td> {{ i+1 }} </td>
                             <td> {{ k.date }} </td>
-                            <td align="left"> {{ k.customer_name ? k.customer_name : k.supplier_name }} </td>
+                            <td align="left"> {{ k.company_name ? k.company_name : k.supplier_name }} </td>
                             <td align="right"> {{ toINR.format(k.received_amount) }} </td>
                         </tr>
                     </template>
@@ -332,7 +332,7 @@
                 this.tds_amount = data.invoice_details.tds_amount;
                 this.final_amount = data.invoice_details.final_amount;
                 $('#total_in_words').html('<b>' + this.inWords(this.final_amount) + '</b>');
-                this.payments = data.payment_details;
+                this.payments = data.invoice_payment_details;
             });
         },
         methods: {

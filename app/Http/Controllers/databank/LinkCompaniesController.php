@@ -8,8 +8,8 @@ use Spatie\Permission\Traits\HasRoles;
 use App\Models\Employee;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyContactDetails;
-use App\Models\linkCompanies;
-use App\Models\linkCompaniesLog;
+use App\Models\LinkCompanies;
+use App\Models\LinkCompaniesLog;
 use App\Models\Logs;
 use App\Models\FinancialYear;
 use Illuminate\Support\Facades\Session;
@@ -60,7 +60,7 @@ class LinkCompaniesController extends Controller
     }
 
     public function listLinkCompanies() {
-        $linkCompanies = linkCompanies::all();
+        $linkCompanies = LinkCompanies::all();
         $linkCompaniesData = [];
 
         foreach($linkCompanies as $key => $linkCompany) {
@@ -93,9 +93,9 @@ class LinkCompaniesController extends Controller
         $searchValue = $search_arr['value']; // Search value
 
         // Total records
-        $totalRecords = linkCompanies::select('count(*) as allcount')->count();
+        $totalRecords = LinkCompanies::select('count(*) as allcount')->count();
         if (!empty(trim($searchValue))) {
-            $totalRecordswithFilter = linkCompanies::join('companies as c', 'link_companies.company_id', '=', 'c.id')
+            $totalRecordswithFilter = LinkCompanies::join('companies as c', 'link_companies.company_id', '=', 'c.id')
                 ->join('companies as c1', 'link_companies.link_companies_id', '=', 'c1.id')
                 ->select('count(*) as allcount')
                 ->where('c.company_name', 'ILIKE', '%' . $searchValue . '%')
@@ -106,7 +106,7 @@ class LinkCompaniesController extends Controller
         }
 
         // Fetch records
-        $records = linkCompanies::join('companies as c', 'link_companies.company_id', '=', 'c.id')
+        $records = LinkCompanies::join('companies as c', 'link_companies.company_id', '=', 'c.id')
             ->join('companies as c1', 'link_companies.link_companies_id', '=', 'c1.id')
             ->select('link_companies.company_id', 'link_companies.link_companies_id', 'c.company_name', 'c1.company_name as link_company_name', 'link_companies.id');
         if (!empty(trim($searchValue))) {
@@ -119,17 +119,22 @@ class LinkCompaniesController extends Controller
             ->get();
 
         $data_arr = array();
-
-        foreach ($records as $record) {
-
-            $action = '<button type="button" class="btn btn-primary showModal" data-toggle="modal" data-target="#mergeCompany'.$record->id.'" title="Merge company" data-id="'.$record->id.'"  data-company="'.$record->company_id.'" >Merge</button>';
-
-            $data_arr[] = array(
-                "id" => $record->id,
-                "company_id" => '<a href="./companies/view-company/'.$record->company_id.'">' . $record->company_name . '</a>',
-                "link_companies_id" => '<a href="./companies/view-company/' . $record->link_companies_id . '">' . $record->link_company_name . '</a>',
-                "action" => $action
-            );
+        $linkCompanies = '';
+        foreach ($records as $k => $v) {
+            // WORKING MERGE DON'T DELETE IT
+            // $action = '<button type="button" class="btn btn-primary showModal" data-toggle="modal" data-target="#mergeCompany'.$record->id.'" title="Merge company" data-id="'.$record->id.'"  data-company="'.$record->company_id.'" >Merge</button>';
+            $linkCompanies .= '<div class="mb-2"><a href="#" class="view-details" data-id="' . $v->link_companies_id . '" title="View Company">' . $v->link_company_name . '</a> </div>';
+            if (isset($records[$k + 1]) && ($records[$k + 1]->company_id == $v->company_id)) {
+                continue;
+            } else {
+                $data_arr[] = array(
+                    // "id" => $v->id,
+                    "company_id" => '<a href="#" class="view-details" data-id="' . $v->company_id . '" title="View Company">' . $v->company_name . '</a> ',
+                    "link_companies_id" => $linkCompanies,
+                    // "action" => $action
+                );
+                $linkCompanies = '';
+            }
         }
 
         $response = array(
@@ -156,15 +161,21 @@ class LinkCompaniesController extends Controller
     }
 
     public function getLinkedCompanyById($id) {
-        $linkedCompany = linkCompanies::where('company_id', $id)->get();
+        $linkedCompany = LinkCompanies::where('company_id', $id)->get();
         $linkedCompanyDetails = [];
 
         foreach($linkedCompany as $key => $company) {
             $company = Company::where('id', $company->link_companies_id)->first(['id','company_name']);
             $linkedCompanyDetails[$key]['linkedCompanies'] = $company;
         }
+        $not_ids = collect($linkedCompany)->where('company_id', $id)->pluck('link_companies_id')->toArray();
+        array_push($not_ids, $id);
+        $left_companies = Company::select('id', 'company_name')
+            ->whereNotIn('id', $not_ids)
+            ->where('is_delete', 0)
+            ->get();
 
-        return $linkedCompanyDetails;
+        return response()->json([$linkedCompanyDetails, $left_companies]);
     }
 
     public function editLinkCompanies($id) {
@@ -181,13 +192,13 @@ class LinkCompaniesController extends Controller
     }
 
     public function fetchLinkCompanies($id) {
-        $userGroupData = linkCompanies::where('id', $id)->first();
+        $userGroupData = LinkCompanies::where('id', $id)->first();
 
         return $userGroupData;
     }
 
     public function deleteLinkCompanies($id){
-        $userGroupData = linkCompanies::where('id', $id)->first();
+        $userGroupData = LinkCompanies::where('id', $id)->first();
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
@@ -313,21 +324,11 @@ class LinkCompaniesController extends Controller
                     }
                     $this->updateTables('comboids', 'company_id', $row_cmp, 'company_id', $companyId['id']);
                     $this->updateTables('inwards', 'company_id', $row_cmp, 'company_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
-                    $this->updateTables('sale_bill', 'company_id', $row_cmp, 'company_id', $companyId['id']);
-
-
+                    $this->updateTables('sale_bills', 'company_id', $row_cmp, 'company_id', $companyId['id']);
                     $this->updateTables('outwards', 'company_id', $row_cmp, 'company_id', $companyId['id']);
                     $this->updateTables('products', 'company', $row_cmp, 'company', $companyId['id']);
                     $this->updateTables('reference_ids', 'company_id', $row_cmp, 'company_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
                     $this->updateTables('payments', 'receipt_from', $row_cmp, 'receipt_from', $companyId['id']);
-
-
                 }
             }
         } elseif ($companyType->company_type == 3) {
@@ -435,16 +436,8 @@ class LinkCompaniesController extends Controller
                     }
                     $this->updateTables('comboids', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('inwards', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
-                    $this->updateTables('sale_bill', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
-
-
-                    //================= LEFT TO CREATE TABLE =====================
-                    $this->updateTables('payment', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
-
-
+                    $this->updateTables('sale_bills', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
+                    $this->updateTables('payments', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('commissions', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('outwards', 'supplier_id', $row_cmp, 'supplier_id', $companyId['id']);
                     $this->updateTables('products', 'company', $row_cmp, 'company', $companyId['id']);
@@ -478,8 +471,8 @@ class LinkCompaniesController extends Controller
             }
         }
 
-        $linkLastLogsId = linkCompaniesLog::select('id')->orderBy('id', 'DESC')->limit(1)->first();
-        $linkComapniesLogs = new linkCompaniesLog;
+        $linkLastLogsId = LinkCompaniesLog::select('id')->orderBy('id', 'DESC')->limit(1)->first();
+        $linkComapniesLogs = new LinkCompaniesLog;
         $linkComapniesLogs->id = !empty($linkLastLogsId) ? $linkLastLogsId->id + 1 : 1;
         $linkComapniesLogs->company_id = $companyId['id'];
         $linkComapniesLogs->subject = $companyType->name . ' is Link with ' . substr($multiLinkCmpname, 0, -1) . ' Companies.';
@@ -494,8 +487,8 @@ class LinkCompaniesController extends Controller
             'link_companies_id' => 'required',
         ]);
 
-        $linkLastId = linkCompanies::select('id')->orderBy('id', 'DESC')->limit(1)->first();
-        $userGroup = new linkCompanies;
+        $linkLastId = LinkCompanies::select('id')->orderBy('id', 'DESC')->limit(1)->first();
+        $userGroup = new LinkCompanies;
         $userGroup->id = !empty($linkLastId) ? $linkLastId->id + 1 : 1;
         $userGroup->company_id = $request->company_id['id'];
         $userGroup->link_companies_id = $request->link_companies_id['id'];
@@ -520,8 +513,8 @@ class LinkCompaniesController extends Controller
         $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $logs->save();
 
-        $linkLastLogsId = linkCompaniesLog::select('id')->orderBy('id', 'DESC')->limit(1)->first();
-        $linkComapniesLogs = new linkCompaniesLog;
+        $linkLastLogsId = LinkCompaniesLog::select('id')->orderBy('id', 'DESC')->limit(1)->first();
+        $linkComapniesLogs = new LinkCompaniesLog;
         $linkComapniesLogs->id = !empty($linkLastLogsId) ? $linkLastLogsId->id + 1 : 1;
         $linkComapniesLogs->company_id = $request->company_id['id'];
         $linkComapniesLogs->subject = '"'.$request->company_id['company_name'].'" was linked with "'.$request->link_companies_id['company_name'].'".';
@@ -539,7 +532,7 @@ class LinkCompaniesController extends Controller
 
         $id = $request->id;
 
-        $userGroup = linkCompanies::where('id', $id)->first();
+        $userGroup = LinkCompanies::where('id', $id)->first();
         $userGroup->name = $request->name;
         $userGroup->access_permission = json_encode($request->access_permission);
         $userGroup->modify_permission = json_encode($request->modify_permission);
