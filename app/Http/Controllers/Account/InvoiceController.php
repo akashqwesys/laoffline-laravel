@@ -1054,7 +1054,7 @@ class InvoiceController extends Controller
             $invpaymentinfo->received_amount = $new_rec_amount;
 
             $res = DB::table('invoice_payment_details')
-                ->selectRaw('SUM(rec_amount) as total_rec_amount')
+                ->selectRaw('SUM(received_amount) as total_rec_amount')
                 ->where('commission_invoice_id', $invoice_id)
                 ->first();
             $new_total_inv_amount = $res->total_rec_amount;
