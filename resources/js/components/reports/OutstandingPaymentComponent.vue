@@ -210,6 +210,7 @@
                 this.start_date = this.end_date = this.customer = this.agent = this.supplier = '';
                 this.sorting = {id: 5, name: 'Date L -> H'};
                 this.day = {id: 1, name:'All'},
+                $('#salesRegister tbody').html('');
                 this.getData();
             },
             getData() {
@@ -233,92 +234,7 @@
                         window.open(response.data.url, '_blank');
                         return;
                     }
-                    if (response.data.customer_details) {
-                        var customer =  $.map(response.data.customer_details, function(value, index) {
-                            return [value];
-                        });
-                        var salebills =  $.map(response.data.salebill__data, function(value, index) {
-                            return [value];
-                        });
-                        console.log(customer);
-                        const toINR = new Intl.NumberFormat('en-IN', {
-                            // style: 'currency',
-                            // currency: 'INR',
-                            // minimumFractionDigits: 0
-                        });
-                        var html = '';
-                        var morethan = '';
-                        if (this.day != '' && this.day != 0) {
-                            morethan = "( More then "+ this.day.report_days +" Days)";
-                        } else {
-                            morethan = "";
-                        }
-                        var sup="";
-                        var agent="";
-                        if (this.agent == '') {
-                            agent += 'All Agents';  
-                        } else {
-                            agent += this.agent.name;
-                        }
-                        if (this.customer != '') {
-                            sup = "Customer: " + response.data.cus_disp_name + "<br>";
-                        }
-
-                        if (this.supplier != '') {
-                            if(response.data.sup_disp_name) {
-					            sup += "Supplier: "+ response.data.sup_disp_name + "<br>";
-		    				} else {
-					        	sup += "Supplier: " + this.supplier.company_name + "<br>";
-	        				}
-                        }
-
-                        if(this.customer == '' && this.supplier == '') {
-					        sup += "All Parties";
-	        			}
-                        sup += morethan
-
-                        html += `<tr>
-                                    <th colspan="6" class="text-center">${sup}</th>
-                                </tr>
-                                <tr>
-                                    <td colspan="6" class="text-center">${agent}</td>
-                                </tr>
-                                <tr>
-				                    <th>Bill Date</th>
-				                    <th>Sr.</th>
-				                    <th>Bill Amount</th>
-				                    <th>Days</th>
-				                    <th>Purchase Party</th>
-				                    <th>Bill No</th>
-				                </tr>`;
-                        customer.forEach((k, i) => {
-                            html += `
-                                <tr>
-                                    <td colspan="6"></td>
-                                </tr>
-                                <tr>
-                                    <th colspan="2">${k.name}</th>
-                                    <th colspan="6">${k.address}</th>
-                                </tr>`;
-                            salebills.forEach((v, j) => {
-                                    if (j == k.company_id){
-                                        html += `<tr>
-                                        <td>${v.date}</td>
-                                        <td>${v.srno}</td>
-                                        <td>${v.amount}</td>
-                                        <td>${v.numberDays}</td>
-                                        <td>${v.supplier}</td>
-                                        <td>${v.bill_no}</td>
-                                    </tr>`;
-                                    }
-                                    
-                            });
-                            });   
-                        
-                        $('#salesRegister tbody').html(html);
-                    } else {
-                        $('#salesRegister tbody').html('<tr><td colspan="15" class="text-center">No Records Found</td></tr>');
-                    }
+                    $('#salesRegister tbody').html(response.data.maindata);
                 });
             },
             exportSheet() {
