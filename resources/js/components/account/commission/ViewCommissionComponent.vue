@@ -8,7 +8,7 @@
                             <div class="nk-block-head-content">
                                 <h3  class="nk-block-title page-title">View Commission Detail</h3>
                             </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between --> 
+                        </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
@@ -24,12 +24,12 @@
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Supplier : </b> {{ supplier.company_name}} </label>
 				    		        </div>
-                                    
+
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Commission Date : </b> {{ commission.commission_date}} </label>
 				    		        </div>
                                     <div class="col-sm-4">
-				    			        <label class="control-label"><b>Commission Account : </b> {{ commission.commissionaccount.name }} </label>
+				    			        <label class="control-label"><b>Commission Account : </b> {{ commission.commissionaccount ? commission.commissionaccount.name : '' }} </label>
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Recipt Mode : </b> {{ commission.commission_reciept_mode }} </label>
@@ -52,7 +52,7 @@
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Extra Attachment : </b>  </label>
 				    		        </div>
-                                    
+
                                 </div>
                                 <div class="row table-responsive">
                                     <h6>Invoice Details</h6>
@@ -64,7 +64,7 @@
                                                         <th>Received Commission	</th>
                                                         <th>Status</th>
                                                         <th>Remark</th>
-                                                        
+
 							        		        </tr>
                                                 </thead>
                                                 <tbody>
@@ -74,7 +74,6 @@
                                                         <td>{{ commission_invoice.recivedCommission.totalrecived}}</td>
                                                         <td>{{ commission_invoice.status.status }}</td>
                                                         <td>{{ commission_invoice.remark}}</td>
-                                                       
                                                     </tr>
                                                 </tbody>
                                                 <tfoot class="total">
@@ -84,8 +83,6 @@
                                                         <td><b>{{ totalrecivedcommission }}</b></td>
                                                         <td></td>
                                                         <td></td>
-                                                        
-                                                        
                                                     </tr>
                                                 </tfoot>
                                             </table>
@@ -123,13 +120,12 @@
                 customer: [],
                 supplier: [],
                 created_at: '',
-                totalrecivedcommission: '', 
+                totalrecivedcommission: '',
             }
         },
         created() {
              axios.get(`/commission/fetch-commission/${this.id}`)
                 .then(response => {
-                        
                         gData = response.data;
                         let total = 0;
                         this.commission = gData.commission;
@@ -139,20 +135,17 @@
                         this.created_at = gData.created_at;
                         this.commissioninvoice.forEach( value => {
                             total += value.amount;
-                        })
-                        
+                        });
                         this.totalrecivedcommission = total;
-                });    
+                });
         },
         methods: {
-        
         },
         mounted() {
-            
         },
     };
 </script>
-<style >
+<style scoped>
     .user-avatar img{
         width: 100%;
     }

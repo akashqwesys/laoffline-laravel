@@ -265,7 +265,7 @@ class CommissionController extends Controller
         $user = Session::get('user');
         $company_id = $request->session()->get('company');
         $commissioninvoice_id = $request->session()->get('commissioninvoice');
-        
+
         $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $company = Company::where('id', $company_id)->first();
         $agent = Agent::where('is_delete', '0')->get();
@@ -275,7 +275,7 @@ class CommissionController extends Controller
                                 ->where('financial_year_id', $ci['fid'])
                                 ->where('id', $ci['id'])
                                 ->first();
-        
+
             $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid' => $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount);
             $totalrecivedamount = DB::table('commission_details')
                                  ->where('commission_invoice_id', $commissioninvoice->id)
@@ -364,8 +364,8 @@ class CommissionController extends Controller
             $refence->selection_date = Carbon::now()->format('Y-m-d');
             $refence->from_name = $commissionData->fromname;
             $refence->from_email_id = $commissionData->emailfrom;
-            $refence->from_number = $paymentData->whatsapp;
-            $refence->receiver_number = $paymentData->reciveno;
+            $refence->from_number = $commissionData->whatsapp;
+            $refence->receiver_number = $commissionData->reciveno;
             $refence->courier_name = $courier_name;
             $refence->weight_of_parcel = $commissionData->weight;
             $refence->courier_receipt_no = $courier_receipt_no;
@@ -380,7 +380,6 @@ class CommissionController extends Controller
         $nextAutoID = !empty($iuids) ? $iuids->id + 1 : 1;
 
         $companyName = Company::where('id', $request->session()->get('company'))->first();
-
 
         if ($companyName && $companyName->company_type != 0) {
             $companyTypeName = CompanyType::where('id', $companyName->company_type)->first();
@@ -520,8 +519,8 @@ class CommissionController extends Controller
         foreach ($invoiceData as $invoice) {
             $bill_date = Carbon::now()->format('Y-m-d');
             $cheque_date = Carbon::now()->format('Y-m-d');
-            $commissioninvoice = CommissionInvoice::where('id', $invoice->commission_id)->first();
-            
+            $commissioninvoice = CommissionInvoice::where('financial_year_id', $invoice->fid)->where('id', $invoice->commission_id)->first();
+
             $commission_status = $invoice->status->code;
             $commission_pay_amount = $invoice->amount;
             $remark = $invoice->remark ?? 0;
@@ -555,6 +554,9 @@ class CommissionController extends Controller
             $commission_detail->is_deleted = 0;
             $commission_detail->save();
 
+            $commissioninvoice->commission_status = 1;
+            $commissioninvoice->save();
+
         }
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
@@ -581,7 +583,7 @@ class CommissionController extends Controller
         $employees['scope'] = "edit";
         return view('commission.editcommission',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
-    
+
     public function getReferenceForSaleBill(Request $request)
     {
         $customer_id = $request->session()->get('company');
@@ -741,8 +743,8 @@ class CommissionController extends Controller
                 $refence->selection_date = Carbon::now()->format('Y-m-d');
                 $refence->from_name = $commissionData->fromname;
                 $refence->from_email_id = $commissionData->emailfrom;
-                $refence->from_number = $paymentData->whatsapp;
-                $refence->receiver_number = $paymentData->reciveno;
+                $refence->from_number = $commissionData->whatsapp;
+                $refence->receiver_number = $commissionData->reciveno;
                 $refence->courier_name = $courier_name;
                 $refence->weight_of_parcel = $commissionData->weight;
                 $refence->courier_receipt_no = $courier_receipt_no;
@@ -876,6 +878,6 @@ class CommissionController extends Controller
         }
         $data['success'] = 1;
         return $data;
-    } 
+    }
 
 }
