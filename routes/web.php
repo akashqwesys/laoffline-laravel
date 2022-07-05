@@ -374,6 +374,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:acces
     Route::post('/searchcommissioninvoice', [App\Http\Controllers\register\RegisterController::class, 'searchCommissionInvoice']);
     Route::get('/list-agentcourier', [App\Http\Controllers\register\RegisterController::class, 'listAgentCourier']);
     Route::get('/list-suppliers', [App\Http\Controllers\register\RegisterController::class, 'listSuppliers'])->name('list-suppliers');
+    Route::get('/list-companies', [App\Http\Controllers\register\RegisterController::class, 'listCompany'])->name('list-companies');
     Route::get('/list-inwardLinkWith', [App\Http\Controllers\register\RegisterController::class, 'listInwardLinkWith'])->name('list-inwardLinkWith');
     Route::get('/get-reference-details/{type}/{flag}/{refrenceVia}', [App\Http\Controllers\register\RegisterController::class, 'getReferenceDetails'])->name('get-reference-details');
     Route::get('/receiverDetails', [App\Http\Controllers\register\RegisterController::class, 'receiverDetails']);
@@ -783,8 +784,10 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
     Route::post('/list-outstanding-payment-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listOutstandingPaymentData']);
-
+    Route::post('/list-outstanding-payment-month-wise-summery-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listOutstandingPaymentMonthWiseSummeryData']);
+    
     Route::get('/outstanding-payment-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentReport']);
+    Route::get('/outstanding-payment-month-wise-summary-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentMonthWiseSummeryReport']);
 
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);

@@ -23,7 +23,7 @@
                                         <div class="row gy-4">
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label class="form-label" for="fv-customer">Supplier</label>
+                                                    <label class="form-label" for="fv-customer">Company</label>
                                                     <div>
                                                         <multiselect v-model="form.supplier" :options="supplier" placeholder="Select one" label="company_name" track-by="company_name"></multiselect>
                                                     </div>
@@ -177,7 +177,7 @@
                                             <td><input type="checkbox" class="d-block" v-model="selected" :id="itm.id" :value="{'id':itm.id, 'fid':itm.financial_year_id}"  required></td>
 				                            <td>{{ itm.bill_no }}</td>
                                             <td>{{ itm.created_at }}</td>
-                                            <td>{{ itm.bill_date }}</td>
+                                            <td>{{ itm.billdate }}</td>
 	                                     </tr>
                                     </tbody>
                                 </table>
@@ -249,7 +249,7 @@
         created() {
 
             
-            axios.get('/register/list-suppliers')
+            axios.get('/register/list-companies')
             .then(response => {
                 this.supplier = response.data;
             });
