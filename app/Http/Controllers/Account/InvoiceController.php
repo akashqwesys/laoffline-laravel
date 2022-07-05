@@ -230,14 +230,16 @@ class InvoiceController extends Controller
                 "created_at" => $created_at,
                 "company" => $company_row,
                 'agent_id' => $s->agent_name,
-                'total_payment_received_amount' => $s->total_payment_received_amount,
+                // 'total_payment_received_amount' => $s->total_payment_received_amount,
+                'final_amount' => $s->final_amount,
                 'commission_status' => $commission_status,
                 "outward_status" => $outward_status,
                 'due_days' => floor((time() - strtotime($s->bill_date)) / (60 * 60 * 24)),
                 'generated_by' => $s->firstname,
                 "action" => $action
             );
-            $d_total += $s->total_payment_received_amount;
+            // $d_total += $s->total_payment_received_amount;
+            $d_total += $s->final_amount;
         }
         $response = array(
             "draw" => intval($draw),
@@ -386,7 +388,7 @@ class InvoiceController extends Controller
                 $igst_amt = $new_req['igst_amount'];
             }
         }
-        if (isset($new_req['comm_invoice_tds'])) {
+        if (isset($new_req['comm_invoice_tds']) && $new_req['comm_invoice_tds'] == 1) {
             $tds_flag = 1;
             $tds_amt  = $new_req['tds_amount'];
         }
@@ -808,10 +810,11 @@ class InvoiceController extends Controller
             ->where('commission_invoice_id', $id)
             ->get(); */
         $invoice_payment_details = DB::table('invoice_payment_details')
-            ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id')
+            ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id', 'financial_year_id')
             ->where('commission_invoice_id', $id)
             ->get();
-        $p_ids = collect($invoice_payment_details)->pluck('payment_id')->toArray();
+        $p_ids = implode(',', collect($invoice_payment_details)->pluck('payment_id')->toArray());
+        $f_ids = implode(',', collect($invoice_payment_details)->pluck('financial_year_id')->toArray());
 
         $payment_details = DB::table('payments as p')
             ->leftJoin('companies as c', function ($j) {
@@ -819,7 +822,9 @@ class InvoiceController extends Controller
                 ->orOn('p.supplier_id', '=', 'c.id');
             })
             ->select('c.id as company_id', 'c.company_name')
-            ->whereIn('p.payment_id', $p_ids)
+            ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
+            // ->whereIn('p.payment_id', $p_ids)
+            // ->whereIn('p.financial_year_id', $f_ids)
             ->get();
 
         foreach ($invoice_payment_details as $v) {
@@ -828,9 +833,9 @@ class InvoiceController extends Controller
         }
 
         $pay_n_pay_det = DB::table('payments as p')
-            ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
+            ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
-            ->where('p.id', $p_ids)
+            ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
@@ -949,12 +954,12 @@ class InvoiceController extends Controller
                 $igst_amt = $new_req['igst_amount'];
             }
         }
-        if (isset($new_req['comm_invoice_tds'])) {
+        if (isset($new_req['comm_invoice_tds']) && $new_req['comm_invoice_tds'] == 1) {
             $tds_flag = 1;
             $tds_amt  = $new_req['tds_amount'];
         }
         $invoice = CommissionInvoice::where('id', $new_req['id'])->first();
-        $invoice->bill_no            = $new_req['full_bill_no'];
+        // $invoice->bill_no            = $new_req['full_bill_no'];
         $invoice->bill_period_to     = date('Y-m-d', strtotime($new_req['bill_period_to']));
         $invoice->bill_period_from   = date('Y-m-d', strtotime($new_req['bill_period_from']));
         $invoice->bill_date          = date('Y-m-d', strtotime($new_req['invoice_bill_date']));
@@ -1019,16 +1024,15 @@ class InvoiceController extends Controller
 
         $with_without_gst = $invinfo->with_without_gst;
         $total_inv_amount = $amount;
-
         $paymentinfo = DB::table('payments')
-            ->select('receipt_amount')
+            ->select('receipt_amount', /* DB::raw("TO_CHAR(date, 'dd-mm-yyyy') as date") */ 'date')
             ->where('payment_id', $payment_id)
             ->where('financial_year_id', $financial_year_id)
             ->where('is_deleted', 0)
             ->first();
         $receipt_amount = $paymentinfo->receipt_amount;
 
-        $invpaymentinfo = InvoicePaymentDetails::select('id', 'received_amount')
+        $invpaymentinfo = InvoicePaymentDetails::select('id', 'received_amount', 'payment_date', 'updated_at')
             ->where('id', $id)
             ->first();
         $rec_amount = $invpaymentinfo->received_amount;
@@ -1038,12 +1042,12 @@ class InvoiceController extends Controller
             $new_rec_amount       = $rec_amount - $diff_amount;
             $new_total_inv_amount = $total_inv_amount - $diff_amount;
             $invpaymentinfo->received_amount = $new_rec_amount;
-            $invpaymentinfo->save();
+
         } else if ($with_without_gst == 1 && $diff_amount < 0) {
             $new_rec_amount       = $rec_amount + abs($diff_amount);
             $new_total_inv_amount = $total_inv_amount + abs($diff_amount);
             $invpaymentinfo->received_amount = $new_rec_amount;
-            $invpaymentinfo->save();
+
         } else {
             if ($diff_amount >= 0) {
                 $new_rec_amount = $rec_amount - $diff_amount;
@@ -1051,14 +1055,16 @@ class InvoiceController extends Controller
                 $new_rec_amount = $rec_amount + abs($diff_amount);
             }
             $invpaymentinfo->received_amount = $new_rec_amount;
-            $invpaymentinfo->save();
+
             $res = DB::table('invoice_payment_details')
-                ->selectRaw('SUM(rec_amount) as total_rec_amount')
+                ->selectRaw('SUM(received_amount) as total_rec_amount')
                 ->where('commission_invoice_id', $invoice_id)
                 ->first();
             $new_total_inv_amount = $res->total_rec_amount;
         }
-        $data = array("new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount));
+        $invpaymentinfo->payment_date = $paymentinfo->date;
+        $invpaymentinfo->save();
+        $data = array('success' => 1, "new_rec_amount" => $new_rec_amount, "new_total_inv_amount" => round($new_total_inv_amount), 'date' => $paymentinfo->date);
         echo json_encode($data);
         exit;
     }
