@@ -90,7 +90,7 @@
                 <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</b>
             </div>
             <table class="" width="100%">
-                {!! $data['maindata'] !!}
+                {!! $data['table'] !!}
             </table>
         </article>
     </section>

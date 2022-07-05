@@ -17,7 +17,7 @@ use PDF;
 use Excel;
 use App\Exports\OutstandingPaymentExport;
 use App\Exports\PaymentsRegisterExport;
-
+use App\Exports\OutstandingPaymentMonthWiseSummeryExport;
 class PaymentsReportController extends Controller
 {
 
@@ -612,7 +612,7 @@ class PaymentsReportController extends Controller
         if ($request->start_date != '' && $request->end_date != '') {
             $grand_total = 0;
             $date_data=array();
-			$data=array();
+			
 			$maindata=array();
 
             foreach ($date_array as $row_date) {
@@ -762,6 +762,10 @@ class PaymentsReportController extends Controller
             }   
         }
         $data['table'] = $html;
+        $data['maindata'] = $maindata;
+        $data['date_data'] = $date_data;
+        $data['month_data'] = $month_data;
+        $data['grand_total'] = $grand_total;
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.outstanding_payment_month_wise_summery_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);
@@ -771,7 +775,7 @@ class PaymentsReportController extends Controller
             return response()->json(['url' => url('/storage/pdf/outstanding-payment-month-wise-summery-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
             $fileName =  'Outstanding-Payment-Month-Wise-Summery-Report' . time() . '.xlsx';
-            Excel::store(new OutstandingPaymentExport($data, $request), 'excel-sheets/outstanding-payment-month-wise-summery-reports/' . $fileName, 'public');
+            Excel::store(new OutstandingPaymentMonthWiseSummeryExport($data, $request), 'excel-sheets/outstanding-payment-month-wise-summery-reports/' . $fileName, 'public');
             return response()->json(['url' => url('/storage/excel-sheets/outstanding-payment-month-wise-summery-reports/' . $fileName)]);
         } else {
             return response()->json($data);
