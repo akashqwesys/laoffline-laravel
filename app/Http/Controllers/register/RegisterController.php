@@ -161,6 +161,11 @@ class RegisterController extends Controller
         return $suppliers;
     }
 
+    public function listCompany() {
+        $company = Company::where('is_delete', 0)->get();
+        return $company;
+    }
+
     public function receiverDetails() {
         $user = Session::get('user');
         $receiverDetails = Employee::where('is_delete', '0')->where('employees.id', $user->employee_id)->first();
@@ -1386,7 +1391,14 @@ class RegisterController extends Controller
                   ->whereNot('done_outward', 1)
                   ->where('is_deleted', 0)
                   ->get();
-        $data['commissioninvoice'] = $commissioninvoice;
+        $data['commissioninvoice'] = [];
+        if (!empty($commissioninvoice)) {
+            foreach ($commissioninvoice as $invoice) {
+                $billdate = date('d-m-Y', strtotime($invoice->bill_date));
+                $created_at = date_format($invoice->created_at, 'd-m-Y H:m:s');
+                array_push($data['commissioninvoice'], array("id" => $invoice->id, 'financial_year_id' => $invoice->financial_year_id , 'bill_no' => $invoice->bill_no, 'created_at'=> $created_at, 'billdate' => $billdate));
+            } 
+        }
         $data['company'] = $company;
         $data['todaydate'] = Carbon::now()->format('Y-m-d');
         return $data;

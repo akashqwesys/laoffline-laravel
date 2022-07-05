@@ -46,7 +46,7 @@
                                             </tr>
                                             <tr>
                                                 <td>3</td>
-                                                <td><a target="_blank" href="/outstanding_payment_month_wise_summary_report">Outstanding Payment Month Wise Summary Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-payment-month-wise-summary-report">Outstanding Payment Month Wise Summary Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>4</td>
