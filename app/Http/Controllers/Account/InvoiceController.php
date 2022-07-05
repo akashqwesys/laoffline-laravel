@@ -184,7 +184,7 @@ class InvoiceController extends Controller
             if ($s->done_outward == 0) {
                 $outward_status = '<em class="icon ni ni-cross" title="No"></em>';
             } else {
-                $outward_status = '<a href="' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a> ';
+                $outward_status = '<a href="/register/view-outward/' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a> ';
             }
 
             $action = '<a href="/account/commission/invoice/view-invoice/' . $s->id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $s->id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
