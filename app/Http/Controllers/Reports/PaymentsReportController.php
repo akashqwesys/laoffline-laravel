@@ -104,6 +104,31 @@ class PaymentsReportController extends Controller
             return response()->json($data);
         }
     }
+    
+    public function avaPaymentDaysReport(Request $request) {
+        $page_title = 'Avarage Payment Days Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Avarage Payment Days Report / View';
+        $logs->log_subject = 'Outstanding Payments Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.ava_payment_days_report', compact('page_title', 'employees'));
+    }
+
 
     public function outstandingPaymentReport(Request $request) {
         $page_title = 'Outstanding Payments Report';
@@ -780,5 +805,19 @@ class PaymentsReportController extends Controller
         } else {
             return response()->json($data);
         }
+    }
+
+    public function listAvaragePaymentDaysData(Request $request) {
+        $data1 = DB::table('sale_bills')
+        ->select('companies.name', 'sale_bills.sale_bill_id', 'sale_bills.company_id', 'sale_bills.select_date', 'payments.date')
+        ->join('payment_details as pd',function($join) {
+            $join->on('pd.sr_no','=','sale_bills.sale_bill_id')
+            ->on('pd.financial_year_id','=','sale_bills.financial_year_id');
+        })
+        ->join('payments','payments.id','=','payment_details.p_increment_id')
+        ->join('companies','companies.company_id','=','sale_bills.company_id')
+        ->get();
+        print_r($data1);exit;
+ 
     }
 }

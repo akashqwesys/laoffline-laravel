@@ -142,7 +142,7 @@
                                             </tr>
                                             <tr>
                                                 <td>20</td>
-                                                <td><a target="_blank" href="/avg_payment_days">Average Payment Days Report </a></td>
+                                                <td><a target="_blank" href="reports/avg_payment_days-report">Average Payment Days Report </a></td>
                                             </tr>
                                             <tr>
                                                 <td>21</td>
