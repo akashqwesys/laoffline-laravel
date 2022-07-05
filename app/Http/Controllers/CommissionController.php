@@ -350,6 +350,14 @@ class CommissionController extends Controller
                 $courier_received_time = $commissionData->recivedate;
             }
 
+            if ($commissionData->refrencevia->name == 'Whatsapp') {
+                $whatsapp = $commissionData->whatsapp;
+                $reciveno = $commissionData->reciveno;
+            } else {
+                $whatsapp = 0;
+                $reciveno = 0;
+            }
+
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
 
@@ -364,8 +372,8 @@ class CommissionController extends Controller
             $refence->selection_date = Carbon::now()->format('Y-m-d');
             $refence->from_name = $commissionData->fromname;
             $refence->from_email_id = $commissionData->emailfrom;
-            $refence->from_number = $commissionData->whatsapp;
-            $refence->receiver_number = $commissionData->reciveno;
+            $refence->from_number = $whatsapp;
+            $refence->receiver_number = $reciveno;
             $refence->courier_name = $courier_name;
             $refence->weight_of_parcel = $commissionData->weight;
             $refence->courier_receipt_no = $courier_receipt_no;
@@ -554,9 +562,20 @@ class CommissionController extends Controller
             $commission_detail->is_deleted = 0;
             $commission_detail->save();
 
-            $commissioninvoice->commission_status = 1;
+            
+            $commissioninvoice->commission_status = $commission_status;
             $commissioninvoice->save();
 
+            $invoicepayment = DB::table('invoice_payment_details')->where('commission_invoice_id', $invoice->commission_id)->get();
+            foreach ($invoicepayment as $payment) {
+                $payments = Payment::where('payment_id', $payment->payment_id)->where('financial_year_id', $payment->financial_year_id)->first();
+                if ($payment->flag == 1) {
+                    $payments->old_commission_status = $commission_status;
+                } else {
+                    $payments->customer_commission_status = $commission_status;
+                }
+                $payments->save();
+            }
         }
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
@@ -655,7 +674,11 @@ class CommissionController extends Controller
         } else {
             $data['commission']['chequebank'] = '';
         }
-
+        $attch = trim(trim($commission->attachments,'"[\"'), '\"]"');
+        
+        //$item = trim(trim($$commission->attachments,'"'), '\"');
+        
+        $data['commission']['attachment'] = $attch;
         $data['commission']['commissionaccount'] = $commissionacc;
         $data['created_at'] = date_format($commission->created_at,"Y/m/d H:i:s");
         $data['commissioninvoice'] = $commissioninvoice_data;
@@ -828,6 +851,22 @@ class CommissionController extends Controller
             $commission_detail->status = $commission_status;
             $commission_detail->remark = $remark;
             $commission_detail->save();
+            
+            $commissioninvoice = CommissionInvoice::where('financial_year_id', $invoice->fid)->where('id', $invoice->commission_id)->first();
+            $commissioninvoice->commission_status = $commission_status;
+            $commissioninvoice->save();
+
+            $invoicepayment = DB::table('invoice_payment_details')->where('commission_invoice_id', $invoice->commission_id)->get();
+            foreach ($invoicepayment as $payment) {
+                $payments = Payment::where('payment_id', $payment->payment_id)->where('financial_year_id', $payment->financial_year_id)->first();
+                if ($payment->flag == 1) {
+                    $payments->old_commission_status = $commission_status;
+                } else {
+                    $payments->customer_commission_status = $commission_status;
+                }
+                $payments->save();
+            }
+
         }
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');

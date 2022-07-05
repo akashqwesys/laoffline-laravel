@@ -51,7 +51,13 @@
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Extra Attachment : </b>  </label>
-				    		        </div>
+                                            <span v-if="attachments != ''">
+                                                <a :href="'/upload/commission/'+attachments" target="_blank">
+                                                    <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                </a>
+                                        </span>
+                                        <span v-else> - </span>
+                                    </div>
 
                                 </div>
                                 <div class="row table-responsive">
@@ -119,6 +125,8 @@
                 commissioninvoice: [],
                 customer: [],
                 supplier: [],
+                attachments: '',
+                
                 created_at: '',
                 totalrecivedcommission: '',
             }
@@ -133,6 +141,7 @@
                         this.customer = gData.customer;
                         this.supplier = gData.supplier;
                         this.created_at = gData.created_at;
+                        this.attachments = gData.commission.attachment;
                         this.commissioninvoice.forEach( value => {
                             total += value.amount;
                         });

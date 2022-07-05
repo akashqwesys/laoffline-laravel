@@ -332,7 +332,7 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status','payments.old_commission_status' , 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -538,7 +538,7 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.old_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -744,7 +744,7 @@ class PaymentsController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('payments.id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.tot_good_returns','payments.customer_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.tot_good_returns','payments.customer_commission_status' , 'payments.old_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
