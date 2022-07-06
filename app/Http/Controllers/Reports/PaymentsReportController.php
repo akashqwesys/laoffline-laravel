@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Employee;
-use App\Models\settings\Cities;
+use App\Models\Settings\Cities;
 use App\Models\Company\Company;
 use App\Models\LinkCompanies;
 use App\Models\Company\CompanyAddress;
@@ -59,14 +59,14 @@ class PaymentsReportController extends Controller
                 ->leftJoin(DB::raw('(SELECT "name", "id" FROM bank_details group by "name", "id") as "bank"'), 'p.deposite_bank', '=', 'bank.id')
                 ->leftJoin(DB::raw('(SELECT "name", "id" FROM bank_details group by "name", "id") as "cheque_bank"'), 'p.cheque_dd_bank', '=', 'cheque_bank.id')
                 ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, bank.name as bank_name, cheque_bank.name as cheque_bank, p.customer_id, p.supplier_id, to_char(p.date, \'dd-mm-yyyy\') as date, p.payment_id, p.financial_year_id, p.reciept_mode, to_char(p.cheque_date, \'dd-mm-yyyy\') as cheque_date, p.cheque_dd_no, cheque_bank.name as cheque_bank, p.receipt_amount, p.total_amount');
-        
+
         if ($request->customer && $request->customer['id']) {
             $data = $data->where('p.customer_id', $request->customer['id']);
         }
         if ($request->supplier && $request->supplier['id']) {
             $data = $data->where('p.supplier_id', $request->supplier['id']);
         }
-        
+
         if ($request->start_date && $request->end_date) {
             $data = $data->whereBetween('p.date', [$request->start_date, $request->end_date]);
         }
@@ -86,7 +86,7 @@ class PaymentsReportController extends Controller
             }  else if ($sorting == 4) {
                 $data = $data->orderBy('cc.company_name', 'desc');
             }
-            
+
         }
         $data = $data->get();
         if ($request->export_pdf == 1) {
@@ -104,7 +104,7 @@ class PaymentsReportController extends Controller
             return response()->json($data);
         }
     }
-    
+
     public function avaPaymentDaysReport(Request $request) {
         $page_title = 'Avarage Payment Days Report';
         $user = Session::get('user');
@@ -177,7 +177,7 @@ class PaymentsReportController extends Controller
 
         return view('reports.outstanding_payments_month_wise_summery_report', compact('page_title', 'employees'));
     }
-    
+
 
     public function listCities() {
         $cities = Cities::where('is_delete', '0')->get();
@@ -221,16 +221,16 @@ class PaymentsReportController extends Controller
                 foreach ($link_companies as $row_link_companies) {
                     array_push($company, $row_link_companies->link_companies_id);
                 }
-                $data1 = $data1->WhereIn('s.company_id', $company); 
+                $data1 = $data1->WhereIn('s.company_id', $company);
             }
-            
+
             foreach($company as $row) {
                 $companydata = Company::where('id', $row)->select('company_name')->first();
                 if ($companydata) {
                     $company_data[] = $companydata->company_name;
                 }
             }
-            $data['cus_disp_name'] = implode(', ', $company_data);    
+            $data['cus_disp_name'] = implode(', ', $company_data);
         }
         $supplier = array();
         if ($request->supplier && $request->supplier['id']) {
@@ -255,7 +255,7 @@ class PaymentsReportController extends Controller
                 }
                 $data['sup_disp_name'] = implode(',  ', $supplier_data);
             }
-           
+
         }
 
         if ($request->sorting && $request->sorting['id']) {
@@ -296,7 +296,7 @@ class PaymentsReportController extends Controller
         $sup="";
         $agent="";
         if ($request->agent == '') {
-            $agent .= 'All Agents';  
+            $agent .= 'All Agents';
         } else {
             $agent .= $request->agent['name'];
         }
@@ -394,13 +394,13 @@ class PaymentsReportController extends Controller
                 $data[$datas->company_id]['numberDays'][$k] = $numberDays;
                 $data[$datas->company_id]['supplier'][$k] = $datas->supplier_name;
                 $data[$datas->company_id]['bill_no'][$k] = $datas->supplier_invoice_no;
-                
+
             }
         }
         if(!empty($company_id)) {
             $maindata[]=array('company_id'=>$company_id, 'name'=>$company_name, 'address' => $company_address, 'total' => $total);
         }
-        
+
         if(!empty($maindata)) {
             foreach ($maindata as $key => $row) {
                 $company_id1[$key]  = $row['company_id'];
@@ -413,24 +413,24 @@ class PaymentsReportController extends Controller
             } elseif($request->sorting && $sorting == 8) {
                 array_multisort($total1, SORT_DESC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $maindata);
             }
-            
+
             $gtotal = 0;$i = 1;
             foreach($maindata as $row) {
                 if($row['total'] != 0) {
                     if ($request->show_detail == 1) {
-                    
+
                         $html .= '<tr width="100%"><td>'.$i++.'</td>
                         <td>'.$row['name'].'</td>';
-                        
+
                         $ptotal = 0;
                         for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
                             $tr_color='';
-                            $ptotal += $data[$row['company_id']]['amount'][$j]; 
+                            $ptotal += $data[$row['company_id']]['amount'][$j];
                         }
                         $html .= '<td colspan="4">'.$ptotal.'</td></tr>';
-                
-                        $gtotal += $ptotal;        
-                        
+
+                        $gtotal += $ptotal;
+
                     } else {
                         $html .= '<tr width="100%">
                                 <td colspan="6" class="text-center" style="height:35px"></td>
@@ -442,7 +442,7 @@ class PaymentsReportController extends Controller
                         $ptotal = 0;
                         for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
                             $tr_color='';
-                            $ptotal += $data[$row['company_id']]['amount'][$j]; 
+                            $ptotal += $data[$row['company_id']]['amount'][$j];
                             if(isset($data[$row['company_id']]['numberDays'][$j])) {
                                 if($data[$row['company_id']]['numberDays'][$j] >= 90) {
                                     $tr_color="style='color:red'";
@@ -455,7 +455,7 @@ class PaymentsReportController extends Controller
                                         <td>'.$data[$row['company_id']]['supplier'][$j].'</td>
                                         <td>'.$data[$row['company_id']]['bill_no'][$j].'</td>
                                     </tr>';
-                            } 
+                            }
                         }
                         $html .='<tr width="100%">
                             <td><b>Party Total</b></td>
@@ -463,10 +463,10 @@ class PaymentsReportController extends Controller
                             <td><b>'.$ptotal.'</b></td>
                             <td colspan="3"></td>
                         </tr>';
-                
+
                 $gtotal += $ptotal;
             }
-            
+
             }
             }
             if ($request->show_detail == 0) {
@@ -481,8 +481,8 @@ class PaymentsReportController extends Controller
                     <td><b>Grand Total</b></td>
                     <td><b>'.$gtotal.'</b></td>
                 </tr>';
-            } 
-        } else { 
+            }
+        } else {
             $html .='<tr width="100%">
                 <td class="text-center" colspan="6" style="height: 50px;">Record Not Found</td>
             </tr>';
@@ -490,7 +490,7 @@ class PaymentsReportController extends Controller
 
         $data['maindata'] = $html;
         if (!empty($maindata)) {
-            $data['company_data'] = $maindata; 
+            $data['company_data'] = $maindata;
         } else {
             $data['company_data'] = [];
         }
@@ -542,16 +542,16 @@ class PaymentsReportController extends Controller
                 foreach ($link_companies as $row_link_companies) {
                     array_push($company, $row_link_companies->link_companies_id);
                 }
-                $data1 = $data1->WhereIn('s.company_id', $company); 
+                $data1 = $data1->WhereIn('s.company_id', $company);
             }
-            
+
             foreach($company as $row) {
                 $companydata = Company::where('id', $row)->select('company_name')->first();
                 if ($companydata) {
                     $company_data[] = $companydata->company_name;
                 }
             }
-            $data['cus_disp_name'] = implode(', ', $company_data);    
+            $data['cus_disp_name'] = implode(', ', $company_data);
         }
         $supplier = array();
         if ($request->supplier && $request->supplier['id']) {
@@ -576,7 +576,7 @@ class PaymentsReportController extends Controller
                 }
                 $data['sup_disp_name'] = implode(',  ', $supplier_data);
             }
-           
+
         }
 
         if ($request->start_date && $request->end_date) {
@@ -606,7 +606,7 @@ class PaymentsReportController extends Controller
         $sup="";
         $agent="";
         if ($request->agent == '') {
-            $agent .= 'All Agents';  
+            $agent .= 'All Agents';
         } else {
             $agent .= $request->agent['name'];
         }
@@ -633,11 +633,11 @@ class PaymentsReportController extends Controller
                 <tr width="100%">
                     <td colspan="3" class="text-center">'.$agent.'</td>
                 </tr>';
-        
+
         if ($request->start_date != '' && $request->end_date != '') {
             $grand_total = 0;
             $date_data=array();
-			
+
 			$maindata=array();
 
             foreach ($date_array as $row_date) {
@@ -657,7 +657,7 @@ class PaymentsReportController extends Controller
                 $customer_details = $data1->whereRaw("s.select_date::date >= '" . $start_date . "'")
                                 ->whereRaw("s.select_date::date <= '" . $end_date . "'")
                                 ->get();
-                
+
                 foreach ($customer_details as $row_customer) {
                     $cnt = 0;
                     $hincr+=1;
@@ -674,7 +674,7 @@ class PaymentsReportController extends Controller
                     }
                     if($company != $prev_company) {
                         $k=0;
-                        
+
                         $address="";
                         if($row_customer->company_address != '') {
                             $address = $row_customer->company_address;
@@ -691,7 +691,7 @@ class PaymentsReportController extends Controller
                     } else {
                         $k++;
                     }
-                    
+
                     if($row_customer->pending_payment == 0) {
                         $final_amount=$row_customer->total;
                     } else {
@@ -713,7 +713,7 @@ class PaymentsReportController extends Controller
                     $maindata[$temp_month][]=array('month'=>$temp_month, 'company_id'=>$company_id,'name'=>$company_name, 'address' => $company_address, 'party_total'=>$company_total);
                 }
             }
-            
+
             $m = -1;
             if (!empty($date_data)) {
                 foreach($date_data as $row_date) {
@@ -769,7 +769,7 @@ class PaymentsReportController extends Controller
                         } else {
                             $html .= '<tr>
                                         <td colspan="2"><b>'.$row['name'].'</b></td>';
-                            
+
                             $html .= '<td colspan="" class="text-right"><b>'.$row['party_total'].'</b></td>
                                     </tr>';
                         }
@@ -784,7 +784,7 @@ class PaymentsReportController extends Controller
                             <td colspan="2" class="text-right"><b>Grand Total</b></td>
                             <td class="text-right"><b>'.$grand_total.'</b></td>
                         </tr>';
-            }   
+            }
         }
         $data['table'] = $html;
         $data['maindata'] = $maindata;
@@ -818,6 +818,6 @@ class PaymentsReportController extends Controller
         ->join('companies','companies.company_id','=','sale_bills.company_id')
         ->get();
         print_r($data1);exit;
- 
+
     }
 }

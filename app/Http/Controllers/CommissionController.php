@@ -565,7 +565,7 @@ class CommissionController extends Controller
             $commission_detail->is_deleted = 0;
             $commission_detail->save();
 
-            
+
             $commissioninvoice->commission_status = $commission_status;
             $commissioninvoice->save();
 
@@ -631,7 +631,7 @@ class CommissionController extends Controller
                 } else {
                     $empName = "Rec.";
                 }
-                $html .= '<tr><td><div class="custom-control custom-radio"><input class="custom-control-input old-reference" type="radio" name="reference_id_sale_bill" value="' . $row_general_ref->reference_id . '" id="r-' . $row_general_ref->reference_id . '"><label class="custom-control-label" for="r-'.$row_general_ref->reference_id.'"></label></div></td><td>' . $row_general_ref->reference_id . '</td><td>' . $empName . '</td><td>' . date('Y-m-d', strtotime($row_general_ref->created_at)) . '</td><td>' . date('H:i A', strtotime($row_general_ref->created_at)) . '</td></tr>';
+                $html .= '<tr><td><div class="custom-control custom-radio"><input class="custom-control-input old-reference" type="radio" name="reference_id_sale_bill" value="' . $row_general_ref->reference_id . '" id="r-' . $row_general_ref->reference_id . '"><label class="custom-control-label" for="r-'.$row_general_ref->reference_id.'"></label></div></td><td>' . $row_general_ref->reference_id . '</td><td>' . $empName . '</td><td>' . date('d-m-Y', strtotime($row_general_ref->created_at)) . '</td><td>' . date('H:i A', strtotime($row_general_ref->created_at)) . '</td></tr>';
             }
             $html .= '<tr><td colspan="5"><div class="input-group"><input type="text" class="form-control" name="sale_bill_ref_search" id="sale_bill_ref_search" placeholder="Enter Reference Number"><span class="input-group-btn"><button type="button" class="btn btn-primary" id="sale_bill_ref_search_btn">Go</button></span></div></td></tr><tr id="sale_bill_ref_msg"></tr>';
             $html .= '</tbody></table></div></div><label class="col-sm-2 control-label"></label></div>';
@@ -680,9 +680,9 @@ class CommissionController extends Controller
             $data['commission']['chequebank'] = '';
         }
         $attch = trim(trim($commission->attachments,'"[\"'), '\"]"');
-        
+
         //$item = trim(trim($$commission->attachments,'"'), '\"');
-        
+
         $data['commission']['attachment'] = $attch;
         $data['commission']['commissionaccount'] = $commissionacc;
         $data['created_at'] = date_format($commission->created_at,"Y/m/d H:i:s");
