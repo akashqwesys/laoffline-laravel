@@ -332,7 +332,7 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status','payments.old_commission_status' , 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.payment_id', 'payments.financial_year_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status','payments.old_commission_status' , 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -397,19 +397,33 @@ class PaymentsController extends Controller
             if (!$record->old_commission_status) {
                 $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $comissionlink = DB::table('invoice_payment_details')->where('payment_id', $id)->where('financial_year_id', $record->financial_year_id)->first();
+                if (!empty($comissionlink)) {
+                    $commissiondetail = DB::table('commission_details')->where('commission_invoice_id', $comissionlink->commission_invoice_id)->first();
+                    if (!empty($commissiondetail)) {
+                        $commission = DB::table('commissions')->where('id', $commissiondetail->c_increment_id)->first();
+                    }
+                }
+                $scs = '<a href="/commission/view-commission/'.$commission->commission_id.'/'.$commission->financial_year_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $comissionlink = DB::table('invoice_payment_details')->where('payment_id', $id)->where('financial_year_id', $record->financial_year_id)->first();
+                if (!empty($comissionlink)) {
+                    $commissiondetail = DB::table('commission_details')->where('commission_invoice_id', $comissionlink->commission_invoice_id)->first();
+                    if (!empty($commissiondetail)) {
+                        $commission = DB::table('commissions')->where('id', $commissiondetail->c_increment_id)->first();
+                    }
+                }
+                $ccs = '<a href="/commission/view-commission/'.$commission->commission_id.'/'.$commission->financial_year_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if (!$record->done_outward) {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $outwardlink = DB::table('outward_sale_bills')->where('payment_id', $id)->where('is_deleted', 0)->where('financial_year_id', $record->financial_year_id)->first();
+                $outward = '<a href="/register/view-outward/'.$outwardlink->outward_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
-
             $action = '<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="/payments/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
@@ -538,7 +552,7 @@ class PaymentsController extends Controller
 
 
         // Fetch records
-        $records = $records->select('payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.old_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.payment_id', 'payments.financial_year_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.customer_commission_status', 'payments.old_commission_status', 'payments.done_outward', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -604,17 +618,32 @@ class PaymentsController extends Controller
             if (!$record->old_commission_status) {
                 $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $comissionlink = DB::table('invoice_payment_details')->where('payment_id', $id)->where('financial_year_id', $record->financial_year_id)->first();
+                if (!empty($comissionlink)) {
+                    $commissiondetail = DB::table('commission_details')->where('commission_invoice_id', $comissionlink->commission_invoice_id)->first();
+                    if (!empty($commissiondetail)) {
+                        $commission = DB::table('commissions')->where('id', $commissiondetail->c_increment_id)->first();
+                    }
+                }
+                $scs = '<a href="/commission/view-commission/'.$commission->commission_id.'/'.$commission->financial_year_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $comissionlink = DB::table('invoice_payment_details')->where('payment_id', $id)->where('financial_year_id', $record->financial_year_id)->first();
+                if (!empty($comissionlink)) {
+                    $commissiondetail = DB::table('commission_details')->where('commission_invoice_id', $comissionlink->commission_invoice_id)->first();
+                    if (!empty($commissiondetail)) {
+                        $commission = DB::table('commissions')->where('id', $commissiondetail->c_increment_id)->first();
+                    }
+                }
+                $ccs = '<a href="/commission/view-commission/'.$commission->commission_id.'/'.$commission->financial_year_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if (!$record->done_outward) {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $outwardlink = DB::table('outward_sale_bills')->where('payment_id', $id)->where('is_deleted', 0)->where('financial_year_id', $record->financial_year_id)->first();
+                $outward = '<a href="/register/view-outward/'.$outwardlink->outward_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
 
             $action = '<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
@@ -744,7 +773,7 @@ class PaymentsController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('payments.id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.tot_good_returns','payments.customer_commission_status' , 'payments.old_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.id', 'payments.financial_year_id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.tot_good_returns','payments.customer_commission_status' , 'payments.old_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -779,7 +808,7 @@ class PaymentsController extends Controller
                             ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
                             ->where('ca.company_id', $record->supplier_id)
                             ->get();
-
+            
             $action = '';
             $id = $record->payment_id;
             if ($record->reciept_mode == 'fullreturn') {
@@ -816,17 +845,32 @@ class PaymentsController extends Controller
             if (!$record->old_commission_status) {
                 $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $scs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $comissionlink = DB::table('invoice_payment_details')->where('payment_id', $id)->where('financial_year_id', $record->financial_year_id)->first();
+                if (!empty($comissionlink)) {
+                    $commissiondetail = DB::table('commission_details')->where('commission_invoice_id', $comissionlink->commission_invoice_id)->first();
+                    if (!empty($commissiondetail)) {
+                        $commission = DB::table('commissions')->where('id', $commissiondetail->c_increment_id)->first();
+                    }
+                }
+                $scs = '<a href="/commission/view-commission/'.$commission->commission_id.'/'.$commission->financial_year_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if (!$record->customer_commission_status) {
                 $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $ccs = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $comissionlink = DB::table('invoice_payment_details')->where('payment_id', $id)->where('financial_year_id', $record->financial_year_id)->first();
+                if (!empty($comissionlink)) {
+                    $commissiondetail = DB::table('commission_details')->where('commission_invoice_id', $comissionlink->commission_invoice_id)->first();
+                    if (!empty($commissiondetail)) {
+                        $commission = DB::table('commissions')->where('id', $commissiondetail->c_increment_id)->first();
+                    }
+                }
+                $ccs = '<a href="/commission/view-commission/'.$commission->commission_id.'/'.$commission->financial_year_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if (!$record->done_outward) {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $outwardlink = DB::table('outward_sale_bills')->where('payment_id', $id)->where('is_deleted', 0)->where('financial_year_id', $record->financial_year_id)->first();
+                $outward = '<a href="/register/view-outward/'.$outwardlink->outward_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             if ($record->reciept_mode == 'partreturn' || $record->reciept_mode == 'fullreturn') {
                 $goodretun = GoodsReturn::where('p_increment_id', $record->id)

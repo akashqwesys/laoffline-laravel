@@ -409,8 +409,8 @@ const routes = [
         children: [
             { path: 'create-commission', component: CreateCommissionComponent },
             { path: 'add-commission', component: AddCommissionComponent },
-            { path: 'edit-commission/:id', component: AddCommissionComponent },
-            { path: 'view-commissiom/:id', component: ViewCommissionComponent },
+            { path: 'edit-commission/:id/:fid', component: AddCommissionComponent },
+            { path: 'view-commissiom/:id/:fid', component: ViewCommissionComponent },
         ]
     },
     {

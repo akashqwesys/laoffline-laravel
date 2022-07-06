@@ -118,6 +118,7 @@
         name: 'payment',
         props: {
             id: Number,
+            fid: Number,
         },
         data() {
             return {
@@ -132,7 +133,7 @@
             }
         },
         created() {
-             axios.get(`/commission/fetch-commission/${this.id}`)
+             axios.get(`/commission/fetch-commission/${this.id}/${this.fid}`)
                 .then(response => {
                         gData = response.data;
                         let total = 0;

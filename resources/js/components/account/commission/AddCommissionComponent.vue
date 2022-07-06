@@ -390,6 +390,7 @@
         props: {
             scope: String,
             id: Number,
+            fid: Number,
         },
         data() {
             return {
@@ -762,7 +763,7 @@
             });
             switch (this.scope) {
                 case 'edit' :
-                    axios.get(`/commission/fetch-commission/${this.id}`)
+                    axios.get(`/commission/fetch-commission/${this.id}/${this.fid}`)
                     .then(response => {
                         let comm_status = '';
                         gData = response.data;

@@ -750,11 +750,11 @@ Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:acc
     Route::get('/', [App\Http\Controllers\CommissionController::class, 'index'])->name('commission');
     Route::get('/list-company', [App\Http\Controllers\CommissionController::class, 'listCompany'])->name('listComapany');
     Route::get('/list', [App\Http\Controllers\CommissionController::class, 'listCommission'])->name('list');
-    Route::get('/view-commission/{id}', [App\Http\Controllers\CommissionController::class, 'viewCommission']);
+    Route::get('/view-commission/{id}/{fid}', [App\Http\Controllers\CommissionController::class, 'viewCommission']);
     Route::get('/getbasicdata', [App\Http\Controllers\CommissionController::class, 'getBasicData']);
     Route::get('/list-data', [App\Http\Controllers\CommissionController::class, 'listData'])->name('list-data');
     Route::get('/getReferenceForSaleBill', [App\Http\Controllers\CommissionController::class, 'getReferenceForSaleBill']);
-    Route::get('/fetch-commission/{id}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
+    Route::get('/fetch-commission/{id}/{fid}', [App\Http\Controllers\CommissionController::class, 'fetchCommission']);
 });
 
 Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:modify-commission']], function () {
@@ -765,8 +765,8 @@ Route::group(['prefix' => 'commission', 'middleware' => ['auth', 'permission:mod
     Route::post('/create', [App\Http\Controllers\CommissionController::class, 'insertCommission']);
     Route::post('/update', [App\Http\Controllers\CommissionController::class, 'updateCommission']);
     Route::post('/update-invoice-remarks', [App\Http\Controllers\CommissionController::class, 'updateInvoiceRemarks']);
-    Route::get('/edit-commission/{id}', [App\Http\Controllers\CommissionController::class, 'editCommission']);
-    Route::get('/delete/{id}', [App\Http\Controllers\CommissionController::class, 'deleteCommission'])->name('delete');
+    Route::get('/edit-commission/{id}/{fid}', [App\Http\Controllers\CommissionController::class, 'editCommission']);
+    Route::get('/delete/{id}/{fid}', [App\Http\Controllers\CommissionController::class, 'deleteCommission'])->name('delete');
 });
 
 Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access-reports']], function () {

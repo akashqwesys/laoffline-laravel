@@ -170,7 +170,7 @@ class CommissionController extends Controller
             $seller = Company::where('id', $record->supplier_id)->first();
             $seller_id = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
             $paid_amount = $record->received_commission_amount;
-            if ($record->is_completed == '1') {
+            if ($record->is_completed == 1) {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             } else {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
@@ -178,11 +178,12 @@ class CommissionController extends Controller
             if (!$record->done_outward) {
                 $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-cross"></em></a>';
             } else {
-                $outward = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
+                $outwardlink = DB::table('outward_sale_bills')->where('commission_id', $id)->where('is_deleted', 0)->where('financial_year_id', $record->financial_year_id)->first();
+                $outward = '<a href="/register/view-outward/'.$outwardlink->outward_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             $color_flag_id = $record->color_flag_id;
-            $action = '<a href="/commission/view-commission/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="/commission/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+            $action = '<a href="/commission/view-commission/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
+            <a href="/commission/delete/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
@@ -227,9 +228,11 @@ class CommissionController extends Controller
     public function searchCommissionInvoice(Request $request) {
         $company_id = $request->input('company');
         $user = Session::get('user');
+        $commissioninvoicedone = DB::table('commission_details')->select('commission_invoice_id')->where('is_deleted',0)->pluck('commission_invoice_id')->toArray();
         $commissioninvoice = DB::table('commission_invoices')
                     ->where('supplier_id', $company_id)
                     ->where('commission_status', 0)
+                    ->whereNot('id', $commissioninvoicedone)
                     ->orderBy('id', 'desc')
                     ->get();
         $commissioninvoices = array();
@@ -594,11 +597,13 @@ class CommissionController extends Controller
     public function editCommission(Request $request) {
         $page_title = 'Edit Commission';
         $id = $request->id;
+        $fid = $request->fid;
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
         $employees['editedId'] = $id;
+        $employees['fid'] = $fid;
         $employees['scope'] = "edit";
         return view('commission.editcommission',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
@@ -634,8 +639,8 @@ class CommissionController extends Controller
         return $html;
     }
 
-    public function fetchCommission($id) {
-        $commission = commission::where('commission_id', $id)->where('financial_year_id', Session::get('user')->financial_year_id)->first();
+    public function fetchCommission($id, $fid) {
+        $commission = commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
         $supplier = Company::where('id', $commission->supplier_id)->first();
         $customer = Company::where('id', $commission->customer_id)->first();
         $deposite = BankDetails::where('id', $commission->deposite_bank)->first();
@@ -851,7 +856,7 @@ class CommissionController extends Controller
             $commission_detail->status = $commission_status;
             $commission_detail->remark = $remark;
             $commission_detail->save();
-            
+
             $commissioninvoice = CommissionInvoice::where('financial_year_id', $invoice->fid)->where('id', $invoice->commission_id)->first();
             $commissioninvoice->commission_status = $commission_status;
             $commissioninvoice->save();
@@ -881,18 +886,19 @@ class CommissionController extends Controller
         $logs->save();
     }
 
-    public function viewCommission($id) {
+    public function viewCommission($id, $fid) {
         $page_title = 'View Commission';
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
         $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
         $employees['id'] = $id;
+        $employees['fid'] = $fid;
         return view('commission.viewcommission',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    public function deleteCommission($id){
-        $commissions = commission::where('commission_id', $id)->first();
+    public function deleteCommission($id, $fid){
+        $commissions = commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
         $commissions->is_deleted = 1;
         $commissions->save();
     }
