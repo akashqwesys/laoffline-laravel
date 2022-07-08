@@ -17,6 +17,7 @@ use PDF;
 use Excel;
 use App\Exports\OutstandingPaymentExport;
 use App\Exports\PaymentsRegisterExport;
+use App\Exports\AvaragePaymentDaysExport;
 use App\Exports\OutstandingPaymentMonthWiseSummeryExport;
 class PaymentsReportController extends Controller
 {
@@ -809,15 +810,114 @@ class PaymentsReportController extends Controller
 
     public function listAvaragePaymentDaysData(Request $request) {
         $data1 = DB::table('sale_bills')
-        ->select('companies.name', 'sale_bills.sale_bill_id', 'sale_bills.company_id', 'sale_bills.select_date', 'payments.date')
-        ->join('payment_details as pd',function($join) {
-            $join->on('pd.sr_no','=','sale_bills.sale_bill_id')
-            ->on('pd.financial_year_id','=','sale_bills.financial_year_id');
-        })
-        ->join('payments','payments.id','=','payment_details.p_increment_id')
-        ->join('companies','companies.company_id','=','sale_bills.company_id')
-        ->get();
-        print_r($data1);exit;
+            ->select('companies.company_name', 'sale_bills.sale_bill_id', 'sale_bills.financial_year_id', 'sale_bills.company_id', 'sale_bills.select_date', 'payments.date')
+            ->join('payment_details as pd',function($join) {
+                $join->on('pd.sr_no','=','sale_bills.sale_bill_id') 
+                    ->on('pd.financial_year_id','=','sale_bills.financial_year_id');
+                })
+            ->join('payments','payments.id','=','pd.p_increment_id')
+            ->join('companies','companies.id','=','sale_bills.company_id')
+            ->where('sale_bills.is_deleted', 0)
+            ->where('payments.is_deleted', 0)
+            ->where('pd.is_deleted', 0);
+        
+        if ($request->customer && $request->customer['id']) {
+            $data1 = $data1->where('sale_bills.company_id', $request->customer['id']);
+        }
 
+        if ($request->supplier && $request->supplier['id']) {
+            $data1 = $data1->where('sale_bills.supplier_id', $request->supplier['id']);
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("sale_bills.select_date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("sale_bills.select_date::date <= '" . $request->end_date . "'");
+        }
+
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 1) {
+                $data1 = $data1->orderBy('companies.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data = $data1->orderBy('companies.company_name', 'desc');
+            } 
+        }
+        $data1 = $data1->get();
+        $data1 = collect($data1)->groupBy('company_id');
+        
+        $companydata = array();
+        foreach($data1 as $key => $company) {
+            $companydetail = array();
+            
+            $noofbill = count($company);
+            $totalday = 0;
+            foreach ($company as $c) {
+                $companyname = $c->company_name;
+                $billdate = strtotime($c->select_date);
+                $paymentdate = strtotime($c->date);
+                $diff = $paymentdate - $billdate;
+                $day = $diff / 84600;
+                $totalday += $day;
+            }
+            $avaragedays = $totalday / $noofbill;
+            $company_detail['company_id'] = $key;
+            $company_detail['company_name'] = $companyname;
+            $company_detail['totalbill'] = $noofbill;
+            $company_detail['avarageday'] = floor($avaragedays);
+            array_push($companydata, $company_detail);
+        }
+        
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 3) {
+                usort($companydata, function ($item1, $item2) {
+                    if ($item1['avarageday'] == $item2['avarageday']) return 0;
+                    return $item1['avarageday'] < $item2['avarageday'] ? -1 : 1;
+                });
+            } else if ($sorting == 4) {
+                usort($companydata, function ($item1, $item2) {
+                    if ($item1['avarageday'] == $item2['avarageday']) return 0;
+                    return $item1['avarageday'] > $item2['avarageday'] ? -1 : 1;
+                });
+            }
+        }
+        $html = '';
+
+        if (!empty($companydata)) {
+            $i = 1;
+            $html .= '<tr>
+                <td><b>No</b></td>
+                <td><b>Company Name</b></td>
+                <td><b>Avarage Days</b></td>
+            </tr>';
+            foreach ($companydata as $cd) {
+                $html .= '<tr>
+                            <td>'.$i++.'</td>
+                            <td>'.$cd['company_name'].'</td>
+                            <td>'.$cd['avarageday'].' Days</td>
+                        </tr>';
+            }
+        } else {
+            $html .= '<tr>
+            <td colspan=3>No Data Found<td>
+            </tr>';
+        }
+        $data['company_data'] = $companydata;
+        $data['table'] = $html;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.avarage_payments_days_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/avarage-payment-days-reports');
+            $fileName =  'Avarage-Payment-Days-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/avarage-payment-days-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Avarage-Payment-Days-Report' . time() . '.xlsx';
+            Excel::store(new AvaragePaymentDaysExport($data, $request), 'excel-sheets/avarage-payment-days-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/avarage-payment-days-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+        return response()->json($data);
     }
 }

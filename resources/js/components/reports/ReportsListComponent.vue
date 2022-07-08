@@ -77,7 +77,8 @@
                                                 <td></td>
                                                 <td>
                                                     <ul>
-                                                        <li style="list-style: decimal;"><a href="/outstanding_commission_report" target="_blank"> Supplier </a></li> <li style="list-style: decimal;"><a href="/outstanding_cust_commission_report" target="_blank"> Customer </a></li>
+                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/supplier" target="_blank"> Supplier </a></li> 
+                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/customer" target="_blank"> Customer </a></li>
                                                     </ul>
                                                 </td>
                                             </tr>
