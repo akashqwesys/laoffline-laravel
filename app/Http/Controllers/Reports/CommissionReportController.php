@@ -154,6 +154,9 @@ class CommissionReportController extends Controller
                 ->setOptions(['defaultFont' => 'sans-serif']);
             $path = storage_path('app/public/pdf/commission-register-reports');
             $fileName =  'Commission-Register-Report-' . time() . '.pdf';
+            if ($request->show_detail == 0) {
+                $pdf = $pdf->setPaper('a4', 'landscape');
+            }
             $pdf->save($path . '/' . $fileName);
             return response()->json(['url' => url('/storage/pdf/commission-register-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {

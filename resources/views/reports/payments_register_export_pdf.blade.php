@@ -83,7 +83,7 @@
                 <img src="/assets/images/logo_report.png" alt="Logo">
             </div>
             <div class="text-center">
-                <b class="mt-2" style="font-size: 14px;">Payments REGISTER REPORT</b>
+                <b class="mt-2" style="font-size: 14px;">PAYMENTS REGISTER REPORT</b>
                 <br>
                 <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</b>
             </div>
@@ -128,7 +128,7 @@
                         <td>{{ $d->customer_name }}</td>
                         <td>{{ $d->date }}</td>
                         <td>{{ $d->reciept_mode }}</td>
-                        <th>{{ $d->bank_name }}</td>
+                        <td>{{ $d->bank_name }}</td>
                         <td>{{ $cheque_date }}</td>
                         <td>{{ $cheque_dd_no }}</td>
                         <td>{{ $cheque_bank }}</td>

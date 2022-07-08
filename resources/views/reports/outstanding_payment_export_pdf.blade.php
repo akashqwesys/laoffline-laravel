@@ -85,7 +85,7 @@
                 <img src="/assets/images/logo_report.png" alt="Logo">
             </div>
             <div class="text-center">
-                <b class="mt-2" style="font-size: 14px;">COMMISSION REGISTER REPORT</b>
+                <b class="mt-2" style="font-size: 14px;">OUTSTANDING PAYMENTS REPORT</b>
                 <br>
                 <b class="mb-4" style="font-size: 12px;">{{ date('d-m-Y', strtotime($request->start_date)) . ' TO ' . date('d-m-Y', strtotime($request->end_date)) }}</b>
             </div>

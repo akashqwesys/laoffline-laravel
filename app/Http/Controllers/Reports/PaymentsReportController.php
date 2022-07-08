@@ -95,6 +95,7 @@ class PaymentsReportController extends Controller
                 ->setOptions(['defaultFont' => 'sans-serif']);
             $path = storage_path('app/public/pdf/payments-register-reports');
             $fileName =  'Payments-Register-Report-' . time() . '.pdf';
+            $pdf = $pdf->setPaper('a4', 'landscape');
             $pdf->save($path . '/' . $fileName);
             return response()->json(['url' => url('/storage/pdf/payments-register-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
@@ -337,7 +338,7 @@ class PaymentsReportController extends Controller
             $html .='<tr width="100%">
                         <th>No.</th>
                         <th>Name</th>
-                        <th>Party Amount</th>
+                        <th colspan="4">Party Amount</th>
                 </tr>';
         }
         $data1 = $data1->get();
@@ -435,11 +436,19 @@ class PaymentsReportController extends Controller
                     } else {
                         $html .= '<tr width="100%">
                                 <td colspan="6" class="text-center" style="height:35px"></td>
-                            </tr>
-                            <tr width="100%">
-                                <td colspan="2"><b>'.$row['name'].'</b></td>
-                                <td colspan="4"><b>'.$row['address'].'</b></td>
                             </tr>';
+                            if ($request->export_pdf == 1) {
+                                $html .='<tr width="100%">
+                                            <td colspan="6"><b>Customer : '.$row['name'].'</b></td>
+                                        </tr><tr>
+                                            <td colspan="6"><b>Address : '.$row['address'].'</b></td>
+                                        </tr>';
+                            } else {
+                                $html .='<tr width="100%">
+                                    <td colspan="2"><b>'.$row['name'].'</b></td>
+                                    <td colspan="4"><b>'.$row['address'].'</b></td>
+                                    </tr>';
+                            }
                         $ptotal = 0;
                         for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
                             $tr_color='';
@@ -449,9 +458,13 @@ class PaymentsReportController extends Controller
                                     $tr_color="style='color:red'";
                                 }
                                     $html .='<tr width="100%"'.$tr_color.'>
-                                        <td>'.$data[$row['company_id']]['date'][$j].'</td>
-                                        <td><a target="_blank" href="/sale_bill/viewbill/"'.$data[$row['company_id']]['srno'][$j].'/'.$data[$row['company_id']]['financial_year_id'][$j].'>'.$data[$row['company_id']]['srno'][$j].'</a></td>
-                                        <td>'.$data[$row['company_id']]['amount'][$j].'</td>
+                                        <td>'.$data[$row['company_id']]['date'][$j].'</td>';
+                                    if ($request->export_pdf == 1) {
+                                        $html .= '<td>'.$data[$row['company_id']]['srno'][$j].'</td>';
+                                    } else {
+                                        $html .= '<td><a target="_blank" href="/sale_bill/viewbill/"'.$data[$row['company_id']]['srno'][$j].'/'.$data[$row['company_id']]['financial_year_id'][$j].'>'.$data[$row['company_id']]['srno'][$j].'</a></td>';
+                                    }
+                                    $html .= '<td>'.$data[$row['company_id']]['amount'][$j].'</td>
                                         <td>'.$data[$row['company_id']]['numberDays'][$j].'</td>
                                         <td>'.$data[$row['company_id']]['supplier'][$j].'</td>
                                         <td>'.$data[$row['company_id']]['bill_no'][$j].'</td>
@@ -721,9 +734,6 @@ class PaymentsReportController extends Controller
                     $m++;
                     if(isset($data[$row_date]) && is_array($data[$row_date]) && count($data[$row_date]) != 0) {
                         $html .= '<tr>
-                                    <td height="35" colspan="3"></td>
-                                </tr>
-                                <tr>
                                     <td colspan="3" class="text-center"><b style="font-size: 20px">'.$row_date.'</b></td>
                                 </tr>';
                         $month1=array(); $company_id1=array();	$name1=array();	$address1=array();
@@ -778,6 +788,9 @@ class PaymentsReportController extends Controller
                         $html .= '<tr>
                                     <td colspan="2" class="text-right"><b>Month Total</b></td>
                                     <td class="text-right"><b>'.$month_data[$row_date].'</b></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
                                 </tr>';
                     }
                 }
@@ -892,9 +905,14 @@ class PaymentsReportController extends Controller
             </tr>';
             foreach ($companydata as $cd) {
                 $html .= '<tr>
-                            <td>'.$i++.'</td>
-                            <td>'.$cd['company_name'].'</td>
-                            <td>'.$cd['avarageday'].' Days</td>
+                            <td>'.$i++.'</td>';
+                        if ($request->export_pdf != 1) {
+                            $html.= '<td><a href="#" class="view-details" data-id="'.$cd['company_id'].'">'.$cd['company_name'].'</a></td>';
+                        } else {
+                            $html.= '<td>'.$cd['company_name'].'</td>';
+                        }
+                    
+                    $html .='<td>'.$cd['avarageday'].' Days</td>
                         </tr>';
             }
         } else {

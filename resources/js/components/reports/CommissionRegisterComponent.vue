@@ -284,7 +284,7 @@
                                     <td align="right">${tservice_tax}</td>
                                 </tr>`;
                         
-                        var cheque_date = '',company = '', bank_name= '', cheque_dd_no = '', cheque_bank = '';
+                        var cheque_date = '',company = '', bank_name= '', cheque_dd_no = '', cheque_bank = '', company_id= '';
                         response.data.forEach((k, i) => {
                                 let commission_payment_amount = k.commission_payment_amount;
                                 if (!commission_payment_amount) {
@@ -313,13 +313,15 @@
                                 }
                                 if (k.customer_id == 0) {
                                     company = k.supplier_name;
+                                    company_id = k.supplier_id;
                                 } else if (k.supplier_id == 0) {
                                     company = k.customer_name;
+                                    company_id = k.customer_name;
                                 }
 
                                 html += `<tr>
-                                    <td align="left">${k.commission_id}</td>
-                                    <td align="left">${company}</td>
+                                    <td align="left"><a href="/commission/view-commission/${k.commission_id}/${k.financial_year_id}">${k.commission_id}</a></td>
+                                    <td align="left"><a href="#" class="view-details" data-id="${company_id}">${company}</a></td>
                                     <td align="left">${k.commission_date}</td>
                                     <td align="left">${k.agent}</td>
                                     <td align="left">${k.commission_reciept_mode}</td>
