@@ -209,8 +209,8 @@ class SalesReportController extends Controller
         }
         if ($request['show_detail'] == 1) {
             $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0')
-                ->groupByRaw('c.company_name, s.company_id, s.select_date')
-                ->orderByRaw('c.company_name, s.select_date asc');
+                ->groupByRaw('c.company_name, s.company_id')
+                ->orderByRaw('c.company_name asc');
         } else {
             $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
                 ->groupByRaw('s.company_id, s.supplier_id, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.received_payment, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name')
@@ -237,6 +237,7 @@ class SalesReportController extends Controller
         } else {
             if ($request['show_detail'] == 1) {
                 $data_all = $data->get();
+                return response()->json($data_all);
             } else {
                 $data_all = $data->get();
                 $total_pieces = $total_meters = $net_total = $received_total = $gross_total = 0;

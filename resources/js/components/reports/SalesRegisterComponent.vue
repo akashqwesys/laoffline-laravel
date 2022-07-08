@@ -14,7 +14,8 @@
                                     <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1"
                                         data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
                                     <div class="toggle-expand-content" data-content="pageMenu">
-                                        <button class="btn btn-primary mr-2" @click="exportSheet()">Export Sheet</button>
+                                        <button class="btn btn-primary mr-2" @click="exportSheet()">Export
+                                            Sheet</button>
                                         <button class="btn btn-primary" @click="exportPDF()">Export PDF</button>
                                         <ul class="nk-block-tools g-3">
                                             <li class="nk-block-tools-opt">
@@ -86,8 +87,8 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="table-responsive">
-                                    <table id="salesRegisterDT" class="table table-hover table-bordered-" v-if="detailed_table == true">
+                                <div class="table-responsive" id="salesRegisterDT-div">
+                                    <table id="salesRegisterDT" class="table table-hover table-bordered-">
                                         <thead>
                                             <tr class="">
                                                 <th width="8%">Date</th>
@@ -108,7 +109,9 @@
                                             </tr>
                                         </thead>
                                     </table>
-                                    <table v-else id="salesRegister" class="table table-hover table-bordered-">
+                                </div>
+                                <div class="table-responsive" id="salesRegister-div">
+                                    <table id="salesRegister" class="table table-hover table-bordered-">
                                         <thead>
                                             <tr class="">
                                                 <th>No</th>
@@ -194,6 +197,10 @@
                 this.start_date = this.end_date = this.customer = this.supplier = '';
                 this.payment_status = { id: 0, name: 'All' };
                 this.show_detail = 0;
+                // this.detailed_table = true;
+                $('#salesRegisterDT-div').show();
+                $('#salesRegister-div').hide();
+                this.dt_table.ajax.reload();
             },
             init_dt_table () {
                 var self = this;
@@ -246,13 +253,7 @@
                     alert('Please Select Both Start Date & End Date');
                     return false;
                 }
-                if (this.show_detail == 1) {
-                    // this.dt_table.destroy();
-                    this.detailed_table = false;
-                } else {
-                    this.detailed_table = true;
-                }
-                if (this.export_sheet == 1 || this.export_pdf == 1) {
+                if (this.export_sheet == 1 || this.export_pdf == 1 || this.show_detail == 1) {
                     axios.get('/reports/list-sales-register-data', {
                         params: {
                             start_date: this.start_date,
@@ -260,16 +261,48 @@
                             customer: this.customer,
                             supplier: this.supplier,
                             payment_status: this.payment_status,
-                            show_detail: this.show_detail,
+                            show_detail: this.show_detail == true ? 1 : 0,
                             export_sheet: this.export_sheet,
                             export_pdf: this.export_pdf
                         }
                     })
                     .then(response => {
-                        this.export_sheet = this.export_pdf = 0;
-                        window.open(response.data.url, '_blank');
+                        if (this.show_detail == 1) {
+                            // this.detailed_table = false;
+                            $('#salesRegisterDT-div').hide();
+                            $('#salesRegister-div').show();
+                            if (response.data.length > 0) {
+                                const toINR = new Intl.NumberFormat('en-IN', {});
+                                var net_total = 0, received_total = 0, html = '';
+                                response.data.forEach((k, i) => {
+                                    net_total += parseFloat(k.total);
+                                    received_total += parseFloat(k.received_payment);
+                                    html += `<tr>
+                                        <td class=""> ${i + 1} </td>
+                                        <td class=""> <a href="#" class="view-details" data-id="${k.company_id}"> ${k.company_name} </a> </td>
+                                        <td class="text-right"> ${toINR.format(k.total)} </td>
+                                        <td class="text-right"> ${toINR.format(k.received_payment)} </td>
+                                    </tr>`;
+                                });
+                                html += `<tr>
+                                        <th class=""> Total</th>
+                                        <th class=""> </th>
+                                        <th class="text-right"> ${toINR.format(net_total)} </th>
+                                        <th class="text-right"> ${toINR.format(received_total)} </th>
+                                    </tr>`;
+                                $('#salesRegister tbody').html(html);
+                            } else {
+                                $('#salesRegister tbody').html('<tr><td colspan="4" class="text-center">No Records Found</td></tr>');
+                            }
+                        } else {
+                            this.export_sheet = this.export_pdf = 0;
+                            window.open(response.data.url, '_blank');
+                        }
                     });
                 } else {
+                    // this.detailed_table = true;
+                    $('#salesRegisterDT-div').show();
+                    $('#salesRegister-div').hide();
                     this.dt_table.ajax.reload();
                 }
             },
