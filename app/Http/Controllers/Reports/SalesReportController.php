@@ -328,35 +328,41 @@ class SalesReportController extends Controller
 
     public function listConsolidateMonthlySales(Request $request)
     {
-        $data = DB::table('sale_bills')
-            ->selectRaw("date_trunc('month', select_date)::date as month_begin, (date_trunc('month', select_date) + interval '1 month -1 day')::date as month_end, SUM(total) as total_payment, SUM(CASE WHEN pending_payment = 0 and payment_status = 0 THEN total WHEN pending_payment <> 0 and payment_status = 0 THEN pending_payment ELSE 0 END) AS total_pending, SUM(received_payment) as total_received");
+        $data = DB::table('sale_bills as s')
+            ->selectRaw("date_trunc('month', s.select_date)::date as month_begin, (date_trunc('month', s.select_date) + interval '1 month -1 day')::date as month_end, SUM(s.total) as total_payment, SUM(CASE WHEN s.pending_payment = 0 and s.payment_status = 0 THEN s.total WHEN s.pending_payment <> 0 and s.payment_status = 0 THEN s.pending_payment ELSE 0 END) AS total_pending, SUM(s.received_payment) as total_received");
 
+        if ($request->city && $request->city['id']) {
+            $data = $data->join('sale_bill_transports as sbt', function ($j) {
+                $j->on('s.sale_bill_id', '=', 'sbt.sale_bill_id')
+                ->on('s.financial_year_id', '=', 'sbt.financial_year_id');
+            })
+            ->where('sbt.station', $request->city['id']);
+        }
         if ($request->customer && $request->customer['id']) {
-            $data = $data->where('company_id', $request->customer['id']);
+            $data = $data->where('s.company_id', $request->customer['id']);
         }
         if ($request->supplier && $request->supplier['id']) {
-            $data = $data->where('supplier_id', $request->supplier['id']);
+            $data = $data->where('s.supplier_id', $request->supplier['id']);
         }
         if ($request->agent && $request->agent['id'] != 0) {
-            $data = $data->where('agent_id', $request->agent['id']);
+            $data = $data->where('s.agent_id', $request->agent['id']);
         }
         if ($request->category && $request->category['id']) {
-            $data = $data->whereRaw('product_category_id @> ' . $request->category['id']);
+            $data = $data->whereRaw('s.product_category_id @> ' . $request->category['id']);
         }
         if ($request->start_date && $request->end_date) {
-            $data = $data->whereBetween('select_date', [$request->start_date, $request->end_date]);
+            $data = $data->whereBetween('s.select_date', [$request->start_date, $request->end_date]);
         }
-        $data = $data->whereRaw('is_deleted = 0 AND sale_bill_flag = 0')
-            ->groupByRaw("date_trunc('month', select_date)")
-            ->orderByRaw("date_trunc('month', select_date) asc");
-
+        $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0')
+            ->groupByRaw("date_trunc('month', s.select_date)")
+            ->orderByRaw("date_trunc('month', s.select_date) asc")
+            ->get();
         foreach ($data as $k => $v) {
             $v->month_year = date('F, Y', strtotime($v->month_begin));
         }
 
         if ($request->export_pdf == 1) {
             ini_set("memory_limit", -1);
-            $data = $data->get();
             $pdf = PDF::loadView('reports.consolidate_monthly_sales_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);
             $path = storage_path('app/public/pdf/consolidate-monthly-sales-reports');
@@ -365,16 +371,188 @@ class SalesReportController extends Controller
             return response()->json(['url' => url('/storage/pdf/consolidate-monthly-sales-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
             ini_set("memory_limit", -1);
-            $data = $data->get();
             $fileName =  'Consolidate-Monthly-Sales-Report-' . time() . '.xlsx';
             Excel::store(new ConsolidateMonthlySalesExport($data, $request), 'excel-sheets/consolidate-monthly-sales-reports/' . $fileName, 'public');
             return response()->json(['url' => url('/storage/excel-sheets/consolidate-monthly-sales-reports/' . $fileName)]);
         } else {
-            $data = $data->limit($request->limit ?? 20)
-                ->offset($request->data_offset ?? 0)
-                ->get();
             return response()->json($data);
         }
+    }
+
+    public function viewMonthlySalesData(Request $request, $start_date, $end_date, $agent, $customer, $supplier)
+    {
+        $page_title = 'Consolidate Monthly Sales Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+        return view('reports.consolidate_monthly_sales_company', compact('page_title', 'employees'));
+    }
+
+    public function listMonthlySalesData(Request $request)
+    {
+        $sql = 'is_deleted = 0 and sale_bill_flag = 0';
+        $sql_2 = '';
+        $sales_total = DB::table('sale_bills')
+            ->selectRaw('sum(total) as monthly_total')
+            ->where('select_date', '>=', $request->start_date)
+            ->where('select_date', '<=', $request->end_date);
+        if ($request->agent != 0) {
+            $sql .= ' agent_id = ' . $request->agent . ' and ';
+            $sales_total = $sales_total->where('agent_id', $request->agent);
+        }
+        if ($request->customer != 0) {
+            $sql .= ' company_id = ' . $request->customer . ' and ';
+            $sql_2 .= ' and company_id = ' . $request->customer;
+        }
+        if ($request->supplier != 0) {
+            $sql .= ' supplier_id = ' . $request->supplier . ' and ';
+            $sql_2 .= ' and supplier_id = ' . $request->supplier;
+        }
+        $sales_total = $sales_total->whereRaw('is_deleted = 0 and sale_bill_flag = 0' . $sql_2)
+            ->first();
+
+        if ($request->company_type == 2) {
+            $which_id = 'company_id';
+            $which_id_reverse = 'supplier_id';
+        } else {
+            $which_id_reverse = 'company_id';
+            $which_id = 'supplier_id';
+        }
+
+        $sales_report = DB::table('sale_bills')
+            ->selectRaw('sum(total) as party_total, ' . $which_id)
+            ->where('select_date', '>=', $request->start_date)
+            ->where('select_date', '<=', $request->end_date)
+            ->whereRaw($sql)
+            ->groupBy($which_id)
+            ->orderByRaw('sum(total) desc')
+            ->get();
+
+        $all_companies = collect($sales_report)
+            ->pluck($which_id)
+            ->toArray();
+        if (!empty($sales_report)) {
+            $link_company = $maindata = [];
+            foreach ($sales_report as $row) {
+                if (!in_array($row->$which_id, $link_company)) {
+                    if ($request->company_type == 2) {
+                        $cmp_str = $row->company_id;
+                        array_push($link_company, $row->company_id);
+                        $cust = $this->getCompanyNameFromMultiId($cmp_str);
+                        $display_name = "";
+                        foreach ($cust as $row_cust) {
+                            $display_name .= $row_cust->name . ", ";
+                        }
+                        $is_display = 1;
+                    } else {
+                        $is_in_link = $this->get_is_link($row->supplier_id, $all_companies);
+                        $is_display = 0;
+                        if ($is_in_link == true) {
+                            array_push($link_company, $row->supplier_id);
+                            $cmp_str = $row->supplier_id;
+                            $getlink_company = DB::table('link_companies')
+                                ->where('company_id', $cmp_str)
+                                ->get();
+                            foreach ($getlink_company as $row_link) {
+                                if (in_array($row_link->link_companies_id, $all_companies)) {
+                                    array_push($link_company, $row_link->link_companies_id);
+                                    $cmp_str .= "," . $row_link->link_companies_id;
+                                }
+                            }
+                            $cust = $this->getCompanyNameFromMultiId($cmp_str);
+                            $display_name = "";
+                            foreach ($cust as $row_cust) {
+                                $display_name .= $row_cust->name . ", ";
+                            }
+                            $is_display = 1;
+                        }
+                    }
+                    if ($is_display == 1) {
+                        $sql = "";
+                        $grp_sql = "";
+                        if ($request->agent != 0) {
+                            $grp_sql .= " and s.agent_id = " . $request->agent;
+                        }
+                        if ($request->company_type == 2) {
+                            if ($request->supplier != 0) {
+                                $sql .= $cmp_str . '~' . $request->supplier;
+                            } else {
+                                $sql .= $cmp_str . '~0';
+                            }
+                            $grp_sql .= " and s.company_id in (" . $cmp_str . ")";
+                        } else {
+                            if ($request->customer != 0) {
+                                $sql .= $request->customer . '~' . $cmp_str;
+                            } else {
+                                $sql .= '0~' . $cmp_str;
+                            }
+                            $grp_sql .= " and s.supplier_id in (" . $cmp_str . ")";
+                        }
+                        $sub_companies = DB::table('sale_bills as s')
+                            ->join('companies as c', 's.' . $which_id_reverse, '=', 'c.id')
+                            ->selectRaw('sum(s.total) as monthly_total, c.company_name')
+                            ->where('select_date', '>=', $request->start_date)
+                            ->where('select_date', '<=', $request->end_date)
+                            ->whereRaw('s.is_deleted = 0 and s.sale_bill_flag = 0' . $sql_2 . $grp_sql)
+                            ->groupByRaw('c.company_name, s.' . $which_id_reverse)
+                            ->orderByRaw('sum(s.total) desc')
+                            ->get();
+                        $maindata[] = [
+                            'display_name' => rtrim($display_name, ', '),
+                            'party_total' => $row->party_total,
+                            'percentage' => round((($row->party_total * 100) / $sales_total->monthly_total), 2) . "%",
+                            'sub_companies' => $sub_companies,
+                            'sql' => $sql
+                            // 'grp_sql' => $grp_sql
+                        ];
+                    }
+                }
+            }
+            return response()->json([
+                'data' => $maindata,
+                'total' => ($sales_total ? $sales_total->monthly_total : 0)
+            ]);
+        }
+    }
+
+    public function viewMonthlySalesCompanyData(Request $request, $start_date, $end_date, $agent, $customer, $supplier)
+    {
+        $page_title = 'Consolidate Monthly Sales Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $sql = 's.is_deleted = 0 and s.sale_bill_flag = 0';
+        if ($agent != 0) {
+            $sql .= ' and s.agent_id = ' . $agent . " and ";
+        }
+        if ($customer != 0) {
+            $customer = str_replace('-', ',', $customer);
+            $sql .= ' and s.company_id in (' . $customer . ") and ";
+        }
+        if ($supplier != 0) {
+            $supplier = str_replace('-', ',', $supplier);
+            $sql .= ' and s.supplier_id in (' . $supplier . ") and ";
+        }
+        $sale_bills = DB::table('sale_bills as s')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+            ->select('s.sale_bill_id', 's.financial_year_id', 's.company_id', 's.supplier_id', 's.total', 'cc.company_name as customer_name', 'cs.company_name as supplier_name')
+            ->where('s.select_date', '>=', $start_date)
+            ->where('s.select_date', '<=', $end_date)
+            ->whereRaw(rtrim($sql, 'and '))
+            ->orderBy('s.total', 'desc')
+            ->get();
+        $total = 0;
+        foreach ($sale_bills as $v) {
+            $total += $v->total;
+        }
+        $current_month = date('F', strtotime($start_date));
+        return view('reports.consolidate_monthly_sales_company_wise', compact('page_title', 'employees', 'sale_bills', 'current_month', 'total'));
     }
 
     public function listCities()
@@ -386,5 +564,20 @@ class SalesReportController extends Controller
             ->orderBy('c.name', 'asc')
             ->get();
         return response()->json($cities);
+    }
+
+    public function getCompanyNameFromMultiId($ids)
+    {
+        return DB::table('companies')->select('company_name as name')->whereRaw('id in (' . $ids . ')')->get();
+    }
+
+    public function get_is_link($id, $all_companies)
+    {
+        $data = DB::table('link_companies')->select('company_id')->where('link_companies_id', $id)->first();
+        if (!empty($data) && in_array($data->company_id, $all_companies)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

@@ -1,7 +1,9 @@
 <div class="nk-footer">
     <div class="container-fluid">
         <div class="nk-footer-wrap">
-            <div class="nk-footer-copyright"> &copy; 2022 LAoffline. Created by <a href="https://qwesys.com" target="_blank">Qwesys Digital Solutions</a>
+            <div class="nk-footer-copyright"> &copy; 2022 LAoffline </div>
+            <div class="float-left">
+                Created by <a href="https://qwesys.com" target="_blank">Qwesys Digital Solutions</a>
             </div>
             {{-- <div class="nk-footer-links">
                 <ul class="nav nav-sm">
