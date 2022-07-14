@@ -774,19 +774,26 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     // Dropdown route start
     Route::get('/list-cities', [App\Http\Controllers\Reports\SalesReportController::class, 'listCities']);
     Route::get('/list-agents', [App\Http\Controllers\Reports\CommissionReportController::class, 'listAgents']);
-    Route::get('/list-cities', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listCities']);
     // Dropdown route end
+
     Route::get('/sales-register-report', [App\Http\Controllers\Reports\SalesReportController::class, 'salesRegister']);
     Route::get('/list-sales-register-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSalesRegisterData']);
+
     Route::get('/consolidate-monthly-sales-report', [App\Http\Controllers\Reports\SalesReportController::class, 'consolidateMonthlySales']);
     Route::post('/list-consolidate-monthly-sales-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listConsolidateMonthlySales']);
+    Route::get('/consolidate-monthly-sales-report/monthly-company/{start_date}/{end_date}/{agent}/{customer}/{supplier}', [App\Http\Controllers\Reports\SalesReportController::class, 'viewMonthlySalesData']);
+    Route::post('/list-consolidate-monthly-sales-company-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listMonthlySalesData']);
+    Route::get('/consolidate-monthly-sales-report/monthly-salebill/{start_date}/{end_date}/{agent}/{customer}/{supplier}', [App\Http\Controllers\Reports\SalesReportController::class, 'viewMonthlySalesCompanyData']);
 
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
+
     Route::post('/list-outstanding-payment-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listOutstandingPaymentData']);
     Route::post('/list-outstanding-payment-month-wise-summery-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listOutstandingPaymentMonthWiseSummeryData']);
+
     Route::post('/list-avarage-payment-days', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listAvaragePaymentDaysData']);
-    
+    Route::get('/avg_payment_days-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'avaPaymentDaysReport']);
+
     Route::get('/outstanding-payment-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentReport']);
     Route::get('/outstanding-payment-month-wise-summary-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentMonthWiseSummeryReport']);
     Route::post('/list-commission-outstanding-month-wise-summery-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionMonthWiseSummeryData']);
@@ -797,6 +804,8 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::get('/outstanding-commission-register-report/{type}', [App\Http\Controllers\Reports\CommissionReportController::class, 'outstandingCommissionRegister']);
+
+    Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
 });
 

@@ -121,11 +121,6 @@
     import ViewCompanyDetails from '../databank/companyComponents/modal/ViewCompanyDetailsModelComponent.vue';
 
     import $ from 'jquery';
-    import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
-    import "datatables.net-buttons-bs5/js/buttons.bootstrap5";
-    import 'pdfmake/build/pdfmake';
-    import "datatables.net-buttons/js/buttons.html5";
-    import "datatables.net-buttons/js/buttons.print";
     import Multiselect from 'vue-multiselect';
 
     export default {
@@ -234,14 +229,14 @@
                             total_received += parseFloat(k.total_received);
                             total_pending += parseFloat(k.total_pending);
                             html += `<tr>
-                                <td class=""> ${k.month_year} </td>
+                                <td class=""> <a href="#" class="viewMonthlySalesCompanyReport"> ${k.month_year} </a></td>
                                 <td class="text-right"> ${toINR.format(k.total_payment)} </td>
                                 <td class="text-right"> ${toINR.format(k.total_received)} </td>
                                 <td class="text-right"> ${toINR.format(k.total_pending)} </td>
                             </tr>`;
                         });
                         html += `<tr>
-                                <th class=""> Total</th>
+                                <th class=""> <a href="#" class="viewMonthlySalesCompanyReport total"> Total </a></th>
                                 <th class="text-right"> ${toINR.format(total_payment)} </th>
                                 <th class="text-right"> ${toINR.format(total_received)} </th>
                                 <th class="text-right"> ${toINR.format(total_pending)} </th>
@@ -263,6 +258,14 @@
         },
         mounted() {
             const self = this;
+
+            $(document).on('click', '.viewMonthlySalesCompanyReport', function(e) {
+                var param = '';
+                if ($(this).hasClass('total')) {
+                    param = '?total=total';
+                }
+                window.open('consolidate-monthly-sales-report/monthly-company/' + self.start_date + '/' + self.end_date + '/' + (self.agent ? self.agent.id : 0) + '/' + (self.customer ? self.customer.id : 0) + '/' + (self.supplier ? self.supplier.id : 0) + param, "", "width=1200,height=800,scrollbars=yes");
+            });
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
