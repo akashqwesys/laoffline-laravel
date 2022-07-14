@@ -190,7 +190,7 @@ class PaymentsReportController extends Controller
         $data1 = DB::table('sale_bills as s');
         $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 's.company_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 's.supplier_id', '=', 'cs.id')
-                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses Where address_type = 1 group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
                 ->where('s.sale_bill_flag', 0)
                 ->where('s.is_deleted', 0)
                 ->where('s.payment_status', 0)
@@ -528,7 +528,7 @@ class PaymentsReportController extends Controller
         $data1 = DB::table('sale_bills as s');
         $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
-                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
                 ->where('s.sale_bill_flag', 0)
                 ->where('s.is_deleted', 0)
                 ->where('s.payment_status', 0)

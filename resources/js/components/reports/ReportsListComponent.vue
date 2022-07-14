@@ -90,8 +90,8 @@
                                                 <td></td>
                                                 <td>
                                                     <ul>
-                                                        <li style="list-style: decimal;"><a href="/outstanding_commission_month_wise_summary_report" target="_blank">Supplier </a></li>
-                                                        <li style="list-style: decimal;"><a href="/outstanding_cust_commission_month_wise_summary_report" target="_blank">Customer </a></li>
+                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-month-wise-summary-report/supplier" target="_blank">Supplier </a></li>
+                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-month-wise-summary-report/customer" target="_blank">Customer </a></li>
                                                     </ul>
                                                 </td>
                                             </tr>

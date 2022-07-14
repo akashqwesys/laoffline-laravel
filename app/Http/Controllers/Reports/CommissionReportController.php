@@ -8,11 +8,15 @@ use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Employee;
 use App\Models\Settings\Agent;
+use App\Models\Company\Company;
+use App\Models\LinkCompanies;
 use Illuminate\Support\Facades\Session;
 use DB;
 use PDF;
 use Excel;
 use App\Exports\CommissionRegisterExport;
+use App\Exports\OutstandingCommissionExport;
+use App\Exports\OutstandingCommissionMonthWiseSummeryExport;
 use Carbon\Carbon;
 
 class CommissionReportController extends Controller
@@ -79,6 +83,31 @@ class CommissionReportController extends Controller
         return view('reports.outsstanding_commission_report', compact('page_title', 'employees'));
     }
     
+    public function outstandingCommissionMonthWiseSummeryReport(Request $request) {
+        $page_title = 'Outstanding Commission Month Wise Summery Report - '. $request->type;
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+        $employees['type'] = $request->type;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Outstanding Commission Month Wise Summery Report / View';
+        $logs->log_subject = 'Outstanding Commission Month Wise Summery Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.outstanding_commission_month_wise_summery_report', compact('page_title', 'employees'));
+    }
+
     public function listCommissionRegisterData(Request $request)
     {
         
@@ -169,133 +198,731 @@ class CommissionReportController extends Controller
     }
 
     public function listOutstandingCommissionData(Request $request) {
+        if ($request->report_type == 'supplier') {
+        if ($request->show_detail == 1) {    
         $data1 = DB::table('payments as p1')
-                ->leftJoin(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
+                    ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
                     $join->on('p1.receipt_from', '=', 'ccomm_per1.customer_id')
                     ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
                     ->where('ccomm_per1.flag', 1);
                 })
-                ->select('p1.suppllier_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'))
-                ->get();
-
+                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
+                ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
+                ->orderBy('cs.company_name')
+                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)
+                ->select('cs.company_name as supplier_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
+        
+        } else {
+        $data1 = DB::table('payments as p1')
+                ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
+                    $join->on('p1.receipt_from', '=', 'ccomm_per1.customer_id')
+                    ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
+                    ->where('ccomm_per1.flag', 1);
+                })
+                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
+                ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
+                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)
+                ->select('p1.supplier_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
+        }
         $data2 = DB::table('payments as p')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p.supplier_id', '=', 'cs.id')
-                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses group by "address", "company_id") as "cadd"'), 'p.supplier_id', '=', 'cadd.company_id')
-                ->leftJoin(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id") as "cadd"'), 'p.supplier_id', '=', 'cadd.company_id')
+                ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
                     $join->on('p.receipt_from', '=', 'ccomm_per2.customer_id')
                     ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
                     ->where('ccomm_per2.flag', 1);
                 })
+                ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.old_commission_status', 0)
                 ->select('cc.company_name as customer_name', 'cs.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
-        
-                if ($request->supplier && $request->supplier['id']) {
-                    $company_details = Company::where('id', $request->supplier['id'])->first();
-                    $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
-                    if (empty($link_companies)) {
-                        $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
-                        if (!empty($is_linked)) {
-                            $company_details = Company::where('id', $is_linked->company_id)->first();
-                            $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                        }
-                    }
-                    if ($company_details) {
-                        $main_cmp_id = $company_details->id;
-                        array_push($supplier, $main_cmp_id);
-                        foreach ($link_companies as $row_link_companies) {
-                            array_push($supplier, $row_link_companies->link_companies_id);
-                        }
-                        $data1 = $data2->WhereIn('p.supplier_id', $supplier);
-                        foreach($supplier as $row) {
-                            $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
-                        }
-                        $data['sup_disp_name'] = implode(',  ', $supplier_data);
-                    }
-                }
-
-                if ($request->city && $request->city['id']) {
-                    $cmp_sql .= " AND cs.company_city = '".$request->city['name']."'";
-                }
-                $data2 = $data2->get();
-                $morethan = '';
-                $sup = '';
-                if ($request->day != '' && $request->day['report_days'] != 0) {
-                    $morethan .= "( More then ". $request->day['report_days'] ." Days)";
+        } else {
+            if ($request->show_detail == 1) {    
+                $data1 = DB::table('payments as p1')
+                        ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
+                            $join->on('p1.customer_id', '=', 'ccomm_per1.customer_id')
+                            ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
+                            ->where('ccomm_per1.flag', 2);
+                        })
+                        ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
+                        ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
+                        ->orderBy('cc.company_name')
+                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)
+                        ->select('cc.company_name as customer_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
+                
                 } else {
-                    $morethan .= "";
+                $data1 = DB::table('payments as p1')
+                        ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
+                            $join->on('p1.customer_id', '=', 'ccomm_per1.customer_id')
+                            ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
+                            ->where('ccomm_per1.flag', 2);
+                        })
+                        ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
+                        ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
+                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)
+                        ->select('p1.customer_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
                 }
+                $data2 = DB::table('payments as p')
+                        ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+                        ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p.customer_id', '=', 'cc.id')
+                        ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id") as "cadd"'), 'p.customer_id', '=', 'cadd.company_id')
+                        ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
+                            $join->on('p.customer_id', '=', 'ccomm_per2.customer_id')
+                            ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
+                            ->where('ccomm_per2.flag', 2);
+                        })
+                        ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.customer_commission_status', 0)
+                        ->select('cc.company_name as customer_name', 'cc.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
+        }
+        $supplier = array();
+        $customer = array();
+        if ($request->supplier && $request->supplier['id']) {
+            $company_details = Company::where('id', $request->supplier['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
+                if (empty($link_companies)) {
+                    $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
+                    if (!empty($is_linked)) {
+                        $company_details = Company::where('id', $is_linked->company_id)->first();
+                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                    }
+                }
+                if ($company_details) {
+                    $main_cmp_id = $company_details->id;
+                    array_push($supplier, $main_cmp_id);
+                    foreach ($link_companies as $row_link_companies) {
+                        array_push($supplier, $row_link_companies->link_companies_id);
+                    }
+                    $data2 = $data2->WhereIn('p.supplier_id', $supplier);
+                    $data1 = $data1->WhereIn('p1.supplier_id', $supplier);
+                    foreach($supplier as $row) {
+                        $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    }
+                    $data['sup_disp_name'] = implode(',  ', $supplier_data);
+                }
+        }
 
-                if ($request->supplier != '') {
-                    if($data['sup_disp_name']) {
-                        $sup .= "Supplier: " .$data['sup_disp_name'] . $morethan;
-                    } else {
-                        $sup .= "All Parties" . $morethan;
+        if ($request->customer && $request->customer['id']) {
+            $company_details = Company::where('id', $request->customer['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
+                if (empty($link_companies)) {
+                    $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
+                    if (!empty($is_linked)) {
+                        $company_details = Company::where('id', $is_linked->company_id)->first();
+                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
                     }
                 }
-                print_r($data1);exit;
-                $html = '';
-                $html .= '<tr width="100%">
-                            <th colspan="6" class="text-center">'.$sup.'</th>
-                        </tr>
-                        <tr>
-						    <th width="10%">Payment Id</th>
-							<th width="20%">Date</th>
-							<th width="10%">Amount</th>
-							<th width="10%">Commission Amount</th>
-							<th width="10%">Percent</th>
-							<th width="20%">Customer</th>
-							<th width="8%">Days</th>
-							<th width="12%" class="text-right">Invoice</th>
-						</tr>';
-                $supplier_name = ""; $prev_com = ""; $tot_payment = $total_payment = $total_commission_amount = 0;
-                foreach ($data2 as $keys => $row) {
-                    $color = "";
-                    $paymentdate = strtotime($row->date);
-                    $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
-                    $due_day = ($currentdate - $paymentdate) / 84600;
-                    if($due_day >= 90) {
-                        $color = "style='color:red'";
+                if ($company_details) {
+                    $main_cmp_id = $company_details->id;
+                    array_push($customer, $main_cmp_id);
+                    foreach ($link_companies as $row_link_companies) {
+                        array_push($customer, $row_link_companies->link_companies_id);
                     }
-                    if($supplier_name != $row->supplier_name) {
-                        $supplier_name = $row->supplier_name;
+                    $data2 = $data2->WhereIn('p.customer_id', $customer);
+                    $data1 = $data1->WhereIn('p1.customer_id', $customer);
+                    foreach($supplier as $row) {
+                        $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    }
+                    $data['cust_disp_name'] = implode(',  ', $customer_data);
+                }
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("p1.date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("p1.date::date <= '" . $request->end_date . "'");
+            $data2 = $data2->whereRaw("p.date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("p.date::date <= '" . $request->end_date . "'");
+        }
+
+        if ($request->city && $request->city['id']) {
+            if ($request->report_type == 'supplier') {
+                $data1 = $data1->Where('cs.company_city', $request->city['name']);
+                $data2 = $data2->Where('cs.company_city', $request->city['name']);
+            } else {
+                $data1 = $data1->Where('cc.company_city', $request->city['name']);
+                $data2 = $data2->Where('cc.company_city', $request->city['name']);
+            }
+        }
+        if ($request->day != '' && $request->day['report_days'] != 0) {
+            $todaydate = Carbon::now()->format('Y-m-d');
+            $data2 = $data2->whereRaw('\'' . $todaydate . '\'' . ' - p.date > '. $request->day['report_days']);
+            $data1 = $data1->whereRaw('\'' . $todaydate . '\'' . ' - p1.date > '. $request->day['report_days']);
+        }
+        $data2 = $data2->get();
+        $data1 = $data1->get();
+        $morethan = '';
+        $sup = '';
+        $sup1 = '';
+
+
+        if ($request->day != '' && $request->day['report_days'] != 0) {
+            $morethan .= "( More then ". $request->day['report_days'] ." Days)";
+        } else {
+            $morethan .= "";
+        }
+
+        if ($request->supplier != '') {
+            if($data['sup_disp_name']) {
+                $sup .= "Supplier: " .$data['sup_disp_name'] . $morethan;
+            } else {
+                $sup .= "Supplier: " .$data['sup_disp_name'] . $morethan;
+            }
+        } else {
+            $sup .= "All Parties". $morethan;
+        }
+
+        if ($request->customer != '') {
+            if($data['sup_disp_name']) {
+                $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
+            } else {
+                $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
+            }
+        } else {
+            $sup1 .= "All Parties". $morethan;
+        }
+               
+        $html = '';
+        if ($request->report_type == 'supplier'){
+            if ($request->show_detail == 1) {
+                $html .= '<tr width="100%">
+                            <th colspan="4" class="text-center">'.$sup.'</th>
+                        </tr>
+                        <tr width="100%">
+                                <th>Sr_No</th>
+                                <th>Supplier Name</th>
+                                <th>Amount</th>
+                                <th>Commission Amount</th>
+                            </tr>';
+            } else {
+                $html .= '<tr width="100%">
+                            <th colspan="8" class="text-center">'.$sup.'</th>
+                        </tr>
+                        <tr width="100%" class=""text-center>
+                                <th>Payment Id</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Commission Amount</th>
+                                <th>Percent</th>
+                                <th>Customer</th>
+                                <th>Days</th>
+                                <th>Invoice</th>
+                            </tr>';
+            }
+        } else {
+            if ($request->show_detail == 1) {
+                $html .= '<tr width="100%">
+                            <th colspan="4" class="text-center">'.$sup1.'</th>
+                        </tr>
+                        <tr width="100%">
+                                <th>Sr_No</th>
+                                <th>Customer Name</th>
+                                <th>Amount</th>
+                                <th>Commission Amount</th>
+                            </tr>';
+            } else {
+                $html .= '<tr width="100%">
+                            <th colspan="8" class="text-center">'.$sup1.'</th>
+                        </tr>
+                        <tr width="100%" class=""text-center>
+                                <th>Payment Id</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Commission Amount</th>
+                                <th>Percent</th>
+                                <th>Supplier</th>
+                                <th>Days</th>
+                                <th>Invoice</th>
+                            </tr>';
+            }
+        }
+                
+        if ($request->show_detail == 1) {
+            $tot_payment = $total_payment = $total_commission_amount = 0;
+            foreach ($data1 as $keys => $row) {
+                if ($request->report_type == 'supplier') {
+                    $company_name = $row->supplier_name;
+                } else {
+                    $company_name = $row->customer_name;
+                }  
+                $html .= '<tr width="100%">
+                            <td>'.++$keys.'</td>
+                            <td>'.$company_name.'</td>
+                            <td>'.$row->receipt_amount.'</td>
+                            <td>'.$row->total_comm_amount.'</td>
+                        </tr>';
+                $tot_payment += $row->receipt_amount;
+                $total_commission_amount += $row->total_comm_amount;
+            }
+            if (!empty($data1)){
+                $html .= '<tr width="100%">
+                            <td colspan="2"><b>Party Total</b></td>
+                            <td><b>'.$tot_payment.'</b></td>
+                            <td><b>'.$total_commission_amount.'</b></td>
+                        </tr>';
+            }
+            $data['detail'] = $data1;
+        } else {
+            $data3 = array();
+            if ($request->report_type == 'supplier') {
+            foreach($data2 as $row) {
+                foreach ($data1 as $key => $row1) {
+                    if ($row1->supplier_id == $row->supplier_id) {
+                        $row->total_comm_amount = $row1->total_comm_amount;
+                    }
+                }
+                array_push($data3, $row);
+            }} else {
+                foreach($data2 as $row) {
+                    foreach ($data1 as $key => $row1) {
+                        if ($row1->customer_id == $row->customer_id) {
+                            $row->total_comm_amount = $row1->total_comm_amount;
+                        }
+                    }
+                    array_push($data3, $row);
+                }   
+            }
+            $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
+                
+            foreach ($data3 as $keys => $row) {
+                $color = "";
+                $paymentdate = strtotime($row->date);
+                $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
+                $due_day = ($currentdate - $paymentdate) / 84600;
+                if ($due_day )
+                if($due_day >= 90) {
+                    $color = "style='color:red'";
+                }
+                $i = 0;
+                if ($request->report_type == 'supplier') {
+                if($supplier_name != $row->supplier_name) {
+                    $supplier_name = $row->supplier_name;
+                    $address_supp = $row->company_address;
+
+                    if($keys != 0) {
+                        $html .= '<tr width="100%">
+                                <td colspan="2"><b>Party Total</b></td>
+                                <td><b>'.$tot_payment.'</b></td>
+                                <td><b>'.$prev_com.'</b></td>
+                                <td colspan="4"></td>
+							</tr>';
+                        $tot_payment = 0;
+                    }
+                        
+                    $html .='<tr width="100%">
+		    					<td colspan="8"></td>
+							</tr>
+                            <tr width="100%">
+                                <td colspan="2"><b>'.$supplier_name.'</b></td>
+                                <td colspan="6"><b>'.$address_supp.'</b></td>
+                            </tr>';
+                }
+                } else {
+                    if($customer_name != $row->customer_name) {
+                        $customer_name = $row->customer_name;
                         $address_supp = $row->company_address;
+    
                         if($keys != 0) {
-                            $html .= '<tr>
+                            $html .= '<tr width="100%">
                                     <td colspan="2"><b>Party Total</b></td>
                                     <td><b>'.$tot_payment.'</b></td>
                                     <td><b>'.$prev_com.'</b></td>
                                     <td colspan="4"></td>
-								</tr>';
+                                </tr>';
                             $tot_payment = 0;
                         }
-                        $html .='<tr>
-									<td colspan="8"></td>
-								</tr>
-                                <tr>
-                                    <td colspan="2"><b>'.$supplier_name.'</b></td>
+                            
+                        $html .='<tr width="100%">
+                                    <td colspan="8"></td>
+                                </tr>
+                                <tr width="100%">
+                                    <td colspan="2"><b>'.$customer_name.'</b></td>
                                     <td colspan="6"><b>'.$address_supp.'</b></td>
                                 </tr>';
-                    }}
-                //         $html .= '<tr'.$color.'>
-                //                     <td>'.$row->payment_id.'</td>
-                //                     <td>'.date("d-m-Y", strtotime($row->date)).'</td>
-                //                     <td>'.$row->receipt_amount.'</td>
-                //                     <td>'.$row->commission_amount.'</td>';
-                        $invoices = DB::table('commission_invoices as ci')
-                                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id" FROM commission_details group by "commission_invoice_id") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                                    ->where('ipd.flag', 1)
-                                    ->where('ipd.payment_id', $row->payment_id)
-                                    ->where('ipd.financial_year_id', $row->financial_year_id)
-                                    ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'ci.total_payment_received_amount')
-                                    ->get();
-                        print_r($invoices);
-                        $invoice = collect($invoices)->groupBy('ci.id');
-                        print_r($invoice);
-                // }
-                exit;
-                $data['table'] = $html; 
-                return response()->json($data);
-
+                    }   
+                }   
+                    $html .= '<tr width="100%" '.$color.'>
+                                <td>'.$row->payment_id.'</td>
+                                <td>'.date("d-m-Y", strtotime($row->date)).'</td>
+                                <td>'.$row->receipt_amount.'</td>
+                                <td>'.$row->commission_amount.'</td>';
+                if ($request->report_type == 'supplier') {
+                    $invoices = DB::table('commission_invoices as ci')
+                                ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                                ->where('ipd.flag', 1)
+                                ->where('ipd.payment_id', $row->payment_id)
+                                ->where('ipd.financial_year_id', $row->financial_year_id)
+                                ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+                                ->get();
+                } else {
+                    $invoices = DB::table('commission_invoices as ci')
+                                ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                                ->where('ipd.flag', 2)
+                                ->where('ipd.payment_id', $row->payment_id)
+                                ->where('ipd.financial_year_id', $row->financial_year_id)
+                                ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+                                ->get();
+                }
+                if (count($invoices)) {
+                    $total = 0;
+                    $pending_parcent = collect($invoices)->groupBy('id');
+                    foreach($pending_parcent as $inv) {
+                        foreach($inv as $pp){
+                            $total += (int)$pp->received_commission_amount;
+                            $final_amount = $pp->final_amount;
+                            $commission_invoice_id = $pp->id;
+                            $bill_no = $pp->bill_no;
+                        }
+                    }
+                            
+                    $pending_amount = (int)$final_amount - (int)$total;
+                    $pending_percentage = round((($pending_amount * 100) / $final_amount),2);
+                    $pending_percentage = $pending_percentage." %";
+                            
+                } else {
+                    $pending_percentage = "100 %";
+					$commission_invoice_id = '';
+					$bill_no = ''; 
+                }
+                if ($request->report_type == 'supplier') {
+                    $cust_supp_name = $row->customer_name;
+                } else {
+                    $cust_supp_name = $row->supplier_name;
+                }        
+                    $html .= '<td>'.$pending_percentage.'</td>
+                              <td>'.$cust_supp_name.'</td>
+                              <td>'.floor($due_day).'</td>
+                              <td>'.$bill_no.'</td>
+                          </tr>';
+                    
+                $prev_com = $row->total_comm_amount;
+                $tot_payment += $row->receipt_amount;
+                $total_payment += $row->receipt_amount;
+                $total_commission_amount += $row->commission_amount;
+                        
+            }
+                
+            if (!empty($data3)) {
+                $html .= '<tr width="100%">
+                        <td colspan="2"><b>Party Total</b></td>
+                        <td><b>'.$tot_payment.'</b></td>
+                        <td><b>'.$prev_com.'</b></td>
+                        <td colspan="4"></td>
+                        </tr>
+                        <tr width="100%">
+                            <td colspan="8">&nbsp;</td>
+                        </tr>
+                        <tr width="100%">
+                            <td colspan="2"><b>Grand Total</b></td>
+                            <td><b>'.$total_payment.'</b></td>
+                            <td><b>'.$total_commission_amount.'</b></td>
+                            <td colspan="4"></td>
+                        </tr>';
+            }
+            $data['detail'] = $data3;   
+        }
+        $data['table'] = $html;
+        $data['report_type'] = $request->report_type; 
+        
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.outstanding_commission_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/outstanding-commission-reports');
+            $fileName =  'Outstanding-Commission-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/outstanding-commission-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Outstanding-Commission-Report-' . time() . '.xlsx';
+            Excel::store(new OutstandingCommissionExport($data, $request), 'excel-sheets/outstanding-commission-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/outstanding-commission-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
     }
+
+    public function listOutstandingCommissionMonthWiseSummeryData(Request $request) {
+        if ($request->report_type == 'supplier') {
+            $data1 = DB::table('payments as p')
+            ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
+                $join->on('p.receipt_from', '=', 'ccomm_per2.customer_id')
+                ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
+                ->where('ccomm_per2.flag', 1);
+            })
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id") as "cadd"'), 'p.supplier_id', '=', 'cadd.company_id')
+            ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
+            ->where('p.is_deleted', 0)
+            ->whereNot('p.receipt_amount', 0)
+            ->where('p.old_commission_status', 0)
+            ->orderBy('p.date');
+        } else {
+            $data1 = DB::table('payments as p')
+            ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
+                $join->on('p.receipt_from', '=', 'ccomm_per2.customer_id')
+                ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
+                ->where('ccomm_per2.flag', 2);
+            })
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id") as "cadd"'), 'p.receipt_from', '=', 'cadd.company_id')
+            ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
+            ->where('p.is_deleted', 0)
+            ->whereNot('p.receipt_amount', 0)
+            ->where('p.old_commission_status', 0)
+            ->orderBy('p.date');
+        }
+
+        $supplier = array();
+        $customer = array();
+        
+        if ($request->supplier && $request->supplier['id']) {
+            $company_details = Company::where('id', $request->supplier['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
+                if (empty($link_companies)) {
+                    $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
+                    if (!empty($is_linked)) {
+                        $company_details = Company::where('id', $is_linked->company_id)->first();
+                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                    }
+                }
+                if ($company_details) {
+                    $main_cmp_id = $company_details->id;
+                    array_push($supplier, $main_cmp_id);
+                    foreach ($link_companies as $row_link_companies) {
+                        array_push($supplier, $row_link_companies->link_companies_id);
+                    }
+                    $data1 = $data1->WhereIn('p.supplier_id', $supplier);
+                    foreach($supplier as $row) {
+                        $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    }
+                    $data['sup_disp_name'] = implode(',  ', $supplier_data);
+                }
+        }
+
+        if ($request->customer && $request->customer['id']) {
+            $company_details = Company::where('id', $request->customer['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
+                if (empty($link_companies)) {
+                    $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
+                    if (!empty($is_linked)) {
+                        $company_details = Company::where('id', $is_linked->company_id)->first();
+                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                    }
+                }
+                if ($company_details) {
+                    $main_cmp_id = $company_details->id;
+                    array_push($customer, $main_cmp_id);
+                    foreach ($link_companies as $row_link_companies) {
+                        array_push($customer, $row_link_companies->link_companies_id);
+                    }
+                    
+                    $data1 = $data1->WhereIn('p.customer_id', $customer);
+                    foreach($supplier as $row) {
+                        $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    }
+                    $data['cust_disp_name'] = implode(',  ', $customer_data);
+                }
+        }
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("p.date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("p.date::date <= '" . $request->end_date . "'");
+        }
+        $data1 = collect($data1->get())->groupBy('monthyear');
+        
+        $sup = '';
+        $sup1 = '';
+        
+        if ($request->supplier != '') {
+            if($data['sup_disp_name']) {
+                $sup .= "Supplier: " .$data['sup_disp_name']; 
+            } else {
+                $sup .= "Supplier: " .$request->supplier['company_name'];
+            }
+        } else {
+            $sup .= "All Parties";
+        }
+
+        if ($request->customer != '') {
+            if($data['sup_disp_name']) {
+                $sup1 .= "Customer: " .$data['cust_disp_name'];
+            } else {
+                $sup1 .= "Customer: " .$request->customer['company_name'] ;
+            }
+        } else {
+            $sup1 .= "All Parties";
+        }
+           
+        $html = '';
+        if ($request->report_type == 'supplier'){
+                $html .= '<tr width="100%">
+                            <th colspan="4" class="text-center">'.$sup.'</th>
+                        </tr>';
+        } else {
+                $html .= '<tr width="100%">
+                            <th colspan="4" class="text-center">'.$sup1.'</th>
+                        </tr>';
+        }
+        $finaldata = array();
+        $grandtotal = $grandcommissiontoal = 0;
+        if ($request->show_detail == 1) {
+            foreach ($data1 as $keys => $row) {
+                $totalmonthamount = $totalmonthcommission = 0;
+                if ($request->report_type == 'supplier') {
+                    $supplierdata = collect($row)->groupBy('supplier_name');
+                } else {
+                    $supplierdata = collect($row)->groupBy('customer_name');
+                }
+                $finaldata[$keys] = $supplierdata;
+                $html .= '<tr width="100%">
+                            <td colspan="4"><b></td>
+                        </tr>
+                        <tr width="100%" class="bg-gray">
+                            <td class="text-center" style="background-color:#383634; color:#ffffff" colspan="4"><b>'.$keys.'</b></td>
+                        </tr>
+                        <tr width="100%">
+                            <th>Sr No</th>
+                            <th>Party Name</th>
+                            <th>Amount</th>
+                            <th>Commission Amout</th>
+                        </tr>';
+                $i = 0;
+                foreach($supplierdata as $key1=>$row1) {
+                    $html .= '<tr width="100%">
+                                <td>'.++$i.'</td>
+                                <td>'.$key1.'</td>';
+                    $totalamount = $commissionamount = 0;
+                    foreach ($row1 as $key2 => $paymentdata) {
+    
+                        $commission_amount = floor($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
+                        $totalamount += $paymentdata->receipt_amount;
+                        $commissionamount += $commission_amount;
+                    }
+                    $html .= '<td>'.$totalamount.'</td>
+                                <td>'.$commissionamount.'</td>
+                            </tr>';
+                    $totalmonthamount += $totalamount;
+                    $totalmonthcommission += $commissionamount;
+                }
+                $html .= '<tr width="100%" style="background-color:#e0cebc">
+                                <td colspan="2"><b>Monthly Total</b></td>
+                                <td><b>'.$totalmonthamount.'</b></td>
+                                <td><b>'.$totalmonthcommission.'</b></td>
+                            
+                            </tr>';
+                $grandtotal += $totalmonthamount;
+                $grandcommissiontoal += $totalmonthcommission;
+            }
+            if (count($data1) != 0) {
+                        $html .= '<tr width="100%">
+                                <td colspan="2"><b>Grand Total</b></td>
+                                <td><b>'.$grandtotal.'</b></td>
+                                <td><b>'.$grandcommissiontoal.'</b></td>
+                                
+                            </tr>';
+            } else {
+                $html .= '<tr width="100%">
+                                <td colspan="4" class="text-center"><b>Record Not Found</b></td>
+                            </tr>';
+            }
+        } else {
+        foreach ($data1 as $keys => $row) {
+            $totalmonthamount = $totalmonthcommission = 0;
+            if ($request->report_type == 'supplier') {
+                $supplierdata = collect($row)->groupBy('supplier_name');
+            } else {
+                $supplierdata = collect($row)->groupBy('customer_name');
+            }
+            $finaldata[$keys] = $supplierdata;
+            $html .= '<tr width="100%">
+                        <td colspan="4"><b></td>
+                    </tr>
+                    <tr width="100%" class="bg-gray">
+                        <td class="text-center" style="background-color:#383634; color:#ffffff" colspan="4"><b>'.$keys.'</b></td>
+                    </tr>
+                    <tr width="100%">
+                        <th>Sr No</th>
+                        <th>Amount</th>
+                        <th>Commission Amout</th>';
+            if ($request->report_type == 'supplier') {
+                $html .= '<th>Customer</th>';
+            } else {
+                $html .= '<th>Supplier</th>';
+            }
+                        
+            $html .= '</tr>';
+            
+            foreach($supplierdata as $key1=>$row1) {
+                $html .= '<tr width="100%" style="background-color:#f8f8f8">
+                            <td colspan="2"><b>'.$key1.'</b></td>
+                            <td colspan="2"><b>'.$row1[0]->company_address.'</b></td>
+                        </tr>';
+                $totalamount = $commissionamount = 0;
+                foreach ($row1 as $key2 => $paymentdata) {
+
+                    $commission_amount = floor($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
+                    $totalamount += $paymentdata->receipt_amount;
+                    $commissionamount += $commission_amount;
+                    $html .= '<tr width="100%">
+                            <td>'.++$key2.'</td>
+                            <td>'.$paymentdata->receipt_amount.'</td>
+                            <td>'.$commission_amount.'</td>';
+                    if ($request->report_type == 'supplier') {
+                        $html .=  '<td>'.$paymentdata->customer_name.'</td>';
+                    } else {
+                        $html .= '<td>'.$paymentdata->supplier_name.'</td>';
+                    }
+                           
+                        $html .= '</tr>';
+                }
+                $html .= '<tr width="100%">
+                            <td><b>Party Total</b></td>
+                            <td><b>'.$totalamount.'</b></td>
+                            <td><b>'.$commissionamount.'</b></td>
+                            <td></td>
+                        </tr>';
+                $totalmonthamount += $totalamount;
+                $totalmonthcommission += $commissionamount;
+            }
+            $html .= '<tr width="100%" style="background-color:#e0cebc">
+                            <td><b>Monthly Total</b></td>
+                            <td><b>'.$totalmonthamount.'</b></td>
+                            <td><b>'.$totalmonthcommission.'</b></td>
+                            <td></td>
+                        </tr>';
+            $grandtotal += $totalmonthamount;
+            $grandcommissiontoal += $totalmonthcommission;
+        }
+             if (count($data1) != 0) {
+                $html .= '<tr width="100%">
+                    <td><b>Grand Total</b></td>
+                    <td><b>'.$grandtotal.'</b></td>
+                    <td><b>'.$grandcommissiontoal.'</b></td>
+                    <td></td>
+                    </tr>';
+            } else {
+                $html .= '<tr width="100%">
+                                <td colspan="4" class="text-center"><b>Record Not Found</b></td>
+                            </tr>';
+            }
+        } 
+        
+        $data['table'] = $html;
+        $data['finaldata'] = $finaldata;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.outstanding_commission_month_wise_summery_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/outstanding_commission_month_wise_summery_export_pdf');
+            $fileName =  'Outstanding-Commission-Month-Wise-Summery-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/outstanding_commission_month_wise_summery_export_pdf/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Outstanding-Commission-Month-Wise-Summery-Report-' . time() . '.xlsx';
+            Excel::store(new OutstandingCommissionMonthWiseSummeryExport($data, $request), 'excel-sheets/outstanding-commission-month-wise-summery-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/outstanding-commission-month-wise-summery-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+         
+    }
+    
 }

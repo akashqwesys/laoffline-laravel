@@ -143,6 +143,7 @@ import OutstandingPaymentComponent from './components/reports/OutstandingPayment
 import OutstandingPaymentMonthWiseSummeryComponent from './components/reports/OutstandingPaymentMonthWiseSummeryComponent.vue';
 import AvaragePaymentDaysComponent from './components/reports/AvaragePaymentDaysComponent.vue';
 import OutstandingCommissionComponent from './components/reports/OutstandingCommissionComponent.vue';
+import OutstandingCommissionMonthWiseSummeryComponent from './components/reports/OutstandingCommissionMonthWiseSummeryComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -427,6 +428,7 @@ const routes = [
             { path: 'outstaning-payment-report', component: OutstandingPaymentComponent },
             { path: 'avg_payment_days-report', component: AvaragePaymentDaysComponent },
             { path: 'outstaning-payment-month_wise_summery_report', component: OutstandingPaymentMonthWiseSummeryComponent },
+            { path: '/outstanding-commission-month-wise-summary-report/:reportType', component: OutstandingCommissionMonthWiseSummeryComponent},
         ]
     },
 ];
@@ -548,5 +550,6 @@ createApp({
         OutstandingPaymentMonthWiseSummeryComponent,
         AvaragePaymentDaysComponent,
         OutstandingCommissionComponent,
+        OutstandingCommissionMonthWiseSummeryComponent,
     }
 }).use(router).mount('#app');
