@@ -139,6 +139,7 @@ import ReportsListComponent from './components/reports/ReportsListComponent.vue'
 import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
 import ConsolidateMonthlySalesComponent from './components/reports/ConsolidateMonthlySalesComponent.vue';
 import ConsolidateMonthlySalesCompanyComponent from './components/reports/ConsolidateMonthlySalesCompanyComponent.vue';
+import SalebillDetailsComponent from './components/reports/SalebillDetailsComponent.vue';
 
 import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
 import CommissionRegisterComponent from './components/reports/CommissionRegisterComponent.vue';
@@ -424,6 +425,7 @@ const routes = [
             { path: 'sales-register-report', component: SalesRegisterComponent },
             { path: 'consolidate-monthly-sales-report', component: ConsolidateMonthlySalesComponent },
             { path: 'consolidate-monthly-sales-report/monthly-company/:start_date/:end_date/:agent/:customer/:supplier', component: ConsolidateMonthlySalesCompanyComponent },
+            { path: 'sales-bill-details-report', component: SalebillDetailsComponent },
 
             { path: 'payment-register-report', component: PaymentRegisterComponent },
             { path: 'commission-register-report', component: CommissionRegisterComponent },
@@ -549,6 +551,7 @@ createApp({
         SalesRegisterComponent,
         ConsolidateMonthlySalesComponent,
         ConsolidateMonthlySalesCompanyComponent,
+        SalebillDetailsComponent,
 
         PaymentRegisterComponent,
         CommissionRegisterComponent,

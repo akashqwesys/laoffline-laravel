@@ -13,6 +13,7 @@ use PDF;
 use Excel;
 use App\Exports\SalesRegisterExport;
 use App\Exports\ConsolidateMonthlySalesExport;
+use App\Exports\CommonExport;
 
 class SalesReportController extends Controller
 {
@@ -578,6 +579,87 @@ class SalesReportController extends Controller
             return false;
         } else {
             return true;
+        }
+    }
+
+    public function saleBillsDetails(Request $request)
+    {
+        $page_title = 'Salebill Details Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Salebill Details Report / View';
+        $logs->log_subject = 'Salebill Details Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.salebill_details_report', compact('page_title', 'employees'));
+    }
+
+    public function listSaleBillsDetails(Request $request)
+    {
+        $user = Session::get('user');
+
+        $data = DB::table('sale_bills as s')
+            ->join('sale_bill_items as sbi', function ($j) {
+                $j->on('s.sale_bill_id', '=', 'sbi.sale_bill_id')
+                ->on('s.financial_year_id', '=', 'sbi.financial_year_id');
+            })
+            ->leftJoin('sale_bill_transports as sbt', function ($j) {
+                $j->on('s.sale_bill_id', '=', 'sbt.sale_bill_id')
+                ->on('s.financial_year_id', '=', 'sbt.financial_year_id')
+                ->where('sbt.is_deleted', 0);
+            })
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+            ->join('cities as c', DB::raw('cast(sbt.station as integer)'), '=', 'c.id')
+            ->join('transport_details as td', 'sbt.transport_id', '=', 'td.id')
+            ->join('sale_bill_agents as sba', 's.agent_id', '=', 'sba.id')
+            ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, s.company_id, s.supplier_id, to_char(s.select_date, \'dd-mm-yyyy\') as select_date, s.sale_bill_id, s.financial_year_id, s.total, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name as transport_name, sba.name as agent_name, c.name as city_name, s.sale_bill_for, sbi.id, sbi.pieces, sbi.meters, sbi.rate, sbi.amount, (case when s.sale_bill_for = \'1\' then (select product_name from products where category = sbi.product_or_fabric_id limit 1) else (select name from product_categories where id = sbi.product_or_fabric_id limit 1) end) as product_name');
+
+        if ($request->search_type == 'day') {
+            $data = $data->where('s.select_date', $request->selected_date);
+        } else if ($request->search_type == 'month') {
+            $data = $data->whereRaw('to_char(s.select_date, \'mm\') = \'' . $request->selected_month . '\'')
+                ->where('s.financial_year_id', $user->financial_year_id);
+        } else if ($request->search_type == 'year') {
+            $data = $data->where('s.financial_year_id', $user->financial_year_id);
+        }
+
+        $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
+            ->groupByRaw('sbi.id, s.company_id, s.supplier_id, s.sale_bill_for, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name, sbi.pieces, sbi.meters, sbi.rate, sbi.amount')
+            ->orderBy('s.sale_bill_id', 'asc');
+        $data = $data->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.salebill_details_export_pdf', compact('data', 'request'))
+            ->setOptions(['defaultFont' => 'sans-serif']);
+            if ($request->show_detail == 0) {
+                $pdf = $pdf->setPaper('a4', 'landscape');
+            }
+            $path = storage_path('app/public/pdf/salebill-details-reports');
+            $fileName = 'Salebill-Details-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/salebill-details-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Salebill-Details-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.salebill_details_export_sheet'), 'excel-sheets/salebill-details-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/salebill-details-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
         }
     }
 }

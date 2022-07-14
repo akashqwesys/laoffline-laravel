@@ -38,15 +38,15 @@
                                         <tbody>
                                             <tr>
                                                 <td>1</td>
-                                                <td><a target="_blank" href="/reports/consolidate-monthly-sales-report">Consolidate Monthly Sales Report</a></td>
+                                                <td><a target="_blank" href="/reports/consolidate-monthly-sales-report"> Consolidate Monthly Sales Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>2</td>
-                                                <td><a target="_blank" href="/reports/outstanding-payment-report">Outstanding Payment Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-payment-report"> Outstanding Payment Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>3</td>
-                                                <td><a target="_blank" href="/reports/outstanding-payment-month-wise-summary-report">Outstanding Payment Month Wise Summary Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-payment-month-wise-summary-report"> Outstanding Payment Month Wise Summary Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>4</td>
@@ -54,7 +54,7 @@
                                             </tr>
                                             <tr>
                                                 <td>5</td>
-                                                <td><a target="_blank" href="/reports/commission-register-report">Commission Register</a></td>
+                                                <td><a target="_blank" href="/reports/commission-register-report"> Commission Register</a></td>
                                             </tr>
                                             <tr>
                                                 <td>6</td>
@@ -62,7 +62,7 @@
                                             </tr>
                                             <tr>
                                                 <td>7</td>
-                                                <td><a target="_blank" href="/sales_bill_details_report">Sale Report All Bill Details Item</a></td>
+                                                <td><a target="_blank" href="/reports/sales-bill-details-report">Sale Report All Bill Item Details </a></td>
                                             </tr>
                                             <tr>
                                                 <td>8</td>
@@ -77,7 +77,7 @@
                                                 <td></td>
                                                 <td>
                                                     <ul>
-                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/supplier" target="_blank"> Supplier </a></li> 
+                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/supplier" target="_blank"> Supplier </a></li>
                                                         <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/customer" target="_blank"> Customer </a></li>
                                                     </ul>
                                                 </td>
