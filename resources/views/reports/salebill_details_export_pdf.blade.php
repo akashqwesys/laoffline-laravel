@@ -170,7 +170,7 @@
                     </tr>
                     <tr>
                         <td colspan="13">
-                            <div class="text-center w-80 m-auto-">
+                            <div class="text-center w-80">
                                 <table>
                                     <thead>
                                         <tr>
