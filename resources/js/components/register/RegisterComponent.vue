@@ -164,12 +164,12 @@
                             if ($('#company').val() == '') {
                                 data.columns[6].search.value = '';
                             } else {
-                                data.columns[6].search.value = $('#company').val();
+                                data.columns[6].search.value = $('#customer_name').val();
                             }
                             if ($('#supplier').val() == '') {
                                 data.columns[7].search.value = '';
                             } else {
-                                data.columns[7].search.value = $('#supplier').val();
+                                data.columns[7].search.value = $('#supplier_name').val();
                             }
                             if ($('#cmptype').val() == '') {
                                 data.columns[8].search.value = '';
@@ -234,7 +234,7 @@
 
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="register_filter"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="iotype" class="form-control form-control-sm" placeholder="IO Type"><input type="search" id="iomedium" class="form-control form-control-sm" placeholder="IO Medium"><input type="search" id="company" class="form-control form-control-sm" placeholder="Company"><input type="search" id="supplier" class="form-control form-control-sm" placeholder="Supplier Name"><input type="search" id="cmptype" class="form-control form-control-sm" placeholder="CMP type"><input type="search" id="generatedby" class="form-control form-control-sm" placeholder="Generate By"><input type="search" id="assignto" class="form-control form-control-sm" placeholder="Assign to"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="register_filter"><input type="search" id="iuid" class="form-control form-control-sm" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm" placeholder="Date Added"><input type="search" id="iotype" class="form-control form-control-sm" placeholder="IO Type"><input type="search" id="iomedium" class="form-control form-control-sm" placeholder="IO Medium"><div class="input-group"><input type="text" id="customer_name" class="form-control form-control-sm w-20" placeholder="Customer"></div><div class="input-group"><input type="text" id="supplier_name" class="form-control form-control-sm w-20" placeholder="Supplier"></div><input type="search" id="cmptype" class="form-control form-control-sm" placeholder="CMP type"><input type="search" id="generatedby" class="form-control form-control-sm" placeholder="Generate By"><input type="search" id="assignto" class="form-control form-control-sm" placeholder="Assign to"></div>') .insertAfter('.dataTables_length');
                 });
             }
             init_dt_table();
@@ -285,7 +285,32 @@
                     draw = 0;
                 }
             });
-
+            window.addEventListener('load', function () {
+                axios.get('/common/list-customers-and-suppliers')
+                .then(response => {
+                    new Autocomplete(document.getElementById('customer_name'), {
+                        threshold: 2,
+                        data: response.data[0],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                    new Autocomplete(document.getElementById('supplier_name'), {
+                        threshold: 2,
+                        data: response.data[1],
+                        maximumItems: 5,
+                        label: 'name',
+                        value: 'id',
+                        onSelectItem: ({ label, value }) => { }
+                    });
+                });
+                setTimeout(() => {
+                    $('#customer_name, #supplier_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                        dt_table.clear().draw();
+                    });
+                }, 1000);
+            }, false);
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
             });

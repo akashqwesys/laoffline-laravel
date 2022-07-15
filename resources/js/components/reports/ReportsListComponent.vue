@@ -143,11 +143,11 @@
                                             </tr>
                                             <tr>
                                                 <td>20</td>
-                                                <td><a target="_blank" href="reports/avg_payment_days-report">Average Payment Days Report </a></td>
+                                                <td><a target="_blank" href="reports/avg-payment-days-report">Average Payment Days Report </a></td>
                                             </tr>
                                             <tr>
                                                 <td>21</td>
-                                                <td><a target="_blank" href="/avg_commission_days">Average Commission Days Report</a></td>
+                                                <td><a target="_blank" href="reports/avg-commission-days-report">Average Commission Days Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>22</td>

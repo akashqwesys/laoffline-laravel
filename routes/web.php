@@ -798,15 +798,15 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/outstanding-payment-month-wise-summary-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentMonthWiseSummeryReport']);
     Route::post('/list-commission-outstanding-month-wise-summery-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionMonthWiseSummeryData']);
     
-    Route::get('/avg_payment_days-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'avaPaymentDaysReport']);
+    Route::get('/avg-payment-days-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'avaPaymentDaysReport']);
     Route::post('/list-outstanding-commission-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionData']);
     Route::get('/outstanding-commission-month-wise-summary-report/{type}', [App\Http\Controllers\Reports\CommissionReportController::class, 'outstandingCommissionMonthWiseSummeryReport']);
-    
+    Route::post('/list-avarage-commissions-days', [App\Http\Controllers\Reports\CommissionReportController::class, 'listAvarageCommissionDaysData']);
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::get('/outstanding-commission-register-report/{type}', [App\Http\Controllers\Reports\CommissionReportController::class, 'outstandingCommissionRegister']);
-
+    Route::get('/avg-commission-days-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'avaCommissionDaysReport']);
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
-});
+}); 
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');
