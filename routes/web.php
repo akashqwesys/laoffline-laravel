@@ -17,6 +17,23 @@ use Illuminate\Support\Facades\Auth;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::get('/truncateDB', [App\Http\Controllers\settings\ConnectionController::class, 'truncateDB']);
+Route::get('/products', [App\Http\Controllers\settings\ConnectionController::class, 'products']);
+Route::get('/bankDetails', [App\Http\Controllers\settings\ConnectionController::class, 'bankDetails']);
+Route::get('/comboID/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'comboID']);
+Route::get('/commissionAndInvoice', [App\Http\Controllers\settings\ConnectionController::class, 'commissionAndInvoice']);
+Route::get('/company', [App\Http\Controllers\settings\ConnectionController::class, 'company']);
+Route::get('/goodsReturn', [App\Http\Controllers\settings\ConnectionController::class, 'goodsReturn']);
+Route::get('/inwardAll', [App\Http\Controllers\settings\ConnectionController::class, 'inwardAll']);
+Route::get('/transport', [App\Http\Controllers\settings\ConnectionController::class, 'transport']);
+Route::get('/iuids/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'iuids']);
+Route::get('/ouids/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'ouids']);
+Route::get('/outwardAll/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'outwardAll']);
+Route::get('/payment/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'payment']);
+Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'reference']);
+Route::get('/salebills/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'salebills']);
+// Route::get('/userLog/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'userLog']);
+
 Auth::routes();
 
 Route::get('/', [App\Http\Controllers\Auth\LoginController::class, 'index'])->name('login');
@@ -800,7 +817,7 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/outstanding-payment-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentReport']);
     Route::get('/outstanding-payment-month-wise-summary-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentMonthWiseSummeryReport']);
     Route::post('/list-commission-outstanding-month-wise-summery-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionMonthWiseSummeryData']);
-    
+
     Route::get('/avg-payment-days-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'avaPaymentDaysReport']);
     Route::post('/list-outstanding-commission-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionData']);
     Route::get('/outstanding-commission-month-wise-summary-report/{type}', [App\Http\Controllers\Reports\CommissionReportController::class, 'outstandingCommissionMonthWiseSummeryReport']);
@@ -810,6 +827,6 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/avg-commission-days-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'avaCommissionDaysReport']);
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
-}); 
+});
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');
