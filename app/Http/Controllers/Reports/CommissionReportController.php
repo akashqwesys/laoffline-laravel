@@ -371,6 +371,28 @@ class CommissionReportController extends Controller
             $data2 = $data2->whereRaw('\'' . $todaydate . '\'' . ' - p.date > '. $request->day['report_days']);
             $data1 = $data1->whereRaw('\'' . $todaydate . '\'' . ' - p1.date > '. $request->day['report_days']);
         }
+
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 1) {
+                $data2 = $data2->orderBy('cs.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data2 = $data2->orderBy('cs.company_name', 'desc');
+            } else if ($sorting == 3) {
+                $data2 = $data2->orderBy('cc.company_name', 'asc');
+            } else if ($sorting == 4) {
+                $data2 = $data2->orderBy('cc.company_name', 'desc');
+            } else if ($sorting == 5) {
+                $data2 = $data2->orderBy('p.date', 'asc');
+            } else if ($sorting == 6) {
+                $data2 = $data2->orderBy('p.date', 'desc');
+            } else if ($sorting == 7) {
+                $data2 = $data2->orderBy('commission_amount', 'asc');
+            } else if ($sorting == 8) {
+                $data2 = $data2->orderBy('commission_amount', 'desc');
+            }
+
+        }
         $data2 = $data2->get();
         $data1 = $data1->get();
         $morethan = '';
@@ -615,9 +637,13 @@ class CommissionReportController extends Controller
                 }        
                     $html .= '<td>'.$pending_percentage.'</td>
                               <td>'.$cust_supp_name.'</td>
-                              <td>'.floor($due_day).'</td>
-                              <td>'.$bill_no.'</td>
-                          </tr>';
+                              <td>'.floor($due_day).'</td>';
+                    if ($request->export_pdf == 0) {
+                        $html .=  '<td><a href="/account/commission/invoice/view-invoice/'.$commission_invoice_id.'" target="_blank">'.$bill_no.'</a></td>';
+                    } else {
+                        $html .=  '<td>'.$bill_no.'</td>';
+                    }
+                    $html .=  '</tr>';
                     
                 $prev_com = $row->total_comm_amount;
                 $tot_payment += $row->receipt_amount;
@@ -678,8 +704,7 @@ class CommissionReportController extends Controller
             ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
             ->where('p.is_deleted', 0)
             ->whereNot('p.receipt_amount', 0)
-            ->where('p.old_commission_status', 0)
-            ->orderBy('p.date');
+            ->where('p.old_commission_status', 0);
         } else {
             $data1 = DB::table('payments as p')
             ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
@@ -693,8 +718,7 @@ class CommissionReportController extends Controller
             ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
             ->where('p.is_deleted', 0)
             ->whereNot('p.receipt_amount', 0)
-            ->where('p.old_commission_status', 0)
-            ->orderBy('p.date');
+            ->where('p.old_commission_status', 0);
         }
 
         $supplier = array();
@@ -752,6 +776,23 @@ class CommissionReportController extends Controller
             $data1 = $data1->whereRaw("p.date::date >= '" . $request->start_date . "'")
                     ->whereRaw("p.date::date <= '" . $request->end_date . "'");
         }
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 1) {
+                $data1 = $data1->orderBy('cs.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data1 = $data1->orderBy('cs.company_name', 'desc');
+            } else if ($sorting == 3) {
+                $data1 = $data1->orderBy('cc.company_name', 'asc');
+            }  else if ($sorting == 4) {
+                $data1 = $data1->orderBy('cc.company_name', 'desc');
+            } else if ($sorting == 5) {
+                $data1 = $data1->orderBy('p.date', 'asc');
+            } else if ($sorting == 6) {
+                $data1 = $data1->orderBy('p.date', 'desc');
+            }
+        }
+
         $data1 = collect($data1->get())->groupBy('monthyear');
         
         $sup = '';
