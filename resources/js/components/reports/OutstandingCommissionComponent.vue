@@ -158,7 +158,7 @@
                 city: '',
                 group: 0,
                 day : {id:1, report_days: 0, name: 'All'},
-                sorting: {id: 5, name: 'Date L -> H'},
+                sorting: {id: 1, name: 'Supplier A -> Z'},
                 max_date: '2022-01-01',
                 show_detail: 0,
                 detailed_table: true,
@@ -205,8 +205,8 @@
             },
             clearData() {
                 this.start_date = this.end_date = this.customer = this.agent = this.supplier = '';
-                this.sorting = {id: 5, name: 'Date L -> H'};
-                this.day = {id: 1, name:'All'},
+                this.sorting = {id: 1, name: 'Supplier A -> Z'};
+                this.day = {id:1, report_days: 0, name: 'All'},
                 $('#salesRegister tbody').html('');
                 this.getData();
             },

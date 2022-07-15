@@ -936,6 +936,6 @@ class PaymentsReportController extends Controller
         } else {
             return response()->json($data);
         }
-        return response()->json($data);
+        
     }
 }

@@ -16,6 +16,7 @@ use PDF;
 use Excel;
 use App\Exports\CommissionRegisterExport;
 use App\Exports\OutstandingCommissionExport;
+use App\Exports\AvarageCommissionDaysExport;
 use App\Exports\OutstandingCommissionMonthWiseSummeryExport;
 use Carbon\Carbon;
 
@@ -106,6 +107,30 @@ class CommissionReportController extends Controller
         $logs->save();
 
         return view('reports.outstanding_commission_month_wise_summery_report', compact('page_title', 'employees'));
+    }
+
+    public function avaCommissionDaysReport(Request $request) {
+        $page_title = 'Avarage Commission Days Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Avarage Commission Days Report / View';
+        $logs->log_subject = 'Outstanding Commission Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.ava_commission_days_report', compact('page_title', 'employees'));
     }
 
     public function listCommissionRegisterData(Request $request)
@@ -345,6 +370,28 @@ class CommissionReportController extends Controller
             $todaydate = Carbon::now()->format('Y-m-d');
             $data2 = $data2->whereRaw('\'' . $todaydate . '\'' . ' - p.date > '. $request->day['report_days']);
             $data1 = $data1->whereRaw('\'' . $todaydate . '\'' . ' - p1.date > '. $request->day['report_days']);
+        }
+
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 1) {
+                $data2 = $data2->orderBy('cs.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data2 = $data2->orderBy('cs.company_name', 'desc');
+            } else if ($sorting == 3) {
+                $data2 = $data2->orderBy('cc.company_name', 'asc');
+            } else if ($sorting == 4) {
+                $data2 = $data2->orderBy('cc.company_name', 'desc');
+            } else if ($sorting == 5) {
+                $data2 = $data2->orderBy('p.date', 'asc');
+            } else if ($sorting == 6) {
+                $data2 = $data2->orderBy('p.date', 'desc');
+            } else if ($sorting == 7) {
+                $data2 = $data2->orderBy('commission_amount', 'asc');
+            } else if ($sorting == 8) {
+                $data2 = $data2->orderBy('commission_amount', 'desc');
+            }
+
         }
         $data2 = $data2->get();
         $data1 = $data1->get();
@@ -590,9 +637,13 @@ class CommissionReportController extends Controller
                 }        
                     $html .= '<td>'.$pending_percentage.'</td>
                               <td>'.$cust_supp_name.'</td>
-                              <td>'.floor($due_day).'</td>
-                              <td>'.$bill_no.'</td>
-                          </tr>';
+                              <td>'.floor($due_day).'</td>';
+                    if ($request->export_pdf == 0) {
+                        $html .=  '<td><a href="/account/commission/invoice/view-invoice/'.$commission_invoice_id.'" target="_blank">'.$bill_no.'</a></td>';
+                    } else {
+                        $html .=  '<td>'.$bill_no.'</td>';
+                    }
+                    $html .=  '</tr>';
                     
                 $prev_com = $row->total_comm_amount;
                 $tot_payment += $row->receipt_amount;
@@ -653,8 +704,7 @@ class CommissionReportController extends Controller
             ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
             ->where('p.is_deleted', 0)
             ->whereNot('p.receipt_amount', 0)
-            ->where('p.old_commission_status', 0)
-            ->orderBy('p.date');
+            ->where('p.old_commission_status', 0);
         } else {
             $data1 = DB::table('payments as p')
             ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
@@ -668,8 +718,7 @@ class CommissionReportController extends Controller
             ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
             ->where('p.is_deleted', 0)
             ->whereNot('p.receipt_amount', 0)
-            ->where('p.old_commission_status', 0)
-            ->orderBy('p.date');
+            ->where('p.old_commission_status', 0);
         }
 
         $supplier = array();
@@ -727,6 +776,23 @@ class CommissionReportController extends Controller
             $data1 = $data1->whereRaw("p.date::date >= '" . $request->start_date . "'")
                     ->whereRaw("p.date::date <= '" . $request->end_date . "'");
         }
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 1) {
+                $data1 = $data1->orderBy('cs.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data1 = $data1->orderBy('cs.company_name', 'desc');
+            } else if ($sorting == 3) {
+                $data1 = $data1->orderBy('cc.company_name', 'asc');
+            }  else if ($sorting == 4) {
+                $data1 = $data1->orderBy('cc.company_name', 'desc');
+            } else if ($sorting == 5) {
+                $data1 = $data1->orderBy('p.date', 'asc');
+            } else if ($sorting == 6) {
+                $data1 = $data1->orderBy('p.date', 'desc');
+            }
+        }
+
         $data1 = collect($data1->get())->groupBy('monthyear');
         
         $sup = '';
@@ -921,8 +987,124 @@ class CommissionReportController extends Controller
             return response()->json(['url' => url('/storage/excel-sheets/outstanding-commission-month-wise-summery-reports/' . $fileName)]);
         } else {
             return response()->json($data);
-        }
-         
+        }     
     }
     
+    public function listAvarageCommissionDaysData(Request $request) {
+        $data1 = DB::table('commission_invoices as ci')
+                    ->join('commission_details as cd',function($join) {
+                        $join->on('cd.commission_invoice_id','=','ci.id')
+                                ->where('cd.is_deleted', 0);
+                    })
+                    ->join('commissions as c',function($join) {
+                        $join->on('c.id','=','cd.c_increment_id')
+                            ->where('c.is_deleted', 0);
+                    })
+                    ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'ci.customer_id', '=', 'cc.id')
+                    ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'ci.supplier_id', '=', 'cs.id')
+                    ->select('ci.id', 'ci.bill_date', 'c.commission_date', 'ci.supplier_id', 'ci.customer_id', 'cc.company_name as customer_name', 'cs.company_name as supplier_name');
+                    
+        if ($request->supplier && $request->supplier['id']) {
+            $data1 = $data1->where('ci.supplier_id', $request->supplier['id']);
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");
+        }
+        $data1 = $data1->get();
+        $cidata = array();
+        foreach($data1 as $key => $row) {
+            $cidata[$key]['id'] = $row->id;
+            $cidata[$key]['bill_date'] = $row->bill_date;
+            $cidata[$key]['commission_date'] = $row->commission_date;
+            if ($row->supplier_id == 0){
+                $cidata[$key]['company_id'] = $row->customer_id;
+                $cidata[$key]['company_name'] = $row->customer_name;
+            } else {
+                $cidata[$key]['company_id'] = $row->supplier_id;
+                $cidata[$key]['company_name'] = $row->supplier_name;
+            }
+        }
+        $cidata = collect($cidata)->groupBy('company_id');
+        $companydata = array();
+        foreach($cidata as $key1 => $row1) {
+            $companydetail = array();
+            
+            $noofbill = count($row1);
+            $totalday = 0;
+            foreach ($row1 as $c) {
+                $companyname = $c['company_name'];
+                $billdate = strtotime($c['bill_date']);
+                $commissiondate = strtotime($c['commission_date']);
+                $diff = $commissiondate - $billdate;
+                $day = $diff / 84600;
+                $totalday += $day;
+            }
+            $avaragedays = $totalday / $noofbill;
+            $company_detail['company_id'] = $key1;
+            $company_detail['company_name'] = $companyname;
+            $company_detail['totalbill'] = $noofbill;
+            $company_detail['avarageday'] = floor($avaragedays);
+            array_push($companydata, $company_detail);
+        }
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 3) {
+                usort($companydata, function ($item1, $item2) {
+                    if ($item1['avarageday'] == $item2['avarageday']) return 0;
+                    return $item1['avarageday'] < $item2['avarageday'] ? -1 : 1;
+                });
+            } else if ($sorting == 4) {
+                usort($companydata, function ($item1, $item2) {
+                    if ($item1['avarageday'] == $item2['avarageday']) return 0;
+                    return $item1['avarageday'] > $item2['avarageday'] ? -1 : 1;
+                });
+            }
+        }
+
+        $html = '';
+
+        if (!empty($companydata)) {
+            $i = 1;
+            $html .= '<tr>
+                <td><b>No</b></td>
+                <td><b>Company Name</b></td>
+                <td><b>Avarage Days</b></td>
+            </tr>';
+            foreach ($companydata as $cd) {
+                $html .= '<tr>
+                            <td>'.$i++.'</td>';
+                        if ($request->export_pdf != 1) {
+                            $html.= '<td><a href="#" class="view-details" data-id="'.$cd['company_id'].'">'.$cd['company_name'].'</a></td>';
+                        } else {
+                            $html.= '<td>'.$cd['company_name'].'</td>';
+                        }
+                    
+                    $html .='<td>'.$cd['avarageday'].' Days</td>
+                        </tr>';
+            }
+        } else {
+            $html .= '<tr>
+            <td colspan=3>No Data Found<td>
+            </tr>';
+        }
+        $data['company_data'] = $companydata;
+        $data['table'] = $html;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.avarage_commission_days_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/avarage-commission-days-reports');
+            $fileName =  'Avarage-Commission-Days-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/avarage-commission-days-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Avarage-Commission-Days-Report' . time() . '.xlsx';
+            Excel::store(new AvarageCommissionDaysExport($data, $request), 'excel-sheets/avarage-commission-days-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/avarage-commission-days-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+        
+    }
 }
