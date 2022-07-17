@@ -12,7 +12,6 @@ class Comboids extends Model
     protected $primaryKey = 'comboid';
 
     protected $fillable = [
-            'comboid',
             'iuid',
             'ouid',
             'general_ref_id',

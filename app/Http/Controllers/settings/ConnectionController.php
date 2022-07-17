@@ -475,18 +475,36 @@ class ConnectionController extends Controller
         if (mysqli_num_rows($comboquery) != 0) {
             $i = 0;
             while ($result = mysqli_fetch_assoc($comboquery)) {
-                $comboList[$i]['id'] = $result['comboid'];
+                if ($result['date_added'] == '0000-00-00 00:00:00') {
+                    $result['date_added'] = NULL;
+                } else {
+                    $result['date_added'] = $result['date_added'];
+                }
+                if ($result['date_updated'] == '0000-00-00 00:00:00') {
+                    $result['date_updated'] = NULL;
+                } else {
+                    $result['date_updated'] = $result['date_updated'];
+                }
+                if ($result['action_date'] == '0000-00-00') {
+                    $result['action_date'] = NULL;
+                } else {
+                    $result['action_date'] = $result['action_date'];
+                }
+                if ($result['selection_date'] == '0000-00-00') {
+                    $result['selection_date'] = NULL;
+                } else {
+                    $result['selection_date'] = $result['selection_date'];
+                }
                 $comboList[$i]['comboid'] = $result['comboid'];
                 $comboList[$i]['iuid'] = $result['iuid'];
                 $comboList[$i]['ouid'] = $result['ouid'];
                 $comboList[$i]['general_ref_id'] = $result['general_ref_id'];
-                $comboList[$i]['follow_as_inward_or_outward'] = $result['follow_as_inward_or_outward'];
                 $comboList[$i]['system_module_id'] = $result['system_module_id'];
                 $comboList[$i]['generated_by'] = $result['generated_by'];
                 $comboList[$i]['updated_by'] = $result['updated_by'];
                 $comboList[$i]['inward_or_outward_flag'] = $result['inward_or_outward_flag'];
                 $comboList[$i]['inward_or_outward_id'] = $result['inward_or_outward_id'];
-                $comboList[$i]['follow_as_inward_or_outward'] = $result['follow_as_inward_or_outward'];
+                $comboList[$i]['follow_as_inward_or_outward'] = $result['followup_as_inward_or_outward'];
                 $comboList[$i]['sale_bill_id'] = $result['sale_bill_id'];
                 $comboList[$i]['payment_id'] = $result['payment_id'];
                 $comboList[$i]['goods_return_id'] = $result['goods_return_id'];
@@ -548,7 +566,6 @@ class ConnectionController extends Controller
         if (!empty($comboList)) {
             foreach ($comboList as $combo) {
                 $Comboids = new Comboids;
-                $Comboids->id = $combo['id'];
                 $Comboids->comboid = $combo['comboid'];
                 $Comboids->iuid = $combo['iuid'];
                 $Comboids->ouid = $combo['ouid'];
@@ -1734,10 +1751,20 @@ class ConnectionController extends Controller
         if (mysqli_num_rows($inwardorderdetailquery) != 0) {
             $i = 0;
             while ($result = mysqli_fetch_assoc($inwardorderdetailquery)) {
+                if ($result['date_added'] == '0000-00-00 00:00:00') {
+                    $result['date_added'] = NULL;
+                } else {
+                    $result['date_added'] = $result['date_added'];
+                }
+                if ($result['packing_date'] == '0000-00-00') {
+                    $result['packing_date'] = NULL;
+                } else {
+                    $result['packing_date'] = $result['packing_date'];
+                }
                 $InwardOrderDetailList[$i]['id'] = $result['inward_order_for_details_id'];
                 $InwardOrderDetailList[$i]['inward_id'] = $result['inward_id'];
                 $InwardOrderDetailList[$i]['order_for'] = $result['order_for'];
-                $InwardOrderDetailList[$i]['packing_id'] = $result['packing_id'];
+                $InwardOrderDetailList[$i]['packing_id'] = $result['packin_id'];
                 $InwardOrderDetailList[$i]['packing_date'] = $result['packing_date'];
                 $InwardOrderDetailList[$i]['lump'] = $result['lump'];
                 $InwardOrderDetailList[$i]['cut'] = $result['cut'];
@@ -1786,7 +1813,7 @@ class ConnectionController extends Controller
                 $InwardOrderActionList[$i]['qty'] = $result['qty'];
                 $InwardOrderActionList[$i]['rate'] = $result['rate'];
                 $InwardOrderActionList[$i]['discount'] = $result['discount'];
-                $InwardOrderActionList[$i]['sale_bill_flag '] = $result['sale_bill_flag '];
+                $InwardOrderActionList[$i]['sale_bill_flag'] = $result['sale_bill_flag'];
                 $InwardOrderActionList[$i]['is_deleted'] = $result['is_deleted'];
                 $InwardOrderActionList[$i]['date_added'] = $result['date_added'];
             }
@@ -1796,7 +1823,7 @@ class ConnectionController extends Controller
             DB::table('inward_order_actions')->truncate();
             foreach($InwardOrderActionList as $ioa) {
                 $inwardorderactiondata = new InwardOrderAction();
-                $inwardorderactiondata->id = $ioa['inward_order_action_id'];
+                $inwardorderactiondata->id = $ioa['id'];
                 $inwardorderactiondata->inward_order_id = $ioa['inward_order_id'];
                 $inwardorderactiondata->action_flag = $ioa['action_flag'];
                 $inwardorderactiondata->inward_id = $ioa['inward_id'];
@@ -1808,6 +1835,7 @@ class ConnectionController extends Controller
                 $inwardorderactiondata->rate = $ioa['rate'];
                 $inwardorderactiondata->qty = $ioa['qty'];
                 $inwardorderactiondata->discount = $ioa['discount'];
+                $inwardorderactiondata->sale_bill_flag = $ioa['sale_bill_flag'];
                 $inwardorderactiondata->is_deleted = $ioa['is_deleted'];
                 $inwardorderactiondata->created_at = $ioa['date_added'];
                 $inwardorderactiondata->save();
@@ -1831,6 +1859,7 @@ class ConnectionController extends Controller
                 $inwardlink = new InwardLinkWith();
                 $inwardlink->id = $ilw['id'];
                 $inwardlink->name = $ilw['name'];
+                $inwardlink->is_delete = 0;
                 $inwardlink->save();
             }
         }
@@ -1840,6 +1869,11 @@ class ConnectionController extends Controller
         if (mysqli_num_rows($inwardOrderquery) != 0) {
             $i = 0;
             while ($result = mysqli_fetch_assoc($inwardOrderquery)) {
+                if ($result['packing_date'] == '0000-00-00') {
+                    $result['packing_date'] = NULL;
+                } else {
+                    $result['packing_date'] = $result['packing_date'];
+                }
                 $InwardOrderList[$i]['id'] = $result['inward_order_id'];
                 $InwardOrderList[$i]['inward_id'] = $result['inward_id'];
                 $InwardOrderList[$i]['order_for'] = $result['order_for'];
@@ -1849,7 +1883,7 @@ class ConnectionController extends Controller
                 $InwardOrderList[$i]['qty'] = $result['qty'];
                 $InwardOrderList[$i]['rate'] = $result['rate'];
                 $InwardOrderList[$i]['discount'] = $result['discount'];
-                $InwardOrderList[$i]['packing_id'] = $result['packing_id'];
+                $InwardOrderList[$i]['packing_id'] = $result['packin_id'];
                 $InwardOrderList[$i]['packing_date'] = $result['packing_date'];
                 $InwardOrderList[$i]['lump'] = $result['lump'];
                 $InwardOrderList[$i]['cut'] = $result['cut'];
@@ -2036,8 +2070,8 @@ class ConnectionController extends Controller
                 $OutwardList[$i]['outward_courier_flag'] = $result['outward_courier_flag'];
                 $OutwardList[$i]['outward_employee_id'] = $result['outward_employe_id'];
                 $OutwardList[$i]['is_deleted'] = $result['is_deleted'];
-                $OutwardList[$i]['date_added'] = $result['date_added'];
-                $OutwardList[$i]['date_updated'] = $result['date_updated'];
+                $OutwardList[$i]['date_added'] = $result['date_added'] == '0000-00-00 00:00:00' ? null : $result['date_added'];
+                $OutwardList[$i]['date_updated'] = $result['date_updated'] == '0000-00-00 00:00:00' ? null : $result['date_updated'];
                 $i++;
             }
         }
@@ -2112,7 +2146,7 @@ class ConnectionController extends Controller
             }
         }
 
-        $outwardOrderdetail = "SELECT * FROM outward_order_for_details";
+        $outwardOrderdetail = "SELECT * FROM outward_order_for_details limit $limit offset $offset";
         $outwardOrderdetailquery = mysqli_query($this->conn, $outwardOrderdetail);
         if (mysqli_num_rows($outwardOrderdetailquery) != 0) {
             $i = 0;
@@ -2150,7 +2184,7 @@ class ConnectionController extends Controller
             }
         }
 
-        $outwardOrder = "SELECT * FROM outward_order";
+        $outwardOrder = "SELECT * FROM outward_order limit $limit offset $offset";
         $outwardOrderquery = mysqli_query($this->conn, $outwardOrder);
         if (mysqli_num_rows($outwardOrderquery) != 0) {
             $i = 0;
@@ -2184,7 +2218,7 @@ class ConnectionController extends Controller
             }
         }
 
-        $outwardproduct = "SELECT * FROM outward_product_or_fabric";
+        $outwardproduct = "SELECT * FROM outward_product_or_fabric limit $limit offset $offset";
         $outwardproductquery = mysqli_query($this->conn, $outwardproduct);
         if (mysqli_num_rows($outwardproductquery) != 0) {
             $i = 0;
@@ -2311,7 +2345,7 @@ class ConnectionController extends Controller
             }
         }
 
-        sleep(3);
+        // sleep(3);
 
         $payment = "SELECT * FROM payment limit $limit offset $offset";
         $paymentquery = mysqli_query($this->conn, $payment);
@@ -2323,11 +2357,12 @@ class ConnectionController extends Controller
                 $PaymentList[$i]['iuid'] = $result['iuid'];
                 $PaymentList[$i]['reference_id'] = $result['reference_id'];
                 $array = @unserialize(trim($result['attachments']));
-                if ($array === false && trim($result['attachments']) !== 'b:0;') {
-                    // woops, that didn't appear to be anything serialized
-                    $PaymentList[$i]['attachments'] = json_encode([]);
+                $array = @unserialize(($result['attachments']));
+                if (is_array($array) && count($array)) {
+                    $PaymentList[$i]['attachments'] = json_encode($array);
                 } else {
-                    $PaymentList[$i]['attachments'] = json_encode(unserialize($result['attachments']));
+                    // woops, that didn't appear to be anything serialized
+                    $PaymentList[$i]['attachments'] = '[]';
                 }
                 $PaymentList[$i]['letter_attachment'] = $result['letter_attachment'];
                 $PaymentList[$i]['financial_year_id'] = $result['financial_year_id'];
@@ -2583,7 +2618,7 @@ class ConnectionController extends Controller
             }
         }
 
-        sleep(3);
+        // sleep(3);
 
         $salebillitem = "SELECT * FROM sale_bill_item limit $limit offset $offset";
         $salebillitemquery = mysqli_query($this->conn, $salebillitem);
@@ -2648,7 +2683,7 @@ class ConnectionController extends Controller
             }
         }
 
-        sleep(3);
+        // sleep(3);
 
         $salebilltransport = "SELECT * FROM sale_bill_transport limit $limit offset $offset";
         $salebilltransportquery = mysqli_query($this->conn, $salebilltransport);
