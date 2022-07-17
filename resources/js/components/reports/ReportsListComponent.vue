@@ -114,15 +114,15 @@
                                             </tr>
                                             <tr>
                                                 <td>15</td>
-                                                <td><a target="_blank" href="/outstanding_invoice_report">Outstanding Invoice Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-invoice-report"> Outstanding Invoice Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>16</td>
-                                                <td><a target="_blank" href="/commission_invoice_report">Commission Invoice Report</a></td>
+                                                <td><a target="_blank" href="/reports/commission-invoice-report"> Commission Invoice Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>17</td>
-                                                <td><a target="_blank" href="/payment_rightof_report">Commission Invoice Right Of Report</a></td>
+                                                <td><a target="_blank" href="/reports/commission-invoice-right-of-report"> Commission Invoice Right Of Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>18</td>

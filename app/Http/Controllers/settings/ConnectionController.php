@@ -1350,6 +1350,7 @@ class ConnectionController extends Controller
         }
 
         if(!empty($ComapnyLinkList)) {
+            DB::table('link_companies')->truncate();
             foreach($ComapnyLinkList as $cl) {
                 $linkcompany = new linkCompanies();
                 $linkcompany->id = $cl['id'];
