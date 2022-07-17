@@ -23,6 +23,7 @@ use App\Models\InwardOutward\Outward;
 use App\Models\InwardOrderDetail;
 use App\Models\InwardOrderAction;
 use App\Models\InwardOrder;
+use App\Models\InwardSample;
 use App\Models\FabricField;
 // use App\Models\EnjayCallRecordsId;
 // use App\Models\CompanyType;
@@ -67,7 +68,7 @@ use App\Models\Reference\ReferenceId;
 // use App\Models\Settings\State;
 use App\Models\Settings\BankDetails;
 // use App\Models\Settings\Designation;
-use App\Models\inwardOutward\inwardActions;
+use App\Models\InwardOutward\InwardActions;
 use App\Models\Settings\TypeOfAddress;
 use App\Models\Logs;
 use Spatie\Permission\Models\Role;
@@ -965,6 +966,17 @@ class ConnectionController extends Controller
                     $result['verified_date'] = $result['verified_date'];
                 }
 
+                if ($result['date_added'] == '0000-00-00 00:00:00') {
+                    $result['date_added'] = NULL;
+                } else {
+                    $result['date_added'] = $result['date_added'];
+                }
+                if ($result['date_updated'] == '0000-00-00 00:00:00') {
+                    $result['date_updated'] = NULL;
+                } else {
+                    $result['date_updated'] = $result['date_updated'];
+                }
+
                 $companyData[$i]['companyData']['id'] = $result['company_id'];
                 $companyData[$i]['companyData']['company_name'] = $result['name'];
                 $companyData[$i]['companyData']['company_type'] = $result['company_type_id'];
@@ -1205,6 +1217,12 @@ class ConnectionController extends Controller
                     }
                 }
 
+                if ($result['date_added'] == '0000-00-00 00:00:00') {
+                    $result['date_added'] = NULL;
+                } else {
+                    $result['date_added'] = $result['date_added'];
+                }
+
                 $companyAddressOwnerData[$i]['id'] = $result['company_address_owner_id'];
                 $companyAddressOwnerData[$i]['company_address_id'] = $result['company_address_id'];
                 $companyAddressOwnerData[$i]['name'] = $result['name'];
@@ -1328,7 +1346,7 @@ class ConnectionController extends Controller
                 $companyContactDetails->id = $coData['id'];
                 $companyContactDetails->company_id = $coData['company_id'];
                 $companyContactDetails->contact_person_name = $coData['contact_person_name'];
-                $companyContactDetails->contact_person_designation = $coData['contact_person_designation'];
+                $companyContactDetails->contact_person_designation = intval($coData['contact_person_designation']);
                 $companyContactDetails->contact_person_profile_pic = $coData['contact_person_profile_pic'];
                 $companyContactDetails->contact_person_mobile = $coData['contact_person_mobile'];
                 $companyContactDetails->contact_person_email = $coData['contact_person_email'];
@@ -1459,7 +1477,7 @@ class ConnectionController extends Controller
             DB::table('gr_sale_bill_items')->truncate();
             foreach ($GRItemList as $gritem) {
                 $grsalebillitem = new GrSaleBillItem();
-                $grsalebillitem->id = $gritem['gr_sale_bill_item_id'];
+                $grsalebillitem->id = $gritem['id'];
                 $grsalebillitem->gr_increment_id = $gritem['gr_increment_id'];
                 $grsalebillitem->goods_return_id = $gritem['goods_return_id'];
                 $grsalebillitem->product_or_fabric_id = $gritem['product_or_fabric_id'];
@@ -1499,6 +1517,21 @@ class ConnectionController extends Controller
         if (mysqli_num_rows($inwardquery) != 0) {
             $i = 0;
             while ($result = mysqli_fetch_assoc($inwardquery)) {
+                if ($result['date_added'] == '0000-00-00 00:00:00') {
+                    $result['date_added'] = NULL;
+                } else {
+                    $result['date_added'] = $result['date_added'];
+                }
+                if ($result['date_updated'] == '0000-00-00 00:00:00') {
+                    $result['date_updated'] = NULL;
+                } else {
+                    $result['date_updated'] = $result['date_updated'];
+                }
+                if ($result['courier_received_time'] == '0000-00-00 00:00:00') {
+                    $result['courier_received_time'] = NULL;
+                } else {
+                    $result['courier_received_time'] = $result['courier_received_time'];
+                }
                 $InwardList[$i]['inward_id'] = $result['inward_id'];
                 $InwardList[$i]['iuid'] = $result['iuid'];
                 $InwardList[$i]['call_by'] = $result['call_by'];
@@ -1509,7 +1542,7 @@ class ConnectionController extends Controller
                 $InwardList[$i]['connected_inward'] = $result['connected_inward'];
                 $InwardList[$i]['inward_date'] = $result['inward_date'];
                 $InwardList[$i]['subject'] = $result['subject'];
-                $InwardList[$i]['employee_id'] = $result['employee_id'];
+                $InwardList[$i]['employee_id'] = $result['employe_id'];
                 $InwardList[$i]['type_of_inward'] = $result['type_of_inward'];
                 $InwardList[$i]['from_number'] = $result['from_number'];
                 $InwardList[$i]['receiver_number'] = $result['receiver_number'];
@@ -1520,14 +1553,14 @@ class ConnectionController extends Controller
                 $InwardList[$i]['courier_receipt_no'] = $result['courier_receipt_no'];
                 $InwardList[$i]['courier_received_time'] = $result['courier_received_time'];
                 $InwardList[$i]['from_name'] = $result['from_name'];
-                $InwardList[$i]['attachments'] = $result['attachments'];
+                $InwardList[$i]['attachments'] = $result['attachments'] ? json_encode(@unserialize($result['attachments'])) : '[]';
                 $InwardList[$i]['remarks'] = $result['remarks'];
                 $InwardList[$i]['latter_by_id'] = $result['latter_by_id'];
                 $InwardList[$i]['delivery_by'] = $result['delivery_by'];
                 $InwardList[$i]['receiver_email_id'] = $result['receiver_email_id'];
                 $InwardList[$i]['from_email_id'] = $result['from_email_id'];
                 $InwardList[$i]['product_main_id'] = $result['product_main_id'];
-                $InwardList[$i]['product_image_id'] = $result['product_image_id'];
+                $InwardList[$i]['product_image_id'] = $result['product_image_id'] ? json_encode(@unserialize($result['product_image_id'])) : '[]';
                 $InwardList[$i]['inward_link_with_id'] = $result['inward_link_with_id'];
                 $InwardList[$i]['enquiry_complain_for'] = $result['enquiry_complain_for'];
                 $InwardList[$i]['client_remark'] = $result['client_remark'];
@@ -1600,7 +1633,7 @@ class ConnectionController extends Controller
                 $inward->fabric_meters = $inwardata['fabric_meters'];
                 $inward->is_deleted = $inwardata['is_deleted'];
                 $inward->created_at = $inwardata['date_added'];
-                $inward->updated_at = $inwardata['updated_at'];
+                $inward->updated_at = $inwardata['date_updated'];
                 $inward->save();
             }
         }
@@ -1610,7 +1643,7 @@ class ConnectionController extends Controller
         if (mysqli_num_rows($inwardsamplequery) != 0) {
             $i = 0;
             while ($result = mysqli_fetch_assoc($inwardsamplequery)) {
-                $InwardSampleList[$i]['id'] = $result['inward_sample_id'];
+                $InwardSampleList[$i]['inward_sample_id'] = $result['inward_sample_id'];
                 $InwardSampleList[$i]['inward_id'] = $result['inward_id'];
                 $InwardSampleList[$i]['name'] = $result['name'];
                 $InwardSampleList[$i]['image'] = $result['image'];
@@ -1627,7 +1660,7 @@ class ConnectionController extends Controller
             DB::table('inward_samples')->truncate();
             foreach ($InwardSampleList as $is) {
                 $inwardsample = new InwardSample();
-                $inwardsample->id = $is['id'];
+                $inwardsample->inward_sample_id = $is['inward_sample_id'];
                 $inwardsample->inward_id = $is['inward_id'];
                 $inwardsample->name = $is['name'];
                 $inwardsample->image = $is['image'];
@@ -1685,7 +1718,7 @@ class ConnectionController extends Controller
         if (!empty($InwardActionList)) {
             DB::table('inward_actions')->truncate();
             foreach ($InwardActionList as $ia) {
-                $inwardaction = new inwardActions();
+                $inwardaction = new InwardActions();
                 $inwardaction->inward_action_id = $ia['inward_action_id'];
                 $inwardaction->inward_id = $ia['inward_id'];
                 $inwardaction->action_date = $ia['action_date'];

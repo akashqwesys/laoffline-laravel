@@ -5,7 +5,7 @@ namespace App\Models\inwardOutward;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class inwardActions extends Model
+class InwardActions extends Model
 {
     use HasFactory;
 
