@@ -9,8 +9,9 @@ class InwardActions extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'inward_action_id';
+
     protected $fillable = [
-        'inward_action_id',
         'inward_id',
         'action_date',
         'employee_id',
