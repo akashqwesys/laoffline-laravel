@@ -888,7 +888,6 @@ class ConnectionController extends Controller
             }
         }
 
-        sleep(3);
         $invP = "SELECT * FROM invoice_payment_receive_details";
         $invPquery = mysqli_query($this->conn, $invP);
         if (mysqli_num_rows($invPquery) != 0) {

@@ -742,20 +742,20 @@ class SalesReportController extends Controller
 
         if ($request->export_pdf == 1) {
             ini_set("memory_limit", -1);
-            $pdf = PDF::loadView('reports.outstanding_commission_export_pdf', compact('data', 'request'))
+            $pdf = PDF::loadView('reports.outstanding_invoice_export_pdf', compact('data', 'request'))
             ->setOptions(['defaultFont' => 'sans-serif']);
             if ($request->show_detail == 0) {
                 $pdf = $pdf->setPaper('a4', 'landscape');
             }
-            $path = storage_path('app/public/pdf/outstanding-commission-reports');
-            $fileName = 'Outstanding-Commission-Report-' . time() . '.pdf';
+            $path = storage_path('app/public/pdf/outstanding-invoice-reports');
+            $fileName = 'Outstanding-Invoice-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
-            return response()->json(['url' => url('/storage/pdf/outstanding-commission-reports/' . $fileName)]);
+            return response()->json(['url' => url('/storage/pdf/outstanding-invoice-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
             ini_set("memory_limit", -1);
-            $fileName = 'Outstanding-Commission-Report-' . time() . '.xlsx';
-            Excel::store(new CommonExport($data, $request, 'reports.outstanding_commission_export_sheet'), 'excel-sheets/outstanding-commission-reports/' . $fileName, 'public');
-            return response()->json(['url' => url('/storage/excel-sheets/outstanding-commission-reports/' . $fileName)]);
+            $fileName = 'Outstanding-Invoice-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.outstanding_invoice_export_sheet'), 'excel-sheets/outstanding-invoice-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/outstanding-invoice-reports/' . $fileName)]);
         } else {
             return response()->json($data);
         }
