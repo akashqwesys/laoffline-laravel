@@ -809,6 +809,9 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/outstanding-invoice-report', [App\Http\Controllers\Reports\SalesReportController::class, 'outstandingInvoiceReport']);
     Route::post('/list-outstanding-invoice-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listOutstandingInvoiceReport']);
 
+    Route::get('/commission-invoice-report', [App\Http\Controllers\Reports\SalesReportController::class, 'commissionInvoiceReport']);
+    Route::post('/list-commission-invoice-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listCommissionInvoiceReport']);
+
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
 

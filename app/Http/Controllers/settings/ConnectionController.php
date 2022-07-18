@@ -866,9 +866,9 @@ class ConnectionController extends Controller
                 $commission->commission_invoice_id = $commissionData['commission_invoice_id'];
                 $commission->financial_year_id = $commissionData['financial_year_id'];
                 $commission->payment_id = $commissionData['payment_id'];
-                $commission->bill_date = $commissionData['bill_date'];
+                $commission->bill_date = $commissionData['bill_date'] == '0000-00-00' ? null : $commissionData['bill_date'];
                 $commission->deposite_bank = $commissionData['deposite_bank'];
-                $commission->cheque_date = $commissionData['cheque_date'];
+                $commission->cheque_date = $commissionData['cheque_date'] == '0000-00-00' ? null : $commissionData['cheque_date'];
                 $commission->cheque_dd_no = $commissionData['cheque_dd_no'];
                 $commission->cheque_dd_bank = $commissionData['cheque_dd_bank'];
                 $commission->percentage = $commissionData['percentage'];

@@ -760,4 +760,89 @@ class SalesReportController extends Controller
             return response()->json($data);
         }
     }
+
+    public function commissionInvoiceReport(Request $request)
+    {
+        $page_title = 'Commission Invoice Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Commission Invoice / View';
+        $logs->log_subject = 'Commission Invoice view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.commission_invoice_report', compact('page_title', 'employees'));
+    }
+
+    public function listCommissionInvoiceReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->invoice_no != '') {
+            $sql .= " and ci.bill_no like '%" . $request->invoice_no . "%'";
+        }
+        if ($request->start_date && $request->end_date) {
+            $sql .= " and ci.bill_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->company && $request->company['id']) {
+            $sql .= ' and (ci.customer_id = ' . $request->company['id'] . ' or ci.supplier_id = ' . $request->company['id'] . ')';
+        }
+        if ($request->agent && $request->agent['id'] != 0) {
+            $sql .= ' and ci.agent_id = ' . $request->agent['id'];
+        }
+        if ($request->due_days) {
+            $sql .= ' and (DATE_PART(\'day\', now()::timestamp - ci.bill_date::timestamp)) >= ' . $request->due_days;
+        }
+        $sort = '';
+        if ($request->sort_by != '') {
+            if ($request->sort_by == 1) {
+                $sort = 'ci.bill_date ASC';
+            } else {
+                $sort = 'ci.bill_date DESC';
+            }
+        } else {
+            $sort = 'ci.id DESC';
+        }
+        $data = DB::table('commission_invoices as ci')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cc"'), 'ci.customer_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cs"'), 'ci.supplier_id', '=', 'cs.id')
+            ->join('states as s', DB::raw('(case when "cc"."id" is null then "cs"."company_state" else "cc"."company_state" end)'), '=', 's.id')
+            ->join('agents as a', 'ci.agent_id', '=', 'a.id')
+            ->select('ci.bill_no', 'ci.id', 'ci.financial_year_id', 'a.name as agent_name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 's.name as state_name', DB::raw('to_char(ci.bill_date, \'dd-mm-yyyy\') as bill_date2'), 'ci.commission_amount', 'ci.cgst_amount', 'ci.sgst_amount', 'ci.igst_amount', 'ci.tds_amount', 'ci.final_amount')
+            ->whereRaw('ci.is_deleted = 0 ' . $sql)
+            ->orderByRaw($sort)
+            ->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.commission_invoice_export_pdf', compact('data', 'request'))
+            ->setOptions(['defaultFont' => 'sans-serif']);
+            if ($request->show_detail == 0) {
+                $pdf = $pdf->setPaper('a4', 'landscape');
+            }
+            $path = storage_path('app/public/pdf/commission-invoice-reports');
+            $fileName = 'Commission-Invoice-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/commission-invoice-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Commission-Invoice-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.commission_invoice_export_sheet'), 'excel-sheets/commission-invoice-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-invoice-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
 }
