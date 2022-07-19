@@ -109,7 +109,7 @@
                                             </tr>
                                             <tr>
                                                 <td>14</td>
-                                                <td><a target="_blank" href="/product_report">Product Report</a>
+                                                <td><a target="_blank" href="/reports/product-report">Product Report</a>
                                                 </td>
                                             </tr>
                                             <tr>

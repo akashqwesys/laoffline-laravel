@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FinancialYear;
+// use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Session;
@@ -645,10 +645,8 @@ class SalesReportController extends Controller
         if ($request->export_pdf == 1) {
             ini_set("memory_limit", -1);
             $pdf = PDF::loadView('reports.salebill_details_export_pdf', compact('data', 'request'))
-            ->setOptions(['defaultFont' => 'sans-serif']);
-            if ($request->show_detail == 0) {
-                $pdf = $pdf->setPaper('a4', 'landscape');
-            }
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
             $path = storage_path('app/public/pdf/salebill-details-reports');
             $fileName = 'Salebill-Details-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
@@ -743,10 +741,8 @@ class SalesReportController extends Controller
         if ($request->export_pdf == 1) {
             ini_set("memory_limit", -1);
             $pdf = PDF::loadView('reports.outstanding_invoice_export_pdf', compact('data', 'request'))
-            ->setOptions(['defaultFont' => 'sans-serif']);
-            if ($request->show_detail == 0) {
-                $pdf = $pdf->setPaper('a4', 'landscape');
-            }
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
             $path = storage_path('app/public/pdf/outstanding-invoice-reports');
             $fileName = 'Outstanding-Invoice-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
@@ -828,10 +824,8 @@ class SalesReportController extends Controller
         if ($request->export_pdf == 1) {
             ini_set("memory_limit", -1);
             $pdf = PDF::loadView('reports.commission_invoice_export_pdf', compact('data', 'request'))
-            ->setOptions(['defaultFont' => 'sans-serif']);
-            if ($request->show_detail == 0) {
-                $pdf = $pdf->setPaper('a4', 'landscape');
-            }
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
             $path = storage_path('app/public/pdf/commission-invoice-reports');
             $fileName = 'Commission-Invoice-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
@@ -841,6 +835,87 @@ class SalesReportController extends Controller
             $fileName = 'Commission-Invoice-Report-' . time() . '.xlsx';
             Excel::store(new CommonExport($data, $request, 'reports.commission_invoice_export_sheet'), 'excel-sheets/commission-invoice-reports/' . $fileName, 'public');
             return response()->json(['url' => url('/storage/excel-sheets/commission-invoice-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function commissionInvoiceRightofReport(Request $request)
+    {
+        $page_title = 'Commission Invoice Right of Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Commission Invoice Right of / View';
+        $logs->log_subject = 'Commission Invoice Right of view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.commission_invoice_right_report', compact('page_title', 'employees'));
+    }
+
+    public function listCommissionInvoiceRightofReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->start_date && $request->end_date) {
+            $sql .= " and p.date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->customer && $request->customer['id']) {
+            $sql .= ' and p.receipt_from = ' . $request->customer['id'];
+        }
+        if ($request->supplier && $request->supplier['id']) {
+            $sql .= ' and p.supplier_id = ' . $request->supplier['id'];
+        }
+        $payment_sort = "cs.company_name ASC, p.payment_id ASC";
+        if ($request->sort_by == 1) {
+            $payment_sort = "cs.company_name ASC, p.payment_id ASC";
+        } else if ($request->sort_by == 2) {
+            $payment_sort = "cs.company_name DESC, p.payment_id ASC";
+        } else if ($request->sort_by == 3) {
+            $payment_sort = "cc.company_name ASC, p.payment_id ASC";
+        } else if ($request->sort_by == 4) {
+            $payment_sort = "cc.company_name DESC, p.payment_id ASC";
+        } else if ($request->sort_by == 5) {
+            $payment_sort = "p.date ASC, p.payment_id ASC";
+        } else if ($request->sort_by == 6) {
+            $payment_sort = "p.date DESC, p.payment_id ASC";
+        }
+        $data = DB::table('payments as p')
+            ->join(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->join(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->leftJoin('bank_details as bd', 'p.deposite_bank', '=', 'bd.id')
+            ->leftJoin('bank_details as bd1', 'p.cheque_dd_bank', '=', 'bd1.id')
+            ->select('p.payment_id', 'p.id', 'p.financial_year_id', 'bd.name as bank_name', 'bd1.name as deposit_bank', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw('to_char(p.date, \'dd-mm-yyyy\') as date2, to_char(p.cheque_date, \'dd-mm-yyyy\') as cheque_date2'), 'p.reciept_mode', 'p.cheque_dd_no', 'p.receipt_amount', 'p.total_amount', 'p.right_of_amount', 'p.right_of_remark')
+            ->whereRaw('p.is_deleted = 0 and p.right_of_amount <> 0 ' . $sql)
+            ->orderByRaw($payment_sort)
+            ->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.commission_invoice_right_of_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
+            $path = storage_path('app/public/pdf/commission-invoice-right-of-reports');
+            $fileName = 'Commission-Invoice-Right-of-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/commission-invoice-right-of-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Commission-Invoice-Right-of-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.commission_invoice_right_of_export_sheet'), 'excel-sheets/commission-invoice-right-of-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-invoice-right-of-reports/' . $fileName)]);
         } else {
             return response()->json($data);
         }

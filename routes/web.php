@@ -812,6 +812,12 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/commission-invoice-report', [App\Http\Controllers\Reports\SalesReportController::class, 'commissionInvoiceReport']);
     Route::post('/list-commission-invoice-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listCommissionInvoiceReport']);
 
+    Route::get('/commission-invoice-right-of-report', [App\Http\Controllers\Reports\SalesReportController::class, 'commissionInvoiceRightofReport']);
+    Route::post('/list-commission-invoice-right-of-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listCommissionInvoiceRightofReport']);
+
+    Route::get('/product-report', [App\Http\Controllers\Reports\ProductReportController::class, 'productReport']);
+    Route::post('/list-product-data', [App\Http\Controllers\Reports\ProductReportController::class, 'listproductReport']);
+
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
 

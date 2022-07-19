@@ -142,6 +142,9 @@ import ConsolidateMonthlySalesCompanyComponent from './components/reports/Consol
 import SalebillDetailsComponent from './components/reports/SalebillDetailsComponent.vue';
 import OutstandingInvoiceComponent from './components/reports/OutstandingInvoiceComponent.vue';
 import CommissionInvoiceComponent from './components/reports/CommissionInvoiceComponent.vue';
+import CommissionInvoiceRightOfComponent from './components/reports/CommissionInvoiceRightOfComponent.vue';
+
+import ProductReportComponent from './components/reports/ProductReportComponent.vue';
 
 import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
 import CommissionRegisterComponent from './components/reports/CommissionRegisterComponent.vue';
@@ -432,6 +435,9 @@ const routes = [
             { path: 'sales-bill-details-report', component: SalebillDetailsComponent },
             { path: 'outstanding-invoice-report', component: OutstandingInvoiceComponent },
             { path: 'commission-invoice-report', component: CommissionInvoiceComponent },
+            { path: 'commission-invoice-right-of-report', component: CommissionInvoiceRightOfComponent },
+
+            { path: 'product-report', component: ProductReportComponent },
 
             { path: 'payment-register-report', component: PaymentRegisterComponent },
             { path: 'commission-register-report', component: CommissionRegisterComponent },
@@ -562,6 +568,9 @@ createApp({
         SalebillDetailsComponent,
         OutstandingInvoiceComponent,
         CommissionInvoiceComponent,
+        CommissionInvoiceRightOfComponent,
+
+        ProductReportComponent,
 
         PaymentRegisterComponent,
         CommissionRegisterComponent,
