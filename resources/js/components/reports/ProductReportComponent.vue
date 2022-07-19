@@ -185,7 +185,7 @@ export default {
                                         <div class="col-md-4"><b>Total</b></div>
                                         <div class="col-md-2 text-right"><b>${toINR.format(meters)}</b></div>
                                         <div class="col-md-2 text-right"><b>${toINR.format(pieces)}</b></div>
-                                        <div class="col-md-2 text-right"><b>${toINR.format(amount)}</b></div>
+                                        <div class="col-md-4 text-right"><b>${toINR.format(amount)}</b></div>
                                     </div>
                                 </a>
                             </div>

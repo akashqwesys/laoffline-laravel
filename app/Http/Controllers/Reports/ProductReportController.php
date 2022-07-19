@@ -43,7 +43,7 @@ class ProductReportController extends Controller
             $sql .= " and p.name like '%" . $request->product_name . "%'";
         }
         if ($request->start_date && $request->end_date) {
-            $sql .= " and s.select_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+            $sql .= " and (s.select_date >= '" . $request->start_date . "' and s.select_date <= '" . $request->end_date . "')";
         }
         if ($request->customer && $request->customer['id']) {
             $sql .= ' and p.company_id = ' . $request->customer['id'];
