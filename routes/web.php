@@ -818,6 +818,12 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/product-report', [App\Http\Controllers\Reports\ProductReportController::class, 'productReport']);
     Route::post('/list-product-data', [App\Http\Controllers\Reports\ProductReportController::class, 'listproductReport']);
 
+    Route::get('/percentage-evaluate-report', [App\Http\Controllers\Reports\SalesReportController::class, 'percentageEvaluateReport']);
+    Route::post('/list-percentage-evaluate-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listPercentageEvaluateReport']);
+
+    Route::get('/percentage-evaluate-turnover-report', [App\Http\Controllers\Reports\SalesReportController::class, 'percentageEvaluateTurnoverReport']);
+    Route::post('/list-percentage-evaluate-turnover-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listPercentageEvaluateTurnoverReport']);
+
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
 

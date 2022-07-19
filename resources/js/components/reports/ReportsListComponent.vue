@@ -155,11 +155,11 @@
                                             </tr>
                                             <tr>
                                                 <td>23</td>
-                                                <td><a target="_blank" href="/percentage_evaluate_report">Percentage Evaluate Report</a></td>
+                                                <td><a target="_blank" href="/reports/percentage-evaluate-report"> Percentage Evaluate Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>24</td>
-                                                <td><a target="_blank" href="/percentage_evaluate_turnover_report"> Percentage Evaluate Report on Turnover</a></td>
+                                                <td><a target="_blank" href="/reports/percentage-evaluate-turnover-report"> Percentage Evaluate Report on Turnover</a></td>
                                             </tr>
                                         </tbody>
                                     </table>

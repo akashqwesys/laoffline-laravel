@@ -920,4 +920,131 @@ class SalesReportController extends Controller
             return response()->json($data);
         }
     }
+
+    public function percentageEvaluateReport(Request $request)
+    {
+        $page_title = 'Percentage Evaluate Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Percentage Evaluate / View';
+        $logs->log_subject = 'Percentage Evaluate view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.percentage_evaluate_report', compact('page_title', 'employees'));
+    }
+
+    public function listPercentageEvaluateReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->start_date && $request->end_date) {
+            $sql .= "bill_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->company_type == 2) {
+            $sql .= ' and customer_id <> 0';
+        } else if ($request->company_type == 3) {
+            $sql .= ' and supplier_id <> 0';
+        }
+        if ($request->sort_by == "1") {    // customer
+            $sort = "commission_percent ASC";
+        } else if ($request->sort_by == "2") {    // supplier
+            $sort = "commission_percent DESC";
+        } else if ($request->sort_by == "3") {    // supplier
+            $sort = "total_amount ASC";
+        } else if ($request->sort_by == "4") {    // supplier
+            $sort = "total_amount DESC";
+        }
+
+        $total = DB::table('commission_invoices')
+            ->selectRaw('sum(commission_amount) as total_commission_amount')
+            ->whereRaw($sql)
+            ->pluck('total_commission_amount')
+            ->first();
+
+        $data = DB::table('commission_invoices')
+            ->selectRaw('commission_percent, SUM(commission_amount) as total_amount')
+            ->whereRaw($sql)
+            ->orderByRaw($sort)
+            ->groupBy('commission_percent')
+            ->get();
+
+        return response()->json(['data' => $data, 'total' => $total]);
+    }
+
+    public function percentageEvaluateTurnoverReport(Request $request)
+    {
+        $page_title = 'Percentage Evaluate Turnover Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Percentage Evaluate Turnover / View';
+        $logs->log_subject = 'Percentage Evaluate Turnover view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.percentage_evaluate_turnover_report', compact('page_title', 'employees'));
+    }
+
+    public function listPercentageEvaluateTurnoverReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = 's.is_deleted = 0 AND s.sale_bill_flag = 0 ';
+        if ($request->start_date && $request->end_date) {
+            $sql .= " and s.select_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->company_type == 2) {
+            $sql .= ' and s.customer_id <> 0';
+        } else if ($request->company_type == 3) {
+            $sql .= ' and s.supplier_id <> 0';
+        }
+        if ($request->sort_by == "1") {    // customer
+            $sort = "commission_percentage ASC";
+        } else if ($request->sort_by == "2") {    // supplier
+            $sort = "commission_percentage DESC";
+        } else if ($request->sort_by == "3") {    // supplier
+            $sort = "total_amount ASC";
+        } else if ($request->sort_by == "4") {    // supplier
+            $sort = "total_amount DESC";
+        }
+
+        $total = DB::table('sale_bills as s')
+            ->join('company_commissions as cc', function ($j) {
+                $j->on('s.supplier_id', '=', 'cc.supplier_id')
+                ->on('s.company_id', '=', 'cc.customer_id');
+            })
+            ->selectRaw('sum(s.total) AS total_turnover_amount')
+            ->whereRaw($sql)
+            ->pluck('total_turnover_amount')
+            ->first();
+
+        $data = DB::table(DB::raw('(SELECT s.total, (case when cc.commission_percentage IS NULL then 2 else cc.commission_percentage end) as commission_percentage FROM "sale_bills" as s
+				INNER JOIN company_commissions as cc ON cc.supplier_id = s.supplier_id AND cc.customer_id = s.company_id
+				WHERE ' . $sql . ') as x'))
+            ->selectRaw('SUM(x.total) as total_amount, x.commission_percentage')
+            ->groupBy('commission_percentage')
+            ->orderByRaw($sort)
+            ->get();
+
+        return response()->json(['data' => $data, 'total' => $total]);
+    }
 }

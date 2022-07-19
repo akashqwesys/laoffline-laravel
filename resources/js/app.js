@@ -146,6 +146,9 @@ import CommissionInvoiceRightOfComponent from './components/reports/CommissionIn
 
 import ProductReportComponent from './components/reports/ProductReportComponent.vue';
 
+import PercentageEvaluateComponent from './components/reports/PercentageEvaluateComponent.vue';
+import PercentageEvaluateTurnoverComponent from './components/reports/PercentageEvaluateTurnoverComponent.vue';
+
 import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
 import CommissionRegisterComponent from './components/reports/CommissionRegisterComponent.vue';
 import OutstandingPaymentComponent from './components/reports/OutstandingPaymentComponent.vue';
@@ -439,6 +442,9 @@ const routes = [
 
             { path: 'product-report', component: ProductReportComponent },
 
+            { path: 'percentage-evaluate-report', component: PercentageEvaluateComponent },
+            { path: 'percentage-evaluate-turnover-report', component: PercentageEvaluateTurnoverComponent },
+
             { path: 'payment-register-report', component: PaymentRegisterComponent },
             { path: 'commission-register-report', component: CommissionRegisterComponent },
 
@@ -566,11 +572,15 @@ createApp({
         ConsolidateMonthlySalesComponent,
         ConsolidateMonthlySalesCompanyComponent,
         SalebillDetailsComponent,
+
         OutstandingInvoiceComponent,
         CommissionInvoiceComponent,
         CommissionInvoiceRightOfComponent,
 
         ProductReportComponent,
+
+        PercentageEvaluateComponent,
+        PercentageEvaluateTurnoverComponent,
 
         PaymentRegisterComponent,
         CommissionRegisterComponent,
