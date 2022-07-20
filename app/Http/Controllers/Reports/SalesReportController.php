@@ -400,15 +400,15 @@ class SalesReportController extends Controller
             ->where('select_date', '>=', $request->start_date)
             ->where('select_date', '<=', $request->end_date);
         if ($request->agent != 0) {
-            $sql .= ' agent_id = ' . $request->agent . ' and ';
+            $sql .= ' and agent_id = ' . $request->agent;
             $sales_total = $sales_total->where('agent_id', $request->agent);
         }
         if ($request->customer != 0) {
-            $sql .= ' company_id = ' . $request->customer . ' and ';
+            $sql .= ' and company_id = ' . $request->customer;
             $sql_2 .= ' and company_id = ' . $request->customer;
         }
         if ($request->supplier != 0) {
-            $sql .= ' supplier_id = ' . $request->supplier . ' and ';
+            $sql .= ' and supplier_id = ' . $request->supplier;
             $sql_2 .= ' and supplier_id = ' . $request->supplier;
         }
         $sales_total = $sales_total->whereRaw('is_deleted = 0 and sale_bill_flag = 0' . $sql_2)
