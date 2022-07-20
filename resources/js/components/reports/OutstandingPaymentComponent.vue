@@ -6,7 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Payment Register Report</h3>
+                                <h3 class="nk-block-title page-title">Outstanding Payment Report</h3>
                                 <div class="nk-block-des text-soft"> </div>
                             </div><!-- .nk-block-head-content -->
                             <div class="nk-block-head-content">
@@ -155,7 +155,7 @@
                 city_options: [],
                 day_options: [{id:1, report_days: 0, name: 'All'}, {id:2, report_days: 30, name: 'above 30'}, {id:3, report_days: 60, name: 'above 60'}, {id:4, report_days: 90, name: 'above 90'}, {id:5, report_days: 120, name: 'above 120'}, {id:1, report_days: 150, name: 'above 150'}, {id:1, report_days: 180, name: 'above 180'}],
                 sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'}, {id: 3, name: 'Customer A -> Z'}, {id: 4, name: 'Customer Z -> A'}, {id: 5, name: 'Date L -> H'}, {id: 6, name: 'Date H -> L'}, {id:7, name: 'Bill Amt L -> H'}, {id:8, name: 'Bill Amt H -> L'} ],
-                start_date: '',
+                start_date: '2018-01-01',
                 end_date: '',
                 customer: '',
                 supplier: '',
@@ -163,7 +163,7 @@
                 agent: '',
                 group: 0,
                 day : {id:1, report_days: 0, name: 'All'},
-                sorting: {id: 5, name: 'Date L -> H'},
+                sorting: {id: 3, name: 'Customer A -> Z'},
                 max_date: '2022-01-01',
                 show_detail: 0,
                 detailed_table: true,
@@ -209,7 +209,7 @@
             clearData() {
                 this.start_date = this.end_date = this.customer = this.agent = this.supplier = '';
                 this.sorting = {id: 5, name: 'Date L -> H'};
-                this.day = {id: 1, name:'All'},
+                this.day = {id: 1, report_days: 0, name:'All'},
                 $('#salesRegister tbody').html('');
                 this.getData();
             },

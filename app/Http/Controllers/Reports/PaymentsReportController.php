@@ -342,169 +342,114 @@ class PaymentsReportController extends Controller
                 </tr>';
         }
         $data1 = $data1->get();
+        $data2 = collect($data1)->groupBy('company_id');
+        
         $customer_details = array();
         $report_days = $request->day ? $request->day['report_days'] : 0;
         $grand_total = 0;
-		$prev_company = '';
-		$prev_company_id = '';
-		$prev_address = '';
-		$incr = 0;
-		$total = 0;
-		$hincr = 0;
-        $k=-1;
-        foreach($data1 as $datas) {
-            $cnt = 0;
-			$hincr += 1;
-            $startTimeStamp = strtotime($datas->select_date);
-			$endTimeStamp = strtotime(date('Y-m-d'));
-			$timeDiff = abs($endTimeStamp - $startTimeStamp);
-			$numberDays = $timeDiff/86400;
-			$numberDays = intval($numberDays);
+        $i = 0;
+        foreach($data2 as $key => $row) {
+            $ptotal = 0;
+            if ($request->show_detail == 1) {
+                    $html .= '<tr width="100%">
+                                <td>'.++$i.'</td>
+                                <td>'.$row[0]->customer_name.'</td>';
+                    foreach($row as $key1 => $row2){
+                        $startTimeStamp = strtotime($row2->select_date);
+			            $endTimeStamp = strtotime(date('Y-m-d'));
+                        $timeDiff = abs($endTimeStamp - $startTimeStamp);
+                        $numberDays = $timeDiff/86400;
+                        $numberDays = intval($numberDays);
 
-            if ($numberDays >= $report_days){
-                if ($datas->customer_name != $prev_company){
-                    $k=0;
-                    $address=$datas->company_address;
-                    if($incr != 0) {
-                        $maindata[]=array('company_id'=>$prev_company_id, 'name'=> $prev_company, 'address' => $prev_address, 'total' => $total);
-                        $total=0;
-                    }
-                    $incr += 1;
-                    $prev_company_id = $datas->company_id;
-                    $prev_company = $datas->customer_name;
-                    $prev_address = $address;
-                    $prev_total = $total;
-                } else {
-                    $k++;
-                }
-                if($datas->pending_payment == 0) {
-                    $final_amount = $datas->total;
-                } else {
-                    $final_amount = $datas->pending_payment;
-                }
-                $total += $final_amount;
-                $grand_total += $final_amount;
-                $company_id = $datas->company_id;
-
-                $company_name = $datas->customer_name;
-                $company_address = $address;
-                $company_total = $total;
-                $data[$datas->company_id]['date'][$k] = $datas->select_date1;
-                $data[$datas->company_id]['srno'][$k] = $datas->sale_bill_id;
-                $data[$datas->company_id]['financial_year_id'][$k] = $datas->financial_year_id;
-                $data[$datas->company_id]['amount'][$k] = $final_amount;
-                $data[$datas->company_id]['numberDays'][$k] = $numberDays;
-                $data[$datas->company_id]['supplier'][$k] = $datas->supplier_name;
-                $data[$datas->company_id]['bill_no'][$k] = $datas->supplier_invoice_no;
-
-            }
-        }
-        if(!empty($company_id)) {
-            $maindata[]=array('company_id'=>$company_id, 'name'=>$company_name, 'address' => $company_address, 'total' => $total);
-        }
-
-        if(!empty($maindata)) {
-            foreach ($maindata as $key => $row) {
-                $company_id1[$key]  = $row['company_id'];
-                $name1[$key]  = $row['name'];
-                $address1[$key] = $row['address'];
-                $total1[$key] = $row['total'];
-            }
-            if($request->sorting && $sorting == 7) {
-                array_multisort($total1, SORT_ASC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $maindata);
-            } elseif($request->sorting && $sorting == 8) {
-                array_multisort($total1, SORT_DESC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $maindata);
-            }
-
-            $gtotal = 0;$i = 1;
-            foreach($maindata as $row) {
-                if($row['total'] != 0) {
-                    if ($request->show_detail == 1) {
-
-                        $html .= '<tr width="100%"><td>'.$i++.'</td>
-                        <td>'.$row['name'].'</td>';
-
-                        $ptotal = 0;
-                        for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
-                            $tr_color='';
-                            $ptotal += $data[$row['company_id']]['amount'][$j];
-                        }
-                        $html .= '<td colspan="4">'.$ptotal.'</td></tr>';
-
-                        $gtotal += $ptotal;
-
-                    } else {
-                        $html .= '<tr width="100%">
-                                <td colspan="6" class="text-center" style="height:35px"></td>
-                            </tr>';
-                            if ($request->export_pdf == 1) {
-                                $html .='<tr width="100%">
-                                            <td colspan="6"><b>Customer : '.$row['name'].'</b></td>
-                                        </tr><tr>
-                                            <td colspan="6"><b>Address : '.$row['address'].'</b></td>
-                                        </tr>';
+                        if ($numberDays >= $report_days){
+                            if($row2->pending_payment == 0) {
+                                $final_amount=$row2->total;
                             } else {
-                                $html .='<tr width="100%">
-                                    <td colspan="2"><b>'.$row['name'].'</b></td>
-                                    <td colspan="4"><b>'.$row['address'].'</b></td>
-                                    </tr>';
+                                $final_amount=$row2->pending_payment;
                             }
-                        $ptotal = 0;
-                        for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
-                            $tr_color='';
-                            $ptotal += $data[$row['company_id']]['amount'][$j];
-                            if(isset($data[$row['company_id']]['numberDays'][$j])) {
-                                if($data[$row['company_id']]['numberDays'][$j] >= 90) {
-                                    $tr_color="style='color:red'";
-                                }
-                                    $html .='<tr width="100%"'.$tr_color.'>
-                                        <td>'.$data[$row['company_id']]['date'][$j].'</td>';
-                                    if ($request->export_pdf == 1) {
-                                        $html .= '<td>'.$data[$row['company_id']]['srno'][$j].'</td>';
-                                    } else {
-                                        $html .= '<td><a target="_blank" href="/sale_bill/viewbill/"'.$data[$row['company_id']]['srno'][$j].'/'.$data[$row['company_id']]['financial_year_id'][$j].'>'.$data[$row['company_id']]['srno'][$j].'</a></td>';
-                                    }
-                                    $html .= '<td>'.$data[$row['company_id']]['amount'][$j].'</td>
-                                        <td>'.$data[$row['company_id']]['numberDays'][$j].'</td>
-                                        <td>'.$data[$row['company_id']]['supplier'][$j].'</td>
-                                        <td>'.$data[$row['company_id']]['bill_no'][$j].'</td>
-                                    </tr>';
-                            }
+                            $ptotal += $final_amount;
                         }
-                        $html .='<tr width="100%">
+                    }
+            } else {
+            $html .= '<tr width="100%">
+                        <td colspan="6" class="text-center" style="height:35px"></td>
+                    </tr>';
+            if ($request->export_pdf == 1) {
+                    $html .='<tr width="100%">
+                            <td colspan="6"><b>Customer : '.$row[0]->customer_name.'</b></td>
+                        </tr>
+                        <tr width="100%">
+                            <td colspan="6"><b>Address : '.$row[0]->company_address.'</b></td>
+                        </tr>';
+                        $ptotal += $final_amount;
+            } else {
+                $html .='<tr width="100%">
+                            <td colspan="2"><b>'.$row[0]->customer_name.'</b></td>
+                            <td colspan="4"><b>'.$row[0]->company_address.'</b></td>
+                        </tr>';
+            }
+            
+            foreach($row as $key1 => $row2){
+                $startTimeStamp = strtotime($row2->select_date);
+			    $endTimeStamp = strtotime(date('Y-m-d'));
+			    $timeDiff = abs($endTimeStamp - $startTimeStamp);
+			    $numberDays = $timeDiff/86400;
+			    $numberDays = intval($numberDays);
+
+                if ($numberDays >= $report_days){
+                    if ($numberDays >= 90) {
+                        $tr_color="style='color:red'";
+                    }
+                    $html .='<tr width="100%"'.$tr_color.'>
+                                <td>'.$row2->select_date.'</td>';
+                            if ($request->export_pdf == 1) {
+                                $html .= '<td>'.$row2->sale_bill_id.'</td>';
+                            } else {
+                                $html .= '<td><a target="_blank" href="/sale_bill/viewbill/"'.$row2->sale_bill_id.'/'.$row2->financial_year_id.'>'.$row2->sale_bill_id.'</a></td>';
+                            }
+                            if($row2->pending_payment == 0) {
+                                $final_amount=$row2->total;
+                            } else {
+                                $final_amount=$row2->pending_payment;
+                            }
+                            $html .= '<td>'.$final_amount.'</td>
+                                    <td>'.$numberDays.'</td>
+                                    <td>'.$row2->supplier_name.'</td>
+                                    <td>'.$row2->supplier_invoice_no.'</td>
+                                </tr>';
+                            $ptotal += $final_amount; 
+                }
+            }
+            }
+            if ($request->show_detail == 0) {
+            $html .='<tr width="100%">
                             <td><b>Party Total</b></td>
                             <td></td>
                             <td><b>'.$ptotal.'</b></td>
                             <td colspan="3"></td>
                         </tr>';
-
-                $gtotal += $ptotal;
+            } else {
+                $html .= '<td colspan="4">'.$ptotal.'</td></tr>'; 
             }
-
-            }
-            }
-            if ($request->show_detail == 0) {
-            $html .='<tr width="100%">
-                 <td colspan="2"><b>Grand Total</b></td>
-                <td><b>'.$gtotal.'</b></td>
-                <td colspan="3"></td>
-                </tr>';
+            $grand_total += $ptotal;
+        }
+        if ($request->show_detail == 0) {
+           $html .='<tr width="100%">
+                        <td colspan="2"><b>Grand Total</b></td>
+                        <td><b>'.$grand_total.'</b></td>
+                        <td colspan="3"></td>
+                    </tr>';
             } else {
                 $html .='<tr width="100%">
-                    <td></td>
-                    <td><b>Grand Total</b></td>
-                    <td><b>'.$gtotal.'</b></td>
-                </tr>';
+                        <td colspan="2"><b>Grand Total</b></td>
+                        <td colspan="4"><b>'.$grand_total.'</b></td>
+                    </tr>'; 
             }
-        } else {
-            $html .='<tr width="100%">
-                <td class="text-center" colspan="6" style="height: 50px;">Record Not Found</td>
-            </tr>';
-        }
-
+            
+        
         $data['maindata'] = $html;
-        if (!empty($maindata)) {
-            $data['company_data'] = $maindata;
+        if (!empty($data2)) {
+            $data['company_data'] = $data2;
         } else {
             $data['company_data'] = [];
         }

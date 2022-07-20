@@ -69,88 +69,126 @@
         @else 
         <tr width="100%">
             <th>No.</th>
-            <th colspan="3">Name</th>
-            <th colspan="2">Party Amount</th>
+            <th>Name</th>
+            <th colspan="4">Party Amount</th>
         </tr>    
         @endif
 
         @php
-            $gtotal = 0;$i = 1;
+            $report_days = $request->day ? $request->day['report_days'] : 0;
+            $grand_total = 0;$i = 0;
             if (!empty($data['company_data'])) {
         @endphp
         @foreach ($data['company_data'] as $row)
-            @php
-                if($row['total'] != 0) {
-                    if ($request->show_detail == 1) {
-            @endphp
-                <tr width="100%">
-                    <td>{{ $i++ }}</td>
-                    <td colspan="3">{{ $row['name'] }}</td>
-            @php
+        @php    
             $ptotal = 0;
-                for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
-                    $tr_color='';
-                    $ptotal += $data[$row['company_id']]['amount'][$j]; 
-                }
-            @endphp
-                    <td colspan="2">{{ $ptotal }}</td>
-                </tr>
-            @php
-                    } else {
-            @endphp
+            if ($request->show_detail == 1) {
+        @endphp
                 <tr width="100%">
-                    <td colspan="6" class="text-center" style="height:35px"></td>
+                    <td>{{ ++$i }}</td>
+                    <td>{{ $row[0]->customer_name }}</td>
+                    @foreach($row as $key1 => $row2)
+        @php
+                        $startTimeStamp = strtotime($row2->select_date);
+			            $endTimeStamp = strtotime(date('Y-m-d'));
+                        $timeDiff = abs($endTimeStamp - $startTimeStamp);
+                        $numberDays = $timeDiff/86400;
+                        $numberDays = intval($numberDays);
+
+                        if ($numberDays >= $report_days){
+                            if($row2->pending_payment == 0) {
+                                $final_amount=$row2->total;
+                            } else {
+                                $final_amount=$row2->pending_payment;
+                            }
+                            $ptotal += $final_amount;
+                        }
+        @endphp
+        @endforeach
+        @php
+                } else {
+        @endphp
+                <tr width="100%">
+                        <td colspan="6" class="text-center" style="height:35px"></td>
                 </tr>
                 <tr width="100%">
-                    <td colspan="2">{{ $row['name'] }}</td>
-                    <td colspan="4">{{ $row['address'] }}</td>
+                            <td colspan="2"><b>{{ $row[0]->customer_name }}</b></td>
+                            <td colspan="4"><b>{{ $row[0]->company_address }}</b></td>
                 </tr>
-            @php
-            $ptotal = 0;
-                for($j=0; $j<((is_array($data[$row['company_id']]['srno'])) ? count($data[$row['company_id']]['srno']) : 0); $j++) {
-                    $ptotal += $data[$row['company_id']]['amount'][$j];   
-            @endphp 
-                    <tr width="100%">
-                        <td>{{ $data[$row['company_id']]['date'][$j] }}</td>
-                        <td>{{ $data[$row['company_id']]['srno'][$j] }}</td>
-                        <td>{{ $data[$row['company_id']]['amount'][$j] }}</td>
-                        <td>{{ $data[$row['company_id']]['numberDays'][$j] }}</td>
-                        <td>{{ $data[$row['company_id']]['supplier'][$j] }}</td>
-                        <td>{{ $data[$row['company_id']]['bill_no'][$j] }}</td>
+            
+            
+            @foreach($row as $key1 => $row2){
+        @php
+                $startTimeStamp = strtotime($row2->select_date);
+			    $endTimeStamp = strtotime(date('Y-m-d'));
+			    $timeDiff = abs($endTimeStamp - $startTimeStamp);
+			    $numberDays = $timeDiff/86400;
+			    $numberDays = intval($numberDays);
+
+                if ($numberDays >= $report_days){
+                    if ($numberDays >= 90) {
+                        $tr_color="style='color:red'";
+                    }
+        @endphp
+                    <tr width="100%" {{ $tr_color }}>
+                                <td>{{ $row2->select_date }} </td>
+                                <td>{{ $row2->sale_bill_id }}</td>
+        @php
+                            if($row2->pending_payment == 0) {
+                                $final_amount=$row2->total;
+                            } else {
+                                $final_amount=$row2->pending_payment;
+                            }
+        @endphp
+                            <td>{{ $final_amount }}</td>
+                            <td>{{ $numberDays }}</td>
+                            <td>{{ $row2->supplier_name }}</td>
+                            <td>{{ $row2->supplier_invoice_no }}</td>
                     </tr>
-            @php
+        @php
+                            $ptotal += $final_amount; 
                 }
-            @endphp
+        @endphp
+        @endforeach
+        @php
+            }
+            if ($request->show_detail == 0) {
+        @endphp
+            <tr width="100%">
+                <td><b>Party Total</b></td>
+                <td></td>
+                <td><b>{{ $ptotal }}</b></td>
+                <td colspan="3"></td>
+            </tr>
+        @php
+            } else {
+        @endphp
+                <td colspan="4">{{ $ptotal }}</td></tr>
+        @php 
+            }
+            $grand_total += $ptotal;
+        @endphp
+        @endforeach
+            
+        @php
+        if ($request->show_detail == 0) {
+        @endphp
                     <tr width="100%">
-                        <td>Party Total</td>
-                        <td></td>
-                        <td><b>{{ $ptotal }}</b></td>
+                        <td colspan="2"><b>Grand Total</b></td>
+                        <td><b>{{ $grand_total }}</b></td>
                         <td colspan="3"></td>
                     </tr>
-            @php
-                $gtotal += $ptotal;
-            }
-            }
-            @endphp
-            @endforeach
-            @php
-            if ($request->show_detail == 0) {
-            @endphp
-                <tr width="100%">
-                    <td colspan="2">Grand Total</td>
-                    <td>{{ $gtotal }}</td>
-                    <td colspan="3"></td>
-                </tr>
-            @php
+        @php
             } else {
-            @endphp
+        @endphp
                 <tr width="100%">
-                    <td colspan="4"><b>Grand Total</b></td>
-                    <td colspan="2">{{$gtotal}}</td>
+                    <td colspan="2"><b>Grand Total</b></td>
+                    <td colspan="4"><b>{{ $grand_total }}</b></td>
                 </tr>
-            @php
-            } } else {
-            @endphp
+        @php
+            }
+        } else {
+        @endphp
             <tr width="100%">
                 <td class="text-center" colspan="6" style="height: 50px;">Record Not Found</td>
             </tr>
