@@ -38,15 +38,15 @@
                                         <tbody>
                                             <tr>
                                                 <td>1</td>
-                                                <td><a target="_blank" href="/reports/consolidate-monthly-sales-report">Consolidate Monthly Sales Report</a></td>
+                                                <td><a target="_blank" href="/reports/consolidate-monthly-sales-report"> Consolidate Monthly Sales Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>2</td>
-                                                <td><a target="_blank" href="/reports/outstanding-payment-report">Outstanding Payment Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-payment-report"> Outstanding Payment Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>3</td>
-                                                <td><a target="_blank" href="/reports/outstanding-payment-month-wise-summary-report">Outstanding Payment Month Wise Summary Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-payment-month-wise-summary-report"> Outstanding Payment Month Wise Summary Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>4</td>
@@ -54,7 +54,7 @@
                                             </tr>
                                             <tr>
                                                 <td>5</td>
-                                                <td><a target="_blank" href="/reports/commission-register-report">Commission Register</a></td>
+                                                <td><a target="_blank" href="/reports/commission-register-report"> Commission Register</a></td>
                                             </tr>
                                             <tr>
                                                 <td>6</td>
@@ -62,7 +62,7 @@
                                             </tr>
                                             <tr>
                                                 <td>7</td>
-                                                <td><a target="_blank" href="/sales_bill_details_report">Sale Report All Bill Details Item</a></td>
+                                                <td><a target="_blank" href="/reports/sales-bill-details-report">Sale Report All Bill Item Details </a></td>
                                             </tr>
                                             <tr>
                                                 <td>8</td>
@@ -77,7 +77,7 @@
                                                 <td></td>
                                                 <td>
                                                     <ul>
-                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/supplier" target="_blank"> Supplier </a></li> 
+                                                        <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/supplier" target="_blank"> Supplier </a></li>
                                                         <li style="list-style: decimal;"><a href="/reports/outstanding-commission-register-report/customer" target="_blank"> Customer </a></li>
                                                     </ul>
                                                 </td>
@@ -109,20 +109,20 @@
                                             </tr>
                                             <tr>
                                                 <td>14</td>
-                                                <td><a target="_blank" href="/product_report">Product Report</a>
+                                                <td><a target="_blank" href="/reports/product-report">Product Report</a>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>15</td>
-                                                <td><a target="_blank" href="/outstanding_invoice_report">Outstanding Invoice Report</a></td>
+                                                <td><a target="_blank" href="/reports/outstanding-invoice-report"> Outstanding Invoice Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>16</td>
-                                                <td><a target="_blank" href="/commission_invoice_report">Commission Invoice Report</a></td>
+                                                <td><a target="_blank" href="/reports/commission-invoice-report"> Commission Invoice Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>17</td>
-                                                <td><a target="_blank" href="/payment_rightof_report">Commission Invoice Right Of Report</a></td>
+                                                <td><a target="_blank" href="/reports/commission-invoice-right-of-report"> Commission Invoice Right Of Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>18</td>
@@ -155,11 +155,11 @@
                                             </tr>
                                             <tr>
                                                 <td>23</td>
-                                                <td><a target="_blank" href="/percentage_evaluate_report">Percentage Evaluate Report</a></td>
+                                                <td><a target="_blank" href="/reports/percentage-evaluate-report"> Percentage Evaluate Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>24</td>
-                                                <td><a target="_blank" href="/percentage_evaluate_turnover_report"> Percentage Evaluate Report on Turnover</a></td>
+                                                <td><a target="_blank" href="/reports/percentage-evaluate-turnover-report"> Percentage Evaluate Report on Turnover</a></td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -17,6 +17,23 @@ use Illuminate\Support\Facades\Auth;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::get('/truncateDB', [App\Http\Controllers\settings\ConnectionController::class, 'truncateDB']);
+Route::get('/products', [App\Http\Controllers\settings\ConnectionController::class, 'products']);
+Route::get('/bankDetails', [App\Http\Controllers\settings\ConnectionController::class, 'bankDetails']);
+Route::get('/comboID/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'comboID']);
+Route::get('/commissionAndInvoice', [App\Http\Controllers\settings\ConnectionController::class, 'commissionAndInvoice']);
+Route::get('/company', [App\Http\Controllers\settings\ConnectionController::class, 'company']);
+Route::get('/goodsReturn', [App\Http\Controllers\settings\ConnectionController::class, 'goodsReturn']);
+Route::get('/inwardAll', [App\Http\Controllers\settings\ConnectionController::class, 'inwardAll']);
+Route::get('/transport', [App\Http\Controllers\settings\ConnectionController::class, 'transport']);
+Route::get('/iuids/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'iuids']);
+Route::get('/ouids/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'ouids']);
+Route::get('/outwardAll/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'outwardAll']);
+Route::get('/payment/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'payment']);
+Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'reference']);
+Route::get('/salebills/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'salebills']);
+// Route::get('/userLog/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'userLog']);
+
 Auth::routes();
 
 Route::get('/', [App\Http\Controllers\Auth\LoginController::class, 'index'])->name('login');
@@ -27,6 +44,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [App\Http\Controllers\DashboardController::class, 'index'])->name('home');
     Route::get('/common/list-customers-and-suppliers', [App\Http\Controllers\CommonController::class, 'getCustomersAndSuppliers']);
     Route::get('/common/list-all-companies', [App\Http\Controllers\CommonController::class, 'getAllCompanies']);
+    Route::get('/common/list-all-agents', [App\Http\Controllers\CommonController::class, 'getAllAgents']);
 });
 
 Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:access-financial-year']], function () {
@@ -785,6 +803,27 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::post('/list-consolidate-monthly-sales-company-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listMonthlySalesData']);
     Route::get('/consolidate-monthly-sales-report/monthly-salebill/{start_date}/{end_date}/{agent}/{customer}/{supplier}', [App\Http\Controllers\Reports\SalesReportController::class, 'viewMonthlySalesCompanyData']);
 
+    Route::get('/sales-bill-details-report', [App\Http\Controllers\Reports\SalesReportController::class, 'saleBillsDetails']);
+    Route::post('/list-salebill-details-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listSaleBillsDetails']);
+
+    Route::get('/outstanding-invoice-report', [App\Http\Controllers\Reports\SalesReportController::class, 'outstandingInvoiceReport']);
+    Route::post('/list-outstanding-invoice-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listOutstandingInvoiceReport']);
+
+    Route::get('/commission-invoice-report', [App\Http\Controllers\Reports\SalesReportController::class, 'commissionInvoiceReport']);
+    Route::post('/list-commission-invoice-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listCommissionInvoiceReport']);
+
+    Route::get('/commission-invoice-right-of-report', [App\Http\Controllers\Reports\SalesReportController::class, 'commissionInvoiceRightofReport']);
+    Route::post('/list-commission-invoice-right-of-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listCommissionInvoiceRightofReport']);
+
+    Route::get('/product-report', [App\Http\Controllers\Reports\ProductReportController::class, 'productReport']);
+    Route::post('/list-product-data', [App\Http\Controllers\Reports\ProductReportController::class, 'listproductReport']);
+
+    Route::get('/percentage-evaluate-report', [App\Http\Controllers\Reports\SalesReportController::class, 'percentageEvaluateReport']);
+    Route::post('/list-percentage-evaluate-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listPercentageEvaluateReport']);
+
+    Route::get('/percentage-evaluate-turnover-report', [App\Http\Controllers\Reports\SalesReportController::class, 'percentageEvaluateTurnoverReport']);
+    Route::post('/list-percentage-evaluate-turnover-data', [App\Http\Controllers\Reports\SalesReportController::class, 'listPercentageEvaluateTurnoverReport']);
+
     Route::get('/payment-register-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'paymentRegister']);
     Route::post('/list-payment-register-data', [App\Http\Controllers\Reports\PaymentsReportController::class, 'listPaymentRegisterData']);
 
@@ -797,7 +836,7 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/outstanding-payment-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentReport']);
     Route::get('/outstanding-payment-month-wise-summary-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'outstandingPaymentMonthWiseSummeryReport']);
     Route::post('/list-commission-outstanding-month-wise-summery-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionMonthWiseSummeryData']);
-    
+
     Route::get('/avg-payment-days-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'avaPaymentDaysReport']);
     Route::get('/daily-commission-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'dailyCommissionReport']);
     Route::get('/commission-collection-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionCollectionReport']);

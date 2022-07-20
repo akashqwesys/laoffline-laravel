@@ -190,7 +190,7 @@ class PaymentsReportController extends Controller
         $data1 = DB::table('sale_bills as s');
         $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 's.company_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 's.supplier_id', '=', 'cs.id')
-                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses Where address_type = 1 group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses Where address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 's.company_id', '=', 'cadd.company_id')
                 ->where('s.sale_bill_flag', 0)
                 ->where('s.is_deleted', 0)
                 ->where('s.payment_status', 0)
@@ -528,7 +528,7 @@ class PaymentsReportController extends Controller
         $data1 = DB::table('sale_bills as s');
         $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
-                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id") as "cadd"'), 's.company_id', '=', 'cadd.company_id')
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 's.company_id', '=', 'cadd.company_id')
                 ->where('s.sale_bill_flag', 0)
                 ->where('s.is_deleted', 0)
                 ->where('s.payment_status', 0)
@@ -825,7 +825,7 @@ class PaymentsReportController extends Controller
         $data1 = DB::table('sale_bills')
             ->select('companies.company_name', 'sale_bills.sale_bill_id', 'sale_bills.financial_year_id', 'sale_bills.company_id', 'sale_bills.select_date', 'payments.date')
             ->join('payment_details as pd',function($join) {
-                $join->on('pd.sr_no','=','sale_bills.sale_bill_id') 
+                $join->on('pd.sr_no','=','sale_bills.sale_bill_id')
                     ->on('pd.financial_year_id','=','sale_bills.financial_year_id');
                 })
             ->join('payments','payments.id','=','pd.p_increment_id')
@@ -833,7 +833,7 @@ class PaymentsReportController extends Controller
             ->where('sale_bills.is_deleted', 0)
             ->where('payments.is_deleted', 0)
             ->where('pd.is_deleted', 0);
-        
+
         if ($request->customer && $request->customer['id']) {
             $data1 = $data1->where('sale_bills.company_id', $request->customer['id']);
         }
@@ -853,15 +853,15 @@ class PaymentsReportController extends Controller
                 $data1 = $data1->orderBy('companies.company_name', 'asc');
             } else if ($sorting == 2) {
                 $data = $data1->orderBy('companies.company_name', 'desc');
-            } 
+            }
         }
         $data1 = $data1->get();
         $data1 = collect($data1)->groupBy('company_id');
-        
+
         $companydata = array();
         foreach($data1 as $key => $company) {
             $companydetail = array();
-            
+
             $noofbill = count($company);
             $totalday = 0;
             foreach ($company as $c) {
@@ -879,7 +879,7 @@ class PaymentsReportController extends Controller
             $company_detail['avarageday'] = floor($avaragedays);
             array_push($companydata, $company_detail);
         }
-        
+
         if ($request->sorting && $request->sorting['id']) {
             $sorting = $request->sorting['id'];
             if ($sorting == 3) {
@@ -911,7 +911,7 @@ class PaymentsReportController extends Controller
                         } else {
                             $html.= '<td>'.$cd['company_name'].'</td>';
                         }
-                    
+
                     $html .='<td>'.$cd['avarageday'].' Days</td>
                         </tr>';
             }
@@ -936,6 +936,6 @@ class PaymentsReportController extends Controller
         } else {
             return response()->json($data);
         }
-        
+
     }
 }

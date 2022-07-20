@@ -139,6 +139,15 @@ import ReportsListComponent from './components/reports/ReportsListComponent.vue'
 import SalesRegisterComponent from './components/reports/SalesRegisterComponent.vue';
 import ConsolidateMonthlySalesComponent from './components/reports/ConsolidateMonthlySalesComponent.vue';
 import ConsolidateMonthlySalesCompanyComponent from './components/reports/ConsolidateMonthlySalesCompanyComponent.vue';
+import SalebillDetailsComponent from './components/reports/SalebillDetailsComponent.vue';
+import OutstandingInvoiceComponent from './components/reports/OutstandingInvoiceComponent.vue';
+import CommissionInvoiceComponent from './components/reports/CommissionInvoiceComponent.vue';
+import CommissionInvoiceRightOfComponent from './components/reports/CommissionInvoiceRightOfComponent.vue';
+
+import ProductReportComponent from './components/reports/ProductReportComponent.vue';
+
+import PercentageEvaluateComponent from './components/reports/PercentageEvaluateComponent.vue';
+import PercentageEvaluateTurnoverComponent from './components/reports/PercentageEvaluateTurnoverComponent.vue';
 
 import PaymentRegisterComponent from './components/reports/PaymentRegisterComponent.vue';
 import CommissionRegisterComponent from './components/reports/CommissionRegisterComponent.vue';
@@ -428,6 +437,15 @@ const routes = [
             { path: 'sales-register-report', component: SalesRegisterComponent },
             { path: 'consolidate-monthly-sales-report', component: ConsolidateMonthlySalesComponent },
             { path: 'consolidate-monthly-sales-report/monthly-company/:start_date/:end_date/:agent/:customer/:supplier', component: ConsolidateMonthlySalesCompanyComponent },
+            { path: 'sales-bill-details-report', component: SalebillDetailsComponent },
+            { path: 'outstanding-invoice-report', component: OutstandingInvoiceComponent },
+            { path: 'commission-invoice-report', component: CommissionInvoiceComponent },
+            { path: 'commission-invoice-right-of-report', component: CommissionInvoiceRightOfComponent },
+
+            { path: 'product-report', component: ProductReportComponent },
+
+            { path: 'percentage-evaluate-report', component: PercentageEvaluateComponent },
+            { path: 'percentage-evaluate-turnover-report', component: PercentageEvaluateTurnoverComponent },
 
             { path: 'payment-register-report', component: PaymentRegisterComponent },
             { path: 'commission-register-report', component: CommissionRegisterComponent },
@@ -557,6 +575,16 @@ createApp({
         SalesRegisterComponent,
         ConsolidateMonthlySalesComponent,
         ConsolidateMonthlySalesCompanyComponent,
+        SalebillDetailsComponent,
+
+        OutstandingInvoiceComponent,
+        CommissionInvoiceComponent,
+        CommissionInvoiceRightOfComponent,
+
+        ProductReportComponent,
+
+        PercentageEvaluateComponent,
+        PercentageEvaluateTurnoverComponent,
 
         PaymentRegisterComponent,
         CommissionRegisterComponent,

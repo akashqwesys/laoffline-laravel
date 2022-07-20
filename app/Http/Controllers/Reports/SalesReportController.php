@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FinancialYear;
+// use App\Models\FinancialYear;
 use App\Models\Logs;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Session;
@@ -13,6 +13,7 @@ use PDF;
 use Excel;
 use App\Exports\SalesRegisterExport;
 use App\Exports\ConsolidateMonthlySalesExport;
+use App\Exports\CommonExport;
 
 class SalesReportController extends Controller
 {
@@ -399,15 +400,15 @@ class SalesReportController extends Controller
             ->where('select_date', '>=', $request->start_date)
             ->where('select_date', '<=', $request->end_date);
         if ($request->agent != 0) {
-            $sql .= ' agent_id = ' . $request->agent . ' and ';
+            $sql .= ' and agent_id = ' . $request->agent;
             $sales_total = $sales_total->where('agent_id', $request->agent);
         }
         if ($request->customer != 0) {
-            $sql .= ' company_id = ' . $request->customer . ' and ';
+            $sql .= ' and company_id = ' . $request->customer;
             $sql_2 .= ' and company_id = ' . $request->customer;
         }
         if ($request->supplier != 0) {
-            $sql .= ' supplier_id = ' . $request->supplier . ' and ';
+            $sql .= ' and supplier_id = ' . $request->supplier;
             $sql_2 .= ' and supplier_id = ' . $request->supplier;
         }
         $sales_total = $sales_total->whereRaw('is_deleted = 0 and sale_bill_flag = 0' . $sql_2)
@@ -579,5 +580,471 @@ class SalesReportController extends Controller
         } else {
             return true;
         }
+    }
+
+    public function saleBillsDetails(Request $request)
+    {
+        $page_title = 'Salebill Details Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Salebill Details Report / View';
+        $logs->log_subject = 'Salebill Details Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.salebill_details_report', compact('page_title', 'employees'));
+    }
+
+    public function listSaleBillsDetails(Request $request)
+    {
+        $user = Session::get('user');
+
+        $data = DB::table('sale_bills as s')
+            ->join('sale_bill_items as sbi', function ($j) {
+                $j->on('s.sale_bill_id', '=', 'sbi.sale_bill_id')
+                ->on('s.financial_year_id', '=', 'sbi.financial_year_id');
+            })
+            ->leftJoin('sale_bill_transports as sbt', function ($j) {
+                $j->on('s.sale_bill_id', '=', 'sbt.sale_bill_id')
+                ->on('s.financial_year_id', '=', 'sbt.financial_year_id')
+                ->where('sbt.is_deleted', 0);
+            })
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
+            ->join('cities as c', DB::raw('cast(sbt.station as integer)'), '=', 'c.id')
+            ->join('transport_details as td', 'sbt.transport_id', '=', 'td.id')
+            ->join('sale_bill_agents as sba', 's.agent_id', '=', 'sba.id')
+            ->selectRaw('cc.company_name as customer_name, cs.company_name as supplier_name, s.company_id, s.supplier_id, to_char(s.select_date, \'dd-mm-yyyy\') as select_date, s.sale_bill_id, s.financial_year_id, s.total, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name as transport_name, sba.name as agent_name, c.name as city_name, s.sale_bill_for, sbi.id, sbi.pieces, sbi.meters, sbi.rate, sbi.amount, (case when s.sale_bill_for = \'1\' then (select product_name from products where category = sbi.product_or_fabric_id limit 1) else (select name from product_categories where id = sbi.product_or_fabric_id limit 1) end) as product_name');
+
+        if ($request->search_type == 'day') {
+            $data = $data->where('s.select_date', $request->selected_date);
+        } else if ($request->search_type == 'month') {
+            $data = $data->whereRaw('to_char(s.select_date, \'mm\') = \'' . $request->selected_month . '\'')
+                ->where('s.financial_year_id', $user->financial_year_id);
+        } else if ($request->search_type == 'year') {
+            $data = $data->where('s.financial_year_id', $user->financial_year_id);
+        }
+
+        $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
+            ->groupByRaw('sbi.id, s.company_id, s.supplier_id, s.sale_bill_for, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name, sbi.pieces, sbi.meters, sbi.rate, sbi.amount')
+            ->orderBy('s.sale_bill_id', 'asc');
+        $data = $data->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.salebill_details_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
+            $path = storage_path('app/public/pdf/salebill-details-reports');
+            $fileName = 'Salebill-Details-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/salebill-details-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Salebill-Details-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.salebill_details_export_sheet'), 'excel-sheets/salebill-details-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/salebill-details-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function outstandingInvoiceReport(Request $request)
+    {
+        $page_title = 'Outstanding Invoice Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Outstanding Invoice / View';
+        $logs->log_subject = 'Outstanding Invoice view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.outstanding_invoice_report', compact('page_title', 'employees'));
+    }
+
+    public function listOutstandingInvoiceReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->invoice_no != '') {
+            $sql .= " AND ci.bill_no like '%" . $request->invoice_no . "%'";
+        }
+        if ($request->start_date && $request->end_date) {
+            $sql .= " AND ci.bill_date BETWEEN '" . $request->start_date . "' AND '" . $request->end_date . "'";
+        }
+        if ($request->company && $request->company['id']) {
+            if ($request->company['type'] == 2) {
+                $sql .= ' and ci.customer_id = ' . $request->company['id'];
+            } else {
+                $sql .= ' and ci.supplier_id = ' . $request->company['id'];
+            }
+        }
+        if ($request->agent && $request->agent['id'] != 0) {
+            $sql .= ' and ci.agent_id = ' . $request->agent['id'];
+        }
+        if ($request->due_days) {
+            $sql .= ' and (DATE_PART(\'day\', now()::timestamp - ci.bill_date::timestamp)) >= ' . $request->due_days;
+        }
+        if ($request->comm_status == "none") {
+            $sql .= " AND ci.commission_status = 0 ";
+        } elseif ($request->comm_status == "pending") {
+            $sql .= " AND ci.commission_status = 2 ";
+        } else {
+            $sql .= " AND ci.commission_status != 1 ";
+        }
+        $sort = '';
+        if ($request->sort_by != '') {
+            if ($request->sort_by == 1) {
+                $sort = 'x.bill_date ASC';
+            } elseif ($request->sort_by == 2) {
+                $sort = 'x.bill_date DESC';
+            } elseif ($request->sort_by == 3) {
+                $sort = '(x.final_amount - (case when x.receive_amount IS NULL then 0 else x.receive_amount end)) ASC';
+            } else {
+                $sort = '(x.final_amount - (case when x.receive_amount IS NULL then 0 else x.receive_amount end)) DESC';
+            }
+        } else {
+            $sort = 'x.id DESC';
+        }
+        $data = DB::table(DB::raw('(SELECT ci.id, ci.financial_year_id, ci.bill_no, ci.commission_status, to_char(ci.bill_date, \'dd-mm-yyyy\') as bill_date2, ci.customer_id, ci.supplier_id, ci.final_amount, ci.agent_id, CONCAT(e.firstname, \' \', e.lastname) as employee_name, SUM(cd.received_commission_amount) AS receive_amount, (DATE_PART(\'day\', now()::timestamp - ci.bill_date::timestamp)) as due_days, ci.bill_date FROM commission_invoices as ci INNER JOIN employees as e ON ci.generated_by = e.id LEFT JOIN commission_details cd ON cd.commission_invoice_id = ci.id AND cd.is_deleted = 0 WHERE ci.is_deleted = 0 ' . $sql . ' GROUP BY ci.id, e.firstname, e.lastname) as x'))
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'x.customer_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'x.supplier_id', '=', 'cs.id')
+            ->join('agents as a', 'x.agent_id', '=', 'a.id')
+            ->select('x.*', 'a.name as agent_name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw('(x.final_amount - (case when x.receive_amount IS NULL then 0 else x.receive_amount end)) as pending_commission'))
+            ->orderByRaw($sort)
+            ->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.outstanding_invoice_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
+            $path = storage_path('app/public/pdf/outstanding-invoice-reports');
+            $fileName = 'Outstanding-Invoice-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/outstanding-invoice-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Outstanding-Invoice-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.outstanding_invoice_export_sheet'), 'excel-sheets/outstanding-invoice-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/outstanding-invoice-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function commissionInvoiceReport(Request $request)
+    {
+        $page_title = 'Commission Invoice Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Commission Invoice / View';
+        $logs->log_subject = 'Commission Invoice view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.commission_invoice_report', compact('page_title', 'employees'));
+    }
+
+    public function listCommissionInvoiceReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->invoice_no != '') {
+            $sql .= " and ci.bill_no like '%" . $request->invoice_no . "%'";
+        }
+        if ($request->start_date && $request->end_date) {
+            $sql .= " and ci.bill_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->company && $request->company['id']) {
+            $sql .= ' and (ci.customer_id = ' . $request->company['id'] . ' or ci.supplier_id = ' . $request->company['id'] . ')';
+        }
+        if ($request->agent && $request->agent['id'] != 0) {
+            $sql .= ' and ci.agent_id = ' . $request->agent['id'];
+        }
+        if ($request->due_days) {
+            $sql .= ' and (DATE_PART(\'day\', now()::timestamp - ci.bill_date::timestamp)) >= ' . $request->due_days;
+        }
+        $sort = '';
+        if ($request->sort_by != '') {
+            if ($request->sort_by == 1) {
+                $sort = 'ci.bill_date ASC';
+            } else {
+                $sort = 'ci.bill_date DESC';
+            }
+        } else {
+            $sort = 'ci.id DESC';
+        }
+        $data = DB::table('commission_invoices as ci')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cc"'), 'ci.customer_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cs"'), 'ci.supplier_id', '=', 'cs.id')
+            ->join('states as s', DB::raw('(case when "cc"."id" is null then "cs"."company_state" else "cc"."company_state" end)'), '=', 's.id')
+            ->join('agents as a', 'ci.agent_id', '=', 'a.id')
+            ->select('ci.bill_no', 'ci.id', 'ci.financial_year_id', 'a.name as agent_name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 's.name as state_name', DB::raw('to_char(ci.bill_date, \'dd-mm-yyyy\') as bill_date2'), 'ci.commission_amount', 'ci.cgst_amount', 'ci.sgst_amount', 'ci.igst_amount', 'ci.tds_amount', 'ci.final_amount')
+            ->whereRaw('ci.is_deleted = 0 ' . $sql)
+            ->orderByRaw($sort)
+            ->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.commission_invoice_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
+            $path = storage_path('app/public/pdf/commission-invoice-reports');
+            $fileName = 'Commission-Invoice-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/commission-invoice-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Commission-Invoice-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.commission_invoice_export_sheet'), 'excel-sheets/commission-invoice-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-invoice-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function commissionInvoiceRightofReport(Request $request)
+    {
+        $page_title = 'Commission Invoice Right of Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Commission Invoice Right of / View';
+        $logs->log_subject = 'Commission Invoice Right of view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.commission_invoice_right_report', compact('page_title', 'employees'));
+    }
+
+    public function listCommissionInvoiceRightofReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->start_date && $request->end_date) {
+            $sql .= " and p.date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->customer && $request->customer['id']) {
+            $sql .= ' and p.receipt_from = ' . $request->customer['id'];
+        }
+        if ($request->supplier && $request->supplier['id']) {
+            $sql .= ' and p.supplier_id = ' . $request->supplier['id'];
+        }
+        $payment_sort = "cs.company_name ASC, p.payment_id ASC";
+        if ($request->sort_by == 1) {
+            $payment_sort = "cs.company_name ASC, p.payment_id ASC";
+        } else if ($request->sort_by == 2) {
+            $payment_sort = "cs.company_name DESC, p.payment_id ASC";
+        } else if ($request->sort_by == 3) {
+            $payment_sort = "cc.company_name ASC, p.payment_id ASC";
+        } else if ($request->sort_by == 4) {
+            $payment_sort = "cc.company_name DESC, p.payment_id ASC";
+        } else if ($request->sort_by == 5) {
+            $payment_sort = "p.date ASC, p.payment_id ASC";
+        } else if ($request->sort_by == 6) {
+            $payment_sort = "p.date DESC, p.payment_id ASC";
+        }
+        $data = DB::table('payments as p')
+            ->join(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->join(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->leftJoin('bank_details as bd', 'p.deposite_bank', '=', 'bd.id')
+            ->leftJoin('bank_details as bd1', 'p.cheque_dd_bank', '=', 'bd1.id')
+            ->select('p.payment_id', 'p.id', 'p.financial_year_id', 'bd.name as bank_name', 'bd1.name as deposit_bank', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw('to_char(p.date, \'dd-mm-yyyy\') as date2, to_char(p.cheque_date, \'dd-mm-yyyy\') as cheque_date2'), 'p.reciept_mode', 'p.cheque_dd_no', 'p.receipt_amount', 'p.total_amount', 'p.right_of_amount', 'p.right_of_remark')
+            ->whereRaw('p.is_deleted = 0 and p.right_of_amount <> 0 ' . $sql)
+            ->orderByRaw($payment_sort)
+            ->get();
+
+        if ($request->export_pdf == 1) {
+            ini_set("memory_limit", -1);
+            $pdf = PDF::loadView('reports.commission_invoice_right_of_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif'])
+                ->setPaper('a4', 'landscape');
+            $path = storage_path('app/public/pdf/commission-invoice-right-of-reports');
+            $fileName = 'Commission-Invoice-Right-of-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/commission-invoice-right-of-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            ini_set("memory_limit", -1);
+            $fileName = 'Commission-Invoice-Right-of-Report-' . time() . '.xlsx';
+            Excel::store(new CommonExport($data, $request, 'reports.commission_invoice_right_of_export_sheet'), 'excel-sheets/commission-invoice-right-of-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-invoice-right-of-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function percentageEvaluateReport(Request $request)
+    {
+        $page_title = 'Percentage Evaluate Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Percentage Evaluate / View';
+        $logs->log_subject = 'Percentage Evaluate view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.percentage_evaluate_report', compact('page_title', 'employees'));
+    }
+
+    public function listPercentageEvaluateReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = '';
+        if ($request->start_date && $request->end_date) {
+            $sql .= "bill_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->company_type == 2) {
+            $sql .= ' and customer_id <> 0';
+        } else if ($request->company_type == 3) {
+            $sql .= ' and supplier_id <> 0';
+        }
+        if ($request->sort_by == "1") {    // customer
+            $sort = "commission_percent ASC";
+        } else if ($request->sort_by == "2") {    // supplier
+            $sort = "commission_percent DESC";
+        } else if ($request->sort_by == "3") {    // supplier
+            $sort = "total_amount ASC";
+        } else if ($request->sort_by == "4") {    // supplier
+            $sort = "total_amount DESC";
+        }
+
+        $total = DB::table('commission_invoices')
+            ->selectRaw('sum(commission_amount) as total_commission_amount')
+            ->whereRaw($sql)
+            ->pluck('total_commission_amount')
+            ->first();
+
+        $data = DB::table('commission_invoices')
+            ->selectRaw('commission_percent, SUM(commission_amount) as total_amount')
+            ->whereRaw($sql)
+            ->orderByRaw($sort)
+            ->groupBy('commission_percent')
+            ->get();
+
+        return response()->json(['data' => $data, 'total' => $total]);
+    }
+
+    public function percentageEvaluateTurnoverReport(Request $request)
+    {
+        $page_title = 'Percentage Evaluate Turnover Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Percentage Evaluate Turnover / View';
+        $logs->log_subject = 'Percentage Evaluate Turnover view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.percentage_evaluate_turnover_report', compact('page_title', 'employees'));
+    }
+
+    public function listPercentageEvaluateTurnoverReport(Request $request)
+    {
+        $user = Session::get('user');
+        $sql = 's.is_deleted = 0 AND s.sale_bill_flag = 0 ';
+        if ($request->start_date && $request->end_date) {
+            $sql .= " and s.select_date between '" . $request->start_date . "' and '" . $request->end_date . "'";
+        }
+        if ($request->company_type == 2) {
+            $sql .= ' and s.customer_id <> 0';
+        } else if ($request->company_type == 3) {
+            $sql .= ' and s.supplier_id <> 0';
+        }
+        if ($request->sort_by == "1") {    // customer
+            $sort = "commission_percentage ASC";
+        } else if ($request->sort_by == "2") {    // supplier
+            $sort = "commission_percentage DESC";
+        } else if ($request->sort_by == "3") {    // supplier
+            $sort = "total_amount ASC";
+        } else if ($request->sort_by == "4") {    // supplier
+            $sort = "total_amount DESC";
+        }
+
+        $total = DB::table('sale_bills as s')
+            ->join('company_commissions as cc', function ($j) {
+                $j->on('s.supplier_id', '=', 'cc.supplier_id')
+                ->on('s.company_id', '=', 'cc.customer_id');
+            })
+            ->selectRaw('sum(s.total) AS total_turnover_amount')
+            ->whereRaw($sql)
+            ->pluck('total_turnover_amount')
+            ->first();
+
+        $data = DB::table(DB::raw('(SELECT s.total, (case when cc.commission_percentage IS NULL then 2 else cc.commission_percentage end) as commission_percentage FROM "sale_bills" as s
+				INNER JOIN company_commissions as cc ON cc.supplier_id = s.supplier_id AND cc.customer_id = s.company_id
+				WHERE ' . $sql . ') as x'))
+            ->selectRaw('SUM(x.total) as total_amount, x.commission_percentage')
+            ->groupBy('commission_percentage')
+            ->orderByRaw($sort)
+            ->get();
+
+        return response()->json(['data' => $data, 'total' => $total]);
     }
 }
