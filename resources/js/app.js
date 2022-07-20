@@ -148,6 +148,8 @@ import AvaragePaymentDaysComponent from './components/reports/AvaragePaymentDays
 import OutstandingCommissionComponent from './components/reports/OutstandingCommissionComponent.vue';
 import OutstandingCommissionMonthWiseSummeryComponent from './components/reports/OutstandingCommissionMonthWiseSummeryComponent.vue';
 import AvarageCommissionDaysComponent from './components/reports/AvarageCommissionDaysComponent.vue';
+import DailyCommissionComponent from './components/reports/DailyCommissionComponent.vue';
+import CommissionCollectionComponent from './components/reports/CommissionCollectionComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -435,7 +437,9 @@ const routes = [
             { path: 'avg-payment-days-report', component: AvaragePaymentDaysComponent },
             { path: 'avg-commission-days-report', component: AvarageCommissionDaysComponent },
             { path: 'outstaning-payment-month_wise_summery_report', component: OutstandingPaymentMonthWiseSummeryComponent },
-            { path: '/outstanding-commission-month-wise-summary-report/:reportType', component: OutstandingCommissionMonthWiseSummeryComponent},
+            { path: 'outstanding-commission-month-wise-summary-report/:reportType', component: OutstandingCommissionMonthWiseSummeryComponent},
+            { path: 'daily-commission-report', component: DailyCommissionComponent},
+            { path: 'commission-collection-report', component: CommissionCollectionComponent},
         ]
     },
 ];
@@ -562,5 +566,7 @@ createApp({
         OutstandingCommissionComponent,
         OutstandingCommissionMonthWiseSummeryComponent,
         AvarageCommissionDaysComponent,
+        DailyCommissionComponent,
+        CommissionCollectionComponent,
     }
 }).use(router).mount('#app');

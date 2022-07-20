@@ -799,7 +799,10 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::post('/list-commission-outstanding-month-wise-summery-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionMonthWiseSummeryData']);
     
     Route::get('/avg-payment-days-report', [App\Http\Controllers\Reports\PaymentsReportController::class, 'avaPaymentDaysReport']);
+    Route::get('/daily-commission-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'dailyCommissionReport']);
+    Route::get('/commission-collection-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionCollectionReport']);
     Route::post('/list-outstanding-commission-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listOutstandingCommissionData']);
+    Route::post('/list-daily-commission-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'listDailyCommissionData']);
     Route::get('/outstanding-commission-month-wise-summary-report/{type}', [App\Http\Controllers\Reports\CommissionReportController::class, 'outstandingCommissionMonthWiseSummeryReport']);
     Route::post('/list-avarage-commissions-days', [App\Http\Controllers\Reports\CommissionReportController::class, 'listAvarageCommissionDaysData']);
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
@@ -807,6 +810,7 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/avg-commission-days-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'avaCommissionDaysReport']);
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
+    Route::post('/list-commission-collection-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionCollectionData']);
 }); 
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

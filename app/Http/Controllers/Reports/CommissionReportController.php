@@ -18,6 +18,7 @@ use App\Exports\CommissionRegisterExport;
 use App\Exports\OutstandingCommissionExport;
 use App\Exports\AvarageCommissionDaysExport;
 use App\Exports\OutstandingCommissionMonthWiseSummeryExport;
+use App\Exports\CommissionCollectionExport;
 use Carbon\Carbon;
 
 class CommissionReportController extends Controller
@@ -131,6 +132,53 @@ class CommissionReportController extends Controller
         $logs->save();
 
         return view('reports.ava_commission_days_report', compact('page_title', 'employees'));
+    }
+
+    public function dailyCommissionReport(Request $request) {
+        $page_title = 'Daily Commission Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Daily Commission Report / View';
+        $logs->log_subject = 'Daily Commission Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.daily_commission_report', compact('page_title', 'employees'));
+    }
+    public function commissionCollectionReport(Request $request) {
+        $page_title = 'Commission Collection Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Commission Collection Report / View';
+        $logs->log_subject = 'Commission Collection Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.commission_collection_report', compact('page_title', 'employees'));
     }
 
     public function listCommissionRegisterData(Request $request)
@@ -643,8 +691,7 @@ class CommissionReportController extends Controller
                     } else {
                         $html .=  '<td>'.$bill_no.'</td>';
                     }
-                    $html .=  '</tr>';
-                    
+                    $html .=  '</tr>'; 
                 $prev_com = $row->total_comm_amount;
                 $tot_payment += $row->receipt_amount;
                 $total_payment += $row->receipt_amount;
@@ -1106,5 +1153,202 @@ class CommissionReportController extends Controller
             return response()->json($data);
         }
         
+    }
+
+    public function listDailyCommissionData(Request $request) {
+        $data1 = DB::table('commissions as c')
+                    ->where('c.is_deleted', 0)
+                    ->whereRaw("c.created_at::date >= '" . $request->start_date . " 00:00:00'")
+                    ->whereRaw("c.created_at::date <= '" . $request->start_date . " 23:59:59'")
+                    ->orderBy('c.commission_id', 'desc')
+                    ->get();
+        $data1 = collect($data1)->groupBy('commission_reciept_mode');
+        $html = '';
+        $gtotal = 0;
+        if (count($data1) != 0) {
+        foreach ($data1 as $key => $row) {
+            $html .= '<tr width="100%" class="bg-gray text-white">
+                <td colspan = "4" class="text-center"><b> Received By '.$key.'</b></td>
+                </tr>
+                <tr width="100%">
+                    <td><b>Commission Id</b></td>
+                    <td><b>Commission Date</b></td>
+                    <td><b>Commission Amount</b></td>
+                    <td><b>Date Added</b></td>
+                </tr>';
+            $total = 0;
+            foreach($row as $key1 => $row1){
+                $html .= '<tr width="100%">
+                    <td>'.$row1->commission_id.'</td>
+                    <td>'.$row1->commission_date.'</td>
+                    <td>'.$row1->commission_payment_amount.'</td>
+                    <td>'.$row1->created_at.'</td>
+                </tr>';
+                $total += $row1->commission_payment_amount;
+            }
+            $html .= '<tr width="100%">
+                <td></td>
+                <td><b>Total</b></td>
+                <td><b>'.$total.'</b></td>
+                <td></td>
+                </tr>';
+            $gtotal += $total;
+        }
+        $html .= '<tr width="100%">
+                <td></td>
+                <td><b>Grand Total</b></td>
+                <td><b>'.$gtotal.'</b></td>
+                <td></td>
+                </tr>';
+        } else {
+            $html .= '<tr class="text-center" width="100%">
+                <td>Record Not Found</td>
+                </tr>';
+        }
+        $data['table'] = $html;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.daily_commission_report_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/daily-commission-reports');
+            $fileName =  'Daily-Commission-Days' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/daily-commission-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function listCommissionCollectionData(Request $request) {
+        $data1 = DB::table('commissions as co')
+                    ->Join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'co.supplier_id', '=', 'cs.id')
+                    ->Join(DB::raw('(SELECT "c_increment_id", "commission_invoice_id", "is_deleted" FROM commission_details group by "c_increment_id", "commission_invoice_id", "is_deleted") as "cd"'), 'co.id', '=', 'cd.c_increment_id')
+                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id" FROM commission_invoices group by "id", "is_deleted", "financial_year_id") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
+                    ->where('co.is_deleted', 0)
+                    ->where('ci.is_deleted', 0)
+                    ->where('cd.is_deleted', 0)
+                    ->select('co.*', 'cs.company_name as company_name', 'cs.id as company_id');
+        $data2 = DB::table('commissions as co')
+                    ->Join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'co.customer_id', '=', 'cc.id')
+                    ->Join(DB::raw('(SELECT "c_increment_id", "commission_invoice_id", "is_deleted" FROM commission_details group by "c_increment_id", "commission_invoice_id", "is_deleted") as "cd"'), 'co.id', '=', 'cd.c_increment_id')
+                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id" FROM commission_invoices group by "id", "is_deleted", "financial_year_id") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
+                    ->where('co.is_deleted', 0)
+                    ->where('ci.is_deleted', 0)
+                    ->where('cd.is_deleted', 0)
+                    ->select('co.*','cc.company_name as company_name', 'cc.id as company_id');
+                    
+        $companies = array();
+        if ($request->company && $request->company['id']) {
+            $company_details = Company::where('id', $request->company['id'])->first();
+            $link_companies = LinkCompanies::where('company_id', $request->company['id'])->get();
+            if (empty($link_companies)) {
+                $is_linked = LinkCompanies::where('link_companies_id', $request->company['id'])->get();
+                if (!empty($is_linked)) {
+                    $company_details = Company::where('id', $is_linked->company_id)->first();
+                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                }
+            }
+            if ($company_details) {
+                $main_cmp_id = $company_details->id;
+                array_push($companies, $main_cmp_id);
+                foreach ($link_companies as $row_link_companies) {
+                    array_push($companies, $row_link_companies->link_companies_id);
+                }
+            }
+            if ($request->company['company_type'] == 2)
+            {
+                $data1 = $data1->whereIn('co.customer_id', $companies);
+                $data2 = $data2->whereIn('co.customer_id', $companies);
+            } else if ($request->company['company_type'] == 3) {
+                $data1 = $data1->whereIn('co.supplier_id', $companies);
+                $data2 = $data2->whereIn('co.supplier_id', $companies);
+            }
+        }
+
+        if ($request->mode && $request->mode['id']) {
+            $mode = '';
+            if ($request->mode['id'] == 2) {
+                $mode = 'cash';
+            } else if ($request->mode['id'] == 3) {
+                $mode = 'cheque';
+            }
+            if ($request->mode['id'] != 1){
+                $data1 = $data1->where('co.commission_reciept_mode', $mode);
+                $data2 = $data2->where('co.commission_reciept_mode', $mode);
+            }
+        }
+
+        if ($request->agent && $request->agent['id']) {
+            $data1 = $data1->where('co.commission_account', $request->agent['id']);
+            $data2 = $data2->where('co.commission_account', $request->agent['id']);
+        }
+
+        if ($request->fyear && $request->fyear['id']) {
+            $data1 = $data1->where('ci.financial_year_id', $request->fyear['id']);
+            $data2 = $data2->where('ci.financial_year_id', $request->fyear['id']);
+        }
+           
+        $data2 = $data2->union($data1)->get();
+        
+        $html = '';
+        $html .= '<tr width="100%">
+                    <th>Id</th>
+                    <th>Company</th>
+                    <th class="text-center">Date</th>
+                    <th>Account</th>
+                    <th>Mode</th>
+                    <th>Dep.Bank</th>
+                    <th>Chq.Date</th>
+                    <th>Chq/DD No</th>
+                    <th>Chq/DD Bank</th>
+                    <th class="text-right">Amount</th>
+                </tr>';
+        $total = 0;
+        foreach ($data2 as $key => $row) {
+            if ($row->commission_reciept_mode == 'cash') {
+               $commission_deposite_bank = '-';
+               $commission_cheque_date = '-';
+               $commission_cheque_dd_no = '-';
+               $commission_cheque_dd_bank = '-';
+            } else {
+                $commission_deposite_bank = DB::table('bank_details')->where('id', $$row->commission_deposite_bank)->first()->name;
+                $commission_cheque_dd_bank = DB::table('bank_details')->where('id', $$row->commission_cheque_dd_bank)->first()->name;
+                $commission_cheque_date = $row->commission_cheque_date;
+                $commission_cheque_dd_no = $row->commission_cheque_dd_no;
+            }
+            $commission_account = DB::table('agents')->where('id', $row->commission_account)->first()->name;
+            $html .= '<tr width="100%">
+                        <td>'.$row->commission_id.'</td>
+                        <td>'.$row->company_name.'</td>
+                        <td>'.$row->commission_date.'</td>
+                        <td>'.$commission_account.'</td>
+                        <td>'.$row->commission_reciept_mode.'</td>
+                        <td>'.$commission_deposite_bank.'</td>
+                        <td>'.$commission_cheque_date.'</td>
+                        <td>'.$commission_cheque_dd_no.'</td>
+                        <td>'.$commission_cheque_dd_bank.'</td>
+                        <td class="text-right">'.$row->commission_payment_amount.'</td>
+                    </tr>';
+                    $total += $row->commission_payment_amount;
+        }
+        $html .= '<tr width="100%">
+            <td colspan="9"><b>Total</b></td>
+            <td class="text-right"><b>'.$total.'</b></td>
+        </tr>';
+        $data['table'] = $html;
+        $data['result'] = $data2;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.commission_collection_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/commission-collection-reports');
+            $fileName =  'Commission-Commission-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/commission-collection-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Commission-Commission-Report-' . time() . '.xlsx';
+            Excel::store(new CommissionCollectionExport($data, $request), 'excel-sheets/commission-collection-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-collection-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
     }
 }

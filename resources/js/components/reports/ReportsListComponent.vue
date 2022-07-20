@@ -97,7 +97,7 @@
                                             </tr>
                                             <tr>
                                                 <td>11</td>
-                                                <td><a target="_blank" href="/daily_commission_report">Daily Commission Report</a></td>
+                                                <td><a target="_blank" href="/reports/daily-commission-report">Daily Commission Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>12</td>
@@ -105,7 +105,7 @@
                                             </tr> <!-- add -->
                                             <tr>
                                                 <td>13</td>
-                                                <td><a target="_blank" href="/commission_collection_report">Commission Collection Report</a></td>
+                                                <td><a target="_blank" href="/reports/commission-collection-report">Commission Collection Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>14</td>
