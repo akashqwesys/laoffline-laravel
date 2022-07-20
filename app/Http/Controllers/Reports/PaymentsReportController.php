@@ -398,7 +398,9 @@ class PaymentsReportController extends Controller
 
                 if ($numberDays >= $report_days){
                     if ($numberDays >= 90) {
-                        $tr_color="style='color:red'";
+                        $tr_color = "style='color:red'";
+                    } else {
+                        $tr_color = ""; 
                     }
                     $html .='<tr width="100%"'.$tr_color.'>
                                 <td>'.$row2->select_date.'</td>';
