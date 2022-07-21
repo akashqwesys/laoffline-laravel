@@ -306,7 +306,7 @@ class CommissionReportController extends Controller
                     ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
                     ->where('ccomm_per2.flag', 1);
                 })
-                ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.old_commission_status', 0)->whereNot('p.customer_commission_status', 1)
+                ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.old_commission_status', 0)->orWhereNot('p.customer_commission_status', 1)
                 ->select('cc.company_name as customer_name', 'cs.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
         } else {
             if ($request->show_detail == 1) {
@@ -343,7 +343,7 @@ class CommissionReportController extends Controller
                             ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
                             ->where('ccomm_per2.flag', 2);
                         })
-                        ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.customer_commission_status', 0)->whereNot('p.old_commission_status', 1)
+                        ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.customer_commission_status', 0)->orWhereNot('p.old_commission_status', 1)
                         ->select('cc.company_name as customer_name', 'cc.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
         }
         $supplier = array();
