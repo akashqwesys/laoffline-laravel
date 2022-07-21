@@ -282,7 +282,7 @@ class CommissionReportController extends Controller
                 ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
                 ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
                 ->orderBy('cs.company_name')
-                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->orWhereNot('p.customer_commission_status', 1)
+                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->orWhereNot('p1.customer_commission_status', 1)
                 ->select('cs.company_name as supplier_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
 
         } else {
@@ -294,7 +294,7 @@ class CommissionReportController extends Controller
                 })
                 ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
                 ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
-                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->orWhereNot('p.customer_commission_status', 1)
+                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->orWhereNot('p1.customer_commission_status', 1)
                 ->select('p1.supplier_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
         }
         $data2 = DB::table('payments as p')
@@ -319,7 +319,7 @@ class CommissionReportController extends Controller
                         ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
                         ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
                         ->orderBy('cc.company_name')
-                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->orWhereNot('p.old_commission_status', 1)
+                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->orWhereNot('p1.old_commission_status', 1)
                         ->select('cc.company_name as customer_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
 
                 } else {
@@ -331,7 +331,7 @@ class CommissionReportController extends Controller
                         })
                         ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
                         ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
-                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->orWhereNot('p.old_commission_status', 1)
+                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->orWhereNot('p1.old_commission_status', 1)
                         ->select('p1.customer_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
                 }
                 $data2 = DB::table('payments as p')
