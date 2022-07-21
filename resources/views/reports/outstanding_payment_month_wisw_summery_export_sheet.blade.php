@@ -54,98 +54,103 @@
             <td colspan="3" align="center">{{ $agent }}</td>
         </tr>
         @php
-            $m = -1;
-            $month_data = $data['month_data'];
-            $grand_total = $data['grand_total'];
-            if (!empty($data['date_data'])) {
+        if ($request->start_date != '' && $request->end_date != '') {
+            $gtotal = 0;
         @endphp
-                @foreach($data['date_data'] as $row_date)
+            @foreach ($data['finaldata'] as $keys => $row)
+                <tr>
+                    <td colspan="3" align="center" style="height:35px"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" align="center"><b style="font-size: 20px">{{ $keys }}</b></td>
+                </tr>
                 @php
-                    $m++;
-                    if(isset($data[$row_date]) && is_array($data[$row_date]) && count($data[$row_date]) != 0) {
+                if ($request->show_detail == 1) {
                 @endphp
-                        <tr>
-                            <td height="35" colspan="3"></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3" align="center"><b style="font-size: 20px">{{ $row_date }}</b></td>
-                        </tr>
+                            <tr>
+                                <th>No.</th>
+                                <th>Customer</th>
+                                <th align="right">Party Total</th>
+                            </tr>
                 @php
-                    $maindata = $data['maindata'];
-                    $month1=array(); $company_id1=array();	$name1=array();	$address1=array();
-                    $party_total1=array();
+                }
+                $mtotal = 0;
+                $i = 0;
                 @endphp
-                    @foreach ($maindata[$row_date] as $key => $row) 
-                            $month1[$key] = $row['month'];
-                            $company_id1[$key]  = $row['company_id'];
-                            $name1[$key]  = $row['name'];
-                            $address1[$key] = $row['address'];
-                            $party_total1[$key] = $row['party_total'];
-                    @endforeach
-                @php
-                    if($request->sorting == 1) {
-                            array_multisort($party_total1, SORT_ASC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $month1, SORT_ASC, $maindata[$row_date]);
-                        } elseif($request->sorting == 2) {
-                            array_multisort($party_total1, SORT_DESC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $month1, SORT_ASC, $maindata[$row_date]);
-                        }
-                @endphp
-                @foreach ($maindata[$row_date] as $row)
+                @foreach ($row as $key1 =>$row1)
                 @php
                     if ($request->show_detail == 0) {
-                @endphp            
-                    <tr>
-                        <td colspan="3" align="center" style="height:35px"></td>
-                    </tr>
-                    <tr>
-                       <td colspan="1"><b>{{$row['name']}}</b></td>
-                       <td colspan="2"><b>{{$row['address']}}</b></td>
-                    </tr>
-                    <tr>
-                        <th><b>Sr.</b></th>
-                        <th><b>Purchase Party</b></th>
-                        <th align="right"><b>Bill Amount</b></th>
-                    </tr>
-                @php            
-                    for($i=0; $i<((is_array($data[$row_date][$row['company_id']]['sr'])) ? count($data[$row_date][$row['company_id']]['sr']) : 0); $i++) {
-                @endphp        
-                        <tr>
-                            <td align="left">{{$data[$row_date][$row['company_id']]['sr'][$i]}}</td>
-                            <td>{{$data[$row_date][$row['company_id']]['purchase_Party'][$i]}}</td>
-                            <td align="right">{{$data[$row_date][$row['company_id']]['supplier_total'][$i]}}</td>
-                        </tr>
-                @php
-                    }
                 @endphp
-                    <tr>
-                        <td colspan="2" align="right"><b>Party Totals</b></td>
-                        <td colspan="" align="right"><b>{{$row['party_total']}}</b></td>
-                    </tr>
+                        <tr>
+                            <td colspan="3" align="center" style="height:35px"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="1"><b>{{ $key1 }}</b></td>
+                            <td colspan="2"><b>{{ $row1[0]->company_address }}</b></td>
+                            </tr>
+                            <tr>
+                                <th>Sr.</th>
+                                <th>Purchase Party</th>
+                                <th align="right">Bill Amount</th>
+                            </tr>
                 @php
                     } else {
                 @endphp
-                    <tr>
-                        <td colspan="2"><b>{{$row['name']}}</b></td>';
-                        <td colspan="" align="right"><b>{{$row['party_total']}}</b></td>
-                    </tr>
+                        <tr>
+                                <td>{{ ++$i }}</td>
+                                <td>{{ $key1 }}</td>
                 @php
                     }
+                    $ptotal = 0;
                 @endphp
-                @endforeach
-                    <tr>
-                        <td colspan="2" align="right"><b>Month Total</b></td>
-                        <td align="right"><b>{{$month_data[$row_date]}}</b></td>
-                    </tr>
-                @php 
-                    }
+                    @foreach ($row1 as $key2 =>$row2)
+                @php
+                        if($row2->pending_payment == 0) {
+                            $final_amount=$row2->total;
+                        } else {
+                            $final_amount=$row2->pending_payment;
+                        }
+                        $ptotal += $final_amount;
+                        if ($request->show_detail == 0) {
                 @endphp
-                @endforeach
-                        <tr></tr>
                         <tr>
-                            <td colspan="2" align="right"><b>Grand Total</b></td>
-                            <td align="right"><b>{{ $grand_total }}</b></td>
+                            <td align="left">{{ $row2->sale_bill_id }}</td>
+                            <td>{{ $row2->supplier_name }}</td>
+                            <td align="right">{{ $final_amount }}</td>
                         </tr>
-        @php 
-            }
+                @php   
+                        } 
+                @endphp
+                @endforeach
+                @php
+                    if ($request->show_detail == 0) {
+                @endphp
+                        <tr>
+                            <td><b>Party Total</b></td>
+                            <td align="right" colspan="2"><b>{{ $ptotal }}</b></td>
+                        </tr>
+                @php
+                    } else {
+                @endphp
+                        <td align="right">{{ $ptotal }}</td>
+                            </tr>
+                @php
+                    }
+                    $mtotal += $ptotal;
+                @endphp
+                @endforeach
+                        <tr>
+                            <td><b>Montly Total</b></td>
+                            <td align="right" colspan="2"><b>{{ $mtotal }}</b></td>
+                        </tr>
+                $gtotal += $mtotal; 
+            @endforeach
+                        <tr>
+                            <td><b>Grand Total</b></td>
+                            <td align="right" colspan="2"><b>{{ $gtotal }}</b></td>
+                        </tr>
+        @php    
+        }
         @endphp
-    </tbody>
+        </tbody>
 </table>

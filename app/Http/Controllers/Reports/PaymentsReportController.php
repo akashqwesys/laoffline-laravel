@@ -479,7 +479,9 @@ class PaymentsReportController extends Controller
                 ->where('s.sale_bill_flag', 0)
                 ->where('s.is_deleted', 0)
                 ->where('s.payment_status', 0)
-                ->selectRaw('s.*,to_char(s.select_date, \'dd-mm-yyyy\') as select_date1,cc.company_name as customer_name, cs.company_name as supplier_name, cadd.address as company_address');
+                ->orderBy('s.select_date', 'asc')
+                ->orderBy('s.company_id', 'asc')
+                ->select(DB::raw("CONCAT(TO_CHAR(s.select_date, 'MON'),'-',TO_CHAR(s.select_date, 'YYYY')) as monthyear"),'s.*', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'cadd.address as company_address');
 
         if ($request->agent && $request->agent['id']) {
             $data1 = $data1->where('s.agent_id', $request->agent['id']);
@@ -553,16 +555,19 @@ class PaymentsReportController extends Controller
             }
             $data['sup_disp_name'] = implode(', ', $supplier_data);
         }
-        $time   = strtotime($request->start_date);
-		$last   = date('m-Y', strtotime($request->end_date));
-		$date_array=array();
-		do {
-			$month = date('m-Y', $time);
-		   	$fdate="01-".$month;
-		   	array_push($date_array, $fdate);
-		    $time = strtotime('+1 month', $time);
-		} while ($month != $last);
-		$data['date_array']=$date_array;
+        $data1 = $data1->get();
+        $data2 = collect($data1)->groupBy('monthyear');
+        
+        // $time   = strtotime($request->start_date);
+		// $last   = date('m-Y', strtotime($request->end_date));
+		// $date_array=array();
+		// do {
+		// 	$month = date('m-Y', $time);
+		//    	$fdate="01-".$month;
+		//    	array_push($date_array, $fdate);
+		//     $time = strtotime('+1 month', $time);
+		// } while ($month != $last);
+		// $data['date_array']=$date_array;
         $morethan = '';
         $sup="";
         $agent="";
@@ -596,162 +601,87 @@ class PaymentsReportController extends Controller
                 </tr>';
 
         if ($request->start_date != '' && $request->end_date != '') {
-            $grand_total = 0;
-            $date_data=array();
-
-			$maindata=array();
-
-            foreach ($date_array as $row_date) {
-                $prev_company='';
-                $prev_company_id='';
-                $prev_address='';
-                $incr=0;
-                $total = 0;
-                $hincr=0;
-                $k=-1;
-                $month_total=0;
-                $date_cnt=0;
-                $start_date=date('Y-m-d',strtotime($row_date));
-                $end_date=date('Y-m-d',strtotime('+1 month',strtotime($start_date)));
-                $date_data[]=date("F-Y",strtotime($start_date));
-                $temp_month=date("F-Y",strtotime($start_date));
-                $customer_details = $data1->whereRaw("s.select_date::date >= '" . $start_date . "'")
-                                ->whereRaw("s.select_date::date <= '" . $end_date . "'")
-                                ->get();
-
-                foreach ($customer_details as $row_customer) {
-                    $cnt = 0;
-                    $hincr+=1;
-                    $startTimeStamp = strtotime($row_customer->select_date);
-                    $endTimeStamp = strtotime(date('Y-m-d'));
-                    $timeDiff = abs($endTimeStamp - $startTimeStamp);
-                    $numberDays = $timeDiff/86400;
-                    $numberDays = intval($numberDays);
-                    $Purchase_Party = $row_customer->supplier_name;
-                    $company = $row_customer->customer_name;
-                    $tr_color='';
-                    if($numberDays >= 90) {
-                        $tr_color='style="color:red"';
-                    }
-                    if($company != $prev_company) {
-                        $k=0;
-
-                        $address="";
-                        if($row_customer->company_address != '') {
-                            $address = $row_customer->company_address;
+            $gtotal = 0;
+            foreach ($data2 as $keys => $row) {
+                $html .= '<tr>
+                            <td colspan="3" class="text-center" style="height:35px"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-center"><b style="font-size: 20px">'.$keys.'</b></td>
+                        </tr>';
+                        if ($request->show_detail == 1) {
+                            $html .= '<tr>
+                                    <th>No.</th>
+                                    <th>Customer</th>
+                                    <th class="text-right">Party Total</th>
+                            </tr>';
                         }
-                        if($incr != 0) {
-                            $maindata[$temp_month][]=array('month'=>$temp_month, 'company_id'=>$prev_company_id,'name'=>$prev_company, 'address' => $prev_address, 'party_total'=>$total);
-                            $total=0;
-                        }
-                            $incr+=1;
-                            $prev_company_id=$row_customer->company_id;
-                            $prev_company=$company;
-                            $prev_address=$address;
-                            $prev_total=$total;
+                $mtotal = 0;
+                $i = 0;
+                $company_data = collect($row)->groupBy('customer_name');
+                $finaldata[$keys] = $company_data;
+                foreach ($company_data as $key1 =>$row1) {
+                    if ($request->show_detail == 0) {
+                    $html .= '<tr>
+                                <td colspan="3" class="text-center" style="height:35px"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="1"><b>'.$key1.'</b></td>
+                                <td colspan="2"><b>'.$row1[0]->company_address.'</b></td>
+                            </tr>
+                            <tr>
+                                <th>Sr.</th>
+                                <th>Purchase Party</th>
+                                <th class="text-right">Bill Amount</th>
+                            </tr>';
                     } else {
-                        $k++;
-                    }
-
-                    if($row_customer->pending_payment == 0) {
-                        $final_amount=$row_customer->total;
-                    } else {
-                        $final_amount=$row_customer->pending_payment;
-                    }
-                    $total += $final_amount;
-                    $month_total += $final_amount;
-                    $grand_total += $final_amount;
-                    $company_id = $row_customer->company_id;
-                    $company_name = $row_customer->customer_name;
-                    $company_address = $address;
-                    $company_total=$total;
-                      $data[$temp_month][$row_customer->company_id]['sr'][$k] = $row_customer->sale_bill_id;
-                      $data[$temp_month][$row_customer->company_id]['supplier_total'][$k] = $final_amount;
-                      $data[$temp_month][$row_customer->company_id]['purchase_Party'][$k]= $Purchase_Party;
-                }
-                $month_data[$temp_month]=$month_total;
-                if(!empty($company_id)) {
-                    $maindata[$temp_month][]=array('month'=>$temp_month, 'company_id'=>$company_id,'name'=>$company_name, 'address' => $company_address, 'party_total'=>$company_total);
-                }
-            }
-
-            $m = -1;
-            if (!empty($date_data)) {
-                foreach($date_data as $row_date) {
-                    $m++;
-                    if(isset($data[$row_date]) && is_array($data[$row_date]) && count($data[$row_date]) != 0) {
                         $html .= '<tr>
-                                    <td colspan="3" class="text-center"><b style="font-size: 20px">'.$row_date.'</b></td>
-                                </tr>';
-                        $month1=array(); $company_id1=array();	$name1=array();	$address1=array();
-                        $party_total1=array();
-                        foreach ($maindata[$row_date] as $key => $row) {
-                            $month1[$key] = $row['month'];
-                            $company_id1[$key]  = $row['company_id'];
-                            $name1[$key]  = $row['name'];
-                            $address1[$key] = $row['address'];
-                            $party_total1[$key] = $row['party_total'];
-                        }
-                        if($request->sorting == 1) {
-                            array_multisort($party_total1, SORT_ASC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $month1, SORT_ASC, $maindata[$row_date]);
-                        } elseif($request->sorting == 2) {
-                            array_multisort($party_total1, SORT_DESC, $name1, SORT_ASC, $address1, SORT_ASC,  $company_id1, SORT_ASC, $month1, SORT_ASC, $maindata[$row_date]);
-                        }
-
-                        foreach ($maindata[$row_date] as $row) {
-                            if ($request->show_detail == 0) {
-                            $html .= '<tr>
-                                        <td colspan="3" class="text-center" style="height:35px"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="1"><b>'.$row['name'].'</b></td>
-                                        <td colspan="2"><b>'.$row['address'].'</b></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Sr.</th>
-                                        <th>Purchase Party</th>
-                                        <th class="text-right">Bill Amount</th>
-                                    </tr>';
-                            for($i=0; $i<((is_array($data[$row_date][$row['company_id']]['sr'])) ? count($data[$row_date][$row['company_id']]['sr']) : 0); $i++) {
-                                $html .='<tr>
-                                            <td>'.$data[$row_date][$row['company_id']]['sr'][$i].'</td>
-                                            <td>'.$data[$row_date][$row['company_id']]['purchase_Party'][$i].'</td>
-                                            <td class="text-right">'.$data[$row_date][$row['company_id']]['supplier_total'][$i].'</td>
-                                    </tr>';
-                            }
-                            $html .= '<tr>
-                                    <td></td>
-                                    <td colspan="" class="text-right"><b>Party Totals</b></td>
-                                    <td colspan="" class="text-right"><b>'.$row['party_total'].'</b></td>
-                                    </tr>';
+                                <td>'.++$i.'</td>
+                                <td>'.$key1.'</td>';
+                    }
+                    $ptotal = 0;
+                    foreach ($row1 as $key2 =>$row2) {
+                        if($row2->pending_payment == 0) {
+                            $final_amount=$row2->total;
                         } else {
-                            $html .= '<tr>
-                                        <td colspan="2"><b>'.$row['name'].'</b></td>';
-
-                            $html .= '<td colspan="" class="text-right"><b>'.$row['party_total'].'</b></td>
-                                    </tr>';
+                            $final_amount=$row2->pending_payment;
                         }
-                        }
+                        $ptotal += $final_amount;
+                        if ($request->show_detail == 0) { 
                         $html .= '<tr>
-                                    <td colspan="2" class="text-right"><b>Month Total</b></td>
-                                    <td class="text-right"><b>'.$month_data[$row_date].'</b></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3"></td>
-                                </tr>';
+                                    <td>'.$row2->sale_bill_id.'</td>
+                                    <td>'.$row2->supplier_name.'</td>
+                                    <td class="text-right">'.$final_amount.'</td>
+                                </tr>';   
+                        } 
                     }
+                    if ($request->show_detail == 0) {
+                        $html .= '<tr>
+                                    <td><b>Party Total</b></td>
+                                    <td class="text-right" colspan="2"><b>'.$ptotal.'</b></td>
+                                </tr>';
+                    
+                    } else {
+                        $html .= '<td class="text-right">'.$ptotal.'</td>
+                            </tr>';
+                    }
+                    $mtotal += $ptotal;
                 }
                 $html .= '<tr>
-                            <td colspan="2" class="text-right"><b>Grand Total</b></td>
-                            <td class="text-right"><b>'.$grand_total.'</b></td>
+                            <td><b>Montly Total</b></td>
+                            <td class="text-right" colspan="2"><b>'.$mtotal.'</b></td>
                         </tr>';
+                $gtotal += $mtotal; 
             }
+            $html .= '<tr>
+                            <td><b>Grand Total</b></td>
+                            <td class="text-right" colspan="2"><b>'.$gtotal.'</b></td>
+                        </tr>';
+            
         }
         $data['table'] = $html;
-        $data['maindata'] = $maindata;
-        $data['date_data'] = $date_data;
-        $data['month_data'] = $month_data;
-        $data['grand_total'] = $grand_total;
+        $data['finaldata'] = $finaldata;
+        
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.outstanding_payment_month_wise_summery_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);

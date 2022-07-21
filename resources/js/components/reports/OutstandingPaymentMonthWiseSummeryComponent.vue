@@ -141,7 +141,7 @@
                 supplier_options: [],
                 agent_options: [],
                 sorting_options: [{id: 1, name: 'Party Total L -> H'}, {id: 2, name: 'Party Total H-> L'}],
-                start_date: '',
+                start_date: '2018-01-01',
                 end_date: '',
                 customer: '',
                 supplier: '',
