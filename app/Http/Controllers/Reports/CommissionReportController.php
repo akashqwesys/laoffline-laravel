@@ -441,8 +441,8 @@ class CommissionReportController extends Controller
             }
 
         }
-        $data2 = $data2->dd();
-        $data1 = $data1->dd();
+        $data2 = $data2->get();
+        $data1 = $data1->get();
         $morethan = '';
         $sup = '';
         $sup1 = '';
