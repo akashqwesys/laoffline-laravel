@@ -447,7 +447,8 @@ class CommissionReportController extends Controller
         $sup = '';
         $sup1 = '';
 
-
+        print_r($data2);
+        print_r($data1);exit;
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
         } else {
@@ -575,7 +576,7 @@ class CommissionReportController extends Controller
                 }
             }
             $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
-
+            
             foreach ($data3 as $keys => $row) {
                 $color = "";
                 $paymentdate = strtotime($row->date);
