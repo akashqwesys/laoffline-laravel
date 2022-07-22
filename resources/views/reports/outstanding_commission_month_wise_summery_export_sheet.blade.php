@@ -107,7 +107,7 @@
                 @endphp
                 @foreach ($row1 as $key2 => $row2)
                 @php
-                    $commission_amount = floor($row2->receipt_amount * $row2->commission_percentage / 100);
+                    $commission_amount = round($row2->receipt_amount * $row2->commission_percentage / 100);
                     $totalamount += $row2->receipt_amount;
                     $commissionamount += $commission_amount;
                 @endphp
@@ -191,7 +191,7 @@
                 @endphp
                 @foreach ($row1 as $key2 => $row2)
                 @php
-                    $commission_amount = floor($row2->receipt_amount * $row2->commission_percentage / 100);
+                    $commission_amount = round($row2->receipt_amount * $row2->commission_percentage / 100);
                     $totalamount += $row2->receipt_amount;
                     $commissionamount += $commission_amount;
                 @endphp
