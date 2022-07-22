@@ -751,7 +751,8 @@ class CommissionReportController extends Controller
             ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
             ->where('p.is_deleted', 0)
             ->whereNot('p.receipt_amount', 0)
-            ->where('p.old_commission_status', 0);
+            ->where('p.old_commission_status', 0)
+            ->where('p.right_of_amount', 0);
         } else {
             $data1 = DB::table('payments as p')
             ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
@@ -765,7 +766,9 @@ class CommissionReportController extends Controller
             ->select('p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_from', 'p.supplier_id', 'p.receipt_amount', 'cs.company_name as supplier_name', 'cc.company_name as customer_name', DB::raw('COALESCE(ccomm_per2.commission_percentage, 2) as commission_percentage'), DB::raw("CONCAT(TO_CHAR(p.date, 'MON'),'-',TO_CHAR(p.date, 'YYYY')) as monthyear"),DB::raw('EXTRACT(YEAR FROM p.date) as year'), DB::raw("TO_CHAR(p.date, 'Month') as month"),'cadd.address as company_address')
             ->where('p.is_deleted', 0)
             ->whereNot('p.receipt_amount', 0)
-            ->where('p.old_commission_status', 0);
+            ->where('p.old_commission_status', 0)
+            ->where('p.right_of_amount', 0);
+
         }
 
         $supplier = array();
@@ -906,7 +909,7 @@ class CommissionReportController extends Controller
                     $totalamount = $commissionamount = 0;
                     foreach ($row1 as $key2 => $paymentdata) {
 
-                        $commission_amount = floor($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
+                        $commission_amount = round($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
                         $totalamount += $paymentdata->receipt_amount;
                         $commissionamount += $commission_amount;
                     }
@@ -972,7 +975,7 @@ class CommissionReportController extends Controller
                 $totalamount = $commissionamount = 0;
                 foreach ($row1 as $key2 => $paymentdata) {
 
-                    $commission_amount = floor($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
+                    $commission_amount = round($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
                     $totalamount += $paymentdata->receipt_amount;
                     $commissionamount += $commission_amount;
                     $html .= '<tr width="100%">
