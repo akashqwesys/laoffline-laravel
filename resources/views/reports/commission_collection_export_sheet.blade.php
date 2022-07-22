@@ -41,8 +41,8 @@
                $commission_cheque_dd_no = '-';
                $commission_cheque_dd_bank = '-';
             } else {
-                $commission_deposite_bank = DB::table('bank_details')->where('id', $$row->commission_deposite_bank)->first()->name;
-                $commission_cheque_dd_bank = DB::table('bank_details')->where('id', $$row->commission_cheque_dd_bank)->first()->name;
+                $commission_deposite_bank = DB::table('bank_details')->where('id', $row->commission_deposite_bank)->first()->name;
+                $commission_cheque_dd_bank = DB::table('bank_details')->where('id', $row->commission_cheque_dd_bank)->first()->name;
                 $commission_cheque_date = $row->commission_cheque_date;
                 $commission_cheque_dd_no = $row->commission_cheque_dd_no;
             }
