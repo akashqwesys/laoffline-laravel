@@ -158,7 +158,8 @@ export default {
         const m = String(date.getMonth() + 1).padStart(2, '0');
         const d = String(date.getDate()).padStart(2, '0');
         const y = String(date.getFullYear());
-        this.max_date = [y, m, d].join('-');
+        this.max_date = this.end_date = [y, m, d].join('-');
+        this.start_date = '2018-01-01';
 
         axios.get('/common/list-all-companies')
         .then(response => {
