@@ -37,8 +37,8 @@
                                                 <th>End Date</th>
                                                 <th>Recipient</th>
                                                 <th>Agent</th>
-                                                <th>Due</th>
                                                 <th>Sorting</th>
+                                                <th>Due</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>

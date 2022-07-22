@@ -19,6 +19,7 @@ use App\Exports\OutstandingCommissionExport;
 use App\Exports\AvarageCommissionDaysExport;
 use App\Exports\OutstandingCommissionMonthWiseSummeryExport;
 use App\Exports\CommissionCollectionExport;
+use App\Exports\CommissionRightofExport;
 use Carbon\Carbon;
 
 class CommissionReportController extends Controller
@@ -1451,6 +1452,7 @@ class CommissionReportController extends Controller
                     <th>Remark</th>
                 </tr>';
         $total=0; $tot_cgst=0; $tot_sgst=0; $tot_igst=0; $tot_gst=0; $tot_tds=0; $tot_net=0; $tot_right=0;
+        if (count($data1) != 0) {
         foreach ($data1 as $key => $row) {
             if ($row->supplier_id != 0) {
                 $company = $row->supplier_name;
@@ -1488,30 +1490,35 @@ class CommissionReportController extends Controller
                     </tr>';
         }
         $html .= '<tr>
-                        <td colspan="5">Total</td>
-                        <td>'.$total.'</td>
-                        <td>'.$tot_cgst.'</td>
-                        <td>'.$tot_sgst.'</td>
-                        <td>'.$tot_igst.'</td>
-                        <td>'.$tot_gst.'</td>
-                        <td>'.$tot_tds.'</td>
-                        <td>'.$tot_net.'</td>
-                        <td>'.$tot_right.'</td>
+                        <td colspan="5"><b>Total</td>
+                        <td><b>'.$total.'</b></td>
+                        <td><b>'.$tot_cgst.'</b></td>
+                        <td><b>'.$tot_sgst.'</b></td>
+                        <td><b>'.$tot_igst.'</b></td>
+                        <td><b>'.$tot_gst.'</b></td>
+                        <td><b>'.$tot_tds.'</b></td>
+                        <td><b>'.$tot_net.'</b></td>
+                        <td><b>'.$tot_right.'</b></td>
                         <td></td>
                     </tr>';
+        } else {
+            $html .= '<tr>
+                    <td class="text-center" colspan="14">Record Not Found </td>    
+                </tr>';
+        }
         $data['table'] = $html;
         $data['result'] = $data1;
         if ($request->export_pdf == 1) {
-            $pdf = PDF::loadView('reports.commission_collection_export_pdf', compact('data', 'request'))
+            $pdf = PDF::loadView('reports.commission_rightof_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);
-            $path = storage_path('app/public/pdf/commission-collection-reports');
-            $fileName =  'Commission-Commission-Report-' . time() . '.pdf';
+            $path = storage_path('app/public/pdf/commission-rightof-reports');
+            $fileName =  'Commission-Rightof-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
-            return response()->json(['url' => url('/storage/pdf/commission-collection-reports/' . $fileName)]);
+            return response()->json(['url' => url('/storage/pdf/commission-rightof-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
-            $fileName =  'Commission-Commission-Report-' . time() . '.xlsx';
-            Excel::store(new CommissionCollectionExport($data, $request), 'excel-sheets/commission-collection-reports/' . $fileName, 'public');
-            return response()->json(['url' => url('/storage/excel-sheets/commission-collection-reports/' . $fileName)]);
+            $fileName =  'Commission-Rightof-Report-' . time() . '.xlsx';
+            Excel::store(new CommissionRightofExport($data, $request), 'excel-sheets/commission-rightof-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-rightof-reports/' . $fileName)]);
         } else {
             return response()->json($data);
         }
