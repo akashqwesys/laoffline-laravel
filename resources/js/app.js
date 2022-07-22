@@ -159,6 +159,7 @@ import OutstandingCommissionMonthWiseSummeryComponent from './components/reports
 import AvarageCommissionDaysComponent from './components/reports/AvarageCommissionDaysComponent.vue';
 import DailyCommissionComponent from './components/reports/DailyCommissionComponent.vue';
 import CommissionCollectionComponent from './components/reports/CommissionCollectionComponent.vue';
+import CommissionRightofComponent from './components/reports/CommissionRightofComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -458,6 +459,7 @@ const routes = [
             { path: 'outstanding-commission-month-wise-summary-report/:reportType', component: OutstandingCommissionMonthWiseSummeryComponent},
             { path: 'daily-commission-report', component: DailyCommissionComponent},
             { path: 'commission-collection-report', component: CommissionCollectionComponent},
+            { path: 'commission-rightof-report', component: CommissionRightofComponent},
         ]
     },
 ];
@@ -596,5 +598,6 @@ createApp({
         AvarageCommissionDaysComponent,
         DailyCommissionComponent,
         CommissionCollectionComponent,
+        CommissionRightofComponent,
     }
 }).use(router).mount('#app');

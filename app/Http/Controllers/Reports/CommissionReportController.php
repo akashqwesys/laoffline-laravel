@@ -181,6 +181,30 @@ class CommissionReportController extends Controller
         return view('reports.commission_collection_report', compact('page_title', 'employees'));
     }
 
+    public function commissionRightofReport(Request $request) {
+        $page_title = 'Commission Right Of Report';
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')
+            ->join('user_groups', 'employees.user_group', '=', 'user_groups.id')
+            ->where('employees.id', $user->employee_id)
+            ->first();
+
+        $employees['excelAccess'] = $user->excel_access;
+
+        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
+        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+
+        $logs = new Logs;
+        $logs->id = $logsId;
+        $logs->employee_id = Session::get('user')->employee_id;
+        $logs->log_path = 'Commission Right Of Report / View';
+        $logs->log_subject = 'Commission Right Of Report view page visited.';
+        $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $logs->save();
+
+        return view('reports.commission_rightof_report', compact('page_title', 'employees'));
+    }
+
     public function listCommissionRegisterData(Request $request)
     {
 
@@ -1225,7 +1249,7 @@ class CommissionReportController extends Controller
         $data1 = DB::table('commissions as co')
                     ->Join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'co.supplier_id', '=', 'cs.id')
                     ->Join(DB::raw('(SELECT "c_increment_id", "commission_invoice_id", "is_deleted" FROM commission_details group by "c_increment_id", "commission_invoice_id", "is_deleted") as "cd"'), 'co.id', '=', 'cd.c_increment_id')
-                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id", "bill_date" FROM commission_invoices group by "id", "is_deleted", "financial_year_id", , "bill_date") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
+                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id", "bill_date" FROM commission_invoices group by "id", "is_deleted", "financial_year_id", "bill_date") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
                     ->where('co.is_deleted', 0)
                     ->where('ci.is_deleted', 0)
                     ->where('cd.is_deleted', 0)
@@ -1279,12 +1303,7 @@ class CommissionReportController extends Controller
                 $data2 = $data2->where('co.commission_reciept_mode', $mode);
             }
         }
-        if ($request->start_date && $request->end_date) {
-            $data1 = $data1->whereRaw("co.commission_date::date >= '" . $request->start_date . "'")
-                    ->whereRaw("co.commission_date::date <= '" . $request->end_date . "'");
-            $data2 = $data2->whereRaw("co.commission_date::date >= '" . $request->start_date . "'")
-                    ->whereRaw("co.commission_date::date <= '" . $request->end_date . "'");        
-        }
+        
         if ($request->agent && $request->agent['id']) {
             $data1 = $data1->where('co.commission_account', $request->agent['id']);
             $data2 = $data2->where('co.commission_account', $request->agent['id']);
@@ -1361,6 +1380,127 @@ class CommissionReportController extends Controller
         </tr>';
         $data['table'] = $html;
         $data['result'] = $data2;
+        if ($request->export_pdf == 1) {
+            $pdf = PDF::loadView('reports.commission_collection_export_pdf', compact('data', 'request'))
+                ->setOptions(['defaultFont' => 'sans-serif']);
+            $path = storage_path('app/public/pdf/commission-collection-reports');
+            $fileName =  'Commission-Commission-Report-' . time() . '.pdf';
+            $pdf->save($path . '/' . $fileName);
+            return response()->json(['url' => url('/storage/pdf/commission-collection-reports/' . $fileName)]);
+        } else if ($request->export_sheet == 1) {
+            $fileName =  'Commission-Commission-Report-' . time() . '.xlsx';
+            Excel::store(new CommissionCollectionExport($data, $request), 'excel-sheets/commission-collection-reports/' . $fileName, 'public');
+            return response()->json(['url' => url('/storage/excel-sheets/commission-collection-reports/' . $fileName)]);
+        } else {
+            return response()->json($data);
+        }
+    }
+
+    public function listCommissionRightofData(Request $request) {
+        $data1 = DB::table('commission_invoices as ci')
+                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cc"'), 'ci.customer_id', '=', 'cc.id')
+                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_state" FROM companies group by "company_name", "id", "company_state") as "cs"'), 'ci.supplier_id', '=', 'cs.id')
+                ->leftJoin(DB::raw('(SELECT "name", "id" FROM agents group by "name", "id") as "agent"'), DB::raw('cast(ci.agent_id as integer)'), '=', 'agent.id')
+                ->where('ci.is_deleted', 0)
+                ->whereNot('ci.right_of_amount', 0)
+                ->orderBy('ci.id', 'asc')
+                ->select('ci.*', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'cc.company_state as customer_state', 'cs.company_state as supplier_state', 'agent.name as agentname');
+        
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
+                            ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");
+        }
+
+        if ($request->recipient && $request->recipient['id']) {
+            if ($request->recipient['company_type'] == 2) {
+                $data1 = $data1->where('ci.customer_id', $request->recipient['id']);
+            } else {
+                $data1 = $data1->where('ci.supplier_id', $request->recipient['id']); 
+            } 
+        }
+
+        if ($request->agent && $request->agent['id']) {
+            $data1 = $data1->where('ci.agent_id', $request->agent['id']); 
+        }
+
+        if ($request->invno) {
+            $data1 = $data1->where('ci.bill_no','ilike', '%' . $request->invno . '%');
+        }
+
+        if ($request->due) {
+            $todaydate = Carbon::now()->format('Y-m-d');
+            $data1 = $data1->whereRaw('\'' . $todaydate . '\'' . ' - ci.bill_date >= '. $request->due);;
+        }
+
+        $data1 = $data1->get();
+        $html = '';
+        $html .= '<tr>
+                    <th>Inv NO</th>
+                    <th>Inv Date</th>
+                    <th>Recipient</th>
+                    <th>Agent</th>
+                    <th>State</th>
+                    <th>Gross Amount</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>IGST</th>
+                    <th>Total GST</th>
+                    <th>TDS</th>
+                    <th>Net Amount</th>
+                    <th>Right of Amt</th>
+                    <th>Remark</th>
+                </tr>';
+        $total=0; $tot_cgst=0; $tot_sgst=0; $tot_igst=0; $tot_gst=0; $tot_tds=0; $tot_net=0; $tot_right=0;
+        foreach ($data1 as $key => $row) {
+            if ($row->supplier_id != 0) {
+                $company = $row->supplier_name;
+                $state = DB::table('states')->where('id', $row->supplier_state)->first()->name;
+            } else {
+                $company = $row->customer_name;
+                $state = $state = DB::table('states')->where('id', $row->customer_state)->first()->name;;
+            }
+            $total_gst = 0;
+
+            $total_gst = $row->cgst_amount + $row->cgst_amount + $row->igst_amount;
+            $total += $row->commission_amount;
+            $tot_gst += $total_gst;
+            $tot_cgst += $row->cgst_amount;
+            $tot_sgst += $row->sgst_amount;
+            $tot_igst += $row->igst_amount;
+            $tot_tds +=  $row->tds_amount;
+            $tot_net +=  $row->final_amount;
+            $tot_right +=  $row->right_of_amount;
+            $html .= '<tr>
+                        <td>'.$row->bill_no.'</td>
+                        <td>'.$row->bill_date.'</td>
+                        <td>'.$company.'</td>
+                        <td>'.$row->agentname.'</td>
+                        <td>'.$state.'</td>
+                        <td>'.$row->commission_amount.'</td>
+                        <td>'.$row->cgst_amount.'</td>
+                        <td>'.$row->sgst_amount.'</td>
+                        <td>'.$row->igst_amount.'</td>
+                        <td>'.$total_gst.'</td>
+                        <td>'.$row->tds_amount.'</td>
+                        <td>'.$row->final_amount.'</td>
+                        <td>'.$row->right_of_amount.'</td>
+                        <td>'.$row->right_of_remark.'</td>
+                    </tr>';
+        }
+        $html .= '<tr>
+                        <td colspan="5">Total</td>
+                        <td>'.$total.'</td>
+                        <td>'.$tot_cgst.'</td>
+                        <td>'.$tot_sgst.'</td>
+                        <td>'.$tot_igst.'</td>
+                        <td>'.$tot_gst.'</td>
+                        <td>'.$tot_tds.'</td>
+                        <td>'.$tot_net.'</td>
+                        <td>'.$tot_right.'</td>
+                        <td></td>
+                    </tr>';
+        $data['table'] = $html;
+        $data['result'] = $data1;
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.commission_collection_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);

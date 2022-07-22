@@ -126,7 +126,7 @@
                                             </tr>
                                             <tr>
                                                 <td>18</td>
-                                                <td><a target="_blank" href="/commission_rightof_report">Commission Right of Report</a></td>
+                                                <td><a target="_blank" href="/reports/commission-rightof-report">Commission Right of Report</a></td>
                                             </tr>
                                             <tr>
                                                 <td>19</td>

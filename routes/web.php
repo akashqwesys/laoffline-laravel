@@ -850,6 +850,8 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::get('/commission-register-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRegister']);
     Route::post('/list-commission-register-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRegisterData']);
     Route::post('/list-commission-collection-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionCollectionData']);
+    Route::get('/commission-rightof-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRightofReport']);
+    Route::post('/list-commission-rightof-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRightofData']);
 }); 
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');
