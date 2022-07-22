@@ -128,7 +128,7 @@
                 customer_options: [],
                 supplier_options: [],
                 sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'}, {id: 3, name: 'Customer A -> Z'}, {id: 4, name: 'Customer Z -> A'}, {id: 5, name: 'Date L -> H'}, {id: 6, name: 'Date H -> L'}, {id:7, name: 'Commission Amt L -> H'}, {id:8, name: 'Commission Amt H -> L'} ],
-                start_date: '',
+                start_date: '2018-01-01',
                 end_date: '',
                 customer: '',
                 supplier: '',

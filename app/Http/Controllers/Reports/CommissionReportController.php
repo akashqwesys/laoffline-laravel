@@ -1225,7 +1225,7 @@ class CommissionReportController extends Controller
         $data1 = DB::table('commissions as co')
                     ->Join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'co.supplier_id', '=', 'cs.id')
                     ->Join(DB::raw('(SELECT "c_increment_id", "commission_invoice_id", "is_deleted" FROM commission_details group by "c_increment_id", "commission_invoice_id", "is_deleted") as "cd"'), 'co.id', '=', 'cd.c_increment_id')
-                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id" FROM commission_invoices group by "id", "is_deleted", "financial_year_id") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
+                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id", "bill_date" FROM commission_invoices group by "id", "is_deleted", "financial_year_id", , "bill_date") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
                     ->where('co.is_deleted', 0)
                     ->where('ci.is_deleted', 0)
                     ->where('cd.is_deleted', 0)
@@ -1233,7 +1233,7 @@ class CommissionReportController extends Controller
         $data2 = DB::table('commissions as co')
                     ->Join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'co.customer_id', '=', 'cc.id')
                     ->Join(DB::raw('(SELECT "c_increment_id", "commission_invoice_id", "is_deleted" FROM commission_details group by "c_increment_id", "commission_invoice_id", "is_deleted") as "cd"'), 'co.id', '=', 'cd.c_increment_id')
-                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id" FROM commission_invoices group by "id", "is_deleted", "financial_year_id") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
+                    ->Join(DB::raw('(SELECT "id", "is_deleted", "financial_year_id", "bill_date" FROM commission_invoices group by "id", "is_deleted", "financial_year_id", "bill_date") as "ci"'), 'cd.commission_invoice_id', '=', 'ci.id')
                     ->where('co.is_deleted', 0)
                     ->where('ci.is_deleted', 0)
                     ->where('cd.is_deleted', 0)
@@ -1279,7 +1279,12 @@ class CommissionReportController extends Controller
                 $data2 = $data2->where('co.commission_reciept_mode', $mode);
             }
         }
-
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("co.commission_date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("co.commission_date::date <= '" . $request->end_date . "'");
+            $data2 = $data2->whereRaw("co.commission_date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("co.commission_date::date <= '" . $request->end_date . "'");        
+        }
         if ($request->agent && $request->agent['id']) {
             $data1 = $data1->where('co.commission_account', $request->agent['id']);
             $data2 = $data2->where('co.commission_account', $request->agent['id']);
@@ -1289,7 +1294,24 @@ class CommissionReportController extends Controller
             $data1 = $data1->where('ci.financial_year_id', $request->fyear['id']);
             $data2 = $data2->where('ci.financial_year_id', $request->fyear['id']);
         }
-           
+
+        if ($request->start_date && $request->end_date) {
+            $data1 = $data1->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");
+            $data2 = $data2->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
+                    ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");        
+        } 
+        
+        if ($request->sorting && $request->sorting['id']) {
+            $sorting = $request->sorting['id'];
+            if ($sorting == 1) {
+                $data1 = $data1->orderBy('cs.company_name', 'asc');
+                $data2 = $data2->orderBy('cs.company_name', 'asc');
+            } else if ($sorting == 2) {
+                $data1 = $data1->orderBy('cs.company_name', 'desc');
+                $data2 = $data2->orderBy('cs.company_name', 'desc');
+            }
+        }
         $data2 = $data2->union($data1)->get();
         
         $html = '';
@@ -1313,8 +1335,8 @@ class CommissionReportController extends Controller
                $commission_cheque_dd_no = '-';
                $commission_cheque_dd_bank = '-';
             } else {
-                $commission_deposite_bank = DB::table('bank_details')->where('id', $$row->commission_deposite_bank)->first()->name;
-                $commission_cheque_dd_bank = DB::table('bank_details')->where('id', $$row->commission_cheque_dd_bank)->first()->name;
+                $commission_deposite_bank = DB::table('bank_details')->where('id', $row->commission_deposite_bank)->first()->name;
+                $commission_cheque_dd_bank = DB::table('bank_details')->where('id', $row->commission_cheque_dd_bank)->first()->name;
                 $commission_cheque_date = $row->commission_cheque_date;
                 $commission_cheque_dd_no = $row->commission_cheque_dd_no;
             }
