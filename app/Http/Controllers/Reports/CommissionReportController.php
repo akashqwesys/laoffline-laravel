@@ -306,7 +306,7 @@ class CommissionReportController extends Controller
                     ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
                     ->where('ccomm_per2.flag', 1);
                 })
-                ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.old_commission_status', 0)->orWhere('p.right_of_amount', 0)
+                ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.old_commission_status', 0)->where('p.right_of_amount', 0)
                 ->select('cc.company_name as customer_name', 'cs.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
         } else {
             if ($request->show_detail == 1) {
@@ -447,8 +447,7 @@ class CommissionReportController extends Controller
         $sup = '';
         $sup1 = '';
 
-        print_r($data2);
-        print_r($data1);exit;
+        
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
         } else {
