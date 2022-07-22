@@ -179,16 +179,6 @@
                         var sub_total_pieces = 0, sub_total_meters = 0, sub_total_amount = 0;
 
                         data.forEach((k, i) => {
-                            total_pieces += parseFloat(k.pieces);
-                            total_meters += parseFloat(k.meters);
-                            net_total += parseFloat(k.total);
-                            if (k.sign_change == '+') {
-                                gross_amount = (parseFloat(k.total) - parseFloat(k.change_in_amount));
-                            } else {
-                                gross_amount = (parseFloat(k.total) + parseFloat(k.change_in_amount));
-                            }
-                            gross_total += gross_amount;
-
                             if (i < (data.length - 1) && k.sale_bill_id == data[i+1].sale_bill_id) {
                                 sub_html += `<tr>
                                     <td>${k.product_name}</td>
@@ -213,6 +203,15 @@
                                     <td class="text-right">${toINR.format(k.amount)}</td>
                                 </tr>`;
                             }
+                            total_pieces += parseFloat(k.pieces);
+                            total_meters += parseFloat(k.meters);
+                            net_total += parseFloat(k.total);
+                            if (k.sign_change == '+') {
+                                gross_amount = (parseFloat(k.total) - parseFloat(k.change_in_amount));
+                            } else {
+                                gross_amount = (parseFloat(k.total) + parseFloat(k.change_in_amount));
+                            }
+                            gross_total += gross_amount;
 
                             html += `<tr>
                                 <td class=""> ${k.select_date} </td>

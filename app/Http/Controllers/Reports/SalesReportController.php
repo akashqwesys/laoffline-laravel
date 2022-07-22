@@ -639,7 +639,7 @@ class SalesReportController extends Controller
 
         $data = $data->whereRaw('s.is_deleted = 0 AND s.sale_bill_flag = 0 AND sbi.is_deleted = 0')
             ->groupByRaw('sbi.id, s.company_id, s.supplier_id, s.sale_bill_for, cc.company_name, cs.company_name, s.select_date, s.sale_bill_id, s.financial_year_id, s.total, s.change_in_amount, s.sign_change, s.supplier_invoice_no, sbt.transport_id, sbt.lr_mr_no, td.name, sba.name, c.name, sbi.pieces, sbi.meters, sbi.rate, sbi.amount')
-            ->orderBy('s.sale_bill_id', 'asc');
+            ->orderByRaw('cc.company_name asc, s.select_date asc');
         $data = $data->get();
 
         if ($request->export_pdf == 1) {
@@ -741,8 +741,7 @@ class SalesReportController extends Controller
         if ($request->export_pdf == 1) {
             ini_set("memory_limit", -1);
             $pdf = PDF::loadView('reports.outstanding_invoice_export_pdf', compact('data', 'request'))
-                ->setOptions(['defaultFont' => 'sans-serif'])
-                ->setPaper('a4', 'landscape');
+                ->setOptions(['defaultFont' => 'sans-serif']);
             $path = storage_path('app/public/pdf/outstanding-invoice-reports');
             $fileName = 'Outstanding-Invoice-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
