@@ -1116,9 +1116,12 @@ class SaleBillController extends Controller
         return view('account.sale_bill.viewSaleBill', compact('financialYear', 'page_title', 'employees'));
     }
 
-    public function getSaleBillDetails($id)
+    public function getSaleBillDetails($id, $fid)
     {
         $user = Session::get('user');
+        if ($fid != $user->financial_year_id) {
+            $user->financial_year_id = $fid;
+        }
         $sale_bill = DB::table('sale_bills as s')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 's.company_id', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 's.supplier_id', '=', 'cs.id')
