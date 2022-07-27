@@ -197,7 +197,8 @@
     export default {
         name: 'viewSaleBill',
         props: {
-            sale_bill_id: Number
+            sale_bill_id: Number,
+            fid: Number
         },
         components: {
             ViewCompanyDetails,
@@ -262,7 +263,7 @@
                 currency: 'INR',
                 minimumFractionDigits: 0
             });
-            axios.get('/account/sale-bill/view-sale-bill-details/'+this.sale_bill_id)
+            axios.get('/account/sale-bill/view-sale-bill-details/'+this.sale_bill_id+'/'+this.fid)
             .then(response => {
                 var data = response.data;
                 this.generated_by = data.generated_by ? (data.generated_by.firstname + ' - ' + data.generated_by.lastname) : '';

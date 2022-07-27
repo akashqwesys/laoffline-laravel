@@ -320,7 +320,7 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/updateSupplier/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'updateSupplier']);
         Route::get('/removeAttachment/{file}', [App\Http\Controllers\Account\SaleBillController::class, 'removeAttachment']);
         Route::get('/view-sale-bill/{id}/{fid}', [App\Http\Controllers\Account\SaleBillController::class, 'viewSaleBill']);
-        Route::get('/view-sale-bill-details/{id}', [App\Http\Controllers\Account\SaleBillController::class, 'getSaleBillDetails']);
+        Route::get('/view-sale-bill-details/{id}/{fid}', [App\Http\Controllers\Account\SaleBillController::class, 'getSaleBillDetails']);
     });
 });
 
@@ -852,6 +852,6 @@ Route::group(['prefix' => 'reports', 'middleware' => ['auth', 'permission:access
     Route::post('/list-commission-collection-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionCollectionData']);
     Route::get('/commission-rightof-report', [App\Http\Controllers\Reports\CommissionReportController::class, 'commissionRightofReport']);
     Route::post('/list-commission-rightof-data', [App\Http\Controllers\Reports\CommissionReportController::class, 'listCommissionRightofData']);
-}); 
+});
 
 Route::get('/settings/connections', [App\Http\Controllers\settings\ConnectionController::class, 'index'])->name('connections');

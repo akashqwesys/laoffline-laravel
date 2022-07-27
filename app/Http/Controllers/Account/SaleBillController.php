@@ -1113,7 +1113,7 @@ class SaleBillController extends Controller
 
         $employees['sale_bill_id'] = $id;
 
-        return view('account.sale_bill.viewSaleBill', compact('financialYear', 'page_title', 'employees'));
+        return view('account.sale_bill.viewSaleBill', compact('financialYear', 'page_title', 'employees', 'fid'));
     }
 
     public function getSaleBillDetails($id, $fid)
