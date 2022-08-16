@@ -2245,7 +2245,7 @@ class ConnectionController extends Controller
 
         sleep(3);
 
-        $outwardsalebill = "SELECT * FROM outward_sale_bill limit $limit offset $offset";
+        $outwardsalebill = "SELECT outward_sale_bill.*, comboid.financial_year_id as fid from outward_sale_bill inner join comboid ON comboid.inward_or_outward_id = outward_sale_bill.outward_id where comboid.system_module_id IN ('16', '17', '18', '21') AND outward_sale_bill.is_deleted = 0 and comboid.financial_year_id > 2 limit $limit offset $offset";
         $outwardsalebillquery = mysqli_query($this->conn, $outwardsalebill);
         if (mysqli_num_rows($outwardsalebillquery) != 0) {
             $i = 0;
@@ -2257,6 +2257,7 @@ class ConnectionController extends Controller
                 $OutwardSalebillList[$i]['commission_id'] = $result['commission_id'];
                 $OutwardSalebillList[$i]['commission_invoice_id'] = $result['commission_invoice_id'];
                 $OutwardSalebillList[$i]['is_deleted'] = $result['is_deleted'];
+                $OutwardSalebillList[$i]['financial_year_id'] = $result['fid'];
                 $i++;
             }
         }
@@ -2271,6 +2272,7 @@ class ConnectionController extends Controller
                 $outwardsalebill->commission_id = $osalebill['commission_id'];
                 $outwardsalebill->commission_invoice_id = $osalebill['commission_invoice_id'];
                 $outwardsalebill->is_deleted = $osalebill['is_deleted'];
+                $outwardsalebill->financial_year_id = $osalebill['financial_year_id'];
                 $outwardsalebill->save();
             }
         }
@@ -2739,10 +2741,10 @@ class ConnectionController extends Controller
             }
         }
 
-        if (!empty($transports)) {
+        if (!empty($TransportList)) {
             DB::table('transport_details')->truncate();
             DB::table('transport_multiple_address_details')->truncate();
-            foreach ($transports as $transport) {
+            foreach ($TransportList as $transport) {
                 $transportDetails = new TransportDetails;
                 $transportDetails->id = $TransportList['id'];
                 $transportDetails->name = $TransportList['name'];
