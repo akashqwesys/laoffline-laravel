@@ -169,7 +169,7 @@ class CommissionController extends Controller
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
             $seller = Company::where('id', $record->supplier_id)->first();
             $seller_id = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
-            $paid_amount = $record->received_commission_amount;
+            $paid_amount = $record->commission_payment_amount;
             if ($record->is_completed == 1) {
                 $completed = '<a href="#" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             } else {
