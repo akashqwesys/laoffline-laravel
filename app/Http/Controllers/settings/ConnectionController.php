@@ -2746,9 +2746,9 @@ class ConnectionController extends Controller
             DB::table('transport_multiple_address_details')->truncate();
             foreach ($TransportList as $transport) {
                 $transportDetails = new TransportDetails;
-                $transportDetails->id = $TransportList['id'];
-                $transportDetails->name = $TransportList['name'];
-                $transportDetails->gstin = $TransportList['gstin'];
+                $transportDetails->id = $transport['id'];
+                $transportDetails->name = $transport['name'];
+                $transportDetails->gstin = $transport['gstin'];
                 $transportDetails->save();
             }
             $transportMultipleAddressDetails = new TransportMultipleAddressDetails;
