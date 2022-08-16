@@ -344,13 +344,14 @@ class PaymentsReportController extends Controller
         }
         $data1 = $data1->get();
         $data2 = collect($data1)->groupBy('company_id');
-        
+
         $customer_details = array();
         $report_days = $request->day ? $request->day['report_days'] : 0;
         $grand_total = 0;
         $i = 0;
         foreach($data2 as $key => $row) {
             $ptotal = 0;
+            $final_amount = 0;
             if ($request->show_detail == 1) {
                     $html .= '<tr width="100%">
                                 <td>'.++$i.'</td>
@@ -389,7 +390,7 @@ class PaymentsReportController extends Controller
                             <td colspan="4"><b>'.$row[0]->company_address.'</b></td>
                         </tr>';
             }
-            
+
             foreach($row as $key1 => $row2){
                 $startTimeStamp = strtotime($row2->select_date);
 			    $endTimeStamp = strtotime(date('Y-m-d'));
@@ -401,7 +402,7 @@ class PaymentsReportController extends Controller
                     if ($numberDays >= 90) {
                         $tr_color = "style='color:red'";
                     } else {
-                        $tr_color = ""; 
+                        $tr_color = "";
                     }
                     $html .='<tr width="100%"'.$tr_color.'>
                                 <td>'.$row2->select_date.'</td>';
@@ -420,7 +421,7 @@ class PaymentsReportController extends Controller
                                     <td>'.$row2->supplier_name.'</td>
                                     <td>'.$row2->supplier_invoice_no.'</td>
                                 </tr>';
-                            $ptotal += $final_amount; 
+                            $ptotal += $final_amount;
                 }
             }
             }
@@ -432,7 +433,7 @@ class PaymentsReportController extends Controller
                             <td colspan="3"></td>
                         </tr>';
             } else {
-                $html .= '<td colspan="4">'.$ptotal.'</td></tr>'; 
+                $html .= '<td colspan="4">'.$ptotal.'</td></tr>';
             }
             $grand_total += $ptotal;
         }
@@ -446,10 +447,10 @@ class PaymentsReportController extends Controller
                 $html .='<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td colspan="4"><b>'.$grand_total.'</b></td>
-                    </tr>'; 
+                    </tr>';
             }
-            
-        
+
+
         $data['maindata'] = $html;
         if (!empty($data2)) {
             $data['company_data'] = $data2;
@@ -558,7 +559,7 @@ class PaymentsReportController extends Controller
         }
         $data1 = $data1->get();
         $data2 = collect($data1)->groupBy('monthyear');
-        
+
         // $time   = strtotime($request->start_date);
 		// $last   = date('m-Y', strtotime($request->end_date));
 		// $date_array=array();
@@ -648,20 +649,20 @@ class PaymentsReportController extends Controller
                             $final_amount=$row2->pending_payment;
                         }
                         $ptotal += $final_amount;
-                        if ($request->show_detail == 0) { 
+                        if ($request->show_detail == 0) {
                         $html .= '<tr>
                                     <td>'.$row2->sale_bill_id.'</td>
                                     <td>'.$row2->supplier_name.'</td>
                                     <td class="text-right">'.$final_amount.'</td>
-                                </tr>';   
-                        } 
+                                </tr>';
+                        }
                     }
                     if ($request->show_detail == 0) {
                         $html .= '<tr>
                                     <td><b>Party Total</b></td>
                                     <td class="text-right" colspan="2"><b>'.$ptotal.'</b></td>
                                 </tr>';
-                    
+
                     } else {
                         $html .= '<td class="text-right">'.$ptotal.'</td>
                             </tr>';
@@ -672,17 +673,17 @@ class PaymentsReportController extends Controller
                             <td><b>Montly Total</b></td>
                             <td class="text-right" colspan="2"><b>'.$mtotal.'</b></td>
                         </tr>';
-                $gtotal += $mtotal; 
+                $gtotal += $mtotal;
             }
             $html .= '<tr>
                             <td><b>Grand Total</b></td>
                             <td class="text-right" colspan="2"><b>'.$gtotal.'</b></td>
                         </tr>';
-            
+
         }
         $data['table'] = $html;
         $data['finaldata'] = $finaldata;
-        
+
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.outstanding_payment_month_wise_summery_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);

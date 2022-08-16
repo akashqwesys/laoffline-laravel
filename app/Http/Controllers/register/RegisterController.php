@@ -1397,7 +1397,7 @@ class RegisterController extends Controller
                 $billdate = date('d-m-Y', strtotime($invoice->bill_date));
                 $created_at = date_format($invoice->created_at, 'd-m-Y H:m:s');
                 array_push($data['commissioninvoice'], array("id" => $invoice->id, 'financial_year_id' => $invoice->financial_year_id , 'bill_no' => $invoice->bill_no, 'created_at'=> $created_at, 'billdate' => $billdate));
-            } 
+            }
         }
         $data['company'] = $company;
         $data['todaydate'] = Carbon::now()->format('Y-m-d');
@@ -2635,11 +2635,13 @@ class RegisterController extends Controller
                                 ->where('financial_year_id', $salebill->financial_year_id)
                                 ->where('is_deleted', 0)
                                 ->first();
-                $supplier = Company::where('id', $salebilldetail->supplier_id)->first();
-                $salebill['salebilldetail'] = $salebilldetail;
-                $salebill['company_name'] = $supplier->company_name;
-                $salebill['transport'] = $transport;
-                array_push($salebilldata, $salebill);
+                if ($salebilldetail) {
+                    $supplier = Company::where('id', $salebilldetail->supplier_id)->first();
+                    $salebill['salebilldetail'] = $salebilldetail;
+                    $salebill['company_name'] = $supplier->company_name;
+                    $salebill['transport'] = $transport;
+                    array_push($salebilldata, $salebill);
+                }
 
             } else if ($type == 2) {
                 $paymentDetail = DB::table('payments')
