@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/truncateDB', [App\Http\Controllers\settings\ConnectionController::class, 'truncateDB']);
+#Route::get('/truncateDB', [App\Http\Controllers\settings\ConnectionController::class, 'truncateDB']);
 Route::get('/products', [App\Http\Controllers\settings\ConnectionController::class, 'products']);
 Route::get('/bankDetails', [App\Http\Controllers\settings\ConnectionController::class, 'bankDetails']);
 Route::get('/comboID/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'comboID']);
@@ -30,7 +30,7 @@ Route::get('/iuids/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionC
 Route::get('/ouids/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'ouids']);
 Route::get('/outwardAll/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'outwardAll']);
 Route::get('/payment/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'payment']);
-Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'reference']);
+#Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'reference']);
 Route::get('/salebills/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'salebills']);
 // Route::get('/userLog/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'userLog']);
 

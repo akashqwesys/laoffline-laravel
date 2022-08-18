@@ -808,7 +808,7 @@ class PaymentsController extends Controller
                             ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
                             ->where('ca.company_id', $record->supplier_id)
                             ->get();
-            
+
             $action = '';
             $id = $record->payment_id;
             if ($record->reciept_mode == 'fullreturn') {
@@ -2530,7 +2530,7 @@ class PaymentsController extends Controller
         $salebilldata = array();
         foreach($salebill as $sale) {
             $salebill_date = DB::table('sale_bills')->where('sale_bill_id', $sale->sr_no)->where('financial_year_id', $sale->financial_year_id)->first();
-            
+
             $bill_date = date('d-m-Y', strtotime($salebill_date->select_date));
             $payment_date = strtotime($payment->date);
 			$salebill_date = strtotime($salebill_date->select_date);

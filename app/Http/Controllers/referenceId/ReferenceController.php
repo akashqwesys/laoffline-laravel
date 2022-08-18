@@ -587,6 +587,10 @@ class ReferenceController extends Controller
             $ReferenceId->save();
         }
 
+        DB::table('increment_ids')->where('financial_year_id', $user->financial_year_id)->update([
+            'reference_id' => $ReferenceId->reference_id, 'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
 
