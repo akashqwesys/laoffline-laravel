@@ -279,7 +279,7 @@
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Pieces/Meters</label>
-                                                        <multiselect v-model="k.pieces_or_meters" :options="pieces_meters_options" placeholder="Select One" label="name" track-by="id" ></multiselect>
+                                                        <multiselect v-model="k.pieces_or_meters" :options="pieces_meters_options" placeholder="Select One" label="name" track-by="id" @close="calculateTotalFabrics(i)"></multiselect>
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Pieces</label>
@@ -991,7 +991,7 @@
             },
             calculateTotalFabrics (i) {
                 var pd = this.fabricDetails[i];
-                if (pd.pieces_or_meters.id == 1) {
+                if (pd.pieces_or_meters && pd.pieces_or_meters.id == 1) {
                     pd.amount = parseFloat(pd.meters * pd.rate);
                 } else {
                     pd.amount = parseFloat(pd.pieces * pd.rate);
