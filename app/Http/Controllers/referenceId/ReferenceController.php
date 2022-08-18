@@ -436,7 +436,7 @@ class ReferenceController extends Controller
     {
         $Date = Carbon::now('Asia/Kolkata')->format('Y-m-d H:i:s');
         $user = Session::get('user');
-        $Reference = ReferenceId::orderBy('reference_id','DESC')->first();
+        $Reference = ReferenceId::where('financial_year_id', $user->financial_year_id)->orderBy('reference_id','DESC')->first();
         $ref = ReferenceId::orderBy('id','DESC')->first();
         $ReferencesId = !empty($ref) ? $ref->id + 1 : 1;
         if($request->Reference_via['name'] == 'Call' || $request->Reference_via['name'] == 'Message' || $request->Reference_via['name'] =='Whatsapp')
@@ -655,7 +655,7 @@ class ReferenceController extends Controller
     {
         $Date = Carbon::now()->format('Y-m-d H:i:s');
         $user = Session::get('user');
-        $Reference = ReferenceId::orderBy('reference_id','DESC')->first();
+        $Reference = ReferenceId::where('financial_year_id', $user->financial_year_id)->orderBy('reference_id','DESC')->first();
         if($request->Reference_via['name'] == 'Call' || $request->Reference_via['name'] == 'Message' || $request->Reference_via['name'] =='Whatsapp')
         {
             $id = $request->id;
