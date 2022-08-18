@@ -659,32 +659,32 @@ class ReferenceController extends Controller
         if($request->Reference_via['name'] == 'Call' || $request->Reference_via['name'] == 'Message' || $request->Reference_via['name'] =='Whatsapp')
         {
             $id = $request->id;
-            $ReferenceId = ReferenceId::where('reference_id', $id)->first();
-                    $ReferenceId->inward_or_outward = $request->inward_outward;
-                    $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
-                    $ReferenceId->selection_date = $Date;
-                    $ReferenceId->employee_id = $user->employee_id;
-                    $ReferenceId->company_id = $request->companyName['id'];
-                    $ReferenceId->type_of_inward= $request->Reference_via['name'];
-                    $ReferenceId->latter_by_id = 0;
-                    $ReferenceId->courier_name = "";
-                    $ReferenceId->weight_of_parcel = "";
-                    $ReferenceId->courier_receipt_no = "";
-                    $ReferenceId->courier_received_time = NULL;
-                    $ReferenceId->delivery_by = "";
-                    $ReferenceId->receiver_email_id = "";
-                    $ReferenceId->from_email_id = "";
-                    $ReferenceId->receiver_number = $request->receiver_number;
-                    $ReferenceId->from_number = $request->from_number;
-                    $ReferenceId->from_name = $request->from_name['contact_person_name'];
-                    $ReferenceId->is_deleted = '0';
-                    $ReferenceId->mark_as_sample="0";
-                    $ReferenceId->save();
+            $ReferenceId = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+            $ReferenceId->inward_or_outward = $request->inward_outward;
+            $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
+            $ReferenceId->selection_date = $Date;
+            $ReferenceId->employee_id = $user->employee_id;
+            $ReferenceId->company_id = $request->companyName['id'];
+            $ReferenceId->type_of_inward= $request->Reference_via['name'];
+            $ReferenceId->latter_by_id = 0;
+            $ReferenceId->courier_name = "";
+            $ReferenceId->weight_of_parcel = "";
+            $ReferenceId->courier_receipt_no = "";
+            $ReferenceId->courier_received_time = NULL;
+            $ReferenceId->delivery_by = "";
+            $ReferenceId->receiver_email_id = "";
+            $ReferenceId->from_email_id = "";
+            $ReferenceId->receiver_number = $request->receiver_number;
+            $ReferenceId->from_number = $request->from_number;
+            $ReferenceId->from_name = $request->from_name['contact_person_name'];
+            $ReferenceId->is_deleted = '0';
+            $ReferenceId->mark_as_sample="0";
+            $ReferenceId->save();
         }
         elseif($request->Reference_via == 'Email')
         {
             $id = $request->id;
-            $ReferenceId = ReferenceId::where('reference_id', $id)->first();
+            $ReferenceId = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
             $ReferenceId->inward_or_outward = $request->inward_outward;
             $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
             $ReferenceId->type_of_inward= $request->Reference_via['name'];
@@ -725,7 +725,7 @@ class ReferenceController extends Controller
             }
 
             $id = $request->id;
-            $ReferenceId = ReferenceId::where('reference_id', $id)->first();
+            $ReferenceId = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
             $ReferenceId->inward_or_outward = $request->inward_outward;
             $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
             $ReferenceId->type_of_inward= $request->Reference_via['name'];
