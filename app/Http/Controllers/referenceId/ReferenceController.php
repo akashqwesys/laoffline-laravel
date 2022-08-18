@@ -120,8 +120,7 @@ class ReferenceController extends Controller
         if ($employees->user_group == 21) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('employee_id', '=', $employees->id);
         } else if (!in_array($employees->user_group, [21, 1])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('employee_id', '=', $employees->id)
-                ->orWhere('employee_id', '=', 15);
+            $totalRecordswithFilter = $totalRecordswithFilter->whereRaw('(employee_id = ' . $employees->id . ' or employee_id = 15)');
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
@@ -164,8 +163,7 @@ class ReferenceController extends Controller
         if ($employees->user_group == 21) {
             $ReferenceId = $ReferenceId->where('employee_id', '=', $employees->id);
         } else if ($employees->user_group != 21 && $employees->user_group != 1) {
-            $ReferenceId = $ReferenceId->where('employee_id', '=', $employees->id)
-                ->orWhere('employee_id', '=', 15);
+            $ReferenceId = $ReferenceId->whereRaw('(employee_id = ' . $employees->id . ' or employee_id = 15)');
         }
         if ($columnName == 'firstname') {
             $columnName = 'employees.firstname';
