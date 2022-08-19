@@ -20,7 +20,7 @@ use App\Models\CompanyType;
 use App\Models\OutwardSaleBill;
 use App\Models\ProductsImages;
 use App\Models\InwardLinkWith;
-use App\Models\EnjayCallRecordsId;
+// use App\Models\EnjayCallRecordsId;
 use App\Models\ProductCategory;
 use App\Models\Payment;
 use App\Models\InwardSample;
@@ -138,6 +138,7 @@ class RegisterController extends Controller
 
         return view('register.outward.insertCommissionOutward',compact('financialYear'))->with('employees', $employees);
     }
+
     public function inwardOutwardRegister(Request $request) {
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
@@ -146,6 +147,7 @@ class RegisterController extends Controller
         $employees['inward_outward'] = $request->id;
         return view('register.registerinwardoutward',compact('financialYear'))->with('employees', $employees);
     }
+
     public function addCommissionInvoiceOutward() {
         $financialYear = FinancialYear::get();
         $user = Session::get('user');
@@ -621,19 +623,19 @@ class RegisterController extends Controller
             }
 
             if ($record->system_module_id == 5) {
-                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'/'.$record->financial_year_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 6) {
-                $action = '<a href="/payments/view-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/payments/view-payment/'.$record->payment_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 7) {
-                $action = '<a href="/commission/view-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/commission/view-commission/'.$record->commission_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 20) {
-                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 19) {
-                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View" target="_blank"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
-                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print"><em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print" target="_blank"><em class="icon ni ni-file-doc" target="_blank"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 15) {
-                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else {
                 $action = '';
             }
@@ -916,19 +918,19 @@ class RegisterController extends Controller
             }
 
             if ($record->system_module_id == 5) {
-                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id. '/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 6) {
-                $action = '<a href="/payments/view-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/payments/view-payment/'.$record->payment_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 7) {
-                $action = '<a href="/commission/view-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/commission/view-commission/'.$record->commission_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 20) {
-                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 19) {
-                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View" target="_blank"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
-                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print"><em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print" target="_blank"> <em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 15) {
-                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else {
                 $action = '';
             }
@@ -1048,7 +1050,6 @@ class RegisterController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->where('assigned_to', '=', $assign_id);
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
-
 
         $records = Comboids::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
@@ -1211,19 +1212,19 @@ class RegisterController extends Controller
             }
 
             if ($record->system_module_id == 5) {
-                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/account/sale-bill/view-sale-bill/'.$record->sale_bill_id. '/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/account/sale-bill/edit-sale-bill/'.$record->sale_bill_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 6) {
-                $action = '<a href="/payments/view-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/payments/view-payment/'.$record->payment_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-payment/'.$record->payment_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 7) {
-                $action = '<a href="/commission/view-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/commission/view-commission/'.$record->commission_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$record->commission_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 20) {
-                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/payments/view-goodreturn/'.$record->goods_return_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/'.$record->goods_return_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 19) {
-                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/account/commission/invoice/view-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View" target="_blank"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $record->commission_invoice_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 16 || $record->system_module_id == 17 || $record->system_module_id == 18 || $record->system_module_id == 21) {
-                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print"><em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/register/outward/outward-view/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="print" target="_blank"><em class="icon ni ni-file-doc"></em></a><a href="/register/view-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-outward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else if ($record->system_module_id == 15) {
-                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+                $action = '<a href="/register/view-inward/'.$record->inward_or_outward_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/register/edit-inward/'.$record->inward_or_outward_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             } else {
                 $action = '';
             }
@@ -1287,6 +1288,7 @@ class RegisterController extends Controller
 
         return $data;
     }
+
     public function getAllDetails(Request $request) {
        $user = Session::get('user');
        $referenceid = $request->input('refernceid');

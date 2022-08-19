@@ -23,8 +23,8 @@ use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
 use App\Models\Settings\TransportDetails;
 use DB;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+// use Spatie\Permission\Models\Role;
+// use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
@@ -62,6 +62,7 @@ class PaymentsController extends Controller
 
         return view('payment.payment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
+
     public function goodReturn(Request $request) {
         $page_title = 'Good Return List';
         $financialYear = FinancialYear::get();
@@ -86,6 +87,7 @@ class PaymentsController extends Controller
 
         return view('payment.goodreturn',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
+
     public function goodreturnList(Request $request) {
         $draw = $request->get('draw');
         $start = $request->get("start");
@@ -236,6 +238,7 @@ class PaymentsController extends Controller
         echo json_encode($response);
         exit;
     }
+
     public function completelistpayment(Request $request) {
         $user = Session::get('user');
 
@@ -456,6 +459,7 @@ class PaymentsController extends Controller
         echo json_encode($response);
         exit;
     }
+
     public function inCompletelistpayment(Request $request) {
         $user = Session::get('user');
 
@@ -678,6 +682,7 @@ class PaymentsController extends Controller
         echo json_encode($response);
         exit;
     }
+
     public function listpayment(Request $request) {
         $user = Session::get('user');
 
@@ -883,7 +888,7 @@ class PaymentsController extends Controller
                 }
             }
             $color_flag_id = $record->color_flag_id;
-            $action = $action.'<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a>';
+            $action = $action.'<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a>';
             if (!$record->done_outward) {
                 $action = $action.'<a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a><a href="/payments/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
             }
@@ -917,6 +922,7 @@ class PaymentsController extends Controller
         echo json_encode($response);
         exit;
     }
+
     public function createPayment() {
         $page_title = 'Add Payments step - 1';
         $financialYear = FinancialYear::get();
@@ -989,6 +995,7 @@ class PaymentsController extends Controller
         //$request->session()->put('finacial_year_id', 1);
         return true;
     }
+
     public function selectSaleBills(Request $request){
         $customer_id = $request->session()->get('customer');
         $seller_id = $request->session()->get('seller');
@@ -1018,6 +1025,7 @@ class PaymentsController extends Controller
         $request->session()->put('saleBill', $salebills);
         return $data;
     }
+
     public function insertPaymentData(Request $request) {
 
         $user = Session::get('user');
@@ -1443,6 +1451,7 @@ class PaymentsController extends Controller
         $data['redirect_url'] = $redirect_url;
         return $data;
     }
+
     public function getBasicData(Request $request) {
         $user = session()->get('user');
         if ($request->session()->has('saleBill')) {
@@ -1506,6 +1515,7 @@ class PaymentsController extends Controller
         $data['financial_year_end_date'] = session()->get('user')->financial_year_end_date;
         return $data;
     }
+
     public function addPayment(Request $request){
         $page_title = 'Add Payments';
         $financialYear = FinancialYear::get();
@@ -1515,6 +1525,7 @@ class PaymentsController extends Controller
 
         return view('payment.addPayment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
+
     public function removeSalebill(Request $request) {
         $user = session()->get('user');
         if ($request->session()->has('saleBill')) {
@@ -1755,6 +1766,7 @@ class PaymentsController extends Controller
 
         return $data;
     }
+
     public function getGoodReturnView($id) {
         $user = session()->get('user');
         $goodReturn = GoodsReturn::where('goods_return_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
@@ -1779,6 +1791,7 @@ class PaymentsController extends Controller
         $data['supplier'] = $supplier;
         return $data;
     }
+
     public function updatePaymentData(Request $request){
         $attachments = array();
         $user = Session::get('user');
@@ -2153,7 +2166,6 @@ class PaymentsController extends Controller
         return $data;
     }
 
-
     public function insertGoodRetuen(Request $request) {
         $grattechment = $request->grattechment;
         $user = Session::get('user');
@@ -2477,6 +2489,7 @@ class PaymentsController extends Controller
         $data['status'] = 1;
         return redirect('/payments');
     }
+
     public function deleteGoodReturn($id){
         $user = Session::get('user');
         $goodretun = GoodsReturn::where('goods_return_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
@@ -2497,6 +2510,7 @@ class PaymentsController extends Controller
 
         return view('payment.viewpayment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
+
     public function viewVoucher($id) {
         $page_title = 'View Voucher';
         $financialYear = FinancialYear::where('id',$id);

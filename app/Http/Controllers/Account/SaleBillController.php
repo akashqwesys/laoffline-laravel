@@ -201,7 +201,7 @@ class SaleBillController extends Controller
 
             $action = null;
             if ($s->sale_bill_flag == 0) {
-                $action .= '<a href="/account/sale-bill/view-sale-bill/' . $s->sale_bill_id . '/' . $user->financial_year_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> ';
+                $action .= '<a href="/account/sale-bill/view-sale-bill/' . $s->sale_bill_id . '/' . $user->financial_year_id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View" target="_blank"><em class="icon ni ni-eye"></em></a> ';
             }
 
             $comboid = collect($combo_ids)->where('sale_bill_id', $s->sale_bill_id)->values();

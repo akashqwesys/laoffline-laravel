@@ -187,7 +187,7 @@ class InvoiceController extends Controller
                 $outward_status = '<a href="/register/view-outward/' . ($s->outward_id ?? 0) . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a> ';
             }
 
-            $action = '<a href="/account/commission/invoice/view-invoice/' . $s->id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $s->id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
+            $action = '<a href="/account/commission/invoice/view-invoice/' . $s->id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="View" target="_blank"><em class="icon ni ni-eye"></em></a> <a href="/account/commission/invoice/edit-invoice/' . $s->id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>';
             $delete_flag = 0;
             if ($s->commission_status == 0) {
                 $delete_flag = 1;

@@ -182,7 +182,7 @@ class CommissionController extends Controller
                 $outward = '<a href="/register/view-outward/'.$outwardlink->outward_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
             $color_flag_id = $record->color_flag_id;
-            $action = '<a href="/commission/view-commission/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
+            $action = '<a href="/commission/view-commission/'.$id.'/'.$record->financial_year_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
             <a href="/commission/delete/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
