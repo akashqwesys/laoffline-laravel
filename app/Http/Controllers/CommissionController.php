@@ -278,8 +278,8 @@ class CommissionController extends Controller
                                 ->where('financial_year_id', $ci['fid'])
                                 ->where('id', $ci['id'])
                                 ->first();
-
-            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid' => $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount);
+            $status = array("status" => 'Complete', "code" => 1);
+            $commission_invoice = array('commission_id' => $commissioninvoice->id, 'fid' => $commissioninvoice->financial_year_id, 'invoiceno' => $commissioninvoice->bill_no, 'date' => $commissioninvoice->bill_date, 'totalCommission' => $commissioninvoice->final_amount, 'status' => $status);
             $totalrecivedamount = DB::table('commission_details')
                                  ->where('commission_invoice_id', $commissioninvoice->id)
                                  ->where('is_deleted', 0)
