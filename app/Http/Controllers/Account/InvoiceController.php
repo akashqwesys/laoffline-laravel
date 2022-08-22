@@ -523,7 +523,6 @@ class InvoiceController extends Controller
             ->where('p.reciept_mode', 'cheque')
             ->where('p.right_of_amount', 0)
             ->where('p.receipt_amount', '<>', 0)
-            ->where('p.is_deleted', 0)
             ->orderBy('p.date', 'asc')
             ->get();
         $data_arr = [];
