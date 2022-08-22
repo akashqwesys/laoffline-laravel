@@ -506,7 +506,7 @@ var references = [];
     export default {
         name: 'updateReferenceId',
         components: {
-            Multiselect,
+            Multiselect
         },
         props: {
             id: Number,
@@ -514,8 +514,8 @@ var references = [];
         data() {
             return {
                 Reference_via:[],
-                // company:[],
-                // courier:[],
+                company:[],
+                courier:[],
                 // referenceID: [],
                 user: [],
                 companies: [],
