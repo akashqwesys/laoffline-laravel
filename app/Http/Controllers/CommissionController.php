@@ -130,7 +130,7 @@ class CommissionController extends Controller
             $records = $records->whereIn('supplier_id', $cc_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $records = $records->where('received_commission_amount', '=', $columnName_arr[5]['search']['value']);
+            $records = $records->where('commission_payment_amount', '=', $columnName_arr[5]['search']['value']);
         }
 
         // Fetch records
@@ -901,7 +901,7 @@ class CommissionController extends Controller
 
     public function deleteCommission($id, $fid){
         $commissions = commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
-        
+
         $commissioncomboids = Comboids::where('commission_id', $id)->where('financial_year_id', $commissions->financial_year_id)->get();
         foreach ($commissioncomboids as $comboids) {
             $comboid = Comboids::where('commission_id', $comboids->commission_id)->where('financial_year_id', $comboids->financial_year_id)->first();
