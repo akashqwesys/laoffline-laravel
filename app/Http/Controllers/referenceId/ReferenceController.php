@@ -735,7 +735,7 @@ class ReferenceController extends Controller
             $ReferenceId->employee_id = $user->employee_id;
             $ReferenceId->selection_date = $Date;
             $ReferenceId->latter_by_id = $latterBy;
-            $ReferenceId->courier_name = $request->courier_company['name'];
+            $ReferenceId->courier_name = $request->courier_company ?? $request->courier_company['name'];
             $ReferenceId->weight_of_parcel = $request->parcel_weight;
             $ReferenceId->courier_receipt_no = $request->courier_recepit_no;
             $ReferenceId->courier_received_time = date('Y-m-d', strtotime($request->received_date_time));
