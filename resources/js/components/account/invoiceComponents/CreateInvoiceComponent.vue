@@ -99,7 +99,8 @@
                                     </div>
                                     <div class="mt-3">
                                         <button class="btn btn-dark mr-2" disabled="true" @click="generateInvoice" id="generate-invoice-btn">Generate Invoice</button>
-                                        <button class="btn btn-primary" @click="showPaymentRemark">Right Of Amount</button>
+
+                                        <button v-if="employeeName == 'vrinda'" class="btn btn-primary" @click="showPaymentRemark">Right Of Amount</button>
                                     </div>
                                     <div class="hidden" id="payment-remark-div">
                                         <hr>
@@ -128,6 +129,7 @@
         props: {
             scope: String,
             id: Number,
+            employeeName: String
         },
         data() {
             return {
