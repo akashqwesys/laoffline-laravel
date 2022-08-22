@@ -283,6 +283,7 @@ class PaymentsReportController extends Controller
                 $data1 = $data1->orderBy('cc.company_name', 'desc');
             }
         }
+        $data1 = $data1->orderBy('s.select_date', 'asc');
         if ($request->start_date && $request->end_date) {
             $data1 = $data1->whereRaw("s.select_date::date >= '" . $request->start_date . "'")
                     ->whereRaw("s.select_date::date <= '" . $request->end_date . "'");

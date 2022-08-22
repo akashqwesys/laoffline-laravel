@@ -1664,10 +1664,12 @@ class PaymentsController extends Controller
     public function getOldReferenceForSaleBill(Request $request, $id)
     {
         $html = "";
+        $customer_id = $request->session()->get('customer');
         $reference = DB::table('reference_ids as r')
             ->join('companies as c', 'r.company_id', '=', 'c.id')
             ->select('r.employee_id', 'r.reference_id', 'r.created_at', 'r.company_id', 'r.selection_date', 'r.type_of_inward', 'r.from_name', 'r.from_number', 'r.receiver_number', 'r.from_email_id', 'r.receiver_email_id', 'r.latter_by_id', 'r.courier_name', 'r.weight_of_parcel', 'r.courier_receipt_no', 'r.courier_received_time', 'r.delivery_by', 'c.company_name')
             ->where('r.reference_id', $id)
+            ->where('r.company_id', $customer_id)
             ->where('r.financial_year_id', Session::get('user')->financial_year_id)
             ->where('r.inward_or_outward', 1)
             ->whereRaw("(r.type_of_inward = 'Email' OR r.type_of_inward = 'Courier' OR r.type_of_inward = 'Hand')")
