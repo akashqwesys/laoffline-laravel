@@ -103,14 +103,14 @@
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Period : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="bill_period_from" id="datepicker_transport" class="date-picker" data-date-format="dd-mm-yyyy">to &nbsp;&nbsp;
-                                                                    <input style="width: 80px;" type="text" v-model="bill_period_to" id="order_datepicker" class="date-picker" data-date-format="dd-mm-yyyy">
+                                                                    <input style="width: 80px;" type="text" v-model="bill_period_from" id="datepicker_bill_from" class="date-picker" data-date-format="dd-mm-yyyy">to &nbsp;&nbsp;
+                                                                    <input style="width: 80px;" type="text" v-model="bill_period_to" id="datepicker_bill_to" class="date-picker" data-date-format="dd-mm-yyyy">
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Date : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker" class="date-picker" data-date-format="dd-mm-yyyy">
+                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker" class="date-datepicker_bill_date" data-date-format="dd-mm-yyyy">
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -383,6 +383,9 @@
                     this.sgst = data.sgst;
                     this.igst = data.igst;
                     this.tds = data.tds;
+                    $('#datepicker_bill_from').datepicker('setDate', data.bill_period_from);
+                    $('#datepicker_bill_to').datepicker('setDate', data.bill_period_to);
+                    $('#datepicker_bill_date').datepicker('setDate', data.invoice_bill_date);
                     setTimeout(() => {
                         this.everyLoadChange();
                     }, 100);
@@ -604,11 +607,13 @@
             },
         },
         mounted() {
-            // const self = this;
+            const self = this;
 
-            $(document).on('click', '#paymentTable tbody tr', function(e) {
-                // e.preventDefault();
-            });
+            /* $(document).on('change', '#datepicker_bill_from, #datepicker_bill_to, #datepicker_bill_date', function(e) {
+                if ($(this).val() != '') {
+                    $(this).val($(this).val());
+                }
+            }); */
         },
     };
 </script>
