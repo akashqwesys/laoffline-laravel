@@ -411,6 +411,11 @@ class PaymentsReportController extends Controller
                     } else {
                         $tr_color = "";
                     }
+                    if($row2->pending_payment == 0) {
+                        $final_amount=$row2->total;
+                    } else {
+                        $final_amount=$row2->pending_payment;
+                    }
                     $html .='<tr width="100%"'.$tr_color.'>
                                 <td>'.$row2->select_date.'</td>';
                             if ($request->export_pdf == 1) {
@@ -418,11 +423,7 @@ class PaymentsReportController extends Controller
                             } else {
                                 $html .= '<td><a target="_blank" href="/sale_bill/viewbill/"'.$row2->sale_bill_id.'/'.$row2->financial_year_id.'>'.$row2->sale_bill_id.'</a></td>';
                             }
-                            if($row2->pending_payment == 0) {
-                                $final_amount=$row2->total;
-                            } else {
-                                $final_amount=$row2->pending_payment;
-                            }
+                            
                             $html .= '<td>'.$final_amount.'</td>
                                     <td>'.$numberDays.'</td>
                                     <td>'.$row2->supplier_name.'</td>
