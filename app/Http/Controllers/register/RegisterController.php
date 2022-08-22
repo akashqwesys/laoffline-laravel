@@ -1488,8 +1488,12 @@ class RegisterController extends Controller
         $ouid_ids->financial_year_id = $financialid;
         $ouid_ids->save();
 
-        if($courier_receipt_no == '') {
-            $color_flag_id = 1;
+        if ($latter_by_id == 'Courier') {
+            if ($courier_receipt_no != '') {
+                $color_flag_id = 3;
+            } else {
+                $color_flag_id = 1;
+            }   
         } else {
             $color_flag_id = 3;
         }
@@ -1709,7 +1713,15 @@ class RegisterController extends Controller
         $ouid_ids->financial_year_id = $financialid;
         $ouid_ids->save();
 
-        $color_flag_id = 1;
+        if ($latter_by_id == 'Courier') {
+            if ($courier_receipt_no != '') {
+                $color_flag_id = 3;
+            } else {
+                $color_flag_id = 1;
+            }   
+        } else {
+            $color_flag_id = 3;
+        }
 
         $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
 
@@ -1926,7 +1938,15 @@ class RegisterController extends Controller
         $ouid_ids->financial_year_id = $financialid;
         $ouid_ids->save();
 
-        $color_flag_id = 1;
+        if ($latter_by_id == 'Courier') {
+            if ($courier_receipt_no != '') {
+                $color_flag_id = 3;
+            } else {
+                $color_flag_id = 1;
+            }   
+        } else {
+            $color_flag_id = 3;
+        }
 
         $cmpTypeName = Company::where('id', $referncedata->companyid)->first();
 

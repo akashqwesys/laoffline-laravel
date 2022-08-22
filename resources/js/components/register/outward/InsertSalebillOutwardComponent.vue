@@ -244,6 +244,7 @@
             }
         },
         created() {
+            this.form.referncevia = {name: 'Courier'};
             axios.get('/register/list-buyer')
             .then(response => {
                 this.buyer = response.data.buyer;

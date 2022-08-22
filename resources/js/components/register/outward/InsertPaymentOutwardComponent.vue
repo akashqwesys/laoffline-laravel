@@ -263,7 +263,7 @@
             }
         },
         created() {
-            
+            this.form.referncevia = {name: 'Courier'};
             axios.get('/register/list-suppliers')
             .then(response => {
                 this.supplier = response.data;
