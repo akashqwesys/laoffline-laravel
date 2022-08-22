@@ -142,7 +142,7 @@ class InvoiceController extends Controller
             $invoice = $invoice->whereIn('ci.agent_id', $ag_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $invoice = $invoice->where('ci.total_payment_received_amount', $columnName_arr[5]['search']['value']);
+            $invoice = $invoice->where('ci.final_amount', $columnName_arr[5]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             if (in_array($columnName_arr[6]['search']['value'], ['none', 'non', 'None'])) {
