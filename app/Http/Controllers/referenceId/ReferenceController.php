@@ -658,7 +658,7 @@ class ReferenceController extends Controller
         $Date = Carbon::now()->format('Y-m-d H:i:s');
         $user = Session::get('user');
         $Reference = ReferenceId::where('financial_year_id', $user->financial_year_id)->orderBy('reference_id','DESC')->first();
-        if($request->Reference_via['name'] == 'Call' || $request->Reference_via['name'] == 'Message' || $request->Reference_via['name'] =='Whatsapp')
+        if($request->Reference_via == 'Call' || $request->Reference_via == 'Message' || $request->Reference_via =='Whatsapp')
         {
             $id = $request->id;
             $ReferenceId = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
@@ -667,7 +667,7 @@ class ReferenceController extends Controller
             $ReferenceId->selection_date = $Date;
             $ReferenceId->employee_id = $user->employee_id;
             $ReferenceId->company_id = $request->companyName['id'];
-            $ReferenceId->type_of_inward= $request->Reference_via['name'];
+            $ReferenceId->type_of_inward= $request->Reference_via;
             $ReferenceId->latter_by_id = 0;
             $ReferenceId->courier_name = "";
             $ReferenceId->weight_of_parcel = "";
@@ -678,7 +678,7 @@ class ReferenceController extends Controller
             $ReferenceId->from_email_id = "";
             $ReferenceId->receiver_number = $request->receiver_number;
             $ReferenceId->from_number = $request->from_number;
-            $ReferenceId->from_name = $request->from_name['contact_person_name'];
+            $ReferenceId->from_name = $request->from_name;
             $ReferenceId->is_deleted = '0';
             $ReferenceId->mark_as_sample="0";
             $ReferenceId->save();
@@ -689,7 +689,7 @@ class ReferenceController extends Controller
             $ReferenceId = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
             $ReferenceId->inward_or_outward = $request->inward_outward;
             $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
-            $ReferenceId->type_of_inward= $request->Reference_via['name'];
+            $ReferenceId->type_of_inward= $request->Reference_via;
             $ReferenceId->company_id = $request->companyName['id'];
             $ReferenceId->employee_id = $user->employee_id;
             $ReferenceId->selection_date = $Date;
@@ -703,7 +703,7 @@ class ReferenceController extends Controller
             $ReferenceId->from_email_id = $request->from_email;
             $ReferenceId->receiver_number = "";
             $ReferenceId->from_number = "";
-            $ReferenceId->from_name = $request->from_name['contact_person_name'];
+            $ReferenceId->from_name = $request->from_name;
             $ReferenceId->mark_as_sample="0";
             $ReferenceId->is_deleted = '0';
             $ReferenceId->created_at=$Date;
@@ -730,7 +730,7 @@ class ReferenceController extends Controller
             $ReferenceId = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
             $ReferenceId->inward_or_outward = $request->inward_outward;
             $ReferenceId->financial_year_id = Session::get('user')->financial_year_id;
-            $ReferenceId->type_of_inward= $request->Reference_via['name'];
+            $ReferenceId->type_of_inward= $request->Reference_via;
             $ReferenceId->company_id = $request->companyName['id'];
             $ReferenceId->employee_id = $user->employee_id;
             $ReferenceId->selection_date = $Date;
@@ -744,7 +744,7 @@ class ReferenceController extends Controller
             $ReferenceId->from_email_id = $request->from_email;
             $ReferenceId->receiver_number = $request->receiver_number;
             $ReferenceId->from_number = $request->from_number;
-            $ReferenceId->from_name = $request->from_name['contact_person_name'];
+            $ReferenceId->from_name = $request->from_name;
             $ReferenceId->mark_as_sample = $marks;
             $ReferenceId->is_deleted = '0';
             $ReferenceId->created_at=$Date;
