@@ -249,12 +249,18 @@ class PaymentsReportController extends Controller
             if ($company_details) {
                 $main_cmp_id = $company_details->id;
                 array_push($supplier, $main_cmp_id);
+                
                 foreach ($link_companies as $row_link_companies) {
                     array_push($supplier, $row_link_companies->link_companies_id);
                 }
+                
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 foreach($supplier as $row) {
-                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    $company = Company::where('id', $row)->select('company_name')->first();
+                    if (!empty($company)) {
+                        $supplier_data[] = $company->company_name;
+                    }
+                    
                 }
                 $data['sup_disp_name'] = implode(',  ', $supplier_data);
             }
