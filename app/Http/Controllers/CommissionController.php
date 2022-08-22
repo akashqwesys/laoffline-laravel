@@ -10,6 +10,7 @@ use App\Models\Employee;
 use App\Models\Reference\ReferenceId;
 use App\Models\Logs;
 use App\Models\Iuid;
+use App\Models\Ouid;
 use App\Models\Payment;
 use App\Models\CompanyType;
 use App\Models\Commission\Commission;
@@ -899,8 +900,24 @@ class CommissionController extends Controller
 
     public function deleteCommission($id, $fid){
         $commissions = commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
+        
+        $commissioncomboids = Comboids::where('commission_id', $id)->where('financial_year_id', $commissions->financial_year_id)->get();
+        foreach ($commissioncomboids as $comboids) {
+            $comboid = Comboids::where('commission_id', $comboids->commission_id)->where('financial_year_id', $comboids->financial_year_id)->first();
+            $comboid->is_deleted = 1;
+            $comboid->save();
+            Iuid::where('iuid', $comboids->iuid)->where('financial_year_id', $comboids->financial_year_id)->delete();
+            Ouid::where('ouid', $comboids->ouid)->where('financial_year_id', $comboids->financial_year_id)->delete();
+        }
+        $commissiondetalids = CommissionDetail::where('c_increment_id', $commissions->id)->get();
+        foreach ($commissiondetalids as $comboids) {
+            $commissiondetail = CommissionDetail::where('c_increment_id', $comboids->c_increment_id)->where('is_deleted', 0)->first();
+            $commissiondetail->is_deleted = 1;
+            $commissiondetail->save();
+        }
         $commissions->is_deleted = 1;
         $commissions->save();
+        return redirect('/commission');
     }
 
     public function updateInvoiceRemarks(Request $request)
