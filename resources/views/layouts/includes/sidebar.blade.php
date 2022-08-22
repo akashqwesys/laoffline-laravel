@@ -72,12 +72,14 @@
                             <span class="nk-menu-text">Reference ID</span>
                         </a>
                     </li><!-- .nk-menu-item -->
+                    @if (auth()->user()->username == 'admin')
                     <li class="nk-menu-item">
                         <a href="{{ route('financialyear') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
                             <span class="nk-menu-text">Financial Year</span>
                         </a>
                     </li><!-- .nk-menu-item -->
+                    @endif
                     <li class="nk-menu-item">
                         <a href="{{ route('register') }}" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-view-col"></em></span>
