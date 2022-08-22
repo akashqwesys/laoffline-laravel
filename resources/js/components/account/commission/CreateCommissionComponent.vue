@@ -88,12 +88,11 @@
                                     </tfoot>
                                 </table>
                                 <button class="btn btn-primary generateCommission float-right disabled" @click="generateCommission($event)">Generate Commission</button>
-                                <button class="btn btn-primary" @click="showCommissionRemark">Right Of Amount</button>
+                                <button class="btn btn-primary" @click="showCommissionRemark" v-if="employeeName == 'vrinda'" >Right Of Amount</button>
                                 <div class="hidden my-2" id="commissioninvoice-remark-div">
-                                        
-                                        <textarea v-model="commissioninvoice_remark" class="form-control" ></textarea>
-                                        <button class="btn btn-success mt-2" @click="updateInvoiceRemark">ADD</button>
-                                    </div>
+                                    <textarea v-model="commissioninvoice_remark" class="form-control" ></textarea>
+                                    <button class="btn btn-success mt-2" @click="updateInvoiceRemark">ADD</button>
+                                </div>
                             </div>
 
                         </div><!-- .card -->
@@ -117,6 +116,7 @@
         props: {
             scope: String,
             id: Number,
+            employeeName: String
         },
         data() {
             return {
@@ -185,7 +185,7 @@
                 this.commission_invoice.forEach(value1 => {
                     if (value.id == value1.commission_id) {
                         totalbill += parseInt(value1.amount);
-                        
+
                     }
                 });
             });
@@ -207,7 +207,7 @@
                     window.location.href = '/commission/add-commission';
                 })
             },
-            
+
             searchCommissionInvoices(event) {
                 const self = this;
                 axios.post('/commission/searchcommissioninvoice', {
