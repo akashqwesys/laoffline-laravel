@@ -539,7 +539,7 @@ class InvoiceController extends Controller
                 ->get();
 
             $invoice_payment = DB::table('invoice_payment_details')
-                ->select('id')
+                ->select('id', 'payment_id', 'financial_year_id', 'flag')
                 ->whereIn('payment_id', $payment_ids)
                 ->whereIn('financial_year_id', $finan_ids);
             if ($flag != 0) {
@@ -557,6 +557,7 @@ class InvoiceController extends Controller
                     $invoice_exist = collect($invoice_payment)
                         ->where('payment_id', $p->payment_id)
                         ->where('financial_year_id', $p->financial_year_id)
+                        ->where('flag', $flag)
                         ->toArray();
                     $company_commission = DB::table('company_commissions')
                         ->select('id')
