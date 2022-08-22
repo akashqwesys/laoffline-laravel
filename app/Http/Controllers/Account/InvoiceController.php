@@ -106,7 +106,14 @@ class InvoiceController extends Controller
             }
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('due_days', '>=', $columnName_arr[7]['search']['value']);
+            if ($columnName_arr[7]['search']['value'] == 'pending') {
+                $totalRecordswithFilter = $totalRecordswithFilter->where('ci.done_outward', '=', 0);
+            } else if ($columnName_arr[7]['search']['value'] == 'complete') {
+                $totalRecordswithFilter = $totalRecordswithFilter->where('ci.done_outward', '=', 1);
+            }
+        }
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+            $totalRecordswithFilter = $totalRecordswithFilter->whereRaw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) >= ' . $columnName_arr[8]['search']['value']);
         }
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
@@ -147,7 +154,14 @@ class InvoiceController extends Controller
             }
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $invoice = $invoice->where('due_days', '>=', $columnName_arr[7]['search']['value']);
+            if ($columnName_arr[7]['search']['value'] == 'pending') {
+                $invoice = $invoice->where('ci.done_outward', '=', 0);
+            } else if ($columnName_arr[7]['search']['value'] == 'complete') {
+                $invoice = $invoice->where('ci.done_outward', '=', 1);
+            }
+        }
+        if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
+            $invoice = $invoice->whereRaw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) >= ' . $columnName_arr[8]['search']['value']);
         }
 
         $invoice = $invoice->orderBy($columnName, $columnSortOrder)

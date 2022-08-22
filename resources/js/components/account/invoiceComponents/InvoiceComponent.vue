@@ -84,7 +84,7 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearallfilter: function() {
-                $("#invoice_filter").find('input').val("");
+                $("#invoice_filter").find('input, select').val("");
                 $('#invoiceTable').DataTable().clear().draw();
             },
         },
@@ -183,7 +183,7 @@
                     // }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm w-20" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm w-15" placeholder="Invoice Date" max="'+nDate+'"> <div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm w-20" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm w-15" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm w-15" placeholder="Amount"> <input type="search" id="commission_status" class="form-control form-control-sm w-10" placeholder="Comm. Status"><input type="search" id="outward_status" class="form-control form-control-sm w-10" placeholder="Outward Status No"><input type="search" id="due_days" class="form-control form-control-sm w-10" placeholder="Due"></div>').insertAfter('.dataTables_length');
+                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm w-15" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm w-15" placeholder="Invoice Date" max="' + nDate +'"> <div class="input-group w-30"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm w-15" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm w-10" placeholder="Amount"> <select id="commission_status" class="form-control mr-2 w-15" placeholder="Comm. Status"><option value="" selected disabled>Comm. Status</option><option value="all">All</option><option value="none">None</option><option value="pending">Pending</option><option value="complete">Complete</option></select><select id="outward_status" class="form-control w-15" placeholder="Outward Status"><option value="" selected disabled>Outward Status</option><option value="all">All</option><option value="pending">Pending</option><option value="complete">Complete</option></select><input type="search" id="due_days" class="form-control form-control-sm w-5" placeholder="Due"></div>').insertAfter('.dataTables_length');
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -239,6 +239,17 @@
                     draw = 0;
                 }
             });
+            $(document).on('change', '#invoice_filter select', function(e) {
+                if ($(this).val() == '') {
+                    if (draw == 0) {
+                        dt_table.clear().draw();
+                        draw = 1;
+                    }
+                } else {
+                    dt_table.clear().draw();
+                    draw = 0;
+                }
+            });
             window.addEventListener('load', function () {
                 axios.get('/common/list-all-companies')
                 .then(response => {
@@ -280,5 +291,4 @@
     .icon.ni.ni-alert-fill, .icon.ni.ni-check-thick {
         font-size: 20px;
     }
-
 </style>
