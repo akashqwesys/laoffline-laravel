@@ -544,7 +544,7 @@
                 fabric_options: [],
                 pieces_meters_options: [{ id: 1, name: 'Meters' }, { id: 2, name: 'Pieces' }],
                 sale_bill_is_moved: 0,
-                reference_via: { name: '' },
+                reference_via: { name: 'Courier' },
                 new_old_sale_bill: 1,
                 from_email: '',
                 from_whatsapp: '',

@@ -535,6 +535,7 @@ class InvoiceController extends Controller
                 ->select('c.id')
                 ->whereIn('cd.payment_id', $payment_ids)
                 ->whereIn('cd.financial_year_id', $finan_ids)
+                ->where('cd.status', 1)
                 ->get();
 
             $invoice_payment = DB::table('invoice_payment_details')

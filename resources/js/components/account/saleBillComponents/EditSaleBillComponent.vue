@@ -286,7 +286,7 @@
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label for="">Sub Product</label>
-                                                        <multiselect v-model="k.sub_product_name" :options="sub_product_options[i]" placeholder="Select One" label="name" track-by="id" @close="getSubProductRate(i)"></multiselect>
+                                                        <multiselect v-model="k.sub_product_name" :options="sub_product_options[i]" placeholder="Select One" label="name" track-by="id" @select="getSubProductRate(i)"></multiselect>
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <label for="">Pieces</label>
