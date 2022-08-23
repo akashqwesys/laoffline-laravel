@@ -759,7 +759,7 @@ class ReferenceController extends Controller
 
         $Reference = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
 
-        $comboids = Comboids::select('id', 'general_ref_id', 'financial_year_id', 'company_id', 'supplier_id', 'updated_at', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        $comboids = Comboids::select('comboid', 'general_ref_id', 'financial_year_id', 'company_id', 'supplier_id', 'updated_at', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         if ($comboids) {
             if ($Reference->company_id != $request->companyName['id']) {
                 $companyType = DB::table('companies')->select('id', 'company_type')->where('id', $request->companyName['id'])->first();
