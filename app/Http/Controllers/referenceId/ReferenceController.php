@@ -10,18 +10,24 @@ use App\Models\Company\Company;
 use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
 use App\Models\Comboids\Comboids;
+use App\Models\inwardOutward\Inward;
+use App\Models\inwardOutward\Outward;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Commission\Commission;
 use App\Models\Settings\Designation;
 use App\Models\Company\CompanyEmails;
 use App\Models\Reference\ReferenceId;
 use App\Models\Company\CompanyAddress;
 use Illuminate\Support\Facades\Session;
 use App\Models\Settings\TransportDetails;
-use App\Models\Company\CompanyAddressOwner;
+// use App\Models\Company\CompanyAddressOwner;
 use App\Models\Company\CompanyContactDetails;
 use App\Models\Company\CompanyPackagingDetails;
-use Symfony\Component\Mailer\Transport;
+use App\Models\Payment;
+use App\Models\SaleBill;
+
+// use Symfony\Component\Mailer\Transport;
 
 class ReferenceController extends Controller
 {
@@ -657,7 +663,6 @@ class ReferenceController extends Controller
     {
         $Date = Carbon::now()->format('Y-m-d H:i:s');
         $user = Session::get('user');
-        $Reference = ReferenceId::where('financial_year_id', $user->financial_year_id)->orderBy('reference_id','DESC')->first();
         if($request->Reference_via == 'Call' || $request->Reference_via == 'Message' || $request->Reference_via =='Whatsapp')
         {
             $id = $request->id;
@@ -750,6 +755,114 @@ class ReferenceController extends Controller
             $ReferenceId->created_at=$Date;
             $ReferenceId->updated_at=$Date;
             $ReferenceId->save();
+        }
+
+        $Reference = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+        $comboids = Comboids::select('comboid', 'general_ref_id', 'financial_year_id', 'company_id', 'supplier_id', 'updated_at', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        if ($comboids) {
+            if ($Reference->company_id != $request->companyName['id']) {
+                $companyType = DB::table('companies')->select('id', 'company_type')->where('id', $request->companyName['id'])->first();
+                if ($companyType) {
+
+                    $inward = Inward::select('inward_id', 'updated_at', 'supplier_id', 'company_id', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_input_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+                    $outward = Outward::select('outward_id', 'updated_at', 'supplier_id', 'company_id', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_input_ref_id', $id)->first();
+
+                    $sale_bill = SaleBill::select('id', 'updated_at', 'company_id', 'supplier_id')->where('general_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+                    $payment = Payment::select('id', 'updated_at', 'receipt_from', 'supplier_id')->where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+                    if ($companyType->company_type == 3) {
+                        $comboids->supplier_id = $request->companyName['id'];
+                        $comboids->save();
+
+                        $inward->supplier_id = $request->companyName['id'];
+                        $inward->save();
+
+                        $outward->supplier_id = $request->companyName['id'];
+                        $outward->save();
+
+                        $sale_bill->supplier_id = $request->companyName['id'];
+                        $sale_bill->save();
+
+                        $payment->supplier_id = $request->companyName['id'];
+                        $payment->save();
+
+                        Commission::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->update(['supplier_id' => $request->companyName['id']]);
+
+                    } else if ($companyType->company_type == 2 || $companyType->company_type == 1) {
+
+                        $comboids->company_id = $request->companyName['id'];
+                        $comboids->save();
+
+                        $inward->company_id = $request->companyName['id'];
+                        $inward->save();
+
+                        $outward->company_id = $request->companyName['id'];
+                        $outward->save();
+
+                        $sale_bill->company_id = $request->companyName['id'];
+                        $sale_bill->save();
+
+                        $payment->receipt_from = $request->companyName['id'];
+                        $payment->save();
+
+                    }
+                    if ($companyType->company_type == 3 || $companyType->company_type == 2 || $companyType->company_type == 1) {
+                        /* $getAllSubject = $this->dbreference->getReferenceDetails($id);
+                        foreach ($getAllSubject as $row_allsubject) {
+                            if ($row_allsubject->system_module_id == 1 || $row_allsubject->system_module_id == 2 || $row_allsubject->system_module_id == 3 || $row_allsubject->system_module_id == 4 || $row_allsubject->system_module_id == 8 || $row_allsubject->system_module_id == 9 || $row_allsubject->system_module_id == 10 || $row_allsubject->system_module_id == 11) {
+
+                                $searchCmp = "/by(.*)or/";
+                                $replaceCmp = "by " . $companyType->name . " or";
+                                $newSubjectByCompany = preg_replace($searchCmp, $replaceCmp, $row_allsubject->subject);
+                                $searchName = "/ or(.*)/";
+                                $replaceName = " or " . $request->from_name . ".";
+                                $newSubject = preg_replace($searchName, $replaceName, $newSubjectByCompany);
+                                $dataentry_subject = array('subject' => $newSubject);
+                                $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
+                                if ($row_allsubject->inward_or_outward_flag == 1) {
+                                    $this->dbreference->updateSubjectInInward($dataentry_subject, $row_allsubject->inward_or_outward_id);
+                                } else {
+                                    $this->dbreference->updateSubjectInOutward($dataentry_subject, $row_allsubject->inward_or_outward_id);
+                                }
+                            } elseif ($row_allsubject->system_module_id == 7 || $row_allsubject->system_module_id == 13) {
+                                $searchCmp = "/For(.*)Of/";
+                                $replaceCmp = "For " . $companyType->name . " Of";
+                                $newSubjectByCompany = preg_replace($searchCmp, $replaceCmp, $row_allsubject->subject);
+                                $dataentry_subject = array('subject' => $newSubjectByCompany);
+                                $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
+                            } elseif ($row_allsubject->system_module_id == 15) {
+                                $searchCmp = "/For(.*)/";
+                                $replaceCmp = "For " . $companyType->name;
+                                $newSubjectByCompany = preg_replace($searchCmp, $replaceCmp, $row_allsubject->subject);
+                                $dataentry_subject = array('subject' => $newSubjectByCompany);
+                                $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
+                                $this->dbreference->updateSubjectInInward($dataentry_subject, $row_allsubject->inward_or_outward_id);
+                            }
+                        } */
+
+                        $comboids->from_name = $request->from_name;
+                        $comboids->from_number = $request->from_number ?? '';
+                        $comboids->receiver_number = $request->receiver_number ?? '';
+                        $comboids->from_email_id = $request->from_email;
+                        $comboids->save();
+
+                        $inward->from_name = $request->from_name;
+                        $inward->from_number = $request->from_number ?? '';
+                        $inward->receiver_number = $request->receiver_number ?? '';
+                        $inward->from_email_id = $request->from_email;
+                        $inward->save();
+
+                        $outward->from_name = $request->from_name;
+                        $outward->from_number = $request->from_number ?? '';
+                        $outward->receiver_number = $request->receiver_number ?? '';
+                        $outward->from_email_id = $request->from_email;
+                        $outward->save();
+                    }
+                }
+            }
         }
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');

@@ -110,7 +110,7 @@
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Date : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker" class="date-datepicker_bill_date" data-date-format="dd-mm-yyyy">
+                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker_bill_date" class="date-picker" data-date-format="dd-mm-yyyy">
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -605,19 +605,21 @@
         },
         mounted() {
             const self = this;
-            $('#datepicker_bill_from').val(self.bill_period_from);
-            $('#datepicker_bill_from').datepicker('setDate', self.bill_period_from);
-            $('#datepicker_bill_to').val(self.bill_period_to);
-            $('#datepicker_bill_to').datepicker('setDate', self.bill_period_to);
-            $('#datepicker_bill_date').val(self.invoice_bill_date);
-            $('#datepicker_bill_date').datepicker('setDate', self.invoice_bill_date);
 
-            /* $(document).on('change', '#datepicker_bill_from, #datepicker_bill_to, #datepicker_bill_date', function(e) {
-                if ($(this).val() != '') {
-                    $(this).val($(this).val());
-                }
-            }); */
-        },
+            // $('#datepicker_bill_from').datepicker('setDate', self.bill_period_from);
+            // $('#datepicker_bill_to').datepicker('setDate', self.bill_period_to);
+            // $('#datepicker_bill_date').datepicker('setDate', self.invoice_bill_date);
+
+            $(document).on('blur', '#datepicker_bill_from', function(e) {
+                $('#datepicker_bill_from').val(self.bill_period_from);
+            });
+            $(document).on('blur', '#datepicker_bill_to', function(e) {
+                $('#datepicker_bill_to').val(self.bill_period_to);
+            });
+            $(document).on('blur', '#datepicker_bill_date', function(e) {
+                $('#datepicker_bill_date').val(self.invoice_bill_date);
+            });
+        }
     };
 </script>
 <style scoped>

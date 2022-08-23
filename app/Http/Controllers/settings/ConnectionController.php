@@ -44,6 +44,7 @@ use App\Models\Company\CompanyEmails;
 use App\Models\Company\CompanyPackagingDetails;
 use App\Models\Company\CompanyReferences;
 use App\Models\Company\CompanySwotDetails;
+use App\Models\CompanyCommission;
 use App\Models\CompanyCategory;
 use App\Models\IncrementId;
 use App\Models\Iuid;
@@ -71,8 +72,8 @@ use App\Models\Settings\BankDetails;
 use App\Models\InwardOutward\InwardActions;
 use App\Models\Settings\TypeOfAddress;
 use App\Models\Logs;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+// use Spatie\Permission\Models\Role;
+// use Spatie\Permission\Models\Permission;
 use DB;
 
 class ConnectionController extends Controller
@@ -1391,6 +1392,33 @@ class ConnectionController extends Controller
                 $linkcompany->company_id = $cl['company_id'];
                 $linkcompany->link_companies_id = $cl['link_companies_id'];
                 $linkcompany->save();
+            }
+        }
+
+        $cc = "SELECT * FROM company_commission";
+        $ccq = mysqli_query($this->conn, $cc);
+        if (mysqli_num_rows($ccq) != 0) {
+            $i = 0;
+            while ($result = mysqli_fetch_assoc($ccq)) {
+                $ccq_a[$i]['id'] = $result['id'];
+                $ccq_a[$i]['customer_id'] = $result['customer_id'];
+                $ccq_a[$i]['supplier_id'] = $result['supplier_id'];
+                $ccq_a[$i]['commission_percentage'] = $result['commission_percentage'];
+                $ccq_a[$i]['flag'] = $result['flag'];
+                $i++;
+            }
+        }
+
+        if (!empty($ccq_a)) {
+            DB::table('company_commissions')->truncate();
+            foreach ($ccq_a as $cl) {
+                $ccq_x = new CompanyCommission();
+                $ccq_x->id = $cl['id'];
+                $ccq_x->customer_id = $cl['customer_id'];
+                $ccq_x->supplier_id = $cl['supplier_id'];
+                $ccq_x->commission_percentage = $cl['commission_percentage'];
+                $ccq_x->flag = $cl['flag'];
+                $ccq_x->save();
             }
         }
 
