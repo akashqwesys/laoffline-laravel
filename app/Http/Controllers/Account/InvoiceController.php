@@ -502,14 +502,14 @@ class InvoiceController extends Controller
             $flag = 2; // for customer
         }
         $payment = DB::table('payments as p')
-            ->leftJoin('company_commissions as ccm', function ($j) use($flag) {
+            ->join('company_commissions as ccm', function ($j) use($flag) {
                 $j->on('p.receipt_from', '=', 'ccm.customer_id')
                 ->on('p.supplier_id', '=', 'ccm.supplier_id')
                 ->where('ccm.flag', '=', $flag);
             })
-            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
-            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
-            ->leftJoin('financial_year as fy', 'p.financial_year_id', '=', 'fy.id')
+            ->join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
+            ->join(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+            ->join('financial_year as fy', 'p.financial_year_id', '=', 'fy.id')
             ->select('p.id', 'p.payment_id', 'p.financial_year_id', 'p.date', 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'fy.name', 'cc.company_name as customer_name', 'cs.company_name as supplier_name');
         if ($company_details) {
             $main_cmp_id = $company_details->id;
@@ -532,7 +532,7 @@ class InvoiceController extends Controller
 
             $commission = DB::table('commissions as c')
                 ->join('commission_details as cd', 'c.id', '=', 'cd.c_increment_id')
-                ->select('c.id')
+                ->select('c.id', 'cd.payment_id', 'cd.financial_year_id')
                 ->whereIn('cd.payment_id', $payment_ids)
                 ->whereIn('cd.financial_year_id', $finan_ids)
                 ->where('cd.status', 1)

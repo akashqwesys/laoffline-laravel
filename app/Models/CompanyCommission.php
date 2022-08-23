@@ -10,6 +10,7 @@ class CompanyCommission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'customer_id',
         'supplier_id',
         'commission_percentage',

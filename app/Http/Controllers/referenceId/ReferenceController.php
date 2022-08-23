@@ -18,10 +18,10 @@ use App\Models\Reference\ReferenceId;
 use App\Models\Company\CompanyAddress;
 use Illuminate\Support\Facades\Session;
 use App\Models\Settings\TransportDetails;
-use App\Models\Company\CompanyAddressOwner;
+// use App\Models\Company\CompanyAddressOwner;
 use App\Models\Company\CompanyContactDetails;
 use App\Models\Company\CompanyPackagingDetails;
-use Symfony\Component\Mailer\Transport;
+// use Symfony\Component\Mailer\Transport;
 
 class ReferenceController extends Controller
 {
@@ -657,7 +657,6 @@ class ReferenceController extends Controller
     {
         $Date = Carbon::now()->format('Y-m-d H:i:s');
         $user = Session::get('user');
-        $Reference = ReferenceId::where('financial_year_id', $user->financial_year_id)->orderBy('reference_id','DESC')->first();
         if($request->Reference_via == 'Call' || $request->Reference_via == 'Message' || $request->Reference_via =='Whatsapp')
         {
             $id = $request->id;
@@ -750,6 +749,89 @@ class ReferenceController extends Controller
             $ReferenceId->created_at=$Date;
             $ReferenceId->updated_at=$Date;
             $ReferenceId->save();
+        }
+
+        $Reference = ReferenceId::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+        $comboids = Comboids::select('id', 'general_ref_id', 'financial_year_id', 'company_id', 'supplier_id', 'updated_at', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+        if ($comboids) {
+            if ($Reference->company_id != $request->companyName['id']) {
+                $companyType = DB::table('companies')->select('id', 'company_type')->where('id', $request->companyName['id'])->first();
+                if ($companyType) {
+                    if ($companyType->company_type == 3) {
+                        $dataentry_supplier = array('supplier_id' => $request->companyName['id']);
+                        $comboids->supplier_id = $request->companyName['id'];
+                        $comboids->save();
+
+                        $this->dbreference->updateInward($dataentry_supplier, $id);
+                        $this->dbreference->updateSaleBill($dataentry_supplier, $id);
+                        $this->dbreference->updatePayment($dataentry_supplier, $id);
+                        $this->dbreference->updateCommission($dataentry_supplier, $id);
+                        $this->dbreference->updateGoodsReturn($dataentry_supplier, $id);
+                        $this->dbreference->updateOutward($dataentry_supplier, $id);
+                    } else if ($companyType->company_type == 2 || $companyType->company_type == 1) {
+                        $dataentry_company = array('company_id' => $request->companyName['id']);
+                        $comboids->company_id = $request->companyName['id'];
+                        $comboids->save();
+
+                        $this->dbreference->updateInward($dataentry_company, $id);
+                        $this->dbreference->updateSaleBill($dataentry_company, $id);
+                        $this->dbreference->updateGoodsReturn($dataentry_company, $id);
+                        $dataentry_company_payment = array('receipt_from' => $request->companyName['id']);
+                        $this->dbreference->updatePayment($dataentry_company_payment, $id);
+                        $this->dbreference->updateOutward($dataentry_company, $id);
+                    }
+                    if ($companyType->company_type == 3 || $companyType->company_type == 2 || $companyType->company_type == 1) {
+                        $getAllSubject = $this->dbreference->getReferenceDetails($id);
+                        foreach ($getAllSubject as $row_allsubject) {
+                            if ($row_allsubject->system_module_id == 1 || $row_allsubject->system_module_id == 2 || $row_allsubject->system_module_id == 3 || $row_allsubject->system_module_id == 4 || $row_allsubject->system_module_id == 8 || $row_allsubject->system_module_id == 9 || $row_allsubject->system_module_id == 10 || $row_allsubject->system_module_id == 11) {
+
+                                $searchCmp = "/by(.*)or/";
+                                $replaceCmp = "by " . $companyType->name . " or";
+                                $newSubjectByCompany = preg_replace($searchCmp, $replaceCmp, $row_allsubject->subject);
+                                $searchName = "/ or(.*)/";
+                                $replaceName = " or " . $request->from_name . ".";
+                                $newSubject = preg_replace($searchName, $replaceName, $newSubjectByCompany);
+                                $dataentry_subject = array('subject' => $newSubject);
+                                $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
+                                if ($row_allsubject->inward_or_outward_flag == 1) {
+                                    $this->dbreference->updateSubjectInInward($dataentry_subject, $row_allsubject->inward_or_outward_id);
+                                } else {
+                                    $this->dbreference->updateSubjectInOutward($dataentry_subject, $row_allsubject->inward_or_outward_id);
+                                }
+                            } elseif ($row_allsubject->system_module_id == 7 || $row_allsubject->system_module_id == 13) {
+                                $searchCmp = "/For(.*)Of/";
+                                $replaceCmp = "For " . $companyType->name . " Of";
+                                $newSubjectByCompany = preg_replace($searchCmp, $replaceCmp, $row_allsubject->subject);
+                                $dataentry_subject = array('subject' => $newSubjectByCompany);
+                                $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
+                            } elseif ($row_allsubject->system_module_id == 15) {
+                                $searchCmp = "/For(.*)/";
+                                $replaceCmp = "For " . $companyType->name;
+                                $newSubjectByCompany = preg_replace($searchCmp, $replaceCmp, $row_allsubject->subject);
+                                $dataentry_subject = array('subject' => $newSubjectByCompany);
+                                $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
+                                $this->dbreference->updateSubjectInInward($dataentry_subject, $row_allsubject->inward_or_outward_id);
+                            }
+                        }
+
+                        $comboids->from_name = $request->from_name;
+                        $comboids->from_number = $request->from_number ?? '';
+                        $comboids->receiver_number = $request->receiver_number ?? '';
+                        $comboids->from_email_id = $request->from_email;
+                        $comboids->save();
+
+                        $dataentry_inward =  array(
+                            'from_name' => $request->from_name,
+                            'from_number' => $request->from_number ?? '',
+                            'receiver_number' => $request->receiver_number ?? '',
+                            'from_email_id' => $request->from_email
+                        );
+                        $this->dbreference->updateInward($dataentry_inward, $id);
+                        $this->dbreference->updateOutward($dataentry_inward, $id);
+                    }
+                }
+            }
         }
 
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
