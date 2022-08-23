@@ -1029,6 +1029,7 @@
                     this.referenceSampleData = response.data;
                     this.form.reference_sample_data = response.data[0].reference_id;
                     this.refernceidchange();
+                    $('#oldrefence').attr('class', 'hidden');
                 });
             },
             refernceidchange (event) {
