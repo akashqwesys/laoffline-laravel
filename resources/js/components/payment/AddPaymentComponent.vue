@@ -234,7 +234,7 @@
                                                     <label class="form-label" for="fv-end-date">Cheque Attachment</label>
                                                     <div class="form-control-wrap">
                                                        <div class="custom-file">
-                                                            <input type="file" name="chequeattechment" class="custom-file-input" @change="uploadChequeImage">
+                                                            <input type="file" name="chequeattechment" multiple class="custom-file-input" @change="uploadChequeImage">
                                                             <label class="custom-file-label" for="fv-chequeattechment">Choose photo</label>
                                                             <span v-if="errors.chequeattechment" class="invalid">{{errors.chequeattechment}}</span>
                                                         </div>
@@ -1424,7 +1424,7 @@
             },
 
             uploadChequeImage (event) {
-                this.chequeimage = event.target.files[0];
+                this.chequeimage = event.target.files;
             },
             uploadLetterImage (event) {
                 this.letterimage = event.target.files[0];
@@ -1532,9 +1532,12 @@
 
                     paymentdata.append('billdata', JSON.stringify(this.salebills));
                     paymentdata.append('formdata', JSON.stringify(this.form));
-                    paymentdata.append('chequeimage', this.chequeimage);
+                    //paymentdata.append('chequeimage', this.chequeimage);
                     paymentdata.append('letterimage', this.letterimage);
-
+                    this.chequeimage.forEach((contact,index)=>{
+                    if(contact){
+                        paymentdata.append(`chequeimage[${index}]`, contact);
+                    }});
                    axios.post('/payments/update',paymentdata)
                     .then(() => {
                          window.location.href = '/payments';
@@ -1617,6 +1620,10 @@
                     paymentdata.append('formdata', JSON.stringify(this.form));
                     paymentdata.append('chequeimage', this.chequeimage);
                     paymentdata.append('letterimage', this.letterimage);
+                    this.chequeimage.forEach((contact,index)=>{
+                    if(contact){
+                        paymentdata.append(`chequeimage[${index}]`, contact);
+                    }});
                     if (this.isValidate) {
                         axios.post('/payments/create', paymentdata)
                         .then((response2) => {

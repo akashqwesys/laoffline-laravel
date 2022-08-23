@@ -65,12 +65,14 @@
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Cheques Attachment : </b>  </label>
-                                        <span v-if="paymentData.attachments">
-                                        <a :href="'/upload/payments/'+paymentData.attachments" target="_blank">
-                                            <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
-                                        </a>
-                                        </span>
-                                        <span v-else> - </span>
+                                        <ul>
+                                                <li v-for="(attachment,index) in attachments" :key="index">
+                                                    <a v-if="attachment != ''" :href="'/upload/payments/'+attachment" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                    </a>
+                                                    <span v-else>-</span>
+                                                </li>
+                                            </ul>
                                     </div>
                                 </div>
                                 <div class="row table-responsive">
@@ -176,6 +178,7 @@
         data() {
             return {
                 paymentData: [],
+                attachments: [],
                 salebills: [],
                 customer: [],
                 supplier: [],
@@ -205,6 +208,7 @@
                         this.customer = gData.customer;
                         this.supplier = gData.supplier;
                         this.created_at = gData.created_at;
+                        this.attachments = gData.paymentData.cheque_image;
                 });
         },
         methods: {

@@ -1033,17 +1033,19 @@ class PaymentsController extends Controller
         $paymentSalebill = json_decode($request->billdata);
         $financialid = Session::get('user')->financial_year_id;
         $attachments = array();
-
+        $cheque_image = array();
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
+        
         $ChequeImage = $LetterImage = null;
-        if ($image = $request->chequeimage) {
-            $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
+        if ($request->chequeimage) {
+        foreach($request->chequeimage as $key => $image) {
+            $ChequeImage = date('YmdHis') . "_chequeImage".$key."." . $image->getClientOriginalExtension();
             $paymentData->chequeImage = $ChequeImage;
             $image->move(public_path('upload/payments/'), $ChequeImage);
-            array_push($attachments, $ChequeImage);
-        }
+            array_push($cheque_image, $ChequeImage);
+        }}
         if ($image = $request->letterimage) {
             $LetterImage = date('YmdHis') . "_letterImage." . $image->getClientOriginalExtension();
             $paymentData->letterImage = $LetterImage;
@@ -1225,7 +1227,7 @@ class PaymentsController extends Controller
         $payment->reciept_mode = $paymentData->recipt_mode;
         $payment->iuid = $iuid;
         $payment->reference_id = intval($ref_id);
-        $payment->attachments = $ChequeImage;
+        $payment->attachments = json_encode($cheque_image);
         $payment->letter_attachment = $LetterImage;
         $payment->financial_year_id = $financialid;
         $payment->date = $payment_date;
@@ -1710,6 +1712,12 @@ class PaymentsController extends Controller
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
         $paymentDetail = PaymentDetail::where('p_increment_id', $payment->id)->get();
+        $attch = explode(',', trim(trim($payment->attachments,'"[\"'), '\"]"'));
+        $itmdata = array();
+        foreach ($attch as $itm) {
+            $item = trim(trim($itm,'"'), '\"');
+            array_push($itmdata, $item);
+        }
         $salebill = array();
         foreach ($paymentDetail as $details) {
             $bill = SaleBill::where('sale_bill_id', $details->sr_no)
@@ -1738,7 +1746,10 @@ class PaymentsController extends Controller
             $salebilldata['day'] = $overdue;
             array_push($salebill, $salebilldata);
         }
+
+        
         $data['paymentData'] = $payment;
+        $data['paymentData']['cheque_image'] = $itmdata;
         $data['created_at'] = date_format($payment->created_at,"Y/m/d H:i:s");
         $data['salebill'] = $salebill;
         $data['customer'] = $customer;
@@ -1800,19 +1811,24 @@ class PaymentsController extends Controller
         $financialid = Session::get('user')->financial_year_id;
         $paymentData = json_decode($request->formdata);
         $paymentSalebill = json_decode($request->billdata);
-
+        $cheque_image = array();
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
         $payment = Payment::where('payment_id', $paymentData->id)->where('financial_year_id', $financialid)->first();
         $p_increment_id = $payment->id;
         //$ChequeImage = $LetterImage = null;
-        if ($image = $request->chequeimage) {
-            $ChequeImage = date('YmdHis') . "_chequeImage." . $image->getClientOriginalExtension();
-            $payment->attachments = $ChequeImage;
-            $image->move(public_path('upload/payments/'), $ChequeImage);
-            array_push($attachments, $ChequeImage);
+        if ($request->chequeimage) {
+            foreach($request->chequeimage as $key => $image) {
+                $ChequeImage = date('YmdHis') . "_chequeImage".$key."." . $image->getClientOriginalExtension();
+                $paymentData->chequeImage = $ChequeImage;
+                $image->move(public_path('upload/payments/'), $ChequeImage);
+                array_push($cheque_image, $ChequeImage);
+            }
+            $payment->attachments = json_encode($cheque_image);
         }
+       
+        
         if ($image = $request->letterimage) {
             $LetterImage = date('YmdHis') . "_letterImage." . $image->getClientOriginalExtension();
             $payment->letter_attachment = $LetterImage;
