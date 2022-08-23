@@ -15,6 +15,7 @@ use App\Models\Payment;
 use App\Models\CompanyType;
 use App\Models\Commission\Commission;
 use App\Models\SaleBill;
+use App\Models\LinkCompanies;
 use App\Models\CommissionDetail;
 use App\Models\PaymentDetail;
 use App\Models\IncrementId;
@@ -229,10 +230,32 @@ class CommissionController extends Controller
     public function searchCommissionInvoice(Request $request) {
         $company_id = $request->input('company');
         $user = Session::get('user');
+        $company = array();
+        $company_details = Company::where('id', $company_id)->first();
+        $link_companies = LinkCompanies::where('company_id', $company_id)->get();
+            if (empty($link_companies)) {
+                $is_linked = LinkCompanies::where('link_companies_id', $company_id)->get();
+                if (!empty($is_linked)) {
+                    $company_details = Company::where('id', $is_linked->company_id)->first();
+                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
+                }
+            }
+            if ($company_details) {
+                $main_cmp_id = $company_details->id;
+                array_push($company, $main_cmp_id);
+                foreach ($link_companies as $row_link_companies) {
+                    array_push($company, $row_link_companies->link_companies_id);
+                }
+            }
+        $commissioninvoice = DB::table('commission_invoices');
+        if (count($company) == 1) {
+            $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id =' . $company[0] . ' or customer_id =' . $company[0]. ' )');
+        } else if (count($company) > 1){
+            $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id in' . $company . ' or customer_id in' . $company. ' )');
+        }
         $commissioninvoicedone = DB::table('commission_details')->select('commission_invoice_id')->where('is_deleted',0)->pluck('commission_invoice_id')->toArray();
-        $commissioninvoice = DB::table('commission_invoices')
-                    ->where('supplier_id', $company_id)
-                    ->where('commission_status', 0)
+       
+        $commissioninvoice = $commissioninvoice->where('commission_status', 0)
                     ->where('is_deleted', 0)
                     ->whereNot('id', $commissioninvoicedone)
                     ->orderBy('bill_date', 'asc')
@@ -241,8 +264,9 @@ class CommissionController extends Controller
 
         foreach($commissioninvoice as $invoice) {
             $overdue = floor((time() - strtotime($invoice->bill_date)) / (60 * 60 * 24));
+            $billdate = date('d-m-y', strtotime($invoice->bill_date));
             $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
-            $invoice = array('commission_id' => $invoice->id, 'fid' =>$invoice->financial_year_id,  'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $invoice->bill_date, 'amount' => $invoice->final_amount, 'overdue' => $overdue);
+            $invoice = array('commission_id' => $invoice->id, 'fid' =>$invoice->financial_year_id,  'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $billdate, 'amount' => $invoice->final_amount, 'overdue' => $overdue);
             array_push($commissioninvoices, $invoice);
         }
         $data['commissioninvoice'] = $commissioninvoices;
