@@ -10,8 +10,11 @@ use App\Models\Company\Company;
 use App\Models\Settings\Cities;
 use App\Models\Settings\Country;
 use App\Models\Comboids\Comboids;
+use App\Models\inwardOutward\Inward;
+use App\Models\inwardOutward\Outward;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Commission\Commission;
 use App\Models\Settings\Designation;
 use App\Models\Company\CompanyEmails;
 use App\Models\Reference\ReferenceId;
@@ -21,6 +24,9 @@ use App\Models\Settings\TransportDetails;
 // use App\Models\Company\CompanyAddressOwner;
 use App\Models\Company\CompanyContactDetails;
 use App\Models\Company\CompanyPackagingDetails;
+use App\Models\Payment;
+use App\Models\SaleBill;
+
 // use Symfony\Component\Mailer\Transport;
 
 class ReferenceController extends Controller
@@ -758,31 +764,53 @@ class ReferenceController extends Controller
             if ($Reference->company_id != $request->companyName['id']) {
                 $companyType = DB::table('companies')->select('id', 'company_type')->where('id', $request->companyName['id'])->first();
                 if ($companyType) {
+
+                    $inward = Inward::select('inward_id', 'updated_at', 'supplier_id', 'company_id', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_input_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+                    $outward = Outward::select('outward_id', 'updated_at', 'supplier_id', 'company_id', 'from_name', 'from_number', 'receiver_number', 'from_email_id')->where('general_input_ref_id', $id)->first();
+
+                    $sale_bill = SaleBill::select('id', 'updated_at', 'company_id', 'supplier_id')->where('general_ref_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
+                    $payment = Payment::select('id', 'updated_at', 'receipt_from', 'supplier_id')->where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
+
                     if ($companyType->company_type == 3) {
-                        $dataentry_supplier = array('supplier_id' => $request->companyName['id']);
                         $comboids->supplier_id = $request->companyName['id'];
                         $comboids->save();
 
-                        $this->dbreference->updateInward($dataentry_supplier, $id);
-                        $this->dbreference->updateSaleBill($dataentry_supplier, $id);
-                        $this->dbreference->updatePayment($dataentry_supplier, $id);
-                        $this->dbreference->updateCommission($dataentry_supplier, $id);
-                        $this->dbreference->updateGoodsReturn($dataentry_supplier, $id);
-                        $this->dbreference->updateOutward($dataentry_supplier, $id);
+                        $inward->supplier_id = $request->companyName['id'];
+                        $inward->save();
+
+                        $outward->supplier_id = $request->companyName['id'];
+                        $outward->save();
+
+                        $sale_bill->supplier_id = $request->companyName['id'];
+                        $sale_bill->save();
+
+                        $payment->supplier_id = $request->companyName['id'];
+                        $payment->save();
+
+                        Commission::where('reference_id', $id)->where('financial_year_id', $user->financial_year_id)->update(['supplier_id' => $request->companyName['id']]);
+
                     } else if ($companyType->company_type == 2 || $companyType->company_type == 1) {
-                        $dataentry_company = array('company_id' => $request->companyName['id']);
+
                         $comboids->company_id = $request->companyName['id'];
                         $comboids->save();
 
-                        $this->dbreference->updateInward($dataentry_company, $id);
-                        $this->dbreference->updateSaleBill($dataentry_company, $id);
-                        $this->dbreference->updateGoodsReturn($dataentry_company, $id);
-                        $dataentry_company_payment = array('receipt_from' => $request->companyName['id']);
-                        $this->dbreference->updatePayment($dataentry_company_payment, $id);
-                        $this->dbreference->updateOutward($dataentry_company, $id);
+                        $inward->company_id = $request->companyName['id'];
+                        $inward->save();
+
+                        $outward->company_id = $request->companyName['id'];
+                        $outward->save();
+
+                        $sale_bill->company_id = $request->companyName['id'];
+                        $sale_bill->save();
+
+                        $payment->receipt_from = $request->companyName['id'];
+                        $payment->save();
+
                     }
                     if ($companyType->company_type == 3 || $companyType->company_type == 2 || $companyType->company_type == 1) {
-                        $getAllSubject = $this->dbreference->getReferenceDetails($id);
+                        /* $getAllSubject = $this->dbreference->getReferenceDetails($id);
                         foreach ($getAllSubject as $row_allsubject) {
                             if ($row_allsubject->system_module_id == 1 || $row_allsubject->system_module_id == 2 || $row_allsubject->system_module_id == 3 || $row_allsubject->system_module_id == 4 || $row_allsubject->system_module_id == 8 || $row_allsubject->system_module_id == 9 || $row_allsubject->system_module_id == 10 || $row_allsubject->system_module_id == 11) {
 
@@ -813,7 +841,7 @@ class ReferenceController extends Controller
                                 $this->dbreference->updateSubjectInComboId($dataentry_subject, $row_allsubject->comboid);
                                 $this->dbreference->updateSubjectInInward($dataentry_subject, $row_allsubject->inward_or_outward_id);
                             }
-                        }
+                        } */
 
                         $comboids->from_name = $request->from_name;
                         $comboids->from_number = $request->from_number ?? '';
@@ -821,14 +849,17 @@ class ReferenceController extends Controller
                         $comboids->from_email_id = $request->from_email;
                         $comboids->save();
 
-                        $dataentry_inward =  array(
-                            'from_name' => $request->from_name,
-                            'from_number' => $request->from_number ?? '',
-                            'receiver_number' => $request->receiver_number ?? '',
-                            'from_email_id' => $request->from_email
-                        );
-                        $this->dbreference->updateInward($dataentry_inward, $id);
-                        $this->dbreference->updateOutward($dataentry_inward, $id);
+                        $inward->from_name = $request->from_name;
+                        $inward->from_number = $request->from_number ?? '';
+                        $inward->receiver_number = $request->receiver_number ?? '';
+                        $inward->from_email_id = $request->from_email;
+                        $inward->save();
+
+                        $outward->from_name = $request->from_name;
+                        $outward->from_number = $request->from_number ?? '';
+                        $outward->receiver_number = $request->receiver_number ?? '';
+                        $outward->from_email_id = $request->from_email;
+                        $outward->save();
                     }
                 }
             }
