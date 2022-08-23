@@ -421,7 +421,7 @@ class PaymentsReportController extends Controller
                             if ($request->export_pdf == 1) {
                                 $html .= '<td>'.$row2->sale_bill_id.'</td>';
                             } else {
-                                $html .= '<td><a target="_blank" href="/sale_bill/viewbill/"'.$row2->sale_bill_id.'/'.$row2->financial_year_id.'>'.$row2->sale_bill_id.'</a></td>';
+                                $html .= '<td><a target="_blank" href="/account/sale-bill/view-sale-bill/'.$row2->sale_bill_id.'/' .$row2->financial_year_id.'">'.$row2->sale_bill_id.'</a></td>';
                             }
                             
                             $html .= '<td>'.$final_amount.'</td>
