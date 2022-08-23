@@ -1818,7 +1818,7 @@ class SaleBillController extends Controller
 
     public function getCompanyDetailsForLinkCompanies($id)
     {
-        return DB::table('companies')->select('id', 'company_name')->where('id', $id)->limit(1)->first();
+        return DB::table('companies')->select('id', 'company_name')->where('is_delete', 0)->where('id', $id)->limit(1)->first();
     }
 
     public function getLinkCompaniesDetails($id)

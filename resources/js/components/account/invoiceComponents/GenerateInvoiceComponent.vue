@@ -605,8 +605,11 @@
         },
         mounted() {
             const self = this;
+            $('#datepicker_bill_from').val(self.bill_period_from);
             $('#datepicker_bill_from').datepicker('setDate', self.bill_period_from);
+            $('#datepicker_bill_to').val(self.bill_period_to);
             $('#datepicker_bill_to').datepicker('setDate', self.bill_period_to);
+            $('#datepicker_bill_date').val(self.invoice_bill_date);
             $('#datepicker_bill_date').datepicker('setDate', self.invoice_bill_date);
 
             /* $(document).on('change', '#datepicker_bill_from, #datepicker_bill_to, #datepicker_bill_date', function(e) {
