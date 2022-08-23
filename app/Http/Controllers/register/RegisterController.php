@@ -1019,7 +1019,7 @@ class RegisterController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->where('ouid', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('general_ref_id', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
@@ -1059,7 +1059,7 @@ class RegisterController extends Controller
             $records = $records->where('ouid', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[2]['search']['value']) && !empty($columnName_arr[2]['search']['value'])) {
-            $records = $records->where('reference_id', '=', $columnName_arr[2]['search']['value']);
+            $records = $records->where('general_ref_id', '=', $columnName_arr[2]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $records = $records->whereDate('created_at', '=', $columnName_arr[3]['search']['value']);
@@ -1493,7 +1493,7 @@ class RegisterController extends Controller
                 $color_flag_id = 3;
             } else {
                 $color_flag_id = 1;
-            }   
+            }
         } else {
             $color_flag_id = 3;
         }
@@ -1718,7 +1718,7 @@ class RegisterController extends Controller
                 $color_flag_id = 3;
             } else {
                 $color_flag_id = 1;
-            }   
+            }
         } else {
             $color_flag_id = 3;
         }
@@ -1943,7 +1943,7 @@ class RegisterController extends Controller
                 $color_flag_id = 3;
             } else {
                 $color_flag_id = 1;
-            }   
+            }
         } else {
             $color_flag_id = 3;
         }
