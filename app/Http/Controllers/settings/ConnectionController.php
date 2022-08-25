@@ -1363,7 +1363,7 @@ class ConnectionController extends Controller
                 $companyContactDetails->id = $coData['id'];
                 $companyContactDetails->company_id = $coData['company_id'];
                 $companyContactDetails->contact_person_name = $coData['contact_person_name'];
-                $companyContactDetails->contact_person_designation = intval($coData['contact_person_designation']);
+                $companyContactDetails->contact_person_designation = $coData['contact_person_designation'];
                 $companyContactDetails->contact_person_profile_pic = $coData['contact_person_profile_pic'];
                 $companyContactDetails->contact_person_mobile = $coData['contact_person_mobile'];
                 $companyContactDetails->contact_person_email = $coData['contact_person_email'];

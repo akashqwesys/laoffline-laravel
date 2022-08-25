@@ -17,7 +17,7 @@ class CreateCompanyContactDetailsTable extends Migration
             $table->integer('id');
             $table->integer('company_id')->default('0');
             $table->string('contact_person_name')->nullable();
-            $table->integer('contact_person_designation')->nullable();
+            $table->jsonb('contact_person_designation')->nullable();
             $table->string('contact_person_profile_pic')->nullable();
             $table->string('contact_person_mobile')->nullable();
             $table->string('contact_person_email')->nullable();
