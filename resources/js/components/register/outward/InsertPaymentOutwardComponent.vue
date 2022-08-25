@@ -133,7 +133,7 @@
                                     </div>
                                     <div id="error-for-courrier" class="mt-2 text-danger"></div>
                                 </div>
-                                
+
                                 <div class="row gy-4 courrier">
                                     <div class="col-sm-2 text-right">
                                         <label class="form-label" for="fv-reciptno">Courrier Receipt No</label>
@@ -232,6 +232,8 @@
         props: {
             scope: String,
             id: Number,
+            fromDate: String,
+            toDate: String
         },
         data() {
             return {
@@ -245,8 +247,8 @@
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
                     supplier: '',
-                    fromdate: '',
-                    todate: '',
+                    fromdate: this.fromDate,
+                    todate: this.toDate,
                     refrence: 1,
                     datetime: '',
                     company: '',
@@ -271,8 +273,10 @@
 
             axios.get('/register/list-agentcourier')
             .then(response => {
-                this.form.fromdate = response.data.today;
-                this.form.todate = response.data.today;
+                if (this.fromDate == '') {
+                    this.form.fromdate = response.data.today;
+                    this.form.todate = response.data.today;
+                }
                 this.agents = response.data.agent;
                 this.form.agent = response.data.agent[0];
                 this.courier = response.data.courier;
@@ -314,9 +318,9 @@
                     if (this.selected.length == 0) {
                         this.isValidate = 0;
                         $("#error-for-salebillselect").text("Select Atleast 1 Payments");
-                    } 
+                    }
                 }
-                
+
                 var formdata = new FormData();
                 formdata.append("refenceform", JSON.stringify(this.form));
                 formdata.append("payment", JSON.stringify(this.selected));

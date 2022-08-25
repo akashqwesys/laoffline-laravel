@@ -378,7 +378,7 @@ class RegisterController extends Controller
             ->where('r.is_deleted', 0)
             ->limit(1)
             ->first();
-        
+
         if ($reference) {
             $referenceid = $reference->reference_id;
             /* if ($reference->company_id != 0) {
@@ -1639,6 +1639,9 @@ class RegisterController extends Controller
         $paymentdata = json_decode($request->payment);
         $reference = $referncedata->refrence;
 
+        $request->session()->put('outward_payment_from_date', $referncedata->fromdate);
+        $request->session()->put('outward_payment_to_date', $referncedata->todate);
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -1864,6 +1867,9 @@ class RegisterController extends Controller
         $commissondata = json_decode($request->commission);
         $reference = $referncedata->refrence;
 
+        $request->session()->put('outward_commission_from_date', $referncedata->fromdate);
+        $request->session()->put('outward_commission_to_date', $referncedata->todate);
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;
@@ -2088,6 +2094,9 @@ class RegisterController extends Controller
         $referncedata = json_decode($request->refenceform);
         $commissoninvoicedata = json_decode($request->commissioninvoice);
         $reference = $referncedata->refrence;
+
+        $request->session()->put('outward_invoice_date', $referncedata->date);
+
         $company_supplier = Company::where('id', $referncedata->companyid)->first()->company_type_id;
         if ($company_supplier == 3) {
 			$company_type_outward = "Supplier";

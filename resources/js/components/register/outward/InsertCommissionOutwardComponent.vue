@@ -226,6 +226,8 @@
         props: {
             scope: String,
             id: Number,
+            fromDate: String,
+            toDate: String
         },
         data() {
             return {
@@ -239,8 +241,8 @@
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
                     supplier: '',
-                    fromdate: '',
-                    todate: '',
+                    fromdate: this.fromDate,
+                    todate: this.toDate,
                     refrence: 1,
                     datetime: '',
                     company: '',
@@ -265,8 +267,10 @@
 
             axios.get('/register/list-agentcourier')
             .then(response => {
-                this.form.fromdate = response.data.today;
-                this.form.todate = response.data.today;
+                if (this.fromDate == '') {
+                    this.form.fromdate = response.data.today;
+                    this.form.todate = response.data.today;
+                }
                 this.agents = response.data.agent;
                 this.form.agent = response.data.agent[0];
                 this.courier = response.data.courier;
@@ -309,7 +313,7 @@
                     if (this.selected.length == 0) {
                         this.isValidate = 0;
                         $("#error-for-salebillselect").text("Select Atleast 1 Commission");
-                    } 
+                    }
                 }
 
                 var formdata = new FormData();

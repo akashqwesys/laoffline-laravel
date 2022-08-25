@@ -216,6 +216,7 @@
         },
         props: {
             scope: String,
+            setDate: String,
             id: Number,
         },
         data() {
@@ -230,7 +231,7 @@
                 referncevia :[{name: 'Courier'},{name: 'Hand'}],
                 form: new Form({
                     supplier: '',
-                    date: '',
+                    date: this.setDate,
                     refrence: 1,
                     datetime: '',
                     company: '',
@@ -252,10 +253,12 @@
             .then(response => {
                 this.supplier = response.data;
             });
-            
+
             axios.get('/register/list-agentcourier')
             .then(response => {
-                this.form.date = response.data.today;
+                if (this.setDate == '') {
+                    this.form.date = response.data.today;
+                }
                 this.agents = response.data.agent;
                 this.form.agent = response.data.agent[0];
                 this.courier = response.data.courier;
@@ -297,7 +300,7 @@
                     if (this.selected.length == 0) {
                         this.isValidate = 0;
                         $("#error-for-salebillselect").text("Select Atleast 1 Invoice");
-                    } 
+                    }
                 }
 
                 var formdata = new FormData();
