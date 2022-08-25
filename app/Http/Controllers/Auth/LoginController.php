@@ -59,7 +59,7 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        if(auth()->attempt(array('username' => $input['email'], 'password' => $input['password']))) {
+        if(auth()->attempt(array('username' => $input['email'], 'password' => $input['password'], 'is_active' => 1))) {
             $financialYear = FinancialYear::where('current_year_flag', '1')->first();
 
             $user = Auth::User();
