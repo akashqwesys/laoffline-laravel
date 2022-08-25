@@ -378,7 +378,7 @@ class RegisterController extends Controller
             ->where('r.is_deleted', 0)
             ->limit(1)
             ->first();
-
+        
         if ($reference) {
             $referenceid = $reference->reference_id;
             /* if ($reference->company_id != 0) {

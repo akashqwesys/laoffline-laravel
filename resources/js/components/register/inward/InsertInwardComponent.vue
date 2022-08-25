@@ -1029,6 +1029,7 @@
                     this.referenceSampleData = response.data;
                     this.form.reference_sample_data = response.data[0].reference_id;
                     this.refernceidchange();
+                    $('#oldrefence').attr('class', 'hidden');
                 });
             },
             refernceidchange (event) {
@@ -1331,15 +1332,20 @@
                 $("#error-for-sample_via").text("");
                 $("#error-for-sample_for").text("");
                 $("#error-for-assign_to").text("");
-                if (this.form.courier_name == '' || this.form.sample_via == '' || this.form.sample_for == '' || this.form.assign_to == '') {
-                    this.isValidate = 0;
-
-                    if (this.form.courier_name == null) {
-
-                        $("#error-for-courier_name").text("Select Courier");
+                if (this.form.sample_via == 'Courier') {
+                    if (this.form.courier_name == '') {
+                        this.isValidate = 0;
+                        if (this.form.courier_name == null) {
+                            $("#error-for-courier_name").text("Select Courier");
+                        } else {
+                            $("#error-for-courier_name").text("");
+                        }
                     } else {
-                        $("#error-for-courier_name").text("");
+                        this.isValidate = 1;
                     }
+                }
+                if (this.form.sample_via == '' || this.form.sample_for == '' || this.form.assign_to == '') {
+                    this.isValidate = 0;
 
                     if (this.form.sample_via == '') {
                         $("#error-for-sample_via").text("Select Sample Via");
@@ -1348,12 +1354,14 @@
                     }
 
                     if (this.form.sample_for == '') {
+                        console.log('sample_for');
                         $("#error-for-sample_for").text("Select Sample For");
                     } else {
                         $("#error-for-sample_for").text("");
                     }
 
                     if (this.form.assign_to == '') {
+                        console.log('assign to');
                         $("#error-for-assign_to").text("Select Assign Employee");
                     } else {
                         $("#error-for-assign_to").text("");
