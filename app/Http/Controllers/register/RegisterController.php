@@ -1411,6 +1411,9 @@ class RegisterController extends Controller
         $salebilldata = json_decode($request->salebill);
         $reference = $referncedata->refrence;
 
+        $request->session()->put('outward_sale_bill_from_date', $referncedata->fromdate);
+        $request->session()->put('outward_sale_bill_to_date', $referncedata->todate);
+
         $user = Session::get('user');
         $financialid = Session::get('user')->financial_year_id;
         $agent_id = $referncedata->agent->id;

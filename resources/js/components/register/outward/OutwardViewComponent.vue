@@ -6,7 +6,7 @@
                     <div class="nk-block-head nk-block-head-sm">
                        <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 v-if="outwardtype == 1" class="nk-block-title page-title">Outward Sale Bill Detail</h3>
+                                <h3 v-if="outwardtype == 1" class="nk-block-title page-title">Outward Sale Bill Detail <a class="btn btn-primary ml-2" href="/register/outward/salebill" >Back</a></h3>
                                 <h3 v-if="outwardtype == 2" class="nk-block-title page-title">Outward Payments Detail</h3>
                                 <h3 v-if="outwardtype == 3" class="nk-block-title page-title">Outward Commission Detail</h3>
                                 <h3 v-if="outwardtype == 4" class="nk-block-title page-title">Outward Commission Invoice Detail</h3>
@@ -246,7 +246,8 @@
                         </div>
 
                         <div class="text-center mt-2">
-                            <button class="btn btn-dark" @click="printOutward">Print</button>
+                            <button class="btn btn-dark mr-2" @click="printOutward">Print</button>
+                            <a class="btn btn-primary" href="/register/outward/salebill" >Back</a>
                         </div>
                     </div><!-- .nk-block -->
                 </div>
