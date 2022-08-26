@@ -4,152 +4,181 @@
             <div class="nk-content-inner">
                 <div class="nk-content-body">
                     <div class="nk-block-head nk-block-head-sm">
-                       <div class="nk-block-between">
+                        <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3  class="nk-block-title page-title">View Payment Detail</h3>
+                                <h3 class="nk-block-title page-title">View Payment Detail</h3>
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                            <div class="print_area">
-                                <div class="row">
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Reciept Mode : </b> {{ paymentData.reciept_mode}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>IUID : </b> {{ paymentData.iuid}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Generated Date : </b> {{ created_at }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Voucher No : </b> {{ paymentData.payment_id}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Date : </b> {{ paymentData.date}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Deposite Bank : </b> CHQ IN HAND </label>
-				    		        </div>
-                                    <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque Date : </b> {{ paymentData.cheque_date}} </label>
-				    		        </div>
-                                    <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque / DD No : </b> {{ paymentData.cheque_dd_no}} </label>
-				    		        </div>
-                                    <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque / DD's Bank : </b> {{ paymentData.cheque_dd_bank}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Receipt From : </b> {{ customer.company_name }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Trns : </b> {{ paymentData.trns}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Supplier : </b> {{ supplier.company_name}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Receipt Amount : </b> {{ paymentData.receipt_amount }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Letter Attachment : </b>  </label>
-                                        <span v-if="paymentData.letter_attachment">
+                                <div class="print_area">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Reciept Mode : </b> {{
+                                            paymentData.reciept_mode}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>IUID : </b> {{ paymentData.iuid}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Generated Date : </b> {{ created_at }}
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Voucher No : </b> {{
+                                            paymentData.payment_id}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Date : </b> {{ paymentData.date}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Deposite Bank : </b> CHQ IN HAND </label>
+                                        </div>
+                                        <div class="col-sm-4 cheque">
+                                            <label class="control-label"><b>Cheque Date : </b> {{
+                                            paymentData.cheque_date}} </label>
+                                        </div>
+                                        <div class="col-sm-4 cheque">
+                                            <label class="control-label"><b>Cheque / DD No : </b> {{
+                                            paymentData.cheque_dd_no}} </label>
+                                        </div>
+                                        <div class="col-sm-4 cheque">
+                                            <label class="control-label"><b>Cheque / DD's Bank : </b> {{
+                                            paymentData.cheque_dd_bank}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Receipt From : </b> {{ customer.company_name
+                                            }} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Trns : </b> {{ paymentData.trns}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Supplier : </b> {{ supplier.company_name}}
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Receipt Amount : </b> {{
+                                            paymentData.receipt_amount }} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Letter Attachment : </b> </label>
+                                            <!-- <span v-if="paymentData.letter_attachment">
                                         <a :href="'/upload/payments/'+paymentData.letter_attachment" target="_blank">
                                             <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
                                         </a>
-                                        </span>
-                                        <span v-else> - </span>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Cheques Attachment : </b>  </label>
-                                        <ul>
-                                                <li v-for="(attachment,index) in attachments" :key="index">
-                                                    <a v-if="attachment != ''" :href="'/upload/payments/'+attachment" target="_blank">
-                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                        </span> -->
+                                            <!-- <span v-else> - </span> -->
+                                            <ul>
+                                                <li v-for="(attachment,index) in paymentData.letter_image"
+                                                    :key="index">
+                                                    <a v-if="attachment != ''" :href="'/upload/payments/'+attachment"
+                                                        target="_blank">
+                                                        <img height="65" width="50" id="preview-img"
+                                                            src="/assets/images/icons/file-media.svg"
+                                                            style="opacity: 0.5; padding-top: 5px;">
                                                     </a>
                                                     <span v-else>-</span>
                                                 </li>
                                             </ul>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Cheques Attachment : </b> </label>
+                                            <ul>
+                                                <li v-for="(attachment,index) in attachments" :key="index">
+                                                    <a v-if="attachment != ''" :href="'/upload/payments/'+attachment"
+                                                        target="_blank">
+                                                        <img height="65" width="50" id="preview-img"
+                                                            src="/assets/images/icons/file-media.svg"
+                                                            style="opacity: 0.5; padding-top: 5px;">
+                                                    </a>
+                                                    <span v-else>-</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row table-responsive">
+                                        <table class="table mb-2 table table-striped m-b-none salebilltable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Bill Date</th>
+                                                    <th>Day</th>
+                                                    <th>S.No.</th>
+                                                    <th>Sup Inv No</th>
+                                                    <th>Amount</th>
+                                                    <th>Adjust Amount</th>
+                                                    <th>Status</th>
+                                                    <th>Discount(%)</th>
+                                                    <th>Discount Amount</th>
+                                                    <th>Goods Return</th>
+                                                    <th>Rate Difference</th>
+                                                    <th>Bank Commission</th>
+                                                    <th>Vatav</th>
+                                                    <th>Agent Commission</th>
+                                                    <th>Claim</th>
+                                                    <th>Short</th>
+                                                    <th>Interest</th>
+                                                    <th>Remark</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="salebillrow" v-for="(salebill,index) in salebills"
+                                                    :key="index">
+                                                    <td>{{ salebill.bill_date}}</td>
+                                                    <td>{{ salebill.day}}</td>
+                                                    <td>{{ salebill.id}}</td>
+                                                    <td><a
+                                                            :href="'/account/sale-bill/view-sale-bill/'+ salebill.id+'/'+ salebill.fid">{{
+                                                            salebill.sup_inv}}</a></td>
+                                                    <td>{{ salebill.amount}}</td>
+                                                    <td>{{ salebill.adjustamount}}</td>
+                                                    <td>{{ salebill.status.status}}</td>
+                                                    <td>{{ salebill.discount }}</td>
+                                                    <td>{{ salebill.discountamount }}</td>
+                                                    <td>{{ salebill.goodreturn }}</td>
+                                                    <td>{{ salebill.ratedifference }}</td>
+                                                    <td>{{ salebill.bankcommission }}</td>
+                                                    <td>{{ salebill.vatav }}</td>
+                                                    <td>{{ salebill.agentcommission }}</td>
+                                                    <td>{{ salebill.claim }}</td>
+                                                    <td>{{ salebill.short }}</td>
+                                                    <td>{{ salebill.interest }}</td>
+                                                    <td>{{ salebill.remark }}</td>
+                                                    <td v-if="salebill.goodreturn != 0"><a
+                                                            :href="'/payments/view-goodreturn/'+ salebill.goodreturndata.goods_return_id">View
+                                                            GR</a></td>
+                                                    <td v-else></td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot class="total">
+                                                <tr>
+                                                    <td><b>Total</b></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td><b>{{ paymentData.total_amount }}</b></td>
+                                                    <td><b>{{ paymentData.tot_adjust_amount }}</b></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td><b>{{ paymentData.tot_discount }}</b></td>
+                                                    <td><b>{{ paymentData.tot_good_returns }}</b></td>
+                                                    <td><b>{{ paymentData.tot_rate_difference }}</b></td>
+                                                    <td><b>{{ paymentData.tot_bank_cpmmission }}</b></td>
+                                                    <td><b>{{ paymentData.tot_vatav }}</b></td>
+                                                    <td><b>{{ paymentData.tot_agent_commission }}</b></td>
+                                                    <td><b>{{ paymentData.tot_claim }}</b></td>
+                                                    <td><b>{{ paymentData.tot_short }}</b></td>
+                                                    <td><b>{{ paymentData.tot_interest }}</b></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
-                                <div class="row table-responsive">
-                                    <table class="table mb-2 table table-striped m-b-none salebilltable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Bill Date</th>
-                                                        <th>Day</th>
-                                                        <th>S.No.</th>
-                                                        <th>Sup Inv No</th>
-                                                        <th>Amount</th>
-                                                        <th>Adjust Amount</th>
-                                                        <th>Status</th>
-                                                        <th>Discount(%)</th>
-                                                        <th>Discount Amount</th>
-                                                        <th>Goods Return</th>
-                                                        <th>Rate Difference</th>
-                                                        <th>Bank Commission</th>
-                                                        <th>Vatav</th>
-                                                        <th>Agent Commission</th>
-                                                        <th>Claim</th>
-                                                        <th>Short</th>
-                                                        <th>Interest</th>
-                                                        <th>Remark</th>
-                                                        <th></th>
-							        		        </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="salebillrow" v-for="(salebill,index) in salebills" :key="index">
-                                                        <td>{{ salebill.bill_date}}</td>
-                                                        <td>{{ salebill.day}}</td>
-                                                        <td>{{ salebill.id}}</td>
-                                                        <td><a :href="'/account/sale-bill/view-sale-bill/'+ salebill.id+'/'+ salebill.fid">{{ salebill.sup_inv}}</a></td>
-                                                        <td>{{ salebill.amount}}</td>
-                                                        <td>{{ salebill.adjustamount}}</td>
-                                                        <td>{{ salebill.status.status}}</td>
-                                                        <td>{{ salebill.discount }}</td>
-                                                        <td>{{ salebill.discountamount }}</td>
-                                                        <td>{{ salebill.goodreturn }}</td>
-                                                        <td>{{ salebill.ratedifference }}</td>
-                                                        <td>{{ salebill.bankcommission }}</td>
-                                                        <td>{{ salebill.vatav }}</td>
-                                                        <td>{{ salebill.agentcommission }}</td>
-                                                        <td>{{ salebill.claim }}</td>
-                                                        <td>{{ salebill.short }}</td>
-                                                        <td>{{ salebill.interest }}</td>
-                                                        <td>{{ salebill.remark }}</td>
-                                                        <td v-if="salebill.goodreturn != 0"><a :href="'/payments/view-goodreturn/'+ salebill.goodreturndata.goods_return_id">View GR</a></td>
-                                                        <td v-else></td>
-                                                    </tr>
-                                                </tbody>
-                                                <tfoot class="total">
-                                                    <tr>
-                                                        <td><b>Total</b></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>    
-                                                        <td><b>{{ paymentData.total_amount }}</b></td>
-                                                        <td><b>{{ paymentData.tot_adjust_amount }}</b></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td><b>{{ paymentData.tot_discount }}</b></td>
-                                                        <td><b>{{ paymentData.tot_good_returns }}</b></td>
-                                                        <td><b>{{ paymentData.tot_rate_difference }}</b></td>
-                                                        <td><b>{{ paymentData.tot_bank_cpmmission }}</b></td>
-                                                        <td><b>{{ paymentData.tot_vatav }}</b></td>
-                                                        <td><b>{{ paymentData.tot_agent_commission }}</b></td>
-                                                        <td><b>{{ paymentData.tot_claim }}</b></td>
-                                                        <td><b>{{ paymentData.tot_short }}</b></td>
-                                                        <td><b>{{ paymentData.tot_interest }}</b></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                </div>
-                            </div>
                             </div><!-- .card -->
                         </div>
                     </div><!-- .nk-block -->

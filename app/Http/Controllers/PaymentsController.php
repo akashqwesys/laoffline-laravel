@@ -1037,7 +1037,7 @@ class PaymentsController extends Controller
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
-        
+
         $ChequeImage = $LetterImage = null;
         if ($request->chequeimage) {
         foreach($request->chequeimage as $key => $image) {
@@ -1718,6 +1718,12 @@ class PaymentsController extends Controller
             $item = trim(trim($itm,'"'), '\"');
             array_push($itmdata, $item);
         }
+        $letter_attch = explode(',', trim(trim($payment->letter_attachment,'"[\"'), '\"]"'));
+        $itmdata2 = array();
+        foreach ($letter_attch as $itm) {
+            $item = trim(trim($itm,'"'), '\"');
+            array_push($itmdata2, $item);
+        }
         $salebill = array();
         foreach ($paymentDetail as $details) {
             $bill = SaleBill::where('sale_bill_id', $details->sr_no)
@@ -1747,9 +1753,9 @@ class PaymentsController extends Controller
             array_push($salebill, $salebilldata);
         }
 
-        
         $data['paymentData'] = $payment;
         $data['paymentData']['cheque_image'] = $itmdata;
+        $data['paymentData']['letter_image'] = $itmdata2;
         $data['created_at'] = date_format($payment->created_at,"Y/m/d H:i:s");
         $data['salebill'] = $salebill;
         $data['customer'] = $customer;
@@ -1834,8 +1840,8 @@ class PaymentsController extends Controller
             }
             $payment->attachments = json_encode($cheque_image);
         }
-       
-        
+
+
         if ($image = $request->letterimage) {
             $LetterImage = date('YmdHis') . "_letterImage." . $image->getClientOriginalExtension();
             $payment->letter_attachment = $LetterImage;
