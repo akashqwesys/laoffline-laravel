@@ -4,96 +4,111 @@
             <div class="nk-content-inner">
                 <div class="nk-content-body">
                     <div class="nk-block-head nk-block-head-sm">
-                       <div class="nk-block-between">
+                        <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3  class="nk-block-title page-title">View Commission Detail</h3>
+                                <h3 class="nk-block-title page-title">View Commission Detail</h3>
                             </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
                             <div class="card-inner">
-                            <div class="print_area">
-                                <div class="row">
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>iuid : </b> {{ commission.iuid }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Generated Date : </b> {{ created_at }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Supplier : </b> {{ supplier.company_name}} </label>
-				    		        </div>
+                                <div class="print_area">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>iuid : </b> {{ commission.iuid }} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Generated Date : </b> {{ created_at }}
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Supplier : </b> {{ supplier.company_name}}
+                                            </label>
+                                        </div>
 
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Commission Date : </b> {{ commission.commission_date}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Commission Account : </b> {{ commission.commissionaccount ? commission.commissionaccount.name : '' }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Recipt Mode : </b> {{ commission.commission_reciept_mode }} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Deposite Bank : </b> {{ commission.depositebank }} </label>
-				    		        </div>
-                                    <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque Date : </b> {{ commission.cheque_date}} </label>
-				    		        </div>
-                                    <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque No : </b> {{ commission.cheque_dd_no}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Amount : </b> {{ commission.commission_payment_amount }} </label>
-				    		        </div>
-                                    <div class="col-sm-4 cheque">
-				    			        <label class="control-label"><b>Cheque Bank : </b> {{ commission.chequebank}} </label>
-				    		        </div>
-                                    <div class="col-sm-4">
-				    			        <label class="control-label"><b>Extra Attachment : </b>  </label>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Commission Date : </b> {{
+                                                commission.commission_date}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Commission Account : </b> {{
+                                                commission.commissionaccount ? commission.commissionaccount.name : '' }}
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Recipt Mode : </b> {{
+                                                commission.commission_reciept_mode }} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Deposite Bank : </b> {{
+                                                commission.depositebank }} </label>
+                                        </div>
+                                        <div class="col-sm-4 cheque">
+                                            <label class="control-label"><b>Cheque Date : </b> {{
+                                                commission.cheque_date}} </label>
+                                        </div>
+                                        <div class="col-sm-4 cheque">
+                                            <label class="control-label"><b>Cheque No : </b> {{
+                                                commission.cheque_dd_no}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Amount : </b> {{
+                                                commission.commission_payment_amount }} </label>
+                                        </div>
+                                        <div class="col-sm-4 cheque">
+                                            <label class="control-label"><b>Cheque Bank : </b> {{
+                                                commission.chequebank}} </label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="control-label"><b>Extra Attachment : </b> </label>
                                             <span v-if="attachments != ''">
                                                 <a :href="'/upload/commission/'+attachments" target="_blank">
-                                                    <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                    <img height="65" width="50" id="preview-img"
+                                                        src="/assets/images/icons/file-media.svg"
+                                                        style="opacity: 0.5; padding-top: 5px;">
                                                 </a>
-                                        </span>
-                                        <span v-else> - </span>
+                                            </span>
+                                            <span v-else> - </span>
+                                        </div>
+
                                     </div>
+                                    <div class="row table-responsive">
+                                        <h6>Invoice Details</h6>
+                                        <table class="table mb-2 table table-striped m-b-none salebilltable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Bill No</th>
+                                                    <th>Date</th>
+                                                    <th>Received Commission </th>
+                                                    <th>Status</th>
+                                                    <th>Remark</th>
 
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="salebillrow"
+                                                    v-for="(commission_invoice,index) in commissioninvoice"
+                                                    :key="index">
+                                                    <td>{{ commission_invoice.invoiceno }}</td>
+                                                    <td>{{ commission_invoice.date}}</td>
+                                                    <td>{{ commission_invoice.recivedCommission.totalrecived}}</td>
+                                                    <td>{{ commission_invoice.status.status }}</td>
+                                                    <td>{{ commission_invoice.remark}}</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot class="total">
+                                                <tr>
+                                                    <td><b>Grand Total :</b></td>
+                                                    <td></td>
+                                                    <td><b>{{ totalrecivedcommission }}</b></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
                                 </div>
-                                <div class="row table-responsive">
-                                    <h6>Invoice Details</h6>
-                                    <table class="table mb-2 table table-striped m-b-none salebilltable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Bill No</th>
-                                                        <th>Date</th>
-                                                        <th>Received Commission	</th>
-                                                        <th>Status</th>
-                                                        <th>Remark</th>
-
-							        		        </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="salebillrow" v-for="(commission_invoice,index) in commissioninvoice" :key="index">
-                                                        <td>{{ commission_invoice.commission_id }}</td>
-                                                        <td>{{ commission_invoice.date}}</td>
-                                                        <td>{{ commission_invoice.recivedCommission.totalrecived}}</td>
-                                                        <td>{{ commission_invoice.status.status }}</td>
-                                                        <td>{{ commission_invoice.remark}}</td>
-                                                    </tr>
-                                                </tbody>
-                                                <tfoot class="total">
-                                                    <tr>
-                                                        <td><b>Grand Total :</b></td>
-                                                        <td></td>
-                                                        <td><b>{{ totalrecivedcommission }}</b></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                </div>
-                            </div>
                             </div><!-- .card -->
                         </div>
                     </div><!-- .nk-block -->
@@ -127,7 +142,6 @@
                 customer: [],
                 supplier: [],
                 attachments: '',
-                
                 created_at: '',
                 totalrecivedcommission: '',
             }
