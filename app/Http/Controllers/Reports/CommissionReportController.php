@@ -375,20 +375,14 @@ class CommissionReportController extends Controller
         $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
-                if (empty($link_companies)) {
-                    $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
-                    if (!empty($is_linked)) {
-                        $company_details = Company::where('id', $is_linked->company_id)->first();
-                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                    }
-                }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($supplier, $value->company_id);
+                array_push($supplier, $value->link_companies_id);
+            }
+            array_unique($supplier);
+
                 if ($company_details) {
-                    $main_cmp_id = $company_details->id;
-                    array_push($supplier, $main_cmp_id);
-                    foreach ($link_companies as $row_link_companies) {
-                        array_push($supplier, $row_link_companies->link_companies_id);
-                    }
                     $data2 = $data2->WhereIn('p.supplier_id', $supplier);
                     $data1 = $data1->WhereIn('p1.supplier_id', $supplier);
                     foreach($supplier as $row) {
@@ -400,23 +394,16 @@ class CommissionReportController extends Controller
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
-                if (empty($link_companies)) {
-                    $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
-                    if (!empty($is_linked)) {
-                        $company_details = Company::where('id', $is_linked->company_id)->first();
-                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                    }
-                }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($customer, $value->company_id);
+                array_push($customer, $value->link_companies_id);
+            }
+            array_unique($customer);
                 if ($company_details) {
-                    $main_cmp_id = $company_details->id;
-                    array_push($customer, $main_cmp_id);
-                    foreach ($link_companies as $row_link_companies) {
-                        array_push($customer, $row_link_companies->link_companies_id);
-                    }
                     $data2 = $data2->WhereIn('p.customer_id', $customer);
                     $data1 = $data1->WhereIn('p1.customer_id', $customer);
-                    foreach($supplier as $row) {
+                    foreach($customer as $row) {
                         $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                     }
                     $data['cust_disp_name'] = implode(',  ', $customer_data);
@@ -472,7 +459,7 @@ class CommissionReportController extends Controller
         $sup = '';
         $sup1 = '';
 
-        
+
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
         } else {
@@ -600,7 +587,7 @@ class CommissionReportController extends Controller
                 }
             }
             $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
-            
+
             foreach ($data3 as $keys => $row) {
                 $color = "";
                 $paymentdate = strtotime($row->date);
@@ -716,7 +703,7 @@ class CommissionReportController extends Controller
                     } else {
                         $html .=  '<td>'.$bill_no.'</td>';
                     }
-                    $html .=  '</tr>'; 
+                    $html .=  '</tr>';
                 $prev_com = $row->total_comm_amount;
                 $tot_payment += $row->receipt_amount;
                 $total_payment += $row->receipt_amount;
@@ -1263,7 +1250,7 @@ class CommissionReportController extends Controller
                     ->where('ci.is_deleted', 0)
                     ->where('cd.is_deleted', 0)
                     ->select('co.*','cc.company_name as company_name', 'cc.id as company_id');
-                    
+
         $companies = array();
         if ($request->company && $request->company['id']) {
             $company_details = Company::where('id', $request->company['id'])->first();
@@ -1304,7 +1291,7 @@ class CommissionReportController extends Controller
                 $data2 = $data2->where('co.commission_reciept_mode', $mode);
             }
         }
-        
+
         if ($request->agent && $request->agent['id']) {
             $data1 = $data1->where('co.commission_account', $request->agent['id']);
             $data2 = $data2->where('co.commission_account', $request->agent['id']);
@@ -1319,9 +1306,9 @@ class CommissionReportController extends Controller
             $data1 = $data1->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
                     ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");
             $data2 = $data2->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
-                    ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");        
-        } 
-        
+                    ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");
+        }
+
         if ($request->sorting && $request->sorting['id']) {
             $sorting = $request->sorting['id'];
             if ($sorting == 1) {
@@ -1333,7 +1320,7 @@ class CommissionReportController extends Controller
             }
         }
         $data2 = $data2->union($data1)->get();
-        
+
         $html = '';
         $html .= '<tr width="100%">
                     <th>Id</th>
@@ -1406,7 +1393,7 @@ class CommissionReportController extends Controller
                 ->whereNot('ci.right_of_amount', 0)
                 ->orderBy('ci.id', 'asc')
                 ->select('ci.*', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', 'cc.company_state as customer_state', 'cs.company_state as supplier_state', 'agent.name as agentname');
-        
+
         if ($request->start_date && $request->end_date) {
             $data1 = $data1->whereRaw("ci.bill_date::date >= '" . $request->start_date . "'")
                             ->whereRaw("ci.bill_date::date <= '" . $request->end_date . "'");
@@ -1416,12 +1403,12 @@ class CommissionReportController extends Controller
             if ($request->recipient['company_type'] == 2) {
                 $data1 = $data1->where('ci.customer_id', $request->recipient['id']);
             } else {
-                $data1 = $data1->where('ci.supplier_id', $request->recipient['id']); 
-            } 
+                $data1 = $data1->where('ci.supplier_id', $request->recipient['id']);
+            }
         }
 
         if ($request->agent && $request->agent['id']) {
-            $data1 = $data1->where('ci.agent_id', $request->agent['id']); 
+            $data1 = $data1->where('ci.agent_id', $request->agent['id']);
         }
 
         if ($request->invno) {
@@ -1503,7 +1490,7 @@ class CommissionReportController extends Controller
                     </tr>';
         } else {
             $html .= '<tr>
-                    <td class="text-center" colspan="14">Record Not Found </td>    
+                    <td class="text-center" colspan="14">Record Not Found </td>
                 </tr>';
         }
         $data['table'] = $html;
