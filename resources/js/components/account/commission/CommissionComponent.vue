@@ -194,6 +194,22 @@
                 }).
                 on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="commission_filter"><input type="search" id="commission_no" class="form-control form-control-sm w-10" placeholder="Commission ID"><input type="search" id="iuid" class="form-control form-control-sm w-10" placeholder="iuid"><input type="search" id="ref_no" class="form-control form-control-sm w-15" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm w-15" placeholder="Date Added" onclick="this.showPicker();"><div class="input-group"><input type="text" id="company_name" class="form-control form-control-sm w-20" placeholder="Company"></div><input type="search" id="recivedcommamount" class="form-control form-control-sm w-15" placeholder="Amount"></div>').insertAfter('.dataTables_length');
+                    axios.get('/common/list-all-companies')
+                        .then(response => {
+                            new Autocomplete(document.getElementById('company_name'), {
+                                threshold: 2,
+                                data: response.data,
+                                maximumItems: 5,
+                                label: 'name',
+                                value: 'id',
+                                onSelectItem: ({ label, value }) => { }
+                            });
+                        });
+                    setTimeout(() => {
+                        $('#company_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                            dt_table.clear().draw();
+                        });
+                    }, 1000);
                 });
             }
             init_dt_table();
@@ -244,7 +260,7 @@
                     draw = 0;
                 }
             });
-            window.addEventListener('load', function () {
+            /* window.addEventListener('load', function () {
                 axios.get('/common/list-all-companies')
                 .then(response => {
                     new Autocomplete(document.getElementById('company_name'), {
@@ -261,7 +277,7 @@
                         dt_table.clear().draw();
                     });
                 }, 1000);
-            }, false);
+            }, false); */
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));

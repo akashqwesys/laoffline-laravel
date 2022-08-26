@@ -236,6 +236,30 @@
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2 row" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm col-2" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm col-2" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm col-2" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm col-2" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm col-2" placeholder="Date Added" onclick="this.showPicker();"><input type="date" id="paymentdate" class="form-control form-control-sm col-2 mt-2" placeholder="Payment Date" onclick="this.showPicker();"><div class="input-group col-2 mt-2 p-0"><input type="text" id="customer_name" class="form-control form-control-sm" placeholder="Customer"></div><div class="input-group col-2 mt-2 p-0"><input type="text" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"></div><input type="search" id="voucher" class="form-control form-control-sm col-2 mt-2" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm col-2 mt-2" placeholder="Amount"></div>').insertAfter('.dataTables_length');
+                    axios.get('/common/list-customers-and-suppliers')
+                        .then(response => {
+                            new Autocomplete(document.getElementById('customer_name'), {
+                                threshold: 2,
+                                data: response.data[0],
+                                maximumItems: 5,
+                                label: 'name',
+                                value: 'id',
+                                onSelectItem: ({ label, value }) => { }
+                            });
+                            new Autocomplete(document.getElementById('supplier_name'), {
+                                threshold: 2,
+                                data: response.data[1],
+                                maximumItems: 5,
+                                label: 'name',
+                                value: 'id',
+                                onSelectItem: ({ label, value }) => { }
+                            });
+                        });
+                    setTimeout(() => {
+                        $('#customer_name, #supplier_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                            dt_table.clear().draw();
+                        });
+                    }, 1000);
                 });
             }
             init_dt_table();
@@ -286,7 +310,7 @@
                     draw = 0;
                 }
             });
-            window.addEventListener('load', function () {
+            /* window.addEventListener('load', function () {
                 axios.get('/common/list-customers-and-suppliers')
                 .then(response => {
                     new Autocomplete(document.getElementById('customer_name'), {
@@ -311,7 +335,7 @@
                         dt_table.clear().draw();
                     });
                 }, 1000);
-            }, false);
+            }, false); */
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));

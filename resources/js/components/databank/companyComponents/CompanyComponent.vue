@@ -205,6 +205,22 @@
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="company_filter"><div class="input-group"><input type="text" id="dt_name" class="form-control form-control-sm" placeholder="Name"></div><input type="search" id="dt_office_no" class="form-control form-control-sm" placeholder="Office Number"><input type="search" id="dt_company_type" class="form-control form-control-sm" placeholder="Company Type"><input type="search" id="dt_company_category" class="form-control form-control-sm" placeholder="Company Category"><input type="search" id="dt_city" class="form-control form-control-sm" placeholder="City"></div>').insertAfter('.dataTables_length');
+                    axios.get('/common/list-all-companies')
+                        .then(response => {
+                            new Autocomplete(document.getElementById('dt_name'), {
+                                threshold: 2,
+                                data: response.data,
+                                maximumItems: 5,
+                                label: 'name',
+                                value: 'id',
+                                onSelectItem: ({ label, value }) => { }
+                            });
+                        });
+                    setTimeout(() => {
+                        $('#dt_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                            dt_table.clear().draw();
+                        });
+                    }, 1000);
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -260,7 +276,7 @@
                     draw = 0;
                 }
             });
-            window.addEventListener('load', function () {
+            /* window.addEventListener('load', function () {
                 axios.get('/common/list-all-companies')
                 .then(response => {
                     new Autocomplete(document.getElementById('dt_name'), {
@@ -277,7 +293,7 @@
                         dt_table.clear().draw();
                     });
                 }, 1000);
-            }, false);
+            }, false); */
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));

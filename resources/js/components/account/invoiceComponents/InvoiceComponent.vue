@@ -184,6 +184,22 @@
                 })
                 .on( 'init.dt', function () {
                     $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm w-15" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm w-15" placeholder="Invoice Date" max="' + nDate +'"> <div class="input-group w-30"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm w-15" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm w-10" placeholder="Amount"> <select id="commission_status" class="form-control mr-2 w-15" placeholder="Comm. Status"><option value="" selected disabled>Comm. Status</option><option value="all">All</option><option value="none">None</option><option value="pending">Pending</option><option value="complete">Complete</option></select><select id="outward_status" class="form-control w-15" placeholder="Outward Status"><option value="" selected disabled>Outward Status</option><option value="all">All</option><option value="pending">Pending</option><option value="complete">Complete</option></select><input type="search" id="due_days" class="form-control form-control-sm w-5" placeholder="Due"></div>').insertAfter('.dataTables_length');
+                    axios.get('/common/list-all-companies')
+                        .then(response => {
+                            new Autocomplete(document.getElementById('company_name'), {
+                                threshold: 2,
+                                data: response.data,
+                                maximumItems: 5,
+                                label: 'name',
+                                value: 'id',
+                                onSelectItem: ({ label, value }) => { }
+                            });
+                        });
+                    setTimeout(() => {
+                        $('#company_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
+                            dt_table.clear().draw();
+                        });
+                    }, 1000);
                 } );
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
@@ -250,7 +266,7 @@
                     draw = 0;
                 }
             });
-            window.addEventListener('load', function () {
+            /* window.addEventListener('load', function () {
                 axios.get('/common/list-all-companies')
                 .then(response => {
                     new Autocomplete(document.getElementById('company_name'), {
@@ -267,7 +283,7 @@
                         dt_table.clear().draw();
                     });
                 }, 1000);
-            }, false);
+            }, false); */
 
             $(document).on('click', '.delete-invoice', function(e) {
                 if (confirm('Are you sure you want to delete?')) {
