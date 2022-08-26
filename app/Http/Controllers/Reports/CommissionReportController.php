@@ -380,7 +380,7 @@ class CommissionReportController extends Controller
                 array_push($supplier, $value->company_id);
                 array_push($supplier, $value->link_companies_id);
             }
-            array_unique($supplier);
+            $supplier = array_unique($supplier);
 
                 if ($company_details) {
                     $data2 = $data2->WhereIn('p.supplier_id', $supplier);
