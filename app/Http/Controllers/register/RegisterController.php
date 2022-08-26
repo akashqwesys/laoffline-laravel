@@ -2837,6 +2837,16 @@ class RegisterController extends Controller
             $typeName = '';
         }
 
+        if ($latter_by_id == 'Courier') {
+            if ($courier_receipt_no != '') {
+                $color_flag_id = 3;
+            } else {
+                $color_flag_id = 1;
+            }
+        } else {
+            $color_flag_id = 3;
+        }
+
         $comboids = Comboids::where('ouid', $outwarddata->ouid)->first();
         $outward = Outward::where('outward_id', $referncedata->id)->first();
         if ($company_supplier == 3) {
@@ -2851,7 +2861,6 @@ class RegisterController extends Controller
             $outward->supplier_id = 0;
         }
 
-
         $comboids->generated_by = $user->employee_id;
         $comboids->assigned_to = $user->employee_id;
         $comboids->company_type = $typeName;
@@ -2861,8 +2870,8 @@ class RegisterController extends Controller
         $comboids->from_name = $from_name;
         $comboids->updated_by = Session::get('user')->employee_id;
         $comboids->inward_or_outward_flag = 2;
+        $comboids->color_flag_id = $color_flag_id;
         $comboids->save();
-
 
         $outward->new_or_old_outward = $reference;
         $outward->connected_outward = 0;
@@ -2887,7 +2896,6 @@ class RegisterController extends Controller
         $outward->courier_agent = $agent_id;
         $outward->outward_courier_flag = '1';
         $outward->save();
-
     }
 
     public function insertInward(Request $request) {

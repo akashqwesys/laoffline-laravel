@@ -401,7 +401,7 @@
                                         </div>
                                         <div class="row gy-4">
                                             <div class="col-md-12">
-                                            <form action="#" class="form-validate" @submit.prevent="register()">    
+                                            <form action="#" class="form-validate" @submit.prevent="register()">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="mx-2 btn btn-dim btn-secondary">Cancel</a>
                                                     <button type="submit" id="paymentsave" class="btn btn-primary">Save changes</button>
@@ -631,7 +631,7 @@
                     //window.location.href = '/payments/addpayment';
                 })
             },
-            
+
             removeSalebill (event) {
                 event.preventDefault();
                 let index = event.target.parentElement.parentElement.rowIndex;
@@ -714,15 +714,15 @@
 
             },
             changeRateDiff (event) {
-            
+
                 let totalRateDifference = 0;
                 this.salebills.forEach((value,index) => {
                     let rate = value.ratedifference;
-                
+
                     if (!rate) {
                         rate = 0;
                     }
-                    
+
                     totalRateDifference += parseInt(rate);
                 });
                 setTimeout(() => {
@@ -1223,7 +1223,7 @@
                 let rateDiff = rateDifference + diff;
                 this.salebills[index-1].ratedifference = rateDiff;
                 let discount = parseInt(discount_amount) / parseInt(amount) * 100 ;
-                this.salebills[index-1].discount = discount;
+                this.salebills[index-1].discount = parseFloat(discount).toFixed(2);
 
                 this.salebills.forEach((value) => {
                     let disAmount = value.discountamount;
@@ -1311,7 +1311,7 @@
                 let diff,discount;
                 let index = event.target.parentElement.parentElement.rowIndex;
 
-                
+
                 let amount = this.salebills[index-1].amount;
                 let adjamount = this.salebills[index-1].adjustamount;
 
@@ -1341,7 +1341,7 @@
                         diff = amount - newadjamount;
                         discount = diff / amount * 100;
                         this.salebills[index-1].discountamount = Math.round(diff);
-                        this.salebills[index-1].discount = discount;   
+                        this.salebills[index-1].discount = parseFloat(discount).toFixed(2);
                     })
                 }
                 if (this.scope != 'edit'){
@@ -1349,7 +1349,7 @@
                     diff = amount - adjamount;
                     discount = diff / amount * 100;
                         this.salebills[index-1].discountamount = Math.round(diff);
-                        this.salebills[index-1].discount = discount;
+                        this.salebills[index-1].discount = parseFloat(discount).toFixed(2);
                 } else if (parseInt(amount) == parseInt(adjamount)) {
                     setTimeout(() => {
                         this.salebills[index-1].discount = 0;
@@ -1430,7 +1430,7 @@
                 this.letterimage = event.target.files[0];
             },
             typePayment(event) {
-                
+
                 let paymentType = event.target.value;
                 let goodreturn = 0;
                 let total = 0;
@@ -1518,7 +1518,7 @@
                         this.getOldReferences();
                     }
                 }, 500);
-               
+
             },
             register () {
                 $("#error-for-couurier").text("");
@@ -1578,7 +1578,7 @@
                             }
                         } else if (this.form.refrencevia.name == 'Email') {
                             if (this.form.emailfrom == '') {
-                                
+
                                 $("#error-for-emailfrom").text("Enter Email");
                                 this.isValidate = false;
                             } else {

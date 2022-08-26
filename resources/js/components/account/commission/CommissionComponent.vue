@@ -98,7 +98,7 @@
                 });
             },
             clearallfilter(event) {
-                $("#commission_filter").find('input[type=search]').val("");
+                $("#commission_filter").find('input, select').val("");
                 $('#commission').DataTable().clear().draw();
             },
         },
