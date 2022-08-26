@@ -121,6 +121,18 @@ class ConnectionController extends Controller
         DB::table('logs')->truncate();
     }
 
+    public function goodreturnAttachment ()
+    {
+        $gr = GoodsReturn::where('is_deleted', 0)->get();
+       
+        foreach ($gr as $goodreturn) {
+            $multiple_attachment = $goodreturn->multiple_attachment ? json_encode(@unserialize($goodreturn->multiple_attachment)) : '[]';   
+            $goodreturnupdate = GoodsReturn::find($goodreturn->id);
+            $goodreturnupdate->multiple_attachment = $multiple_attachment;
+            $goodreturnupdate->save();
+
+        }
+    }
     public function products()
     {
         $productCategoryData = [];

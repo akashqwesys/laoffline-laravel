@@ -42,14 +42,14 @@
 				    		        </div>
                                     <div class="col-sm-4">
 				    			        <label class="control-label"><b>Multiple Attachment : </b>  </label>
-                                        <span v-if="Goodreturn.multiple_attachment">
-                                        
-                                        <a :href="'/upload/goodreturn/'+Goodreturn.multiple_attachment" target="_blank">
-                                            <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
-                                        </a>
-                                        
-                                        </span>
-                                        <span v-else> - </span>
+                                        <ul>
+                                                <li v-for="(attachment,index) in Goodreturn.attachment" :key="index">
+                                                    <a v-if="attachment != ''" :href="'/upload/goodreturn/'+attachment" target="_blank">
+                                                        <img height="65" width="50" id="preview-img" src="/assets/images/icons/file-media.svg" style="opacity: 0.5; padding-top: 5px;">
+                                                    </a>
+                                                    <span v-else>-</span>
+                                                </li>
+                                            </ul>
 				    		        </div>
                                     
                                 </div>

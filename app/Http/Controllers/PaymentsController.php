@@ -1787,6 +1787,12 @@ class PaymentsController extends Controller
         $customer = Company::where('id', $goodReturn->company_id)->first();
         $supplier = Company::where('id', $goodReturn->supplier_id)->first();
         $grItemData = array();
+        $attch = explode(',', trim(trim($goodReturn->multiple_attachment,'"[\"'), '\"]"'));
+        $itmdata = array();
+        foreach ($attch as $itm) {
+            $item = trim(trim($itm,'"'), '\"');
+            array_push($itmdata, $item);
+        }
         foreach ($goodReturnItem as $Item){
 
             $product_name = DB::table('products')->where('id', $Item->product_or_fabric_id)->first();
@@ -1799,6 +1805,7 @@ class PaymentsController extends Controller
             array_push($grItemData, $Item);
         }
         $data['goodreturn'] = $goodReturn;
+        $data['goodreturn']['attachment'] = $itmdata;
         $data['item'] = $grItemData;
         $data['customer'] = $customer;
         $data['supplier'] = $supplier;
@@ -2320,7 +2327,7 @@ class PaymentsController extends Controller
             $goodretun->financial_year_id = $user->financial_year_id;
             $goodretun->generated_by = $user->employee_id;
             $goodretun->supp_invoice_no = $salebill->supplier_invoice_no;
-            $goodretun->multiple_attachment = array_key_exists($key,$attachments) ? $attachments[$key] :  '';
+            $goodretun->multiple_attachment = array_key_exists($key,$attachments) ? json_encode($attachments[$key]) :  '[]';
             $goodretun->amount = $salebill->amount;
             $goodretun->adjust_amount = $paymentDatail->adjust_amount;
             $goodretun->goods_return = $salebill->goods_return;

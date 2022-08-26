@@ -33,6 +33,7 @@ Route::get('/payment/{limit}/{offset}', [App\Http\Controllers\settings\Connectio
 Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'reference']);
 Route::get('/salebills/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'salebills']); */
 // Route::get('/userLog/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'userLog']);
+Route::get('/goodreturnAttachment', [App\Http\Controllers\settings\ConnectionController::class, 'goodreturnAttachment']);
 
 Auth::routes();
 
