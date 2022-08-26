@@ -115,7 +115,7 @@ class InvoiceController extends Controller
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->whereRaw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) >= ' . $columnName_arr[8]['search']['value']);
         }
-        $totalRecordswithFilter = $totalRecordswithFilter->count();
+        $totalRecordswithFilter = $totalRecordswithFilter->where('ci.is_deleted', 0)->count();
 
         $invoice = DB::table('commission_invoices as ci')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'ci.customer_id', '=', 'cc.id')
@@ -123,6 +123,7 @@ class InvoiceController extends Controller
             ->leftJoin('agents as a', 'ci.agent_id', '=', 'a.id')
             ->join('employees as e', 'ci.generated_by', '=', 'e.id')
             ->select('ci.id', 'ci.bill_no', 'ci.bill_date', 'ci.final_amount', 'ci.commission_status', 'ci.created_at', 'ci.customer_id', 'ci.supplier_id', 'ci.generated_by', 'ci.financial_year_id', 'ci.done_outward', 'ci.total_payment_received_amount', 'cc.company_name as customer_name', 'cs.company_name as supplier_name',  DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "commission_invoice_id" = "ci"."id" ORDER BY "id" DESC LIMIT 1) as outward_id'), 'a.name as agent_name', DB::raw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) as due_days'), 'e.firstname', DB::raw('(case when ci.commission_status <> 0 then (select c.commission_id from commissions as c inner join commission_details as cd on c.id = cd.c_increment_id where c.financial_year_id = ci.financial_year_id and cd.commission_invoice_id = ci.id limit 1) else 0 end) as commission_id'))
+            ->where('ci.is_deleted', 0)
             ->where('ci.financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $invoice = $invoice->where('ci.bill_no', $columnName_arr[0]['search']['value']);

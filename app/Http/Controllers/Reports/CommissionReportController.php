@@ -780,7 +780,6 @@ class CommissionReportController extends Controller
             ->whereNot('p.receipt_amount', 0)
             ->where('p.customer_commission_status', 0)
             ->where('p.right_of_amount', 0);
-
         }
 
         $supplier = array();
@@ -788,26 +787,19 @@ class CommissionReportController extends Controller
 
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
-                if (empty($link_companies)) {
-                    $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
-                    if (!empty($is_linked)) {
-                        $company_details = Company::where('id', $is_linked->company_id)->first();
-                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                    }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($supplier, $value->company_id);
+                array_push($supplier, $value->link_companies_id);
+            }
+            $supplier = array_unique($supplier);
+            if ($company_details) {
+                $data1 = $data1->WhereIn('p.supplier_id', $supplier);
+                foreach($supplier as $row) {
+                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
-                if ($company_details) {
-                    $main_cmp_id = $company_details->id;
-                    array_push($supplier, $main_cmp_id);
-                    foreach ($link_companies as $row_link_companies) {
-                        array_push($supplier, $row_link_companies->link_companies_id);
-                    }
-                    $data1 = $data1->WhereIn('p.supplier_id', $supplier);
-                    foreach($supplier as $row) {
-                        $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
-                    }
-                    $data['sup_disp_name'] = implode(',  ', $supplier_data);
-                }
+                $data['sup_disp_name'] = implode(',  ', $supplier_data);
+            }
         }
 
         if ($request->customer && $request->customer['id']) {
