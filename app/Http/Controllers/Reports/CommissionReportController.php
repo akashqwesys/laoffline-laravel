@@ -402,15 +402,18 @@ class CommissionReportController extends Controller
                 array_push($customer, $value->company_id);
                 array_push($customer, $value->link_companies_id);
             }
-            array_unique($customer);
-                if ($company_details) {
-                    $data2 = $data2->WhereIn('p.customer_id', $customer);
-                    $data1 = $data1->WhereIn('p1.customer_id', $customer);
-                    foreach($customer as $row) {
-                        $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
-                    }
-                    $data['cust_disp_name'] = implode(',  ', $customer_data);
+            $customer = array_unique($customer);
+            if (count($customer) < 1) {
+                $customer = [$request->customer['id']];
+            }
+            if ($company_details) {
+                $data2 = $data2->WhereIn('p.customer_id', $customer);
+                $data1 = $data1->WhereIn('p1.customer_id', $customer);
+                foreach($customer as $row) {
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
+                $data['cust_disp_name'] = implode(',  ', $customer_data);
+            }
         }
 
         if ($request->start_date && $request->end_date) {
