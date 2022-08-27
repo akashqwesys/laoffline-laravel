@@ -205,68 +205,53 @@ class PaymentsReportController extends Controller
             $data1 = $data1->where('cc.company_city', $request->city['name'])
                     ->orWhere('cs.company_city', $request->city['name']);
         }
-
-        if ($request->customer && $request->customer['id']) {
-            $company = array();
-            $company_data=array();
-            $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
-            if (empty($link_companies)) {
-                $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
-                if (!empty($is_linked)) {
-                    $company_details = Company::where('id', $is_linked->company_id)->first();
-                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                }
-            }
-            if ($company_details) {
-                $main_cmp_id = $company_details->id;
-                array_push($company, $main_cmp_id);
-                foreach ($link_companies as $row_link_companies) {
-                    array_push($company, $row_link_companies->link_companies_id);
-                }
-                $data1 = $data1->WhereIn('s.company_id', $company);
-            }
-
-            foreach($company as $row) {
-                $companydata = Company::where('id', $row)->select('company_name')->first();
-                if ($companydata) {
-                    $company_data[] = $companydata->company_name;
-                }
-            }
-            $data['cus_disp_name'] = implode(', ', $company_data);
-        }
         $supplier = array();
+        $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
-            if (empty($link_companies)) {
-                $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
-                if (!empty($is_linked)) {
-                    $company_details = Company::where('id', $is_linked->company_id)->first();
-                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($supplier, $value->company_id);
+                array_push($supplier, $value->link_companies_id);
+            }
+            $supplier = array_unique($supplier);
+            if (count($supplier) < 1) {
+                $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-                $main_cmp_id = $company_details->id;
-                array_push($supplier, $main_cmp_id);
-                
-                foreach ($link_companies as $row_link_companies) {
-                    array_push($supplier, $row_link_companies->link_companies_id);
-                }
                 
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
+                $supplier_data = [];
                 foreach($supplier as $row) {
-                    $company = Company::where('id', $row)->select('company_name')->first();
-                    if (!empty($company)) {
-                        $supplier_data[] = $company->company_name;
-                    }
-                    
+                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
-                $data['sup_disp_name'] = implode(',  ', $supplier_data);
+                $data['sup_disp_name'] = implode(', ', $supplier_data);
             }
-
         }
 
+        if ($request->customer && $request->customer['id']) {
+            $company_details = Company::where('id', $request->customer['id'])->first();
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($customer, $value->company_id);
+                array_push($customer, $value->link_companies_id);
+            }
+            $customer = array_unique($customer);
+            if (count($customer) < 1) {
+                $customer = [$request->customer['id']];
+            }
+            if ($company_details) {
+                
+                $data1 = $data1->WhereIn('s.company_id', $customer);
+                foreach($customer as $row) {
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                }
+                $data['cus_disp_name'] = implode(',  ', $customer_data);
+            }
+        }
+
+        
+        
         if ($request->sorting && $request->sorting['id']) {
             $sorting = $request->sorting['id'];
             if ($sorting == 5) {
@@ -497,59 +482,49 @@ class PaymentsReportController extends Controller
             $data1 = $data1->where('s.agent_id', $request->agent['id']);
         }
 
-        if ($request->customer && $request->customer['id']) {
-            $company = array();
-            $company_data=array();
-            $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
-            if (empty($link_companies)) {
-                $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
-                if (!empty($is_linked)) {
-                    $company_details = Company::where('id', $is_linked->company_id)->first();
-                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                }
-            }
-            if ($company_details) {
-                $main_cmp_id = $company_details->id;
-                array_push($company, $main_cmp_id);
-                foreach ($link_companies as $row_link_companies) {
-                    array_push($company, $row_link_companies->link_companies_id);
-                }
-                $data1 = $data1->WhereIn('s.company_id', $company);
-            }
-
-            foreach($company as $row) {
-                $companydata = Company::where('id', $row)->select('company_name')->first();
-                if ($companydata) {
-                    $company_data[] = $companydata->company_name;
-                }
-            }
-            $data['cus_disp_name'] = implode(', ', $company_data);
-        }
         $supplier = array();
+        $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->supplier['id'])->get();
-            if (empty($link_companies)) {
-                $is_linked = LinkCompanies::where('link_companies_id', $request->supplier['id'])->get();
-                if (!empty($is_linked)) {
-                    $company_details = Company::where('id', $is_linked->company_id)->first();
-                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($supplier, $value->company_id);
+                array_push($supplier, $value->link_companies_id);
+            }
+            $supplier = array_unique($supplier);
+            if (count($supplier) < 1) {
+                $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-                $main_cmp_id = $company_details->id;
-                array_push($supplier, $main_cmp_id);
-                foreach ($link_companies as $row_link_companies) {
-                    array_push($supplier, $row_link_companies->link_companies_id);
-                }
+                
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
+                $supplier_data = [];
                 foreach($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
-                $data['sup_disp_name'] = implode(',  ', $supplier_data);
+                $data['sup_disp_name'] = implode(', ', $supplier_data);
             }
+        }
 
+        if ($request->customer && $request->customer['id']) {
+            $company_details = Company::where('id', $request->customer['id'])->first();
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($customer, $value->company_id);
+                array_push($customer, $value->link_companies_id);
+            }
+            $customer = array_unique($customer);
+            if (count($customer) < 1) {
+                $customer = [$request->customer['id']];
+            }
+            if ($company_details) {
+                
+                $data1 = $data1->WhereIn('s.company_id', $customer);
+                foreach($customer as $row) {
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                }
+                $data['cus_disp_name'] = implode(',  ', $customer_data);
+            }
         }
 
         if ($request->start_date && $request->end_date) {

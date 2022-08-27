@@ -799,38 +799,39 @@ class CommissionReportController extends Controller
                 array_push($supplier, $value->link_companies_id);
             }
             $supplier = array_unique($supplier);
+            if (count($supplier) < 1) {
+                $supplier = [$request->supplier['id']];
+            }
             if ($company_details) {
-                $data1 = $data1->WhereIn('p.supplier_id', $supplier);
+                
+                $data1 = $data1->WhereIn('p1.supplier_id', $supplier);
+                $supplier_data = [];
                 foreach($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
-                $data['sup_disp_name'] = implode(',  ', $supplier_data);
+                $data['sup_disp_name'] = implode(', ', $supplier_data);
             }
         }
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::where('company_id', $request->customer['id'])->get();
-                if (empty($link_companies)) {
-                    $is_linked = LinkCompanies::where('link_companies_id', $request->customer['id'])->get();
-                    if (!empty($is_linked)) {
-                        $company_details = Company::where('id', $is_linked->company_id)->first();
-                        $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                    }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($customer, $value->company_id);
+                array_push($customer, $value->link_companies_id);
+            }
+            $customer = array_unique($customer);
+            if (count($customer) < 1) {
+                $customer = [$request->customer['id']];
+            }
+            if ($company_details) {
+                
+                $data1 = $data1->WhereIn('p1.customer_id', $customer);
+                foreach($customer as $row) {
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
-                if ($company_details) {
-                    $main_cmp_id = $company_details->id;
-                    array_push($customer, $main_cmp_id);
-                    foreach ($link_companies as $row_link_companies) {
-                        array_push($customer, $row_link_companies->link_companies_id);
-                    }
-
-                    $data1 = $data1->WhereIn('p.customer_id', $customer);
-                    foreach($supplier as $row) {
-                        $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
-                    }
-                    $data['cust_disp_name'] = implode(',  ', $customer_data);
-                }
+                $data['cust_disp_name'] = implode(',  ', $customer_data);
+            }
         }
         if ($request->start_date && $request->end_date) {
             $data1 = $data1->whereRaw("p.date::date >= '" . $request->start_date . "'")

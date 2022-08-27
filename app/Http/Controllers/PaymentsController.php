@@ -1712,6 +1712,17 @@ class PaymentsController extends Controller
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
         $paymentDetail = PaymentDetail::where('p_increment_id', $payment->id)->get();
+        $generated_by = DB::table('comboids as c')
+            ->join('employees as e', 'c.generated_by', '=', 'e.id')
+            ->select('e.firstname', 'e.lastname', 'c.created_at', 'c.updated_at', 'c.updated_by')
+            ->where('c.iuid', $payment->iuid)
+            ->where('c.financial_year_id', $user->financial_year_id)
+            ->where('c.is_deleted', 0)
+            ->first();
+        $updated_by = DB::table('employees')
+            ->select('id', 'firstname', 'lastname', 'email_id', 'mobile')
+            ->where('id', $generated_by->updated_by ?? 0)
+            ->first();
         $attch = explode(',', trim(trim($payment->attachments,'"[\"'), '\"]"'));
         $itmdata = array();
         foreach ($attch as $itm) {
@@ -1756,6 +1767,9 @@ class PaymentsController extends Controller
         $data['paymentData'] = $payment;
         $data['paymentData']['cheque_image'] = $itmdata;
         $data['paymentData']['letter_image'] = $itmdata2;
+        $data['paymentData']['generated_by'] = $generated_by;
+        $data['paymentData']['generated_at'] = $generated_by ? date('d-m-Y H:i A', strtotime($generated_by->created_at)) : '';
+        $data['paymentData']['updated'] = $generated_by ? date('d-m-Y H:i A', strtotime($generated_by->updated_at)) : '';
         $data['created_at'] = date_format($payment->created_at,"Y/m/d H:i:s");
         $data['salebill'] = $salebill;
         $data['customer'] = $customer;
