@@ -223,7 +223,7 @@ class CommissionController extends Controller
     }
 
     public function listCompany() {
-        $company = Company::where('is_delete', 0)->get();
+        $company = Company::select('id', 'company_name', 'company_type', 'is_linked')->where('is_delete', 0)->get();
         return $company;
     }
 
@@ -249,12 +249,12 @@ class CommissionController extends Controller
             }
         $commissioninvoice = DB::table('commission_invoices');
         if (count($company) == 1) {
-            $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id =' . $company[0] . ' or customer_id =' . $company[0]. ' )');
-        } else if (count($company) > 1){
-            $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id in' . $company . ' or customer_id in' . $company. ' )');
+            $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id =' . $company[0] . ' or customer_id =' . $company[0] . ' )');
+        } else if (count($company) > 1) {
+            $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id in (' . implode(',', $company) . ') or customer_id in (' . implode(',', $company) . ') )');
         }
-        $commissioninvoicedone = DB::table('commission_details')->select('commission_invoice_id')->where('is_deleted',0)->pluck('commission_invoice_id')->toArray();
-       
+        $commissioninvoicedone = DB::table('commission_details')->select('commission_invoice_id')->where('is_deleted', 0)->pluck('commission_invoice_id')->first();
+
         $commissioninvoice = $commissioninvoice->where('commission_status', 0)
                     ->where('is_deleted', 0)
                     ->whereNot('id', $commissioninvoicedone)
