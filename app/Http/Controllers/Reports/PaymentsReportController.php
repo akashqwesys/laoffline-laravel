@@ -401,6 +401,8 @@ class PaymentsReportController extends Controller
                     } else {
                         $final_amount=$row2->pending_payment;
                     }
+                    $final_amount1 = number_format($final_amount);
+
                     $html .='<tr width="100%"'.$tr_color.'>
                                 <td>'.$row2->select_date.'</td>';
                             if ($request->export_pdf == 1) {
@@ -409,7 +411,7 @@ class PaymentsReportController extends Controller
                                 $html .= '<td><a target="_blank" href="/account/sale-bill/view-sale-bill/'.$row2->sale_bill_id.'/' .$row2->financial_year_id.'">'.$row2->sale_bill_id.'</a></td>';
                             }
                             
-                            $html .= '<td>'.$final_amount.'</td>
+                            $html .= '<td>'. $final_amount1 .'</td>
                                     <td>'.$numberDays.'</td>
                                     <td>'.$row2->supplier_name.'</td>
                                     <td>'.$row2->supplier_invoice_no.'</td>
@@ -419,27 +421,29 @@ class PaymentsReportController extends Controller
             }
             }
             if ($request->show_detail == 0) {
+            $ptotal1 = number_format($ptotal);
             $html .='<tr width="100%">
                             <td><b>Party Total</b></td>
                             <td></td>
-                            <td><b>'.$ptotal.'</b></td>
+                            <td><b>'.$ptotal1.'</b></td>
                             <td colspan="3"></td>
                         </tr>';
             } else {
-                $html .= '<td colspan="4">'.$ptotal.'</td></tr>';
+                $html .= '<td colspan="4">'.$ptotal1.'</td></tr>';
             }
             $grand_total += $ptotal;
         }
         if ($request->show_detail == 0) {
+           $grand_total1 = number_format($grand_total);
            $html .='<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
-                        <td><b>'.$grand_total.'</b></td>
+                        <td><b>'.$grand_total1.'</b></td>
                         <td colspan="3"></td>
                     </tr>';
             } else {
                 $html .='<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
-                        <td colspan="4"><b>'.$grand_total.'</b></td>
+                        <td colspan="4"><b>'.$grand_total1.'</b></td>
                     </tr>';
             }
 
@@ -631,33 +635,37 @@ class PaymentsReportController extends Controller
                         } else {
                             $final_amount=$row2->pending_payment;
                         }
+                        $final_amount1 = number_format($final_amount);
                         $ptotal += $final_amount;
                         if ($request->show_detail == 0) {
                         $html .= '<tr>
                                     <td>'.$row2->sale_bill_id.'</td>
                                     <td>'.$row2->supplier_name.'</td>
-                                    <td class="text-right">'.$final_amount.'</td>
+                                    <td class="text-right">'.$final_amount1.'</td>
                                 </tr>';
                         }
                     }
+                    $ptotal1 = number_format($ptotal);
                     if ($request->show_detail == 0) {
                         $html .= '<tr>
                                     <td><b>Party Total</b></td>
-                                    <td class="text-right" colspan="2"><b>'.$ptotal.'</b></td>
+                                    <td class="text-right" colspan="2"><b>'.$ptotal1.'</b></td>
                                 </tr>';
 
                     } else {
-                        $html .= '<td class="text-right">'.$ptotal.'</td>
+                        $html .= '<td class="text-right">'.$ptotal1.'</td>
                             </tr>';
                     }
                     $mtotal += $ptotal;
                 }
+                $mtotal1 = number_format($mtotal);
                 $html .= '<tr>
                             <td><b>Montly Total</b></td>
-                            <td class="text-right" colspan="2"><b>'.$mtotal.'</b></td>
+                            <td class="text-right" colspan="2"><b>'.$mtotal1.'</b></td>
                         </tr>';
                 $gtotal += $mtotal;
             }
+            $gtotal1 = number_format($gtotal);
             $html .= '<tr>
                             <td><b>Grand Total</b></td>
                             <td class="text-right" colspan="2"><b>'.$gtotal.'</b></td>

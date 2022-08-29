@@ -171,19 +171,19 @@
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td><b>{{ paymentData.total_amount }}</b></td>
-                                                    <td><b>{{ paymentData.tot_adjust_amount }}</b></td>
+                                                    <td><b>{{ total_amount }}</b></td>
+                                                    <td><b>{{ tot_adjust_amount }}</b></td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td><b>{{ paymentData.tot_discount }}</b></td>
-                                                    <td><b>{{ paymentData.tot_good_returns }}</b></td>
-                                                    <td><b>{{ paymentData.tot_rate_difference }}</b></td>
-                                                    <td><b>{{ paymentData.tot_bank_cpmmission }}</b></td>
-                                                    <td><b>{{ paymentData.tot_vatav }}</b></td>
-                                                    <td><b>{{ paymentData.tot_agent_commission }}</b></td>
-                                                    <td><b>{{ paymentData.tot_claim }}</b></td>
-                                                    <td><b>{{ paymentData.tot_short }}</b></td>
-                                                    <td><b>{{ paymentData.tot_interest }}</b></td>
+                                                    <td><b>{{ tot_discount }}</b></td>
+                                                    <td><b>{{ tot_good_returns }}</b></td>
+                                                    <td><b>{{ tot_rate_difference }}</b></td>
+                                                    <td><b>{{ tot_bank_cpmmission }}</b></td>
+                                                    <td><b>{{ tot_vatav }}</b></td>
+                                                    <td><b>{{ tot_agent_commission }}</b></td>
+                                                    <td><b>{{ tot_claim }}</b></td>
+                                                    <td><b>{{ tot_short }}</b></td>
+                                                    <td><b>{{ tot_interest }}</b></td>
                                                     <td></td>
                                                     <td></td>
                                                 </tr>
@@ -228,9 +228,25 @@
                 customer: [],
                 supplier: [],
                 created_at: '',
+                total_amount: '',
+                tot_adjust_amount: '',
+                tot_discount: '',
+                tot_good_returns: '',
+                tot_rate_difference: '',
+                tot_bank_cpmmission: '',
+                tot_vatav: '',
+                tot_agent_commission: '',
+                tot_claim: '',
+                tot_short: '',
+                tot_interest: '',
             }
         },
         created() {
+            const toINR = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0
+            });
              axios.get(`/payments/fetch-payment/${this.id}`)
                 .then(response => {
 
@@ -258,6 +274,17 @@
                         this.date_added = gData.paymentData.generated_at;
                         this.updated_by = gData.paymentData.generated_by ? (gData.paymentData.generated_by.firstname + ' - ' + gData.paymentData.generated_by.lastname) : '';
                         this.date_updated = gData.paymentData.updated;
+                        this.total_amount = toINR.format(gData.paymentData.total_amount);
+                        this.tot_adjust_amount = toINR.format(gData.paymentData.tot_adjust_amount);
+                        this.tot_discount = toINR.format(gData.paymentData.tot_discount);
+                        this.tot_good_returns = toINR.format(gData.paymentData.tot_good_returns);
+                        this.tot_rate_difference = toINR.format(gData.paymentData.tot_rate_difference);
+                        this.tot_bank_cpmmission = toINR.format(gData.paymentData.tot_bank_cpmmission);
+                        this.tot_vatav = toINR.format(gData.paymentData.tot_vatav);
+                        this.tot_agent_commission = toINR.format(gData.paymentData.tot_agent_commission);
+                        this.tot_claim = toINR.format(gData.paymentData.tot_claim);
+                        this.tot_short = toINR.format(gData.paymentData.tot_short);
+                        this.tot_interest = toINR.format(gData.paymentData.tot_interest);
                 });
         },
         methods: {

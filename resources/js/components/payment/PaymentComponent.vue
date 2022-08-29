@@ -213,7 +213,7 @@
                         { data: 'customer', orderable: false },
                         { data: 'supplier', orderable: false },
                         { data: 'payment_id' },
-                        { data: 'tot_adjust_amount' },
+                        { data: 'tot_adjust_amount', render: $.fn.dataTable.render.number(',', '.', 0, '₹') },
                         { data: 'suppiler_commission_status', orderable: false },
                         { data: 'customer_commission_status', orderable: false },
                         { data: 'outward_status', orderable: false },

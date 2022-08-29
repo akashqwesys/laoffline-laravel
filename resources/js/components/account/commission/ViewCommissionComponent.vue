@@ -147,6 +147,11 @@
             }
         },
         created() {
+            const toINR = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0
+            });
              axios.get(`/commission/fetch-commission/${this.id}/${this.fid}`)
                 .then(response => {
                         gData = response.data;

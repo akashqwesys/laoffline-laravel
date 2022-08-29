@@ -169,7 +169,7 @@
                         { data: 'created_at' },
                         { data: 'customer', orderable: false },
                         { data: 'supplier', orderable: false },
-                        { data: 'goods_return' },
+                        { data: 'goods_return', render: $.fn.dataTable.render.number(',', '.', 0, '₹') },
                         { data: 'action', orderable: false },
                     ],
                     search: {

@@ -501,7 +501,7 @@ class CommissionReportController extends Controller
                         <tr width="100%">
                                 <th>Sr_No</th>
                                 <th>Supplier Name</th>
-                                <th>Amount</th>
+                                <th class="text-right">Amount</th>
                                 <th>Commission Amount</th>
                             </tr>';
             } else {
@@ -511,8 +511,8 @@ class CommissionReportController extends Controller
                         <tr width="100%" class=""text-center>
                                 <th>Payment Id</th>
                                 <th>Date</th>
-                                <th>Amount</th>
-                                <th>Commission Amount</th>
+                                <th class="text-right">Amount</th>
+                                <th class="text-right">Commission Amount</th>
                                 <th>Percent</th>
                                 <th>Customer</th>
                                 <th>Days</th>
@@ -527,7 +527,7 @@ class CommissionReportController extends Controller
                         <tr width="100%">
                                 <th>Sr_No</th>
                                 <th>Customer Name</th>
-                                <th>Amount</th>
+                                <th class="text-right">Amount</th>
                                 <th>Commission Amount</th>
                             </tr>';
             } else {
@@ -537,8 +537,8 @@ class CommissionReportController extends Controller
                         <tr width="100%" class=""text-center>
                                 <th>Payment Id</th>
                                 <th>Date</th>
-                                <th>Amount</th>
-                                <th>Commission Amount</th>
+                                <th class="text-right">Amount</th>
+                                <th class="text-right">Commission Amount</th>
                                 <th>Percent</th>
                                 <th>Supplier</th>
                                 <th>Days</th>
@@ -555,20 +555,24 @@ class CommissionReportController extends Controller
                 } else {
                     $company_name = $row->customer_name;
                 }
+                $receipt_amount = number_format($row->receipt_amount);
+                $total_comm_amount = number_format($row->total_comm_amount);
                 $html .= '<tr width="100%">
                             <td>'.++$keys.'</td>
                             <td>'.$company_name.'</td>
-                            <td>'.$row->receipt_amount.'</td>
-                            <td>'.$row->total_comm_amount.'</td>
+                            <td class="text-right">'.$receipt_amount.'</td>
+                            <td class="text-right">'.$total_comm_amount.'</td>
                         </tr>';
                 $tot_payment += $row->receipt_amount;
                 $total_commission_amount += $row->total_comm_amount;
             }
             if (!empty($data1)){
+                $tot_payment1 = number_format($tot_payment);
+                $total_commission_amount1 = number_format($total_commission_amount);
                 $html .= '<tr width="100%">
                             <td colspan="2"><b>Party Total</b></td>
-                            <td><b>'.$tot_payment.'</b></td>
-                            <td><b>'.$total_commission_amount.'</b></td>
+                            <td class="text-right"><b>'.$tot_payment1.'</b></td>
+                            <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
                         </tr>';
             }
             $data['detail'] = $data1;
@@ -604,6 +608,7 @@ class CommissionReportController extends Controller
                     $color = "style='color:red'";
                 }
                 $i = 0;
+                $tot_payment1 = number_format($tot_payment);
                 if ($request->report_type == 'supplier') {
                 if($supplier_name != $row->supplier_name) {
                     $supplier_name = $row->supplier_name;
@@ -612,8 +617,8 @@ class CommissionReportController extends Controller
                     if($keys != 0) {
                         $html .= '<tr width="100%">
                                 <td colspan="2"><b>Party Total</b></td>
-                                <td><b>'.$tot_payment.'</b></td>
-                                <td><b>'.$prev_com.'</b></td>
+                                <td class="text-right"><b>'.$tot_payment1.'</b></td>
+                                <td class="text-right"><b>'.$prev_com.'</b></td>
                                 <td colspan="4"></td>
 							</tr>';
                         $tot_payment = 0;
@@ -635,8 +640,8 @@ class CommissionReportController extends Controller
                         if($keys != 0) {
                             $html .= '<tr width="100%">
                                     <td colspan="2"><b>Party Total</b></td>
-                                    <td><b>'.$tot_payment.'</b></td>
-                                    <td><b>'.$prev_com.'</b></td>
+                                    <td class="text-right"><b>'.$tot_payment1.'</b></td>
+                                    <td class="text-right"><b>'.$prev_com.'</b></td>
                                     <td colspan="4"></td>
                                 </tr>';
                             $tot_payment = 0;
@@ -651,11 +656,13 @@ class CommissionReportController extends Controller
                                 </tr>';
                     }
                 }
+                $receipt_amount = number_format($row->receipt_amount);
+                $commission_amount = number_format($row->commission_amount);
                     $html .= '<tr width="100%" '.$color.'>
                                 <td>'.$row->payment_id.'</td>
                                 <td>'.date("d-m-Y", strtotime($row->date)).'</td>
-                                <td>'.$row->receipt_amount.'</td>
-                                <td>'.$row->commission_amount.'</td>';
+                                <td class="text-right">'.$receipt_amount.'</td>
+                                <td class="text-right">'.$commission_amount.'</td>';
                 if ($request->report_type == 'supplier') {
                     $invoices = DB::table('commission_invoices as ci')
                                 ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
@@ -716,12 +723,15 @@ class CommissionReportController extends Controller
                 $total_commission_amount += $row->commission_amount;
 
             }
-
+            $total_payment1 = number_format($total_payment);
+            $total_commission_amount1 = number_format($total_commission_amount);
             if (!empty($data3)) {
+                $tot_payment1 = number_format($tot_payment);
+                $prev_com1 = number_format($prev_com);
                 $html .= '<tr width="100%">
                         <td colspan="2"><b>Party Total</b></td>
-                        <td><b>'.$tot_payment.'</b></td>
-                        <td><b>'.$prev_com.'</b></td>
+                        <td class="text-right"><b>'.$tot_payment1.'</b></td>
+                        <td class="text-right"><b>'.$prev_com1.'</b></td>
                         <td colspan="4"></td>
                         </tr>
                         <tr width="100%">
@@ -729,8 +739,8 @@ class CommissionReportController extends Controller
                         </tr>
                         <tr width="100%">
                             <td colspan="2"><b>Grand Total</b></td>
-                            <td><b>'.$total_payment.'</b></td>
-                            <td><b>'.$total_commission_amount.'</b></td>
+                            <td class="text-right"><b>'.$total_payment1.'</b></td>
+                            <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
                             <td colspan="4"></td>
                         </tr>';
             }
@@ -909,7 +919,7 @@ class CommissionReportController extends Controller
                         <tr width="100%">
                             <th>Sr No</th>
                             <th>Party Name</th>
-                            <th>Amount</th>
+                            <th class="text-right">Amount</th>
                             <th>Commission Amout</th>
                         </tr>';
                 $i = 0;
@@ -924,26 +934,32 @@ class CommissionReportController extends Controller
                         $totalamount += $paymentdata->receipt_amount;
                         $commissionamount += $commission_amount;
                     }
-                    $html .= '<td>'.$totalamount.'</td>
-                                <td>'.$commissionamount.'</td>
+                    $totalamount1 = number_format($totalamount);
+                    $commissionamount1 = number_format($commissionamount);
+                    $html .= '<td class="text-right">'.$totalamount1.'</td>
+                                <td class="text-right">'.$commissionamount1.'</td>
                             </tr>';
                     $totalmonthamount += $totalamount;
                     $totalmonthcommission += $commissionamount;
                 }
+                $totalmonthamount1 = number_format($totalmonthamount);
+                $totalmonthcommission1 = number_format($totalmonthcommission);
                 $html .= '<tr width="100%" style="background-color:#e0cebc">
                                 <td colspan="2"><b>Monthly Total</b></td>
-                                <td><b>'.$totalmonthamount.'</b></td>
-                                <td><b>'.$totalmonthcommission.'</b></td>
+                                <td class="text-right"><b>'.$totalmonthamount1.'</b></td>
+                                <td class="text-right"><b>'.$totalmonthcommission1.'</b></td>
 
                             </tr>';
                 $grandtotal += $totalmonthamount;
                 $grandcommissiontoal += $totalmonthcommission;
             }
+            $grandtotal1 = number_format($grandtotal);
+            $grandcommissiontoal1 = number_format($grandcommissiontoal);
             if (count($data1) != 0) {
                         $html .= '<tr width="100%">
                                 <td colspan="2"><b>Grand Total</b></td>
-                                <td><b>'.$grandtotal.'</b></td>
-                                <td><b>'.$grandcommissiontoal.'</b></td>
+                                <td class="text-right"><b>'.$grandtotal1.'</b></td>
+                                <td class="text-right"><b>'.$grandcommissiontoal1.'</b></td>
 
                             </tr>';
             } else {
@@ -968,8 +984,8 @@ class CommissionReportController extends Controller
                     </tr>
                     <tr width="100%">
                         <th>Sr No</th>
-                        <th>Amount</th>
-                        <th>Commission Amout</th>';
+                        <th class="text-right">Amount</th>
+                        <th class="text-right">Commission Amout</th>';
             if ($request->report_type == 'supplier') {
                 $html .= '<th>Customer</th>';
             } else {
@@ -989,10 +1005,12 @@ class CommissionReportController extends Controller
                     $commission_amount = round($paymentdata->receipt_amount * $paymentdata->commission_percentage / 100);
                     $totalamount += $paymentdata->receipt_amount;
                     $commissionamount += $commission_amount;
+                    $receipt_amount = number_format($paymentdata->receipt_amount);
+                    $commission_amount1 = number_format($commission_amount);
                     $html .= '<tr width="100%">
                             <td>'.++$key2.'</td>
-                            <td>'.$paymentdata->receipt_amount.'</td>
-                            <td>'.$commission_amount.'</td>';
+                            <td class="text-right">'.$receipt_amount.'</td>
+                            <td class="text-right">'.$commission_amount1.'</td>';
                     if ($request->report_type == 'supplier') {
                         $html .=  '<td>'.$paymentdata->customer_name.'</td>';
                     } else {
@@ -1001,29 +1019,35 @@ class CommissionReportController extends Controller
 
                         $html .= '</tr>';
                 }
+                $totalamount1 = number_format($totalamount);
+                $commissionamount1 = number_format($commissionamount);
                 $html .= '<tr width="100%">
                             <td><b>Party Total</b></td>
-                            <td><b>'.$totalamount.'</b></td>
-                            <td><b>'.$commissionamount.'</b></td>
+                            <td class="text-right"><b>'.$totalamount1.'</b></td>
+                            <td class="text-right"><b>'.$commissionamount1.'</b></td>
                             <td></td>
                         </tr>';
                 $totalmonthamount += $totalamount;
                 $totalmonthcommission += $commissionamount;
             }
+            $totalmonthamount1 = number_format($totalmonthamount);
+            $totalmonthcommission1 = number_format($totalmonthcommission);
             $html .= '<tr width="100%" style="background-color:#e0cebc">
                             <td><b>Monthly Total</b></td>
-                            <td><b>'.$totalmonthamount.'</b></td>
-                            <td><b>'.$totalmonthcommission.'</b></td>
+                            <td class="text-right"><b>'.$totalmonthamount1.'</b></td>
+                            <td class="text-right"><b>'.$totalmonthcommission1.'</b></td>
                             <td></td>
                         </tr>';
             $grandtotal += $totalmonthamount;
             $grandcommissiontoal += $totalmonthcommission;
         }
+        $grandtotal1 = number_format($grandtotal);
+        $grandcommissiontoal1 = number_format($grandcommissiontoal);
              if (count($data1) != 0) {
                 $html .= '<tr width="100%">
                     <td><b>Grand Total</b></td>
-                    <td><b>'.$grandtotal.'</b></td>
-                    <td><b>'.$grandcommissiontoal.'</b></td>
+                    <td class="text-right"><b>'.$grandtotal1.'</b></td>
+                    <td class="text-right"><b>'.$grandcommissiontoal1.'</b></td>
                     <td></td>
                     </tr>';
             } else {
@@ -1187,31 +1211,34 @@ class CommissionReportController extends Controller
                 <tr width="100%">
                     <td><b>Commission Id</b></td>
                     <td><b>Commission Date</b></td>
-                    <td><b>Commission Amount</b></td>
+                    <td class="text-right"><b>Commission Amount</b></td>
                     <td><b>Received Date</b></td>
                 </tr>';
             $total = 0;
             foreach($row as $key1 => $row1){
+                $commission_payment_amount = number_format($row1->commission_payment_amount);
                 $html .= '<tr width="100%">
                     <td>'.$row1->commission_id.'</td>
                     <td>'.$row1->commission_date.'</td>
-                    <td>'.$row1->commission_payment_amount.'</td>
+                    <td class="text-right">'.$commission_payment_amount.'</td>
                     <td>'.date("h:i A",strtotime($row1->created_at)).'</br>'.date("d M, Y",strtotime($row1->created_at)).'</td>
                 </tr>';
                 $total += $row1->commission_payment_amount;
             }
+            $total1 = number_format($total);
             $html .= '<tr width="100%">
                 <td></td>
                 <td><b>Total</b></td>
-                <td><b>'.$total.'</b></td>
+                <td class="text-right"><b>'.$total.'</b></td>
                 <td></td>
                 </tr>';
             $gtotal += $total;
         }
+        $gtotal1 = number_format($gtotal);  
         $html .= '<tr width="100%">
                 <td></td>
                 <td><b>Grand Total</b></td>
-                <td><b>'.$gtotal.'</b></td>
+                <td class="text-right"><b>'.$gtotal1.'</b></td>
                 <td></td>
                 </tr>';
         } else {

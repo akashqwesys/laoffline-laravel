@@ -172,7 +172,7 @@
                         { data: 'reference_id' },
                         { data: 'created_at' },
                         { data: 'company', orderable: false },
-                        { data: 'commission_payment_amount' },
+                        { data: 'commission_payment_amount', render: $.fn.dataTable.render.number(',', '.', 0, '₹')},
                         { data: 'completed', orderable: false },
                         { data: 'outward_status', orderable: false },
                         { data: 'action', orderable: false },

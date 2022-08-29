@@ -74,8 +74,8 @@
 				                            <td>{{ itm.invoiceid}}</td>
 				                            <td>{{ itm.date}}</td>
 				                            <td>{{ itm.supplier }}</td>
-                                            <td>{{ itm.pending_payment }}</td>
-                                            <td>{{ itm.amount }}</td>
+                                            <td>{{ itm.pending_payment_inr }}</td>
+                                            <td>{{ itm.amount_inr }}</td>
                                             <td>{{ itm.overdue }}</td>
 				                            <td><a :href="'/account/sale-bill/view-sale-bill/'+ itm.sallbillid + '/' + itm.financialyear.id"><em class="icon ni ni-eye"></em></a></td>
                                         </tr>
@@ -137,6 +137,7 @@
             }
         },
         created() {
+            
             axios.get('/payments/list-seller')
             .then(response => {
                 this.seller = response.data;
@@ -147,6 +148,7 @@
             });
         },
         methods: {
+            
             salebillselect(event) {
                 let total = 0;
                 let totalbill = 0;
@@ -154,8 +156,10 @@
                 this.selected.forEach(value => {
                 this.salebill.forEach(value1 => {
                     if (value.id == value1.sallbillid) {
+                        
                         totalbill += parseInt(value1.amount);
                         total += parseInt(value1.pending_payment);
+                        
                     }
                 });
             });
@@ -179,7 +183,11 @@
             },
             searchSalebills(event) {
                 const self = this;
-
+                const toINR = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    minimumFractionDigits: 0
+                });
                 axios.post('/payments/searchsalebill', {
                     customer: self.form.customer.id,
                     seller: self.form.seller.id
@@ -188,8 +196,14 @@
                     $(".salebill").removeClass("d-none");
                     setTimeout(() => {
                         self.salebill = response.data.salebill;
+                        
                     }, 500);
-
+                    setTimeout(() => {
+                    self.salebill.forEach((value1,index) => {
+                        self.salebill[index].pending_payment_inr = toINR.format(value1.pending_payment);
+                        self.salebill[index].amount_inr = toINR.format(value1.amount);
+                    });
+                    }, 500);
                 })
                 .catch(function (error) {
                 });
