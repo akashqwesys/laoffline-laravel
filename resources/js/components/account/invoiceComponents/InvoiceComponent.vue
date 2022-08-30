@@ -69,6 +69,7 @@
         },
         data() {
             return {
+                init_dt_table_v: 0
             }
         },
         created() {
@@ -82,6 +83,7 @@
                 $('#commission_status').val(response.data.commission_status);
                 $('#outward_status').val(response.data.outward_status);
                 $('#due_days').val(response.data.due_days);
+                this.init_dt_table_v = 1;
             });
         },
         methods: {
@@ -215,13 +217,20 @@
                         });
                     }, 1000);
                 } );
+                
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
                         return b === false ? a+1 : a;
                     }, 0 );
                 } );
             }
-            init_dt_table();
+            
+            const myInterval = setInterval(() => {
+                if (self.init_dt_table_v == 1) {
+                    init_dt_table();
+                    clearInterval(myInterval);
+                }
+            }, 500);
             function exportAllRecords(e, dt, button, config) {
                 var self = this;
                 var oldStart = dt.settings()[0]._iDisplayStart;
