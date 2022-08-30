@@ -40,7 +40,7 @@
                                     <input type="search" id="ref_no" class="form-control form-control-sm col-2" placeholder="Reference No">
                                     <input type="date" id="date_added" class="form-control form-control-sm col-2" placeholder="Date Added" onclick="this.showPicker();">
                                     <input type="date" id="paymentdate" class="form-control form-control-sm col-2 mt-2" placeholder="Payment Date" onclick="this.showPicker();">
-                                    
+
                                     <div class="input-group col-2 mt-2 p-0">
                                         <input type="text" id="customer_name" class="form-control form-control-sm" placeholder="Customer">
                                     </div>
@@ -49,10 +49,10 @@
                                     </div>
                                     <input type="search" id="voucher" class="form-control form-control-sm col-2 mt-2" placeholder="Voucher No">
                                     <input type="search" id="paidamount" class="form-control form-control-sm col-2 mt-2" placeholder="Amount">
-                                    <button class="form-control form-control-sm btn btn-primary mx-2 mt-2 col-1" style="padding:1rem" id="filterpayment">Filter</button>
+                                    <button class="form-control form-control-sm btn btn-primary mx-2 mt-2 col-1" style="padding:1rem 2rem" id="filterpayment">Filter</button>
                                 </div>
                                 <div class="table-responsive">
-                                
+
                                 <table id="payment" class="table table-hover">
                                     <thead>
                                         <tr>
@@ -108,6 +108,7 @@
         data() {
             return {
                 create_payment: '/payments/create-payment',
+                init_dt_table_v: 0
             }
         },
         created() {
@@ -123,6 +124,7 @@
                 $('#supplier_name').val(response.data.supplier_name);
                 $('#voucher').val(response.data.voucher);
                 $('#paidamount').val(response.data.paidamount);
+                this.init_dt_table_v = 1;
             });
         },
         methods: {
@@ -296,7 +298,12 @@
                     }, 1000);
                 });
             }
-            init_dt_table();
+            const myInterval = setInterval(() => {
+                if (self.init_dt_table_v == 1) {
+                    init_dt_table();
+                    clearInterval(myInterval);
+                }
+            }, 500);
             function exportAllRecords(e, dt, button, config) {
                 var self = this;
                 var oldStart = dt.settings()[0]._iDisplayStart;
@@ -387,9 +394,7 @@
                     paidamount : $('#paidamount').val(),
                     voucher : $('#voucher').val()
                 })
-            .then(response => {
-                
-            });
+                .then(response => {});
                 $('#payment').DataTable().draw();
             });
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
