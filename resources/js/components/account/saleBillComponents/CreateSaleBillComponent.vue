@@ -654,6 +654,11 @@
             return localRules;
         },
         created () {
+            const date = new Date();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const y = String(date.getFullYear());
+            this.bill_date = this.transport_date = [y, m, d].join('-');
             axios.get('/account/sale-bill/list-customers-and-suppliers')
             .then(response => {
                 this.customer_options = response.data[0];

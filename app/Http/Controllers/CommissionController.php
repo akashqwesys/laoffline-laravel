@@ -232,20 +232,14 @@ class CommissionController extends Controller
         $user = Session::get('user');
         $company = array();
         $company_details = Company::where('id', $company_id)->first();
-        $link_companies = LinkCompanies::where('company_id', $company_id)->get();
-            if (empty($link_companies)) {
-                $is_linked = LinkCompanies::where('link_companies_id', $company_id)->get();
-                if (!empty($is_linked)) {
-                    $company_details = Company::where('id', $is_linked->company_id)->first();
-                    $link_companies = LinkCompanies::where('company_id', $is_linked->company_id)->get();
-                }
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $company_id . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $company_id . ')')->get();
+            foreach ($link_companies as $key => $value) {
+                array_push($company, $value->company_id);
+                array_push($company, $value->link_companies_id);
             }
-            if ($company_details) {
-                $main_cmp_id = $company_details->id;
-                array_push($company, $main_cmp_id);
-                foreach ($link_companies as $row_link_companies) {
-                    array_push($company, $row_link_companies->link_companies_id);
-                }
+            $company = array_unique($company);
+            if (count($company) < 1) {
+                $company = [$company_id];
             }
         $commissioninvoice = DB::table('commission_invoices');
         if (count($company) == 1) {

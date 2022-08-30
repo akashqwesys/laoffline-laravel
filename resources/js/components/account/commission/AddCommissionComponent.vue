@@ -458,7 +458,12 @@
             .then(response => {
                 this.banks = response.data;
             });
-
+            const date = new Date();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const y = String(date.getFullYear());
+            this.form.recivedate = [y, m, d].join('-') + ' 00:00:00';
+            this.form.commissiondate = [y, m, d].join('-');
             if (this.scope != 'edit') {
             axios.get('/commission/getbasicdata')
             .then(responce => {
