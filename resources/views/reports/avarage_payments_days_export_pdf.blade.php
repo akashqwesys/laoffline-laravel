@@ -82,7 +82,7 @@
         <!-- Write HTML just like a web page -->
         <article>
             <div class="logo">
-                <img src="/assets/images/logo_report.png" alt="Logo">
+            <img src='data:image/png;base64,{{ base64_encode(file_get_contents(public_path("assets/images/logo_report.png"))) }}' alt="Logo">
             </div>
             <div class="text-center">
                 <b class="mt-2" style="font-size: 14px;">AVARAGE PAYMENT DAYS REPORT</b>

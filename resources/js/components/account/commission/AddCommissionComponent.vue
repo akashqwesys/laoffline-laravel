@@ -471,6 +471,7 @@
                 this.form.companyid = responce.data.company.id;
                 this.commissioninvoices = responce.data.commissioninvoice;
                 this.agent = responce.data.agent;
+                this.courier = responce.data.courier;
                 let total = 0;
                 this.commissioninvoices.forEach((value,index) => {
                     total += parseInt(value.totalCommission);

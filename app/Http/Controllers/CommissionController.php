@@ -292,6 +292,7 @@ class CommissionController extends Controller
         $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $company = Company::where('id', $company_id)->first();
         $agent = Agent::where('is_delete', '0')->get();
+        $courier = TransportDetails::where('is_delete', 0)->get();
         $commissioninvoice_data = array();
         foreach ($commissioninvoice_id as $ci) {
             $commissioninvoice = DB::table('commission_invoices')
@@ -310,6 +311,7 @@ class CommissionController extends Controller
         }
         $data['company'] = $company;
         $data['agent'] = $agent;
+        $data['courier'] = $courier;
         $data['financialyear'] = $financialyear;
         $data['commissioninvoice'] = $commissioninvoice_data;
         return $data;
