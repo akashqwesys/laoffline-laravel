@@ -109,7 +109,7 @@
             return {
                 supplier_options: [],
                 sorting_options: [{id: 1, name: 'Customer A -> Z'}, {id: 2, name: 'Customer Z -> A'}, {id: 3, name: 'Ava Commission Days - ASC'}, {id: 4, name: 'Ava Commission Days - DESC'},],
-                start_date: '',
+                start_date: '2015-04-01',
                 end_date: '',
                 supplier: '',
                 sorting: {id: 1, name: 'Customer A -> Z'},

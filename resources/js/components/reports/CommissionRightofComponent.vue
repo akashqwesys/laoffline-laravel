@@ -127,7 +127,7 @@
                 recipient_options: [],
                 agent_options: [],
                 sorting_options: [{id: 1, name: 'Party Total L -> H'}, {id: 2, name: 'Party Total H-> L'}],
-                start_date: '2018-01-01',
+                start_date: '2015-04-01',
                 end_date: '',
                 recipient: '',
                 agent: '',
@@ -145,7 +145,7 @@
             const m = String(date.getMonth() + 1).padStart(2, '0');
             const d = String(date.getDate()).padStart(2, '0');
             const y = String(date.getFullYear());
-            this.max_date = [y, m, d].join('-');
+            this.max_date = this.end_date = [y, m, d].join('-');
 
             axios.get('/commission/list-company')
             .then(response => {

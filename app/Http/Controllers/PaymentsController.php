@@ -48,7 +48,7 @@ class PaymentsController extends Controller
             ->first();
 
         $employees['excelAccess'] = $user->excel_access;
-
+        
         $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
         $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
 
@@ -683,9 +683,17 @@ class PaymentsController extends Controller
         exit;
     }
 
+    public function getPaymentSearch(Request $request) {
+        $searchdata = $request->session()->get('payment_search');
+        return $searchdata;
+    }
+    
+    public function storePaymentSearch(Request $request) {
+        $request->session()->put('payment_search', $request->all());
+    }
     public function listpayment(Request $request) {
         $user = Session::get('user');
-
+        
         $draw = $request->get('draw');
         $start = $request->get("start");
         $rowperpage = $request->get("length"); // Rows display per page
@@ -705,6 +713,7 @@ class PaymentsController extends Controller
             $columnName = 'payments.'.$columnName;
         }
         // Total records
+        
         $totalRecords = Payment::where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->select('count(*) as allcount')->count();
 
         $totalRecordswithFilter = Payment::where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id);
@@ -911,7 +920,7 @@ class PaymentsController extends Controller
                 "action" => $action
             );
         }
-
+        $request->session()->put('payment_search', $columnName_arr);
         $response = array(
             "draw" => intval($draw),
             "iTotalRecords" => $totalRecords,

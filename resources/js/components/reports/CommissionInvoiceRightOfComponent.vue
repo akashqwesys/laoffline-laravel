@@ -136,7 +136,7 @@ export default {
             supplier_options: [],
             customer: '',
             supplier: '',
-            start_date: '',
+            start_date: '2015-04-01',
             end_date: '',
             sort_by: '1',
             max_date: '2022-01-01',
@@ -151,7 +151,7 @@ export default {
         const d = String(date.getDate()).padStart(2, '0');
         const y = String(date.getFullYear());
         this.max_date = this.end_date = [y, m, d].join('-');
-        this.start_date = '2018-01-01';
+        
 
         axios.get('/account/sale-bill/list-customers-and-suppliers')
         .then(response => {

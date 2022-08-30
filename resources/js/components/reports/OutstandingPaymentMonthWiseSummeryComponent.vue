@@ -141,7 +141,7 @@
                 supplier_options: [],
                 agent_options: [],
                 sorting_options: [{id: 1, name: 'Party Total L -> H'}, {id: 2, name: 'Party Total H-> L'}],
-                start_date: '2018-01-01',
+                start_date: '2015-04-01',
                 end_date: '',
                 customer: '',
                 supplier: '',
@@ -161,6 +161,7 @@
             const d = String(date.getDate()).padStart(2, '0');
             const y = String(date.getFullYear());
             this.max_date = [y, m, d].join('-');
+            this.end_date = [y, m, d].join('-');
 
             axios.get('/account/sale-bill/list-customers-and-suppliers')
             .then(response => {

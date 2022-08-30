@@ -155,7 +155,7 @@
                 city_options: [],
                 day_options: [{id:1, report_days: 0, name: 'All'}, {id:2, report_days: 30, name: 'above 30'}, {id:3, report_days: 60, name: 'above 60'}, {id:4, report_days: 90, name: 'above 90'}, {id:5, report_days: 120, name: 'above 120'}, {id:1, report_days: 150, name: 'above 150'}, {id:1, report_days: 180, name: 'above 180'}],
                 sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'}, {id: 3, name: 'Customer A -> Z'}, {id: 4, name: 'Customer Z -> A'}, {id: 5, name: 'Date L -> H'}, {id: 6, name: 'Date H -> L'}, {id:7, name: 'Bill Amt L -> H'}, {id:8, name: 'Bill Amt H -> L'} ],
-                start_date: '2018-01-01',
+                start_date: '2015-04-01',
                 end_date: '',
                 customer: '',
                 supplier: '',

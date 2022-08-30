@@ -154,7 +154,7 @@
                 mode_option: [{id: 0, name: 'All'}, {id: 1, name: 'cash'}, {id: 2, name: 'cheque'},],
                 mode: {id: 0, name: 'All'},
                 sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'}, {id: 3, name: 'Date L -> H'}, {id: 4, name: 'Date H -> L'},],
-                start_date: '',
+                start_date: '2015-04-01',
                 end_date: '',
                 company: '',
                 agent: '',
@@ -172,7 +172,7 @@
             const d = String(date.getDate()).padStart(2, '0');
             const y = String(date.getFullYear());
             this.max_date = [y, m, d].join('-');
-
+            this.end_date = [y, m, d].join('-');
             axios.get('/commission/list-company')
             .then(response => {
                 this.company_options = response.data;

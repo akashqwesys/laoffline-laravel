@@ -116,7 +116,7 @@
                 customer_options: [],
                 supplier_options: [],
                 sorting_options: [{id: 1, name: 'Customer A -> Z'}, {id: 2, name: 'Customer Z -> A'}, {id: 3, name: 'Ava Paymet Days - ASC'}, {id: 4, name: 'Ava Paymet Days - DESC'},],
-                start_date: '',
+                start_date: '2015-04-01',
                 end_date: '',
                 customer: '',
                 supplier: '',

@@ -47,6 +47,15 @@ class InvoiceController extends Controller
         return view('account.commission.invoice.invoice', compact('financialYear', 'page_title', 'employees'));
     }
 
+    public function storeInvoiceSearch(Request $request) {
+        $request->session()->put('invoice_search', $request->all());
+    }
+    
+    public function getInvoiceSearch(Request $request) {
+        $searchdata = $request->session()->get('invoice_search');
+        return $searchdata;
+    }
+
     public function listInvoice(Request $request)
     {
         $draw = $request->get('draw');

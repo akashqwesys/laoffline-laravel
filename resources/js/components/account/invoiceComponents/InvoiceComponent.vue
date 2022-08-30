@@ -21,6 +21,7 @@
 
                             </div>
                             <div class="card-inner">
+                                <div class="dataTables_filter row mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm mb-2 col-2" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm col-2 mb-2" placeholder="Invoice Date" max="' + nDate +'"> <div class="input-group col-3 mb-2"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm col-2 mb-2" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm col-2" placeholder="Amount"> <select id="commission_status" class="form-control mx-2 col-2" placeholder="Comm. Status"><option value="" selected disabled>Comm. Status</option><option value="all">All</option><option value="none">None</option><option value="pending">Pending</option><option value="complete">Complete</option></select><select id="outward_status" class="form-control col-2" placeholder="Outward Status"><option value="" selected disabled>Outward Status</option><option value="all">All</option><option value="pending">Pending</option><option value="complete">Complete</option></select><input type="search" id="due_days" class="form-control form-control-sm col-2" placeholder="Due"><button class="form-control form-control-sm btn btn-primary mx-2 col-1" style="padding:1rem" id="filterinvoice">Filter</button></div>
                                 <table id="invoiceTable" class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
@@ -69,6 +70,19 @@
         data() {
             return {
             }
+        },
+        created() {
+            axios.get('/account/commission/invoice/getinvoicesearch')
+            .then(response => {
+                $('#invoice_no').val(response.data.invoice_no);
+                $('#invoice_date').val(response.data.invoice_date);
+                $('#company_name').val(response.data.company_name);
+                $('#agent_name').val(response.data.agent_name);
+                $('#final_amount').val(response.data.final_amount);
+                $('#commission_status').val(response.data.commission_status);
+                $('#outward_status').val(response.data.outward_status);
+                $('#due_days').val(response.data.due_days);
+            });
         },
         methods: {
             showModal: function(id) {
@@ -162,9 +176,9 @@
                         { data: 'generated_by', orderable: false },
                         { data: 'action', orderable: false },
                     ],
-                    search: {
-                        return: true
-                    },
+                    // search: {
+                    //     return: true
+                    // },
                     buttons: [{
                         extend: 'excelHtml5',
                         action: exportAllRecords,
@@ -183,7 +197,7 @@
                     // }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm w-15" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm w-15" placeholder="Invoice Date" max="' + nDate +'"> <div class="input-group w-30"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm w-15" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm w-10" placeholder="Amount"> <select id="commission_status" class="form-control mr-2 w-15" placeholder="Comm. Status"><option value="" selected disabled>Comm. Status</option><option value="all">All</option><option value="none">None</option><option value="pending">Pending</option><option value="complete">Complete</option></select><select id="outward_status" class="form-control w-15" placeholder="Outward Status"><option value="" selected disabled>Outward Status</option><option value="all">All</option><option value="pending">Pending</option><option value="complete">Complete</option></select><input type="search" id="due_days" class="form-control form-control-sm w-5" placeholder="Due"></div>').insertAfter('.dataTables_length');
+                    $('').insertAfter('.dataTables_length');
                     axios.get('/common/list-all-companies')
                         .then(response => {
                             new Autocomplete(document.getElementById('company_name'), {
@@ -242,30 +256,30 @@
                 dt.ajax.reload();
             }
             var draw = 1;
-            $(document).on('keyup', '#invoice_filter input', function(e) {
-                if ($(this).val() == '') {
-                    if (draw == 0) {
-                        dt_table.clear().draw();
-                        draw = 1;
-                    }
-                } else {
-                    if (e.keyCode == 13) {
-                        dt_table.clear().draw();
-                    }
-                    draw = 0;
-                }
-            });
-            $(document).on('change', '#invoice_filter select', function(e) {
-                if ($(this).val() == '') {
-                    if (draw == 0) {
-                        dt_table.clear().draw();
-                        draw = 1;
-                    }
-                } else {
-                    dt_table.clear().draw();
-                    draw = 0;
-                }
-            });
+            // $(document).on('keyup', '#invoice_filter input', function(e) {
+            //     if ($(this).val() == '') {
+            //         if (draw == 0) {
+            //             dt_table.clear().draw();
+            //             draw = 1;
+            //         }
+            //     } else {
+            //         if (e.keyCode == 13) {
+            //             dt_table.clear().draw();
+            //         }
+            //         draw = 0;
+            //     }
+            // });
+            // $(document).on('change', '#invoice_filter select', function(e) {
+            //     if ($(this).val() == '') {
+            //         if (draw == 0) {
+            //             dt_table.clear().draw();
+            //             draw = 1;
+            //         }
+            //     } else {
+            //         dt_table.clear().draw();
+            //         draw = 0;
+            //     }
+            // });
             /* window.addEventListener('load', function () {
                 axios.get('/common/list-all-companies')
                 .then(response => {
@@ -290,6 +304,23 @@
                     location.href = '/account/commission/invoice/delete/' + $(this).attr('data-id');
                 }
                 return;
+            });
+
+            $(document).on('click', '#filterinvoice', function(e) {
+                axios.post('/account/commission/invoice/storeinvoicesearch', {
+                    invoice_no : $('#invoice_no').val(),
+                    invoice_date : $('#invoice_date').val(),
+                    company_name : $('#company_name').val(),
+                    agent_name : $('#agent_name').val(),
+                    final_amount : $('#final_amount').val(),
+                    commission_status : $('#commission_status').val(),
+                    outward_status : $('#outward_status').val(),
+                    due_days : $('#due_days').val()
+                })
+            .then(response => {
+                
+            });
+                $('#invoiceTable').DataTable().draw();
             });
 
             $(document).on('click', '.view-details', function(e) {

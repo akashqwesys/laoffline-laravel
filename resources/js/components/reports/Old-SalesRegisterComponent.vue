@@ -147,7 +147,7 @@
                 customer_options: [],
                 supplier_options: [],
                 payment_status_options: [{id: 0, name: 'All'}, {id: 1, name: 'Pending'}, {id: 2, name: 'Complete'}],
-                start_date: '',
+                start_date: '2015-04-01',
                 end_date: '',
                 customer: '',
                 supplier: '',
@@ -166,7 +166,7 @@
             const d = String(date.getDate()).padStart(2, '0');
             const y = String(date.getFullYear());
             this.max_date = [y, m, d].join('-');
-
+            this.end_date = [y, m, d].join('-');
             axios.get('/account/sale-bill/list-customers-and-suppliers')
             .then(response => {
                 this.customer_options = response.data[0];

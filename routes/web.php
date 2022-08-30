@@ -343,6 +343,8 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:modify
 Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access-commission']], function () {
     Route::group(['prefix' => 'commission/invoice'], function () {
         Route::get('/', [App\Http\Controllers\Account\InvoiceController::class, 'index']);
+        Route::post('/storeinvoicesearch', [App\Http\Controllers\Account\InvoiceController::class, 'storeInvoiceSearch']);
+        Route::get('/getinvoicesearch', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceSearch']);
         Route::get('/list-data', [App\Http\Controllers\Account\InvoiceController::class, 'listInvoice']);
         Route::get('/view-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoiceDetails']);
         Route::get('/print-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoiceDetails']);
@@ -724,6 +726,9 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:acces
     Route::get('/list-seller', [App\Http\Controllers\PaymentsController::class, 'listSeller'])->name('list-seller');
     Route::get('/list-customer', [App\Http\Controllers\PaymentsController::class, 'listCustomer'])->name('list-customer');
     Route::get('/list-bank', [App\Http\Controllers\PaymentsController::class, 'listbank'])->name('list-bank');
+    
+    Route::post('/storepaymentsearch', [App\Http\Controllers\PaymentsController::class, 'storePaymentSearch']);
+    Route::get('/getpaymentsearch', [App\Http\Controllers\PaymentsController::class, 'getPaymentSearch']);
     Route::post('/searchsalebill', [App\Http\Controllers\PaymentsController::class, 'searchSaleBill']);
     Route::get('/', [App\Http\Controllers\PaymentsController::class, 'index'])->name('payments');
     Route::get('/status/{status}', [App\Http\Controllers\PaymentsController::class, 'paymentStatus'])->name('paymentstatus');

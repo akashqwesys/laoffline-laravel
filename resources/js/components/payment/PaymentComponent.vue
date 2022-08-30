@@ -33,7 +33,26 @@
 
                             </div>
                             <div class="card-inner">
+                                <div class="dataTables_filter mt-2 row" id="payment_filter">
+                                    <input type="search" id="payment_no" class="form-control form-control-sm col-2" placeholder="Payment Id">
+                                    <input type="search" id="iuid" class="form-control form-control-sm col-2" placeholder="iuid">
+                                    <input type="search" id="ouid" class="form-control form-control-sm col-2" placeholder="ouid">
+                                    <input type="search" id="ref_no" class="form-control form-control-sm col-2" placeholder="Reference No">
+                                    <input type="date" id="date_added" class="form-control form-control-sm col-2" placeholder="Date Added" onclick="this.showPicker();">
+                                    <input type="date" id="paymentdate" class="form-control form-control-sm col-2 mt-2" placeholder="Payment Date" onclick="this.showPicker();">
+                                    
+                                    <div class="input-group col-2 mt-2 p-0">
+                                        <input type="text" id="customer_name" class="form-control form-control-sm" placeholder="Customer">
+                                    </div>
+                                    <div class="input-group col-2 mt-2 p-0">
+                                        <input type="text" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier">
+                                    </div>
+                                    <input type="search" id="voucher" class="form-control form-control-sm col-2 mt-2" placeholder="Voucher No">
+                                    <input type="search" id="paidamount" class="form-control form-control-sm col-2 mt-2" placeholder="Amount">
+                                    <button class="form-control form-control-sm btn btn-primary mx-2 mt-2 col-1" style="padding:1rem" id="filterpayment">Filter</button>
+                                </div>
                                 <div class="table-responsive">
+                                
                                 <table id="payment" class="table table-hover">
                                     <thead>
                                         <tr>
@@ -90,6 +109,21 @@
             return {
                 create_payment: '/payments/create-payment',
             }
+        },
+        created() {
+            axios.get('payments/getpaymentsearch')
+            .then(response => {
+                $('#payment_no').val(response.data.payment_id);
+                $('#iuid').val(response.data.iuid);
+                $('#ouid').val(response.data.ouid);
+                $('#ref_no').val(response.data.ref_no);
+                $('#date_added').val(response.data.date_added);
+                $('#paymentdate').val(response.data.paymentdate);
+                $('#customer_name').val(response.data.customer_name);
+                $('#supplier_name').val(response.data.supplier_name);
+                $('#voucher').val(response.data.voucher);
+                $('#paidamount').val(response.data.paidamount);
+            });
         },
         methods: {
             showModal: function(id) {
@@ -219,9 +253,9 @@
                         { data: 'outward_status', orderable: false },
                         { data: 'action', orderable: false },
                     ],
-                    search: {
-                        return: true
-                    },
+                    // search: {
+                    //     return: true
+                    // },
                     buttons: buttons,
                     "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                         switch(aData['color_flag_id']){
@@ -235,7 +269,7 @@
                     }
                 })
                 .on( 'init.dt', function () {
-                    $('<div class="dataTables_filter mt-2 row" id="payment_filter"><input type="search" id="payment_no" class="form-control form-control-sm col-2" placeholder="Payment Id"><input type="search" id="iuid" class="form-control form-control-sm col-2" placeholder="iuid"><input type="search" id="ouid" class="form-control form-control-sm col-2" placeholder="ouid"><input type="search" id="ref_no" class="form-control form-control-sm col-2" placeholder="Reference No"><input type="date" id="date_added" class="form-control form-control-sm col-2" placeholder="Date Added" onclick="this.showPicker();"><input type="date" id="paymentdate" class="form-control form-control-sm col-2 mt-2" placeholder="Payment Date" onclick="this.showPicker();"><div class="input-group col-2 mt-2 p-0"><input type="text" id="customer_name" class="form-control form-control-sm" placeholder="Customer"></div><div class="input-group col-2 mt-2 p-0"><input type="text" id="supplier_name" class="form-control form-control-sm" placeholder="Supplier"></div><input type="search" id="voucher" class="form-control form-control-sm col-2 mt-2" placeholder="Voucher No"><input type="search" id="paidamount" class="form-control form-control-sm col-2 mt-2" placeholder="Amount"></div>').insertAfter('.dataTables_length');
+                    $().insertAfter('.dataTables_length');
                     axios.get('/common/list-customers-and-suppliers')
                         .then(response => {
                             new Autocomplete(document.getElementById('customer_name'), {
@@ -257,7 +291,7 @@
                         });
                     setTimeout(() => {
                         $('#customer_name, #supplier_name').siblings('div.dropdown-menu').on('click', '.dropdown-item', function (e) {
-                            dt_table.clear().draw();
+                            //dt_table.clear().draw();
                         });
                     }, 1000);
                 });
@@ -297,19 +331,19 @@
                 dt.ajax.reload();
             }
             var draw = 1;
-            $(document).on('keyup', '#payment_filter input', function(e) {
-                 if ($(this).val() == '') {
-                    if (draw == 0) {
-                        dt_table.clear().draw();
-                        draw = 1;
-                    }
-                } else {
-                    if (e.keyCode == 13) {
-                        dt_table.clear().draw();
-                    }
-                    draw = 0;
-                }
-            });
+            // $(document).on('keyup', '#payment_filter input', function(e) {
+            //      if ($(this).val() == '') {
+            //         if (draw == 0) {
+            //             dt_table.clear().draw();
+            //             draw = 1;
+            //         }
+            //     } else {
+            //         if (e.keyCode == 13) {
+            //             dt_table.clear().draw();
+            //         }
+            //         draw = 0;
+            //     }
+            // });
             /* window.addEventListener('load', function () {
                 axios.get('/common/list-customers-and-suppliers')
                 .then(response => {
@@ -339,6 +373,24 @@
 
             $(document).on('click', '.view-details', function(e) {
                 self.showModal($(this).attr('data-id'));
+            });
+            $(document).on('click', '#filterpayment', function(e) {
+                axios.post('payments/storepaymentsearch', {
+                    payment_id : $('#payment_no').val(),
+                    iuid : $('#iuid').val(),
+                    ouid : $('#ouid').val(),
+                    ref_no : $('#ref_no').val(),
+                    date_added : $('#date_added').val(),
+                    paymentdate : $('#paymentdate').val(),
+                    customer_name : $('#customer_name').val(),
+                    supplier_name : $('#supplier_name').val(),
+                    paidamount : $('#paidamount').val(),
+                    voucher : $('#voucher').val()
+                })
+            .then(response => {
+                
+            });
+                $('#payment').DataTable().draw();
             });
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();

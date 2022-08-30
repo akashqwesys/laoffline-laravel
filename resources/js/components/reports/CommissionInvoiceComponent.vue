@@ -141,7 +141,7 @@ export default {
             company_options: [],
             agent_options: [],
             invoice_no: '',
-            start_date: '',
+            start_date: '2015-04-01',
             end_date: '',
             company: '',
             agent: '',

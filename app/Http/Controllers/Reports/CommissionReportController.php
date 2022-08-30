@@ -609,6 +609,7 @@ class CommissionReportController extends Controller
                 }
                 $i = 0;
                 $tot_payment1 = number_format($tot_payment);
+                $prev_com1 = number_format($prev_com);
                 if ($request->report_type == 'supplier') {
                 if($supplier_name != $row->supplier_name) {
                     $supplier_name = $row->supplier_name;
@@ -618,7 +619,7 @@ class CommissionReportController extends Controller
                         $html .= '<tr width="100%">
                                 <td colspan="2"><b>Party Total</b></td>
                                 <td class="text-right"><b>'.$tot_payment1.'</b></td>
-                                <td class="text-right"><b>'.$prev_com.'</b></td>
+                                <td class="text-right"><b>'.$prev_com1.'</b></td>
                                 <td colspan="4"></td>
 							</tr>';
                         $tot_payment = 0;
@@ -638,10 +639,11 @@ class CommissionReportController extends Controller
                         $address_supp = $row->company_address;
 
                         if($keys != 0) {
+                            
                             $html .= '<tr width="100%">
                                     <td colspan="2"><b>Party Total</b></td>
                                     <td class="text-right"><b>'.$tot_payment1.'</b></td>
-                                    <td class="text-right"><b>'.$prev_com.'</b></td>
+                                    <td class="text-right"><b>'.$prev_com1.'</b></td>
                                     <td colspan="4"></td>
                                 </tr>';
                             $tot_payment = 0;
@@ -656,13 +658,8 @@ class CommissionReportController extends Controller
                                 </tr>';
                     }
                 }
-                $receipt_amount = number_format($row->receipt_amount);
-                $commission_amount = number_format($row->commission_amount);
-                    $html .= '<tr width="100%" '.$color.'>
-                                <td>'.$row->payment_id.'</td>
-                                <td>'.date("d-m-Y", strtotime($row->date)).'</td>
-                                <td class="text-right">'.$receipt_amount.'</td>
-                                <td class="text-right">'.$commission_amount.'</td>';
+
+
                 if ($request->report_type == 'supplier') {
                     $invoices = DB::table('commission_invoices as ci')
                                 ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
@@ -703,6 +700,18 @@ class CommissionReportController extends Controller
 					$commission_invoice_id = '';
 					$bill_no = '';
                 }
+
+                if ($pending_percentage == '0 %') {
+
+                } else {
+                $receipt_amount = number_format($row->receipt_amount);
+                $commission_amount = number_format($row->commission_amount);
+                    $html .= '<tr width="100%" '.$color.'>
+                                <td>'.$row->payment_id.'</td>
+                                <td>'.date("d-m-Y", strtotime($row->date)).'</td>
+                                <td class="text-right">'.$receipt_amount.'</td>
+                                <td class="text-right">'.$commission_amount.'</td>';
+                
                 if ($request->report_type == 'supplier') {
                     $cust_supp_name = $row->customer_name;
                 } else {
@@ -721,7 +730,7 @@ class CommissionReportController extends Controller
                 $tot_payment += $row->receipt_amount;
                 $total_payment += $row->receipt_amount;
                 $total_commission_amount += $row->commission_amount;
-
+                }
             }
             $total_payment1 = number_format($total_payment);
             $total_commission_amount1 = number_format($total_commission_amount);

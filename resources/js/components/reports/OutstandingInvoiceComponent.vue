@@ -166,7 +166,7 @@
             const d = String(date.getDate()).padStart(2, '0');
             const y = String(date.getFullYear());
             this.max_date = this.end_date = [y, m, d].join('-');
-            this.start_date = '2018-01-01';
+            this.start_date = '2015-04-01';
 
             axios.get('/common/list-all-companies')
             .then(response => {

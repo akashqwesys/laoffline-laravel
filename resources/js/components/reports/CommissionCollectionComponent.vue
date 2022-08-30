@@ -130,7 +130,7 @@
                 agent_options: [],
                 mode_options: [{id:1, name: 'All'}, {id:2, name: 'Cash'}, {id:3, name: 'Cheque'}],
                 sorting_options: [{id: 1, name: 'Supplier A -> Z'}, {id: 2, name: 'Supplier Z -> A'},{id: 3, name: 'Date L -> H'}, {id: 4, name: 'Date H -> L'}],
-                start_date: '',
+                start_date: '2015-04-01',
                 end_date: '',
                 company: '',
                 mode: {id:1, name: 'All'},

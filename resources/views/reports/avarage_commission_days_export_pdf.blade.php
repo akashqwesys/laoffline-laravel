@@ -82,7 +82,7 @@
         <!-- Write HTML just like a web page -->
         <article>
             <div class="logo">
-                <img src="/assets/images/logo_report.png" alt="Logo">
+                <img src="./assets/images/logo_report.png" alt="Logo">
             </div>
             <div class="text-center">
                 <b class="mt-2" style="font-size: 14px;">AVARAGE COMMISSION DAYS REPORT</b>
