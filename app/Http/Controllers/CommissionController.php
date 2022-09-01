@@ -146,17 +146,17 @@ class CommissionController extends Controller
         $data_arr = array();
 
         foreach($records as $record){
-            $supplier_company = Company::where('id', ($record->supplier_id == 0 ? $record->company_id : $record->supplier_id))->first();
+            $supplier_company = Company::where('id', ($record->supplier_id == 0 ? $record->customer_id : $record->supplier_id))->first();
             $supplier_address = DB::table('company_addresses')
                                 ->select('id', 'company_id')
                                 ->whereRaw("(address is not null or address <> '')")
-                                ->where('company_id', ($record->supplier_id == 0 ? $record->company_id : $record->supplier_id))
+                                ->where('company_id', ($record->supplier_id == 0 ? $record->customer_id : $record->supplier_id))
                                 ->get();
             $supplier_owners = DB::table('company_address_owners as cao')
                             ->join('company_addresses as ca', 'cao.company_address_id', '=', 'ca.id')
                             ->select('cao.id', 'ca.company_id')
                             ->whereRaw("(cao.name is not null or cao.name <> '') and (cao.mobile is not null or cao.mobile <> '') and cao.designation @> '0'")
-                            ->where('ca.company_id', ($record->supplier_id == 0 ? $record->company_id : $record->supplier_id))
+                            ->where('ca.company_id', ($record->supplier_id == 0 ? $record->customer_id : $record->supplier_id))
                             ->get();
 
             if ((count($supplier_address) == 0 || count($supplier_owners) == 0)) {
@@ -169,7 +169,7 @@ class CommissionController extends Controller
             $iuid = $record->iuid;
             $ref_id = $record->reference_id;
             $date_add = date_format($record->created_at, "Y/m/d H:i:s");
-            $seller = Company::where('id', ($record->supplier_id == 0 ? $record->company_id : $record->supplier_id))->first();
+            $seller = Company::where('id', ($record->supplier_id == 0 ? $record->customer_id : $record->supplier_id))->first();
             $seller_id = '<a href="#" class="view-details ' . $supplier_color . '" data-id="' . $seller->id . '">' . $seller->company_name . '</a>';
             $paid_amount = $record->commission_payment_amount;
             if ($record->is_completed == 1) {
