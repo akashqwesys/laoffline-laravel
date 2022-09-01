@@ -50,7 +50,7 @@ class InvoiceController extends Controller
     public function storeInvoiceSearch(Request $request) {
         $request->session()->put('invoice_search', $request->all());
     }
-    
+
     public function getInvoiceSearch(Request $request) {
         $searchdata = $request->session()->get('invoice_search');
         return $searchdata;

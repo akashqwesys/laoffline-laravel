@@ -17,13 +17,13 @@
                                     <div class="col-md-3"><b>Commission Invoice Details</b></div>
                                     <div class="col-md-1">
                                         <div class="custom-control custom-checkbox checked">
-                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_gst" id="comm_invoice_gst" true-value="1" false-value="0" checked @click="updateData">
+                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_gst" id="comm_invoice_gst" true-value="1" false-value="0"  @click="updateData">
                                             <label class="custom-control-label" for="comm_invoice_gst"> GST</label>
                                         </div>
                                     </div>
                                     <div class="col-md-1">
                                         <div class="custom-control custom-checkbox checked">
-                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_tds" id="comm_invoice_tds" true-value="1" false-value="0" checked @click="updateData">
+                                            <input type="checkbox" class="custom-control-input" v-model="comm_invoice_tds" id="comm_invoice_tds" true-value="1" false-value="0"  @click="updateData">
                                             <label class="custom-control-label" for="comm_invoice_tds"> TDS</label>
                                         </div>
                                     </div>
@@ -514,6 +514,10 @@
                 });
             },
             saveInvoice () {
+                this.bill_period_to = $('#datepicker_bill_to').val();
+                this.bill_period_from = $('#datepicker_bill_from').val();
+                this.invoice_bill_date = $('#datepicker_bill_date').val();
+
                 axios.post('/account/commission/invoice/save-invoice', {
                     company: this.company,
                     payments: this.payments,
@@ -546,6 +550,10 @@
                 });
             },
             updateInvoice () {
+                this.bill_period_to = $('#datepicker_bill_to').val();
+                this.bill_period_from = $('#datepicker_bill_from').val();
+                this.invoice_bill_date = $('#datepicker_bill_date').val();
+
                 axios.post('/account/commission/invoice/update-invoice', {
                     id: this.id,
                     company: this.company,

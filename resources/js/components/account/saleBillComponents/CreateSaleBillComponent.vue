@@ -330,9 +330,13 @@
                                                     <div class="col-sm-2 text-right"> </div>
                                                 </div>
                                                 <div class="form-group row">
-                                                    <div class="col-sm-2" id="total_peices_div">
-                                                        <label class="control-label">Total Pieces: </label>
+                                                    <div class="col-sm-1" id="total_peices_div">
+                                                        <label class="control-label">Pieces: </label>
                                                         <strong id="total_peices">&nbsp;{{ totals.pieces }}</strong>
+                                                    </div>
+                                                    <div class="col-sm-1" id="total_meters_div">
+                                                        <label class="control-label">Meters: </label>
+                                                        <strong id="total_meters">&nbsp;{{ totals.meters }}</strong>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <label class="control-label">Discount: </label>
