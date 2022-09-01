@@ -781,7 +781,7 @@
                         self.form.id = this.id;
                         if(gData.commission.supplier_id == '0') {
                             self.form.company = gData.customer.company_name;
-                            self.form.companyid = '0';
+                            self.form.companyid = gData.customer.id;
                         } else {
                             self.form.company = gData.supplier.company_name;
                             self.form.companyid = gData.commission.supplier_id;
