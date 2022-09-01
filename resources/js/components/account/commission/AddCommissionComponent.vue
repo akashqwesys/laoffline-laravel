@@ -401,10 +401,7 @@
                 agent:[],
                 salebilldata :[],
                 isValidate: false,
-
-
                 referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'},{name: 'Whatsapp'}],
-
                 courier:[{name: "KOMAL ROADWAYS"},{name: "DELHI RAJASTHAN TRANSPORT"}, {name: "Dart Air"}],
                 errors: {
                     name: ''
@@ -465,21 +462,21 @@
             this.form.recivedate = [y, m, d].join('-') + ' 00:00:00';
             this.form.commissiondate = [y, m, d].join('-');
             if (this.scope != 'edit') {
-            axios.get('/commission/getbasicdata')
-            .then(responce => {
-                this.form.company = responce.data.company.company_name;
-                this.form.companyid = responce.data.company.id;
-                this.commissioninvoices = responce.data.commissioninvoice;
-                this.agent = responce.data.agent;
-                this.courier = responce.data.courier;
-                let total = 0;
-                this.commissioninvoices.forEach((value,index) => {
-                    total += parseInt(value.totalCommission);
+                axios.get('/commission/getbasicdata')
+                .then(responce => {
+                    this.form.company = responce.data.company.company_name;
+                    this.form.companyid = responce.data.company.id;
+                    this.commissioninvoices = responce.data.commissioninvoice;
+                    this.agent = responce.data.agent;
+                    this.courier = responce.data.courier;
+                    let total = 0;
+                    this.commissioninvoices.forEach((value,index) => {
+                        total += parseInt(value.totalCommission);
+                    });
+                    this.form.totalCommission = total;
+                    this.min = responce.data.financialyear.start_date;
+                    this.max= responce.data.financialyear.end_date;
                 });
-                this.form.totalCommission = total;
-                this.min = responce.data.financialyear.start_date;
-                this.max= responce.data.financialyear.end_date;
-            });
             }
 
         },
@@ -488,7 +485,7 @@
                 let amount = this.commissioninvoices[index].amount;
                 let invoiceamount = this.commissioninvoices[index].totalCommission;
                 let receiveamount = this.commissioninvoices[index].recivedCommission.totalrecived;
-                
+
                 if (!receiveamount){
                     receiveamount = 0;
                 }
@@ -509,7 +506,7 @@
                     } else {
                         if (parseInt(amount) > parseInt(invoiceamount)) {
                             alert('Amount is not more than :' + amount);
-                        } 
+                        }
                     }
                 }
                 let total = 0;
@@ -523,7 +520,7 @@
                 setTimeout(() => {
                     this.form.totalamount = total;
                 }, 500);
-                
+
             },
             getOldReferences: function (event) {
 
@@ -540,7 +537,7 @@
                     axios.get('/commission/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
                     .then(response => {
                         this.old_reference_data = response.data;
-                        
+
                         $("#show-references").removeClass('d-none');
                         $('#show-references').slideDown();
                         setTimeout(() => {
@@ -657,15 +654,13 @@
                 } else {
 
                     if (this.form.refrence == '') {
-                        console.log('refernce');
                         $("#error-for-reference").text("Select Reference");
                         this.isValidate = false;
                     } else {
                         if (this.form.refrence == 1) {
                         if (this.form.refrencevia.name == 'Courier') {
-                            
+
                             if (this.form.courrier == '') {
-                                console.log('courrier name');
                                 $("#error-for-couurier").text("Select Courier");
                                 this.isValidate = false;
                             } else {
@@ -673,7 +668,6 @@
                                 this.isValidate = true;
                             }
                             if (this.form.recivedate == '') {
-                                console.log('recive date');
                                 $("#error-for-recivedate").text("Select Recive Date");
                                 this.isValidate = false;
                             } else {
@@ -681,10 +675,9 @@
                                 this.isValidate = true;
                             }
                         } else if (this.form.refrencevia.name == 'Hand') {
-                           
+
                             if (this.form.recivedate == '') {
-                                console.log('recive date');
-                                $("#error-for-recivedate").text("Select Recive Date");
+                                $("#error-for-recivedate").text("Select Receive Date");
                                 this.isValidate = false;
                             } else {
                                 $("#error-for-recivedate").text("");
@@ -692,7 +685,7 @@
                             }
                         } else if (this.form.refrencevia.name == 'Email') {
                             if (this.form.emailfrom == '') {
-                                
+
                                 $("#error-for-emailfrom").text("Enter Email");
                                 this.isValidate = false;
                             } else {
@@ -714,9 +707,8 @@
                     }
 
                     if (this.form.recipt_mode == 'cheque') {
-                        
+
                         if (this.form.chequedate == '') {
-                            console.log('chequedate');
                             $("#error-for-chequedate").text("Select Cheque Date");
                             this.isValidate = false;
                         } else {
@@ -724,7 +716,6 @@
                             this.isValidate = true;
                         }
                     }
-
 
                     commissiondata.append('invoicedata', JSON.stringify(this.commissioninvoices));
                     commissiondata.append('formdata', JSON.stringify(this.form));
@@ -748,7 +739,6 @@
             //this.form.refrencevia = {name: 'Courier', code: '1'};
             $(document).on('change', '.old-reference', function () {
                 self.form.refrence_type = this.value;
-                console.log(self.form);
             });
             $(document).on('click', '#sale_bill_ref_search_btn', function() {
                 axios.get('/payments/getOldReferenceForSaleBill/'+$('#sale_bill_ref_search').val())
@@ -758,7 +748,6 @@
                         $('#sale_bill_ref_msg').html('<td><div class="custom-control custom-radio"><input class="custom-control-input" type="radio" name="reference_id_sale_bill" value="r-'+$('#hidden_reference_id_input').val()+'" id="r-'+$('#hidden_reference_id_input').val()+'"><label class="custom-control-label" for="r-'+$('#hidden_reference_id_input').val()+'"></label></div></td><td>'+$('#hidden_reference_id_input').val()+'</td><td>'+$('#hidden_ref_emp_name').val()+'</td><td>'+$('#hidden_ref_date_added').val()+'</td><td>'+$('#hidden_ref_time_added').val()+'</td>');
                         $('#show-references tr input[type="radio"]').last().prop('checked', true);
                         self.form.refrence_type = $('#hidden_reference_id_input').val();
-                        console.log(self.form);
                         // $('#datepicker_transport').val($('#hidden_courier_received_time').val()).attr('readonly',true);
                     } else {
                         this.new_old_sale_bill = 1;
@@ -809,7 +798,7 @@
                                 self.commissioninvoices[index].date = value.date;
                                 self.commissioninvoices[index].totalCommission = value.totalCommission;
                                 self.commissioninvoices[index].recivedCommission = value.recivedCommission;
-                                
+
                                 self.commissioninvoices[index].status = value.status;
                                 self.commissioninvoices[index].amount = value.amount;
                                 self.commissioninvoices[index].remark = value.remark;
@@ -832,9 +821,7 @@
         },
     };
 </script>
-
 <style scoped>
-
     .commissioninvoicetable >tfoot >tr >td >input{
         border:0px;
     }
@@ -849,5 +836,4 @@
         width: 85%;
         float: right;
     }
-
 </style>
