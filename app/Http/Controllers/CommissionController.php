@@ -437,8 +437,10 @@ class CommissionController extends Controller
 
         if ($typeName == "Supplier") {
             $comboids->supplier_id = $request->session()->get('company');
+            $comboids->company_id = 0;
         } else {
             $comboids->company_id = $request->session()->get('company');
+            $comboids->supplier_id = 0;
         }
         $comboids->comboid = $combo_id;
         $comboids->payment_id = 0;
@@ -452,7 +454,6 @@ class CommissionController extends Controller
         $comboids->followup_via = 'Commission';
         $comboids->inward_or_outward_via = $commissionData->refrencevia->name;
         $comboids->from_name = $personName;
-        $comboids->company_id = 0;
         $comboids->total = 0;
         $comboids->receipt_amount = 0;
         $comboids->subject = 'For '. $companyName->name .' RS '.$commissionData->commissionamount .'/-';
