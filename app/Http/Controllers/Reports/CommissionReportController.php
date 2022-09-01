@@ -410,7 +410,7 @@ class CommissionReportController extends Controller
                 $data2 = $data2->WhereIn('p.customer_id', $customer);
                 $data1 = $data1->WhereIn('p1.customer_id', $customer);
                 foreach($customer as $row) {
-                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
                 $data['cust_disp_name'] = implode(',  ', $customer_data);
             }
@@ -483,7 +483,7 @@ class CommissionReportController extends Controller
         }
 
         if ($request->customer != '') {
-            if($data['sup_disp_name']) {
+            if($data['cust_disp_name']) {
                 $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
             } else {
                 $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
@@ -639,7 +639,7 @@ class CommissionReportController extends Controller
                         $address_supp = $row->company_address;
 
                         if($keys != 0) {
-                            
+
                             $html .= '<tr width="100%">
                                     <td colspan="2"><b>Party Total</b></td>
                                     <td class="text-right"><b>'.$tot_payment1.'</b></td>
@@ -711,7 +711,7 @@ class CommissionReportController extends Controller
                                 <td>'.date("d-m-Y", strtotime($row->date)).'</td>
                                 <td class="text-right">'.$receipt_amount.'</td>
                                 <td class="text-right">'.$commission_amount.'</td>';
-                
+
                 if ($request->report_type == 'supplier') {
                     $cust_supp_name = $row->customer_name;
                 } else {
@@ -822,7 +822,7 @@ class CommissionReportController extends Controller
                 $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-                
+
                 $data1 = $data1->WhereIn('p1.supplier_id', $supplier);
                 $supplier_data = [];
                 foreach($supplier as $row) {
@@ -844,7 +844,7 @@ class CommissionReportController extends Controller
                 $customer = [$request->customer['id']];
             }
             if ($company_details) {
-                
+
                 $data1 = $data1->WhereIn('p1.customer_id', $customer);
                 foreach($customer as $row) {
                     $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
@@ -1243,7 +1243,7 @@ class CommissionReportController extends Controller
                 </tr>';
             $gtotal += $total;
         }
-        $gtotal1 = number_format($gtotal);  
+        $gtotal1 = number_format($gtotal);
         $html .= '<tr width="100%">
                 <td></td>
                 <td><b>Grand Total</b></td>
