@@ -819,13 +819,19 @@ class InvoiceController extends Controller
         return view('account.commission.invoice.generateInvoice', compact('financialYear', 'page_title', 'employees'));
     }
 
-    public function getInvoiceData($id)
+    public function getInvoiceData(Request $request, $id)
     {
         $user = Session::get('user');
+        if ($request->fid) {
+            $user->financial_year_id = $request->fid;
+        }
         $invoice_details = DB::table('commission_invoices')
             ->where('id', $id)
             ->where('financial_year_id', $user->financial_year_id)
             ->first();
+        if (empty($invoice_details)) {
+            return response()->json(['redirect' => '/account/commission/invoice']);
+        }
 
         $without_gst_amt = $with_gst_amt = 0;
         /* $payment_details = DB::table('invoice_payment_details as ipd')

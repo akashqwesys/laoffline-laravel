@@ -244,9 +244,20 @@
             }
         },
         created () {
-            axios.get('/account/commission/invoice/get-invoice-data/' + this.id)
+            const url_params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            });
+            if (url_params.fid) {
+                var _url = '/account/commission/invoice/get-invoice-data/' + this.id + '?fid=' + url_params.fid;
+            } else {
+                var _url = '/account/commission/invoice/get-invoice-data/' + this.id;
+            }
+            axios.get(_url)
             .then(response => {
                 var data = response.data;
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
                 this.agents = data.agents;
                 this.courier_agent = this.agents.find( _ => _.id == data.invoice_details.agent_id );
                 this.company = (data.invoice_details.supplier_id != 0) ? data.supplier : data.customer;
