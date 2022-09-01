@@ -23,7 +23,9 @@
                                             </label>
                                         </div>
                                         <div class="col-sm-4">
-                                            <label class="control-label"><b>Supplier : </b> {{ supplier.company_name}}
+                                            <label class="control-label" v-if="customer == ''"><b>Supplier : </b> {{ supplier.company_name}}
+                                            </label>
+                                            <label class="control-label" v-else><b>Customer : </b> {{ customer.company_name}}
                                             </label>
                                         </div>
 
