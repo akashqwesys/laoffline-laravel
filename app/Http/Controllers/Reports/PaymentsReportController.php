@@ -250,8 +250,6 @@ class PaymentsReportController extends Controller
             }
         }
 
-
-
         if ($request->sorting && $request->sorting['id']) {
             $sorting = $request->sorting['id'];
             if ($sorting == 5) {
@@ -345,25 +343,26 @@ class PaymentsReportController extends Controller
             $ptotal = 0;
             $final_amount = 0;
             if ($request->show_detail == 1) {
-                    $html .= '<tr width="100%">
-                                <td>'.++$i.'</td>
-                                <td>'.$row[0]->customer_name.'</td>';
-                    foreach($row as $key1 => $row2){
-                        $startTimeStamp = strtotime($row2->select_date);
-			            $endTimeStamp = strtotime(date('Y-m-d'));
-                        $timeDiff = abs($endTimeStamp - $startTimeStamp);
-                        $numberDays = $timeDiff/86400;
-                        $numberDays = intval($numberDays);
+                foreach($row as $key1 => $row2){
+                    $startTimeStamp = strtotime($row2->select_date);
+                    $endTimeStamp = strtotime(date('Y-m-d'));
+                    $timeDiff = abs($endTimeStamp - $startTimeStamp);
+                    $numberDays = $timeDiff/86400;
+                    $numberDays = intval($numberDays);
 
-                        if ($numberDays >= $report_days){
-                            if($row2->pending_payment == 0) {
-                                $final_amount=$row2->total;
-                            } else {
-                                $final_amount=$row2->pending_payment;
-                            }
-                            $ptotal += $final_amount;
+                    if ($numberDays >= $report_days){
+                        if($row2->pending_payment == 0) {
+                            $final_amount=$row2->total;
+                        } else {
+                            $final_amount=$row2->pending_payment;
                         }
+                        $ptotal += $final_amount;
                     }
+                }
+                if ($ptotal == 0) { continue; }
+                $html .= '<tr width="100%">
+                            <td>'.++$i.'</td>
+                            <td>'.$row[0]->customer_name.'</td>';
             } else {
             $html .= '<tr width="100%">
                         <td colspan="6" class="text-center" style="height:35px"></td>
@@ -440,13 +439,12 @@ class PaymentsReportController extends Controller
                         <td><b>'.$grand_total1.'</b></td>
                         <td colspan="3"></td>
                     </tr>';
-            } else {
-                $html .='<tr width="100%">
-                        <td colspan="2"><b>Grand Total</b></td>
-                        <td colspan="4"><b>'.$grand_total1.'</b></td>
-                    </tr>';
-            }
-
+        } else {
+            $html .='<tr width="100%">
+                    <td colspan="2"><b>Grand Total</b></td>
+                    <td colspan="4"><b>'.$grand_total1.'</b></td>
+                </tr>';
+        }
 
         $data['maindata'] = $html;
         if (!empty($data2)) {
