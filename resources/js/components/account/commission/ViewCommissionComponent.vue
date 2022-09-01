@@ -23,7 +23,7 @@
                                             </label>
                                         </div>
                                         <div class="col-sm-4">
-                                            <label class="control-label" v-if="customer == ''"><b>Supplier : </b> {{ supplier.company_name}}
+                                            <label class="control-label" v-if="customer == null"><b>Supplier : </b> {{ supplier.company_name}}
                                             </label>
                                             <label class="control-label" v-else><b>Customer : </b> {{ customer.company_name}}
                                             </label>
@@ -44,7 +44,7 @@
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="control-label"><b>Deposite Bank : </b> {{
-                                                commission.depositebank.name }} </label>
+                                                commission.depositebank ? commission.depositebank.name : '' }} </label>
                                         </div>
                                         <div class="col-sm-4 cheque">
                                             <label class="control-label"><b>Cheque Date : </b> {{
@@ -60,7 +60,7 @@
                                         </div>
                                         <div class="col-sm-4 cheque">
                                             <label class="control-label"><b>Cheque Bank : </b> {{
-                                                commission.chequebank.name}} </label>
+                                                commission.chequebank ? commission.chequebank.name : ''}} </label>
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="control-label"><b>Extra Attachment : </b> </label>
