@@ -22,6 +22,7 @@ use App\Models\IncrementId;
 use App\Models\Goods\GoodsReturn;
 use App\Models\Goods\GrSaleBillItem;
 use App\Models\Settings\BankDetails;
+use App\Models\Settings\TransportDetails;
 use App\Models\Settings\Agent;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\Company\Company;
