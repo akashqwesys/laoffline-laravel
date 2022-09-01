@@ -44,7 +44,7 @@
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="control-label"><b>Deposite Bank : </b> {{
-                                                commission.depositebank }} </label>
+                                                commission.depositebank.name }} </label>
                                         </div>
                                         <div class="col-sm-4 cheque">
                                             <label class="control-label"><b>Cheque Date : </b> {{
@@ -60,7 +60,7 @@
                                         </div>
                                         <div class="col-sm-4 cheque">
                                             <label class="control-label"><b>Cheque Bank : </b> {{
-                                                commission.chequebank}} </label>
+                                                commission.chequebank.name}} </label>
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="control-label"><b>Extra Attachment : </b> </label>

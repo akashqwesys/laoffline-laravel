@@ -691,14 +691,14 @@ class CommissionController extends Controller
 
         $data['commission'] = $commission;
         if (!empty($deposite)) {
-            $data['commission']['depositebank'] = $deposite->name;
+            $data['commission']['depositebank'] = $deposite;
         } else {
             $data['commission']['depositebank'] = '';
         }
 
 
         if (!empty($cheque_bank)) {
-            $data['commission']['chequebank'] = $cheque_bank->name;
+            $data['commission']['chequebank'] = $cheque_bank;
         } else {
             $data['commission']['chequebank'] = '';
         }
@@ -880,11 +880,11 @@ class CommissionController extends Controller
             $commission_detail->remark = $remark;
             $commission_detail->save();
 
-            $commissioninvoice = CommissionInvoice::where('financial_year_id', $invoice->fid)->where('id', $invoice->commission_id)->first();
+            $commissioninvoice = CommissionInvoice::where('financial_year_id', $invoice->fid)->where('id', $invoice->id)->first();
             $commissioninvoice->commission_status = $commission_status;
             $commissioninvoice->save();
 
-            $invoicepayment = DB::table('invoice_payment_details')->where('commission_invoice_id', $invoice->commission_id)->get();
+            $invoicepayment = DB::table('invoice_payment_details')->where('commission_invoice_id', $invoice->id)->get();
             foreach ($invoicepayment as $payment) {
                 $payments = Payment::where('payment_id', $payment->payment_id)->where('financial_year_id', $payment->financial_year_id)->first();
                 if ($payment->flag == 1) {

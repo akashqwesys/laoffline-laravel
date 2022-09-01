@@ -771,8 +771,8 @@
                         } else if (gData.commission.commission_reciept_mode == 'cheque') {
                             self.form.chequedate = gData.commission.cheque_date;
                             self.form.chequeno = gData.commission.cheque_dd_no;
-                            self.form.chequebank = gData.commission.cheque_dd_bank;
-                            self.form.depositebank = gData.commission.deposite_bank;
+                            self.form.chequebank = gData.commission.chequebank;
+                            self.form.depositebank = gData.commission.depositebank;
                             $(".cash").removeClass("d-none");
                             $(".cheque").removeClass("d-none");
                             $(".table-responsive").addClass("commissioninvoicetable");
