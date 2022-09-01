@@ -219,7 +219,7 @@ class PaymentsReportController extends Controller
                 $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-                
+
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 $supplier_data = [];
                 foreach($supplier as $row) {
@@ -241,7 +241,7 @@ class PaymentsReportController extends Controller
                 $customer = [$request->customer['id']];
             }
             if ($company_details) {
-                
+
                 $data1 = $data1->WhereIn('s.company_id', $customer);
                 foreach($customer as $row) {
                     $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
@@ -250,8 +250,8 @@ class PaymentsReportController extends Controller
             }
         }
 
-        
-        
+
+
         if ($request->sorting && $request->sorting['id']) {
             $sorting = $request->sorting['id'];
             if ($sorting == 5) {
@@ -410,7 +410,7 @@ class PaymentsReportController extends Controller
                             } else {
                                 $html .= '<td><a target="_blank" href="/account/sale-bill/view-sale-bill/'.$row2->sale_bill_id.'/' .$row2->financial_year_id.'">'.$row2->sale_bill_id.'</a></td>';
                             }
-                            
+
                             $html .= '<td>'. $final_amount1 .'</td>
                                     <td>'.$numberDays.'</td>
                                     <td>'.$row2->supplier_name.'</td>
@@ -420,8 +420,8 @@ class PaymentsReportController extends Controller
                 }
             }
             }
-            if ($request->show_detail == 0) {
             $ptotal1 = number_format($ptotal);
+            if ($request->show_detail == 0) {
             $html .='<tr width="100%">
                             <td><b>Party Total</b></td>
                             <td></td>
@@ -433,8 +433,8 @@ class PaymentsReportController extends Controller
             }
             $grand_total += $ptotal;
         }
+        $grand_total1 = number_format($grand_total);
         if ($request->show_detail == 0) {
-           $grand_total1 = number_format($grand_total);
            $html .='<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td><b>'.$grand_total1.'</b></td>
@@ -500,7 +500,7 @@ class PaymentsReportController extends Controller
                 $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-                
+
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 $supplier_data = [];
                 foreach($supplier as $row) {
@@ -522,7 +522,7 @@ class PaymentsReportController extends Controller
                 $customer = [$request->customer['id']];
             }
             if ($company_details) {
-                
+
                 $data1 = $data1->WhereIn('s.company_id', $customer);
                 foreach($customer as $row) {
                     $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
