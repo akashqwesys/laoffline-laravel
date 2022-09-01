@@ -217,6 +217,7 @@
                 this.day = {id: 1, report_days: 0, name:'All'},
                 $('#salesRegister tbody').html('');
                 this.getData();
+                this.group = this.show_detail = 0;
             },
             getData() {
                 axios.post('/reports/list-outstanding-payment-data', {
