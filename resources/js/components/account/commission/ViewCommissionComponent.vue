@@ -90,7 +90,7 @@
                                                 <tr class="salebillrow"
                                                     v-for="(commission_invoice,index) in commissioninvoice"
                                                     :key="index">
-                                                    <td>{{ commission_invoice.invoiceno }}</td>
+                                                    <td><a :href="'/account/commission/invoice/view-invoice/'+commission_invoice.commission_id">{{ commission_invoice.invoiceno }}</a></td>
                                                     <td>{{ commission_invoice.date}}</td>
                                                     <td>{{ commission_invoice.recivedCommission.totalrecived}}</td>
                                                     <td>{{ commission_invoice.status.status }}</td>
