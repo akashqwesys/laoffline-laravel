@@ -950,7 +950,7 @@ class CommissionController extends Controller
         }
         $commissiondetalids = CommissionDetail::where('c_increment_id', $commissions->id)->get();
         foreach ($commissiondetalids as $comboids) {
-            $commissiondetail = CommissionDetail::where('c_increment_id', $comboids->c_increment_id)->where('is_deleted', 0)->first();
+            $commissiondetail = CommissionDetail::where('c_increment_id', $comboids->id)->where('is_deleted', 0)->first();
             $commissiondetail->is_deleted = 1;
             $commissiondetail->save();
         }
