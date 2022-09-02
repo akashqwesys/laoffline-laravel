@@ -134,11 +134,23 @@ class InvoiceController extends Controller
             ->select('ci.id', 'ci.bill_no', 'ci.bill_date', 'ci.final_amount', 'ci.commission_status', 'ci.created_at', 'ci.customer_id', 'ci.supplier_id', 'ci.generated_by', 'ci.financial_year_id', 'ci.done_outward', 'ci.total_payment_received_amount', 'cc.company_name as customer_name', 'cs.company_name as supplier_name',  DB::raw('(SELECT "outward_id" FROM "outward_sale_bills" WHERE "commission_invoice_id" = "ci"."id" ORDER BY "id" DESC LIMIT 1) as outward_id'), 'a.name as agent_name', DB::raw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) as due_days'), 'e.firstname', DB::raw('(case when ci.commission_status <> 0 then (select c.commission_id from commissions as c inner join commission_details as cd on c.id = cd.c_increment_id where c.financial_year_id = ci.financial_year_id and cd.commission_invoice_id = ci.id limit 1) else 0 end) as commission_id'))
             ->where('ci.is_deleted', 0)
             ->where('ci.financial_year_id', $user->financial_year_id);
+
+        $grand_total = DB::table('commission_invoices as ci')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'ci.customer_id', '=', 'cc.id')
+            ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'ci.supplier_id', '=', 'cs.id')
+            ->leftJoin('agents as a', 'ci.agent_id', '=', 'a.id')
+            ->join('employees as e', 'ci.generated_by', '=', 'e.id')
+            ->select(DB::raw('sum(ci.final_amount) as total'))
+            ->where('ci.is_deleted', 0)
+            ->where('ci.financial_year_id', $user->financial_year_id);
+
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $invoice = $invoice->where('ci.bill_no', $columnName_arr[0]['search']['value']);
+            $grand_total = $grand_total->where('ci.bill_no', $columnName_arr[0]['search']['value']);
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
             $invoice = $invoice->whereDate('ci.bill_date', '=', $columnName_arr[1]['search']['value']);
+            $grand_total = $grand_total->whereDate('ci.bill_date', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[3]['search']['value'] . '%')->whereIn('company_type', [2, 3])->pluck('id')->toArray();
@@ -146,38 +158,52 @@ class InvoiceController extends Controller
                 $q->whereIn('ci.customer_id', $cc_id)
                 ->orWhereIn('ci.supplier_id', $cc_id);
             });
+            $grand_total = $grand_total->where(function($q) use($cc_id) {
+                $q->whereIn('ci.customer_id', $cc_id)
+                ->orWhereIn('ci.supplier_id', $cc_id);
+            });
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $ag_id = DB::table('agents')->select('id')->where('name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
             $invoice = $invoice->whereIn('ci.agent_id', $ag_id);
+            $grand_total = $grand_total->whereIn('ci.agent_id', $ag_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
             $invoice = $invoice->where('ci.final_amount', $columnName_arr[5]['search']['value']);
+            $grand_total = $grand_total->where('ci.final_amount', $columnName_arr[5]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
             if (in_array($columnName_arr[6]['search']['value'], ['none', 'non', 'None'])) {
                 $invoice = $invoice->where('ci.commission_status', '=', 0);
+                $grand_total = $grand_total->where('ci.commission_status', '=', 0);
             } else if (in_array($columnName_arr[6]['search']['value'], ['complete', 'comp'])) {
                 $invoice = $invoice->where('ci.commission_status', '=', 1);
+                $grand_total = $grand_total->where('ci.commission_status', '=', 1);
             } else if (in_array($columnName_arr[6]['search']['value'], ['pending', 'pend'])) {
                 $invoice = $invoice->where('ci.commission_status', '=', 2);
+                $grand_total = $grand_total->where('ci.commission_status', '=', 2);
             }
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
             if ($columnName_arr[7]['search']['value'] == 'pending') {
                 $invoice = $invoice->where('ci.done_outward', '=', 0);
+                $grand_total = $grand_total->where('ci.done_outward', '=', 0);
             } else if ($columnName_arr[7]['search']['value'] == 'complete') {
                 $invoice = $invoice->where('ci.done_outward', '=', 1);
+                $grand_total = $grand_total->where('ci.done_outward', '=', 1);
             }
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
             $invoice = $invoice->whereRaw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) >= ' . $columnName_arr[8]['search']['value']);
+            $grand_total = $grand_total->whereRaw('(DATE_PART(\'day\', now()::timestamp - bill_date::timestamp)) >= ' . $columnName_arr[8]['search']['value']);
         }
 
         $invoice = $invoice->orderBy($columnName, $columnSortOrder)
             ->skip($start)
             ->take($rowperpage)
             ->get();
+
+        $grand_total = $grand_total->pluck('total')->first();
 
         $data_arr = array();
         $customer_ids = collect($invoice)->pluck('company_id')->toArray();
@@ -271,7 +297,8 @@ class InvoiceController extends Controller
             "iTotalDisplayRecords" => $totalRecordswithFilter,
             "aaData" => $data_arr,
             "extra_data" => [
-                'display_total' => $d_total
+                'display_total' => $d_total,
+                'grand_total' => $grand_total
             ]
         );
 

@@ -21,7 +21,7 @@
 
                             </div>
                             <div class="card-inner">
-                                <div class="dataTables_filter row mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm mb-2 col-2" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm col-2 mb-2" placeholder="Invoice Date" max="' + nDate +'"> <div class="input-group col-3 mb-2"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm col-2 mb-2" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm col-2" placeholder="Amount"> <select id="commission_status" class="form-control mx-2 col-2" placeholder="Comm. Status"><option value="" selected disabled>Comm. Status</option><option value="all">All</option><option value="none">None</option><option value="pending">Pending</option><option value="complete">Complete</option></select><select id="outward_status" class="form-control col-2" placeholder="Outward Status"><option value="" selected disabled>Outward Status</option><option value="all">All</option><option value="pending">Pending</option><option value="complete">Complete</option></select><input type="search" id="due_days" class="form-control form-control-sm col-2" placeholder="Due"><button class="form-control form-control-sm btn btn-primary mx-2 col-1" style="padding:1rem" id="filterinvoice">Filter</button></div>
+                                <div class="dataTables_filter row mt-2" id="invoice_filter"><input type="search" id="invoice_no" class="form-control form-control-sm mb-2 col-2" placeholder="Invoice No"> <input type="date" id="invoice_date" class="form-control form-control-sm col-2 mb-2" placeholder="Invoice Date" max="' + nDate +'"> <div class="input-group col-3 mb-2"><input type="text" id="company_name" class="form-control form-control-sm" placeholder="Company" ></div> <input type="search" id="agent_name" class="form-control form-control-sm col-2 mb-2" placeholder="Agent"> <input type="search" id="final_amount" class="form-control form-control-sm col-2" placeholder="Amount"> <select id="commission_status" class="form-control mx-2 col-2" placeholder="Comm. Status"><option value="" selected disabled>Comm. Status</option><option value="all">All</option><option value="none">None</option><option value="pending">Pending</option><option value="complete">Complete</option></select><select id="outward_status" class="form-control col-2" placeholder="Outward Status"><option value="" selected disabled>Outward Status</option><option value="all">All</option><option value="pending">Pending</option><option value="complete">Complete</option></select><input type="search" id="due_days" class="form-control form-control-sm col-2" placeholder="Due"><button class="form-control form-control-sm btn btn-primary mx-2 col-1" style="padding:1rem 2rem;" id="filterinvoice">Filter</button></div>
                                 <table id="invoiceTable" class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
@@ -39,6 +39,7 @@
                                         </tr>
                                     </thead>
                                 </table>
+                                <div class="text-center"><b>Grand Total: {{ grand_total }}</b></div>
                             </div><!-- .card -->
                         </div>
                     </div><!-- .nk-block -->
@@ -69,7 +70,8 @@
         },
         data() {
             return {
-                init_dt_table_v: 0
+                init_dt_table_v: 0,
+                grand_total: 0
             }
         },
         created() {
@@ -159,7 +161,11 @@
                                 data.columns[8].search.value = $('#due_days').val();
                             }
                         },
-                        complete: function (data) { }
+                        complete: function (data) {
+                            const toINR = new Intl.NumberFormat('en-IN', {});
+                            $('#invoiceTable_info').append('<div style="display: table; margin: -1.5rem auto 0rem; font-weight: bold; font-size: 14px; ">Total: ₹' + toINR.format(data.responseJSON.extra_data.display_total) + '</div>');
+                            self.grand_total = toINR.format(data.responseJSON.extra_data.grand_total);
+                        }
                     },
                     pagingType: 'full_numbers',
                     dom: 'Blrtip',
@@ -195,11 +201,12 @@
                         }
                     },
                     'print'],
+                    initComplete: function (settings, json) { }
                     // createdRow: function( row, data, dataIndex ) {
                     // }
                 })
-                .on( 'init.dt', function () {
-                    $('').insertAfter('.dataTables_length');
+                .on( 'init.dt', function (d, t, data) {
+                    // $('').insertAfter('.dataTables_length');
                     axios.get('/common/list-all-companies')
                         .then(response => {
                             new Autocomplete(document.getElementById('company_name'), {
@@ -217,14 +224,14 @@
                         });
                     }, 1000);
                 } );
-                
+
                 dt_table.on( 'responsive-resize', function ( e, datatable, columns ) {
                     var count = columns.reduce( function (a,b) {
                         return b === false ? a+1 : a;
                     }, 0 );
                 } );
             }
-            
+
             const myInterval = setInterval(() => {
                 if (self.init_dt_table_v == 1) {
                     init_dt_table();
@@ -327,7 +334,7 @@
                     due_days : $('#due_days').val()
                 })
             .then(response => {
-                
+
             });
                 $('#invoiceTable').DataTable().draw();
             });
