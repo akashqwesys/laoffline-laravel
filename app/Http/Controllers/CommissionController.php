@@ -227,40 +227,57 @@ class CommissionController extends Controller
         return $company;
     }
 
-    public function searchCommissionInvoice(Request $request) {
+    public function searchCommissionInvoice(Request $request)
+    {
         $company_id = $request->input('company');
-        $user = Session::get('user');
+        // $user = Session::get('user');
         $company = array();
-        $company_details = Company::where('id', $company_id)->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $company_id . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $company_id . ')')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($company, $value->company_id);
-                array_push($company, $value->link_companies_id);
-            }
-            $company = array_unique($company);
-            if (count($company) < 1) {
-                $company = [$company_id];
-            }
+        // $company_details = Company::where('id', $company_id)->first();
+        $link_companies = LinkCompanies::whereRaw('company_id = ' . $company_id . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $company_id . ')')->get();
+        foreach ($link_companies as $key => $value) {
+            array_push($company, $value->company_id);
+            array_push($company, $value->link_companies_id);
+        }
+        $company = array_unique($company);
+        if (count($company) < 1) {
+            $company = [$company_id];
+        }
         $commissioninvoice = DB::table('commission_invoices');
         if (count($company) == 1) {
             $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id =' . $company[0] . ' or customer_id =' . $company[0] . ' )');
         } else if (count($company) > 1) {
             $commissioninvoice = $commissioninvoice->whereRaw('(supplier_id in (' . implode(',', $company) . ') or customer_id in (' . implode(',', $company) . ') )');
         }
-        $commissioninvoicedone = DB::table('commission_details')->select('commission_invoice_id')->where('is_deleted', 0)->pluck('commission_invoice_id')->first();
+        // $commissioninvoicedone = DB::table('commission_details')->select('commission_invoice_id')->where('is_deleted', 0)->pluck('commission_invoice_id')->first();
 
         $commissioninvoice = $commissioninvoice->where('commission_status', 0)
-                    ->where('is_deleted', 0)
-                    ->whereNot('id', $commissioninvoicedone)
-                    ->orderBy('bill_date', 'asc')
-                    ->get();
+            ->where('is_deleted', 0)
+        // ->whereNot('id', $commissioninvoicedone)
+            ->orderBy('bill_date', 'asc')
+            ->get();
         $commissioninvoices = array();
 
-        foreach($commissioninvoice as $invoice) {
+        $commission_invoice_ids = collect($commissioninvoice)->pluck('id')->toArray();
+        $comm_details = DB::table('commission_details')
+            ->selectRaw('commission_invoice_id, commission_id, financial_year_id, sum(received_commission_amount) as received_amount')
+            ->where('is_deleted', 0)
+            ->whereIn('commission_invoice_id', $commission_invoice_ids)
+            ->groupByRaw('commission_invoice_id, commission_id, financial_year_id')
+            ->get();
+
+        foreach ($commissioninvoice as $invoice) {
             $overdue = floor((time() - strtotime($invoice->bill_date)) / (60 * 60 * 24));
             $billdate = date('d-m-y', strtotime($invoice->bill_date));
             $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
-            $invoice = array('commission_id' => $invoice->id, 'fid' =>$invoice->financial_year_id,  'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $billdate, 'amount' => $invoice->final_amount, 'overdue' => $overdue);
+
+            $exist = collect($comm_details)->where('commission_invoice_id', $invoice->id)->toArray();
+            if (count($exist)) {
+                $remain_amt = $invoice->final_amount - $exist[0]->received_amount;
+            } else {
+                $remain_amt = $invoice->final_amount;
+            }
+
+            $invoice = array('commission_id' => $invoice->id, 'fid' => $invoice->financial_year_id,  'financialyear' => $financial_year_id, 'invoiceno' => $invoice->bill_no, 'date' => $billdate, 'amount' => $remain_amt, 'overdue' => $overdue);
             array_push($commissioninvoices, $invoice);
         }
         $data['commissioninvoice'] = $commissioninvoices;

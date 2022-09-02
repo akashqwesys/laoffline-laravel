@@ -39,6 +39,7 @@
                                         </tr>
                                     </thead>
                                 </table>
+                                <hr>
                                 <div class="text-center"><b>Grand Total: {{ grand_total }}</b></div>
                             </div><!-- .card -->
                         </div>
