@@ -459,13 +459,13 @@ class CommissionReportController extends Controller
             }
 
         }
-        $data2 = $data2->dd();
+        $data2 = $data2->get();
         $data1 = $data1->get();
         $morethan = '';
         $sup = '';
         $sup1 = '';
 
-        print_r($data2);exit;
+        
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
         } else {
@@ -701,9 +701,9 @@ class CommissionReportController extends Controller
 					$bill_no = '';
                 }
                 
-                // if ($pending_percentage == '0 %') {
+                if ($pending_percentage == '0 %') {
 
-                // } else {
+                } else {
                 $receipt_amount = number_format($row->receipt_amount);
                 $commission_amount = number_format($row->commission_amount);
                     $html .= '<tr width="100%" '.$color.'>
@@ -730,7 +730,7 @@ class CommissionReportController extends Controller
                 $tot_payment += $row->receipt_amount;
                 $total_payment += $row->receipt_amount;
                 $total_commission_amount += $row->commission_amount;
-                
+                }
             }
             $total_payment1 = number_format($total_payment);
             $total_commission_amount1 = number_format($total_commission_amount);

@@ -223,7 +223,7 @@ class PaymentsReportController extends Controller
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 $supplier_data = [];
                 foreach($supplier as $row) {
-                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    $supplier_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
                 $data['sup_disp_name'] = implode(', ', $supplier_data);
             }
@@ -244,7 +244,7 @@ class PaymentsReportController extends Controller
 
                 $data1 = $data1->WhereIn('s.company_id', $customer);
                 foreach($customer as $row) {
-                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
                 $data['cus_disp_name'] = implode(',  ', $customer_data);
             }
@@ -275,7 +275,7 @@ class PaymentsReportController extends Controller
             $supplier_data = array();
             if ($supplier) {
                 foreach($supplier as $row) {
-                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first();
+                    $supplier_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
             }
             $data['sup_disp_name'] = implode(', ', $supplier_data);
