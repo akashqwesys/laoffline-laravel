@@ -663,7 +663,7 @@ class CommissionReportController extends Controller
                 if ($request->report_type == 'supplier') {
                     $invoices = DB::table('commission_invoices as ci')
                                 ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
                                 ->where('ipd.flag', 1)
                                 ->where('ipd.payment_id', $row->payment_id)
                                 ->where('ipd.financial_year_id', $row->financial_year_id)
@@ -672,7 +672,7 @@ class CommissionReportController extends Controller
                 } else {
                     $invoices = DB::table('commission_invoices as ci')
                                 ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
                                 ->where('ipd.flag', 2)
                                 ->where('ipd.payment_id', $row->payment_id)
                                 ->where('ipd.financial_year_id', $row->financial_year_id)
