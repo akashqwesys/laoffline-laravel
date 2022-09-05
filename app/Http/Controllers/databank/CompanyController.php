@@ -1079,7 +1079,7 @@ class CompanyController extends Controller
         $company->company_watchout = $companyData->company_watchout;
         $company->company_remark_watchout = $companyData->company_remark_watchout;
         $company->company_about = $companyData->company_about;
-        $company->company_category = $companyData->company_category;
+        $company->company_category = $company_category;
         $company->company_transport = !empty($companyData->company_transport) ? $companyData->company_transport->id : 0;
         $company->company_discount = $companyData->company_discount;
         $company->company_payment_terms_in_days = $companyData->company_payment_terms_in_days;
