@@ -105,7 +105,7 @@
             clearallfilter: function() {
                 axios.get('/account/commission/invoice/clearinvoicesearch')
                 .then(response => {
-                
+
                 });
                 $("#invoice_filter").find('input, select').val("");
                 $('#invoiceTable').DataTable().clear().draw();
@@ -169,7 +169,7 @@
                         complete: function (data) {
                             const toINR = new Intl.NumberFormat('en-IN', {});
                             $('#invoiceTable_info').append('<div style="display: table; margin: -1.5rem auto 0rem; font-weight: bold; font-size: 14px; ">Total: ₹' + toINR.format(data.responseJSON.extra_data.display_total) + '</div>');
-                            self.grand_total = toINR.format(data.responseJSON.extra_data.grand_total);
+                            self.grand_total = '₹' + toINR.format(data.responseJSON.extra_data.grand_total);
                         }
                     },
                     pagingType: 'full_numbers',

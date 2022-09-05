@@ -61,8 +61,6 @@ class InvoiceController extends Controller
         return true;
     }
 
-    
-
     public function listInvoice(Request $request)
     {
         $draw = $request->get('draw');
@@ -750,14 +748,15 @@ class InvoiceController extends Controller
 
         $pay_n_pay_det = DB::table('payments as p')
             ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
-            ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
+            ->select('pd.adjust_amount', DB::raw('(SELECT (cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
             ->whereIn('p.id', $p_ids)
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
         foreach ($pay_n_pay_det as $v) {
-            $without_gst_amt += round((($v->adjust_amount * 100) / ($v->gst == 0 ? 1 : $v->gst)), 2);
+            $without_gst_amt += ($v->adjust_amount * 100) / (100 + ($v->gst == 0 ? 1 : $v->gst));
         }
+        $without_gst_amt = round($without_gst_amt, 2);
         /* $payments = DB::table('payments as p')
             ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
@@ -900,14 +899,15 @@ class InvoiceController extends Controller
 
         $pay_n_pay_det = DB::table('payments as p')
             ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
-            ->select('pd.adjust_amount', DB::raw('(SELECT (100 + cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
+            ->select('pd.adjust_amount', DB::raw('(SELECT (cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = p.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
             ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
         foreach ($pay_n_pay_det as $v) {
-            $without_gst_amt += round((($v->adjust_amount * 100) / ($v->gst == 0 ? 1 : $v->gst)), 2);
+            $without_gst_amt += ($v->adjust_amount * 100) / (100 + ($v->gst == 0 ? 1 : $v->gst));
         }
+        $without_gst_amt = round($without_gst_amt, 2);
 
         /* $payment_details = DB::table('invoice_payment_details as ipd')
             ->join('payments as p', 'ipd.payment_id', '=', 'p.payment_id')
