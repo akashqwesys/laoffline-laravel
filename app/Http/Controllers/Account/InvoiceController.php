@@ -754,7 +754,7 @@ class InvoiceController extends Controller
             ->where('pd.is_deleted', 0)
             ->get();
         foreach ($pay_n_pay_det as $v) {
-            $without_gst_amt += ($v->adjust_amount * 100) / (100 + ($v->gst == 0 ? 1 : $v->gst));
+            $without_gst_amt += ($v->adjust_amount * 100) / (100 + (empty($v->gst) ? 0 : intval($v->gst)));
         }
         $without_gst_amt = round($without_gst_amt, 2);
         /* $payments = DB::table('payments as p')
@@ -905,7 +905,7 @@ class InvoiceController extends Controller
             ->where('pd.is_deleted', 0)
             ->get();
         foreach ($pay_n_pay_det as $v) {
-            $without_gst_amt += ($v->adjust_amount * 100) / (100 + ($v->gst == 0 ? 1 : $v->gst));
+            $without_gst_amt += ($v->adjust_amount * 100) / (100 + (empty($v->gst) ? 0 : intval($v->gst)));
         }
         $without_gst_amt = round($without_gst_amt, 2);
 
