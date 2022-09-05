@@ -1050,7 +1050,7 @@ class CompanyController extends Controller
                 $companyData->company_mobile = json_encode($mobile);
             }
         }
-        if ($companyData->company_category) {
+        if (isset($companyData->company_category)) {
             if (is_array($companyData->company_category)) {
                 $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
             } else {
