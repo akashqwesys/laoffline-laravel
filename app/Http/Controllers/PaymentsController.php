@@ -717,8 +717,12 @@ class PaymentsController extends Controller
         $totalRecords = Payment::where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id)->select('count(*) as allcount')->count();
 
         $totalRecordswithFilter = Payment::where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id);
-        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
+        if ((isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) || (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value']))) {
+            if (!empty($columnName_arr[0]['search']['value'])) {
+                $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
+            } else {
+                $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
+            } 
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.iuid', '=', $columnName_arr[1]['search']['value']);
@@ -743,9 +747,7 @@ class PaymentsController extends Controller
             $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.supplier_id', $sp_id);
         }
-        if (isset($columnName_arr[8]['search']['value']) &&  !empty($columnName_arr[8]['search']['value']) && is_int($columnName_arr[8]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
-        }
+        
         if (isset($columnName_arr[9]['search']['value']) && !empty($columnName_arr[9]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('payments.tot_adjust_amount', '=', $columnName_arr[9]['search']['value']);
         }
@@ -753,8 +755,12 @@ class PaymentsController extends Controller
 
 
         $records = Payment::where('payments.is_deleted', '0')->where('payments.financial_year_id', $user->financial_year_id);
-        if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
+        if ((isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) || (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value']))) {
+            if (!empty($columnName_arr[0]['search']['value'])) {
+                $records = $records->where('payments.payment_id', '=', $columnName_arr[0]['search']['value']);
+            } else {
+                $records = $records->where('payments.payment_id', '=', $columnName_arr[8]['search']['value']);
+            } 
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
             $records = $records->where('payments.iuid', '=', $columnName_arr[1]['search']['value']);
