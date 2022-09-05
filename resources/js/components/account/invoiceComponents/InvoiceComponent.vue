@@ -103,6 +103,10 @@
                 $('body').removeClass('modal-open').removeAttr('style');
             },
             clearallfilter: function() {
+                axios.get('/account/commission/invoice/clearinvoicesearch')
+                .then(response => {
+                
+                });
                 $("#invoice_filter").find('input, select').val("");
                 $('#invoiceTable').DataTable().clear().draw();
             },

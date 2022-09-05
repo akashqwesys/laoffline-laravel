@@ -56,6 +56,13 @@ class InvoiceController extends Controller
         return $searchdata;
     }
 
+    public function clearInvoiceSearch(Request $request) {
+        $request->session()->forget('invoice_search');
+        return true;
+    }
+
+    
+
     public function listInvoice(Request $request)
     {
         $draw = $request->get('draw');

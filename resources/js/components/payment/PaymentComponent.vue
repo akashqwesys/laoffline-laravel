@@ -150,8 +150,13 @@
                 });
             },
             clearallfilter(event){
+                axios.get('payments/clearpaymentsearch')
+                .then(response => {
+                
+                });
                 $("#payment_filter").find('input').val("");
                 $('#payment').DataTable().clear().draw();
+
             }
         },
         mounted() {

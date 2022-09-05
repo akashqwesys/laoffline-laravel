@@ -687,7 +687,10 @@ class PaymentsController extends Controller
         $searchdata = $request->session()->get('payment_search');
         return $searchdata;
     }
-    
+    public function clearPaymentSearch(Request $request) {
+        $request->session()->forget('payment_search');
+        return true;
+    }
     public function storePaymentSearch(Request $request) {
         $request->session()->put('payment_search', $request->all());
     }

@@ -345,6 +345,7 @@ Route::group(['prefix' => 'account', 'middleware' => ['auth', 'permission:access
         Route::get('/', [App\Http\Controllers\Account\InvoiceController::class, 'index']);
         Route::post('/storeinvoicesearch', [App\Http\Controllers\Account\InvoiceController::class, 'storeInvoiceSearch']);
         Route::get('/getinvoicesearch', [App\Http\Controllers\Account\InvoiceController::class, 'getInvoiceSearch']);
+        Route::get('/clearinvoicesearch', [App\Http\Controllers\Account\InvoiceController::class, 'clearInvoiceSearch']);
         Route::get('/list-data', [App\Http\Controllers\Account\InvoiceController::class, 'listInvoice']);
         Route::get('/view-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoiceDetails']);
         Route::get('/print-invoice/{id}', [App\Http\Controllers\Account\InvoiceController::class, 'viewInvoiceDetails']);
@@ -729,6 +730,7 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:acces
     
     Route::post('/storepaymentsearch', [App\Http\Controllers\PaymentsController::class, 'storePaymentSearch']);
     Route::get('/getpaymentsearch', [App\Http\Controllers\PaymentsController::class, 'getPaymentSearch']);
+    Route::get('/clearpaymentsearch', [App\Http\Controllers\PaymentsController::class, 'clearPaymentSearch']);
     Route::post('/searchsalebill', [App\Http\Controllers\PaymentsController::class, 'searchSaleBill']);
     Route::get('/', [App\Http\Controllers\PaymentsController::class, 'index'])->name('payments');
     Route::get('/status/{status}', [App\Http\Controllers\PaymentsController::class, 'paymentStatus'])->name('paymentstatus');
