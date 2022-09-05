@@ -1050,14 +1050,22 @@ class CompanyController extends Controller
                 $companyData->company_mobile = json_encode($mobile);
             }
         }
-
-        if(is_array($companyData->company_category) && !empty($companyData->company_category)) {
-            $companyCategory = [];
-            foreach($companyData->company_category as $key => $category) {
-                array_push($companyCategory, $category->id);
+        if ($companyData->company_category) {
+            if (is_array($companyData->company_category)) {
+                $company_category = count($companyData->company_category) > 0 ? collect($companyData->company_category)->pluck('id')->all() : [];
+            } else {
+                $company_category =  [$companyData->company_category->id];
             }
-            $companyData->company_category = json_encode($companyCategory);
+        } else {
+            $company_category = [];
         }
+        // if(is_array($companyData->company_category) && !empty($companyData->company_category)) {
+        //     $companyCategory = [];
+        //     foreach($companyData->company_category as $key => $category) {
+        //         array_push($companyCategory, $category->id);
+        //     }
+        //     $companyData->company_category = json_encode($companyCategory);
+        // }
 
         $company = Company::where('id', $id)->first();
         $company->company_name = $companyData->company_name;
