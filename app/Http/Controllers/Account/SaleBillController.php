@@ -171,6 +171,7 @@ class SaleBillController extends Controller
             ->select('p.payment_id', 'pd.sr_no')
             ->whereIn('pd.sr_no', $sale_bill_ids)
             ->where('pd.financial_year_id', $user->financial_year_id)
+            ->where('p.is_deleted', 0)
             ->get();
 
         $combo_ids = DB::table('comboids')
