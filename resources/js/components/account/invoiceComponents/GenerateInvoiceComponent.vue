@@ -354,7 +354,7 @@
                     this.igst_amount = data.invoice_details.igst_amount;
                     this.invoice_others = data.invoice_details.other_amount != 0 ? data.invoice_details.other_amount : 0;
                     this.rounded_off = data.invoice_details.rounded_off;
-                    this.total_commission = parseFloat(this.comm_total_amount) + parseFloat(this.cgst_amount) + parseFloat(this.sgst_amount) + parseFloat(this.igst_amount) + parseFloat(this.invoice_others) + parseFloat(this.rounded_off);
+                    this.total_commission = Math.round(parseFloat(this.comm_total_amount) + parseFloat(this.cgst_amount) + parseFloat(this.sgst_amount) + parseFloat(this.igst_amount) + parseFloat(this.invoice_others) + parseFloat(this.rounded_off));
                     this.tds = data.tds;
                     this.tds_amount = data.invoice_details.tds_amount;
                     this.final_amount = data.invoice_details.final_amount;
