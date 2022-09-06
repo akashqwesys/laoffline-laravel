@@ -91,7 +91,7 @@ class CommissionController extends Controller
         // Total records
         $totalRecords = commission::where('is_deleted', '0')->select('count(*) as allcount')->count();
 
-        $totalRecordswithFilter = commission::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
+        $totalRecordswithFilter = Commission::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('commission_id', '=', $columnName_arr[0]['search']['value']);
         }
@@ -105,13 +105,16 @@ class CommissionController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('commissions.created_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
             $cc_id = implode(',', $cc_id);
             $totalRecordswithFilter = $totalRecordswithFilter->whereRaw('supplier_id in (' . $cc_id . ') or customer_id in (' . $cc_id . ')');
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('commission_payment_amount', '=', $columnName_arr[5]['search']['value']);
         }
+
+        // Fetch records
+        $totalRecordswithFilter = $totalRecordswithFilter->select('commissions.*', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."commission_id" = "commissions"."commission_id" and financial_year_id = commissions.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'), DB::raw('(SELECT "is_completed" FROM "comboids" WHERE "comboids"."commission_id" = "commissions"."commission_id" and financial_year_id = commissions.financial_year_id ORDER BY "id" DESC LIMIT 1) as is_completed'));
         $totalRecordswithFilter = $totalRecordswithFilter->count();
 
         $records = commission::where('financial_year_id', $user->financial_year_id)->where('is_deleted', '0');
