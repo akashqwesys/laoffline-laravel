@@ -106,7 +106,8 @@ class CommissionController extends Controller
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
             $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->pluck('id')->toArray();
-            $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $cc_id);
+            $cc_id = implode(',', $cc_id);
+            $totalRecordswithFilter = $totalRecordswithFilter->whereRaw('supplier_id in (' . $cc_id . ') or customer_id in (' . $cc_id . ')');
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->where('commission_payment_amount', '=', $columnName_arr[5]['search']['value']);
