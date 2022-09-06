@@ -622,8 +622,8 @@ class CompanyController extends Controller
 
         foreach($companyContactDetails as $contact) {
             $contactDesignation = json_decode($contact->contact_person_designation);
-            if (count($contactDesignation)) {
-                $cpd = Designation::whereIn('id', $contactDesignation)->where('is_delete', 0)->pluck('name')->toArray();
+            if ($contactDesignation) {
+                $cpd = Designation::where('id', $contactDesignation)->where('is_delete', 0)->pluck('name')->toArray();
                 $contact->contact_person_designation = count($cpd) ? implode(', ', $cpd) : '-';
             } else {
                 $contact->contact_person_designation = '-';
