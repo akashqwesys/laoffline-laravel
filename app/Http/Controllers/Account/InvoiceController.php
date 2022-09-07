@@ -1054,6 +1054,73 @@ class InvoiceController extends Controller
         return response()->json(['success' => 1]);
     }
 
+    public function deleteInvoice($id)
+    {
+        $user = Session::get('user');
+        $invoice = CommissionInvoice::where('id', $id)
+            ->where('financial_year_id', $user->financial_year_id)
+            ->orderBy('id', 'desc')
+            ->first();
+        // if data not exist then redirect to access_denied page.
+        if ($invoice) {
+            // get status of invoice e.g pending,complete,none
+            $display_status = DB::table('commission_details')
+                ->select('commission_invoice_id', 'status')
+                ->where('commission_invoice_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->where('is_deleted', 0)
+                ->first();
+
+            if ($display_status) {
+                $invoice->is_deleted = 1;
+                $invoice->save();
+
+                // delete from comboid
+                DB::table('comboids')
+                ->where('commission_invoice_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->update(['is_deleted' => 1]);
+
+                // delete from invoice_payment_receive_details
+                DB::table('invoice_payment_details')
+                ->where('commission_invoice_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->delete();
+
+                // get outward details
+                $outward_salebill = DB::table('outward_sale_bills')
+                    ->where('commission_invoice_id', $id)
+                    ->where('financial_year_id', $user->financial_year_id)
+                    ->where('is_deleted', 0)
+                    ->get();
+
+                // delete from outward_sale_bill
+                DB::table('outward_sale_bills')
+                ->where('commission_invoice_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->where('is_deleted', 0)
+                ->update(['is_deleted' => 1]);
+
+                if (count($outward_salebill)) {
+                    $outward_ids = collect($outward_salebill)->pluck('outward_id')->toArray();
+                    DB::table('comboids')
+                    ->whereIn('inward_or_outward_id', $outward_ids)
+                    ->where('financial_year_id', $user->financial_year_id)
+                    ->update(['is_deleted' => 1]);
+
+                    DB::table('outwards')
+                    ->whereIn('outward_id', $outward_ids)
+                    ->update(['is_deleted' => 1]);
+                }
+                return redirect()->back();
+            } else {
+                return redirect()->back();
+            }
+        } else {
+            return redirect()->back();
+        }
+    }
+
     public function deleteInvoicePaymentDetail(Request $request)
     {
         $id = $request->invoice_payment_detail_id;
