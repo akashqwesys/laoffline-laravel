@@ -1071,7 +1071,7 @@ class InvoiceController extends Controller
                 ->where('is_deleted', 0)
                 ->first();
 
-            if ($display_status) {
+            if (empty($display_status)) {
                 $invoice->is_deleted = 1;
                 $invoice->save();
 
