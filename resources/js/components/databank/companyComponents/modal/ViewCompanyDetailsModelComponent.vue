@@ -17,6 +17,11 @@
                                         <div class="nk-block-between">
                                             <div class="nk-block-head-content">
                                                 <h3 class="nk-block-title page-title">{{ companyDetails.company_name }}</h3>
+
+                                            </div><!-- .nk-block-head-content -->
+                                            <div class="nk-block-head-content">
+
+                                                <a :href="'/databank/companies/edit-company/'+companyDetails.id" class="btn btn-primary">Edit</a>
                                             </div><!-- .nk-block-head-content -->
                                         </div><!-- .nk-block-between -->
                                     </div><!-- .nk-block-head -->
@@ -389,9 +394,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
+           </div>
             </div>
-        </div>
+ </div>
     </div>
 </template>
 

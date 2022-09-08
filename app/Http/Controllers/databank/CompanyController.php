@@ -1016,10 +1016,10 @@ class CompanyController extends Controller
 
         if(is_array($multipleAddressProfilePic) && !empty($multipleAddressProfilePic)) {
             $length = count($multipleAddressProfilePic);
-            for ($i=0; $i<$length; $i++) {
+            for ($i=1; $i<$length; $i++) {
                 $ownerimage = $multipleAddressProfilePic[$i];
                 $ownerLength = count($ownerimage['ownerImage']);
-                for ($j=1; $j<$ownerLength; $j++) {
+                for ($j=0; $j<$ownerLength; $j++) {
                     if ($image = $ownerimage['ownerImage'][$j]) {
                         if(!is_string($image)) {
                             $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();
