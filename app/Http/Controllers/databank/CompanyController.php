@@ -986,7 +986,7 @@ class CompanyController extends Controller
                 if(is_array($multipleAddress->multipleAddressesOwners) && !empty($multipleAddress->multipleAddressesOwners)) {
                     foreach($multipleAddress->multipleAddressesOwners as $owner) {
                         $multipleAddressOwnerDesignation = [];
-                        if (!empty($owner->designation)) {
+                        if (is_array($owner->designation) && !empty($owner->designation)) {
                             foreach($owner->designation as $key => $des) {
                                 $multipleAddressOwnerDesignation[$key] = $des->id;
                             }
@@ -1019,7 +1019,7 @@ class CompanyController extends Controller
             for ($i=0; $i<$length; $i++) {
                 $ownerimage = $multipleAddressProfilePic[$i];
                 $ownerLength = count($ownerimage['ownerImage']);
-                for ($j=0; $j<$ownerLength; $j++) {
+                for ($j=1; $j<$ownerLength; $j++) {
                     if ($image = $ownerimage['ownerImage'][$j]) {
                         if(!is_string($image)) {
                             $profileImage = date('YmdHis') . "_" . $i . "." . $image->getClientOriginalExtension();

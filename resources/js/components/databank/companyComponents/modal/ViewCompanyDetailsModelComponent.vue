@@ -143,13 +143,18 @@
                                                                 </a>
                                                                 <div v-bind:class="(index == 0)?'accordion-body collapse show':'accordion-body collapse'" :id="'accordion-item-'+index" data-parent="#accordion">
                                                                     <div class="accordion-inner">
-                                                                        <div class="data-head">
-                                                                            <h6 class="overline-title">Address</h6>
+                                                                        <div class="data-head row">
+                                                                            <h6 class="col-sm-8 overline-title">Address</h6>
+                                                                            <h6 class="float-right col-sm-4 overline-title">landline</h6>
                                                                         </div>
-                                                                        <div class="data-item">
-                                                                            <div class="data-col">
+                                                                        <div class="data-item row">
+                                                                            <div class="data-col col-sm-8">
                                                                                 <span class="data-value" v-if="address.address">{{ address.address }}</span>
                                                                                 <span class="data-value text-soft" v-else>N/A</span>
+                                                                            </div>
+                                                                            <div class="data-col col-sm-4">
+                                                                                <span class="data-value">{{ address.mobile }}</span>
+
                                                                             </div>
                                                                         </div><!-- data-item -->
                                                                         <div class="data-head">
@@ -376,7 +381,7 @@
                                                             </div><!-- data-item -->
                                                         </div><!-- data-list -->
                                                     </div>
-                                                </div>
+           </div>
                                             </div><!-- .card -->
                                         </div>
                                     </div><!-- .nk-block -->
