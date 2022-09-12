@@ -465,7 +465,7 @@ class CommissionReportController extends Controller
         $sup = '';
         $sup1 = '';
 
-        
+
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
         } else {
@@ -665,6 +665,7 @@ class CommissionReportController extends Controller
                                 ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
                                 ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
                                 ->where('ipd.flag', 1)
+                                ->where('ci.is_deleted', 0)
                                 ->where('ipd.payment_id', $row->payment_id)
                                 ->where('ipd.financial_year_id', $row->financial_year_id)
                                 ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
@@ -674,6 +675,7 @@ class CommissionReportController extends Controller
                                 ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
                                 ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
                                 ->where('ipd.flag', 2)
+                                ->where('ci.is_deleted', 0)
                                 ->where('ipd.payment_id', $row->payment_id)
                                 ->where('ipd.financial_year_id', $row->financial_year_id)
                                 ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
@@ -700,7 +702,7 @@ class CommissionReportController extends Controller
 					$commission_invoice_id = '';
 					$bill_no = '';
                 }
-                
+
                 if ($pending_percentage == '0 %') {
 
                 } else {
