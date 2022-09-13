@@ -464,7 +464,12 @@ class CommissionReportController extends Controller
         $morethan = '';
         $sup = '';
         $sup1 = '';
-        $data2 =collect($data2)->groupBy('supplier_name');
+        if ($request->report_type == 'supplier') {
+            $data2 = collect($data2)->groupBy('supplier_name');
+        } else {
+            $data2 = collect($data2)->groupBy('customer_name');
+        }
+
 
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
