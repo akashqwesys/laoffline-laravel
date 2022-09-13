@@ -57,7 +57,7 @@
                 }
 
                 if ($request->customer != '') {
-                    if($data['sup_disp_name']) {
+                    if($data['cust_disp_name']) {
                         $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
                     } else {
                         $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
