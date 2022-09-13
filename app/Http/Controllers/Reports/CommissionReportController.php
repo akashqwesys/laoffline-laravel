@@ -579,6 +579,7 @@ class CommissionReportController extends Controller
         } else {
             $data3 = array();
             $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
+            $gtotal = $gtotal_commission = 0;
             foreach ($data2 as $key1 => $sc) {
                 if ($request->report_type == 'supplier') {
 
@@ -696,7 +697,17 @@ class CommissionReportController extends Controller
                         <td class="text-right"><b>' . $ptotal_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
+                $gtotal += $ptotal;
+                $gtotal_commission += $ptotal_commission;
         }
+            $gtotal1 = number_format($gtotal);
+            $gtotal_commission1 = number_format($gtotal_commission);
+            $html .= '<tr width="100%">
+                        <td colspan="2"><b>Party Total</b></td>
+                        <td class="text-right"><b>' . $gtotal1 . '</b></td>
+                        <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
+                        <td colspan="4"></td>
+                        </tr>';
             // foreach ($data3 as $keys => $row) {
             //     $color = "";
             //     $paymentdate = strtotime($row->date);
