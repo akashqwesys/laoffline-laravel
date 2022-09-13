@@ -1085,7 +1085,7 @@ class InvoiceController extends Controller
                 // delete from invoice_payment_receive_details
                 DB::table('invoice_payment_details')
                 ->where('commission_invoice_id', $id)
-                ->where('financial_year_id', $user->financial_year_id)
+                // ->where('financial_year_id', $user->financial_year_id)
                 ->delete();
 
                 // get outward details

@@ -553,35 +553,6 @@ class CommissionReportController extends Controller
         }
 
 
-            // $tot_payment = $total_payment = $total_commission_amount = 0;
-            // foreach ($data1 as $keys => $row) {
-            //     if ($request->report_type == 'supplier') {
-            //         $company_name = $row->supplier_name;
-            //     } else {
-            //         $company_name = $row->customer_name;
-            //     }
-            //     $receipt_amount = number_format($row->receipt_amount);
-            //     $total_comm_amount = number_format($row->total_comm_amount);
-            //     $html .= '<tr width="100%">
-            //                 <td>'.++$keys.'</td>
-            //                 <td>'.$company_name.'</td>
-            //                 <td class="text-right">'.$receipt_amount.'</td>
-            //                 <td class="text-right">'.$total_comm_amount.'</td>
-            //             </tr>';
-            //     $tot_payment += $row->receipt_amount;
-            //     $total_commission_amount += $row->total_comm_amount;
-            // }
-            // if (!empty($data1)){
-            //     $tot_payment1 = number_format($tot_payment);
-            //     $total_commission_amount1 = number_format($total_commission_amount);
-            //     $html .= '<tr width="100%">
-            //                 <td colspan="2"><b>Party Total</b></td>
-            //                 <td class="text-right"><b>'.$tot_payment1.'</b></td>
-            //                 <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
-            //             </tr>';
-            // }
-            // $data['detail'] = $data1;
-
             $data3 = array();
             $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
             $gtotal = $gtotal_commission = 0; $i = 1;
@@ -744,7 +715,7 @@ class CommissionReportController extends Controller
                         <td colspan="4"></td>
                         </tr>';
         }
-            $data['detail'] = $data2;
+        $data['detail'] = $data2;
 
         $data['table'] = $html;
         $data['report_type'] = $request->report_type;

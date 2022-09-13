@@ -10,31 +10,31 @@
 <table class="" width="">
     <thead>
         <tr>
-            @php 
+            @php
             if ($request->show_detail == 1) {
             @endphp
                 <th colspan="4" align="center" style="font-size: 20px;"><b >OUTSTANDING COMMISSION REPORT - {{ $request->report_type }}</b></th>
             @php
             } else {
             @endphp
-            <th colspan="8" align="center" style="font-size: 20px;"><b >OUTSTANDING COMMISSION REPORT - {{ $request->report_type }}</b></th> 
+            <th colspan="8" align="center" style="font-size: 20px;"><b >OUTSTANDING COMMISSION REPORT - {{ $request->report_type }}</b></th>
             @php
             }
             @endphp
         </tr>
         <tr>
-        @php 
+        @php
             if ($request->show_detail == 1) {
-            @endphp
+        @endphp
             <th colspan="4" align="center"><b>{{ date('d-m-Y', strtotime($request->start_date)) . ' - ' . date('d-m-Y', strtotime($request->end_date)) }}</b></th>
-            @php
-            } else {
-            @endphp
+        @php
+        } else {
+        @endphp
             <th colspan="8" align="center"><b>{{ date('d-m-Y', strtotime($request->start_date)) . ' - ' . date('d-m-Y', strtotime($request->end_date)) }}</b></th>
-            @php
+        @php
             }
-            @endphp
-            
+        @endphp
+
         </tr>
     </thead>
     <tbody>
@@ -55,7 +55,7 @@
                 } else {
                     $sup .= "All Parties". $morethan;
                 }
-                
+
                 if ($request->customer != '') {
                     if($data['sup_disp_name']) {
                         $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
@@ -68,7 +68,7 @@
                 $html = '';
                 if ($request->report_type == 'supplier'){
                 if ($request->show_detail == 1) {
-            @endphp    
+            @endphp
                     <tr>
                         <th colspan="4">{{ $sup }}</th>
                     </tr>
@@ -96,7 +96,7 @@
 						</tr>
             @php
                 }
-            } else { 
+            } else {
                 if ($request->show_detail == 1) {
             @endphp
             <tr>
@@ -126,190 +126,197 @@
 						</tr>
             @php
                 } }
-                if ($request->show_detail == 1) {
-                $tot_payment = $total_payment = $total_commission_amount = 0;
+                $total_commission_amount = 0;
+                $gtotal = $gtotal_commission = 0; $i = 1;
             @endphp
-                @foreach ($data['detail'] as $key => $row)
-                @php 
-                if ($request->report_type == 'supplier') {
-                    $company_name = $row->supplier_name;
-                } else {
-                    $company_name = $row->customer_name;
-                }  
-                @endphp
-                        <tr>
-                            <td>{{ ++$key }}</td>
-                            <td>{{ $company_name }}</td>
-                            <td>{{ $row->receipt_amount }}</td>
-                            <td>{{ $row->total_comm_amount }}</td>
-                        </tr>
-            @php
-                $tot_payment += $row->receipt_amount;
-                $total_commission_amount += $row->total_comm_amount;
-            @endphp
-            @endforeach
-            @php
-                if (!empty($data['detail'])){
-            @endphp
-                    <tr>
-                        <td colspan="2"><b>Party Total</b></td>
-                        <td><b>{{ $tot_payment }}</b></td>
-                        <td><b>{{ $total_commission_amount }}</b></td>
-                    </tr>
-            @php
-            } 
-            } else {
-                $supplier_name = ""; $customer_name = ""; $prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
-            @endphp   
-            @foreach ($data['detail'] as $keys => $row)
-            @php
-                $color = "";
-                $paymentdate = strtotime($row->date);
-                $currentdate = strtotime(Carbon\Carbon::now()->format('d-m-Y'));
-                $due_day = ($currentdate - $paymentdate) / 84600;
-                if ($due_day >= 90) {
-                    $color = "style='color:red'";
-                }
-                $i = 0;
-                if ($request->report_type == 'supplier') {
-                if($supplier_name != $row->supplier_name) {
-                    $supplier_name = $row->supplier_name;
-                    $address_supp = $row->company_address;
-
-                    if($keys != 0) {
-            @endphp
-                        <tr>
-                                <td colspan="2"><b>Party Total</b></td>
-                                <td><b>{{ $tot_payment }}</b></td>
-                                <td><b>{{ $prev_com }}</b></td>
-                                <td colspan="4"></td>
-							</tr>
-            @php
-                    $tot_payment = 0;
-                    }
-            @endphp
-                        
-                    <tr width="100%">
-		    			<td colspan="8"></td>
-					</tr>
-                    <tr width="100%">
-                        <td colspan="2"><b>{{ $supplier_name }}</b></td>
-                        <td colspan="6"><b>{{ $address_supp }}</b></td>
-                    </tr>
-            @php
-                } } else {
-                    if($customer_name != $row->customer_name) {
-                        $customer_name = $row->customer_name;
-                        $address_supp = $row->company_address;
-                        if($keys != 0) {
-            @endphp
-                        <tr>
-                                <td colspan="2"><b>Party Total</b></td>
-                                <td><b>{{ $tot_payment }}</b></td>
-                                <td><b>{{ $prev_com }}</b></td>
-                                <td colspan="4"></td>
-							</tr>
-            @php
-                    $tot_payment = 0;
-                    }
-            @endphp
-                        
-                    <tr width="100%">
-		    			<td colspan="8"></td>
-					</tr>
-                    <tr width="100%">
-                        <td colspan="2"><b>{{ $supplier_name }}</b></td>
-                        <td colspan="6"><b>{{ $address_supp }}</b></td>
-                    </tr>
-            @php
-                } }
-            @endphp     
-                    <tr width="100%" {{ $color }}>
-                                <td>{{ $row->payment_id }}</td>
-                                <td>{{ date("d-m-Y", strtotime($row->date)) }}</td>
-                                <td>{{ $row->receipt_amount }}</td>
-                                <td>{{ $row->commission_amount }}</td>
+            @foreach ($data['detail'] as $key1 => $sc)
             @php
             if ($request->report_type == 'supplier') {
-                $invoices = DB::table('commission_invoices as ci')
-                                ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                                ->where('ipd.flag', 1)
-                                ->where('ipd.payment_id', $row->payment_id)
-                                ->where('ipd.financial_year_id', $row->financial_year_id)
-                                ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
-                                ->get();
-            } else {
-                $invoices = DB::table('commission_invoices as ci')
-                                ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                                ->where('ipd.flag', 2)
-                                ->where('ipd.payment_id', $row->payment_id)
-                                ->where('ipd.financial_year_id', $row->financial_year_id)
-                                ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
-                                ->get();
+
+                        $supplier_name = $key1;
+                        $address_supp = $sc[0]->company_address;
+                if ($request->show_detail == 1) {
+            @endphp
+                    <tr>
+                        <td>{{ $i++ }}</td>
+                        <td><b>{{ $supplier_name }}</b></td>
+            @php
+               } else {
+            @endphp
+                            <tr width="100%">
+		    					<td colspan="8"></td>
+							</tr>
+                            <tr width="100%">
+                                <td colspan="2"><b>{{ $supplier_name }}</b></td>
+                                <td colspan="6"><b>{{ $address_supp }}</b></td>
+                            </tr>
+            @php
+                }
+                } else {
+
+                        $customer_name = $key1;
+                        $address_supp = $sc[0]->company_address;
+                    if ($request->show_detail == 1) {
+            @endphp
+                    <tr width="100%">
+                                <td>{{ $i++ }}</td>
+                                <td><b>{{ $customer_name }}</b></td>
+            @php
+                } else {
+            @endphp
+
+                        <tr width="100%">
+                                    <td colspan="8"></td>
+                                </tr>
+                                <tr width="100%">
+                                    <td colspan="2"><b>{{ $customer_name }}</b></td>
+                                    <td colspan="6"><b>{{ $address_supp }}</b></td>
+                                </tr>
+            @php
+                }
             }
+            $ptotal = $ptotal_commission = 0;
+            @endphp
+            @foreach ($sc as $key => $row)
+            @php
+                $color = "";
+                    $paymentdate = strtotime($row->date);
+                    $currentdate = strtotime(date('d-m-Y'));
+                    $due_day = ($currentdate - $paymentdate) / 84600;
+                    if ($due_day)
+                    if ($due_day >= 90) {
+                        $color = "style='color:red'";
+                    }
+
+
+                if ($request->report_type == 'supplier') {
+                    $invoices = DB::table('commission_invoices as ci')
+                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                    ->where('ipd.flag', 1)
+                        ->where('ci.is_deleted', 0)
+                        ->where('ipd.payment_id', $row->payment_id)
+                        ->where('ipd.financial_year_id', $row->financial_year_id)
+                        ->select('ci.id', 'ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+                        ->get();
+                } else {
+                    $invoices = DB::table('commission_invoices as ci')
+                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                    ->where('ipd.flag', 2)
+                        ->where('ci.is_deleted', 0)
+                        ->where('ipd.payment_id', $row->payment_id)
+                        ->where('ipd.financial_year_id', $row->financial_year_id)
+                        ->select('ci.id', 'ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+                        ->get();
+                }
                 if (count($invoices)) {
                     $total = 0;
                     $pending_parcent = collect($invoices)->groupBy('id');
-                    foreach($pending_parcent as $inv) {
-                        foreach($inv as $pp){
+            @endphp
+            @foreach ($pending_parcent as $inv)
+                @foreach ($inv as $pp)
+                    @php
                             $total += (int)$pp->received_commission_amount;
                             $final_amount = $pp->final_amount;
                             $commission_invoice_id = $pp->id;
                             $bill_no = $pp->bill_no;
-                        }
-                    }
-                            
+                    @endphp
+                @endforeach
+            @endforeach
+            @php
                     $pending_amount = (int)$final_amount - (int)$total;
-                    $pending_percentage = round((($pending_amount * 100) / $final_amount),2);
-                    $pending_percentage = $pending_percentage." %";
-                            
+                    $pending_percentage = round((($pending_amount * 100) / $final_amount), 2);
+                    $pending_percentage = $pending_percentage . " %";
                 } else {
                     $pending_percentage = "100 %";
-					$commission_invoice_id = '';
-					$bill_no = ''; 
+                    $commission_invoice_id = '';
+                    $bill_no = '';
                 }
-                if ($request->report_type == 'supplier') {
-                    $cust_supp_name = $row->customer_name;
+                if ($pending_percentage == '0 %') {
                 } else {
-                    $cust_supp_name = $row->supplier_name;
-                }   
+                    $receipt_amount = number_format($row->receipt_amount);
+                    $commission_amount = number_format($row->commission_amount);
+                    if ($request->show_detail == 1) {
+
+                    } else {
+
+            @endphp
+                    <tr width="100%" {{ $color }}>
+                                <td>{{  $row->payment_id }}</td>
+                                <td>{{ date("d-m-Y", strtotime($row->date)) }}</td>
+                                <td class="text-right">{{ $receipt_amount }}</td>
+                                <td class="text-right">{{ $commission_amount }}</td>
+            @php
+                }
+                    if ($request->report_type == 'supplier') {
+                        $cust_supp_name = $row->customer_name;
+                    } else {
+                        $cust_supp_name = $row->supplier_name;
+                    }
+                    if ($request->show_detail == 1) {
+                    } else {
             @endphp
                     <td>{{ $pending_percentage }}</td>
                     <td>{{ $cust_supp_name }}</td>
                     <td>{{ floor($due_day) }}</td>
-                    <td>{{ $bill_no }}</td>
-                </tr>
-            @php    
-                $prev_com = $row->total_comm_amount;
-                $tot_payment += $row->receipt_amount;
-                $total_payment += $row->receipt_amount;
-                $total_commission_amount += $row->commission_amount;
-            @endphp            
-            @endforeach
-            @php    
-                if (!empty($data['detail'])) {
+                    <td>{{  $bill_no }}</td>
+                   </tr>
+            @php
+
+                }
+                $ptotal += $row->receipt_amount;
+                $ptotal_commission += $row->commission_amount;
+            }
             @endphp
-                <tr>
-                    <td colspan="2"><b>Party Total</b></td>
-                    <td><b>{{ $tot_payment }}</b></td>
-                    <td><b>{{ $prev_com }}</b></td>
-                    <td colspan="4"></td>
-                </tr>
-                <tr>
-                    <td colspan="8">&nbsp;</td>
-                </tr>
-                <tr>
-                    <td colspan="2"><b>Grand Total</b></td>
-                    <td><b>{{ $total_payment }}</b></td>
-                    <td><b>{{ $total_commission_amount }}</b></td>
-                    <td colspan="4"></td>
+            @endforeach
+            @php
+                $ptotal1 = number_format($ptotal);
+                $ptotal_commission1 = number_format($ptotal_commission);
+                if ($request->show_detail == 1) {
+            @endphp
+                    <td class="text-right"><b>{{ $ptotal1 }}</b></td>
+                    <td class="text-right"><b>{{ $ptotal_commission1 }}</b></td>
                 </tr>
             @php
-            }
-            }
-            @endphp            
-            </tbody>
+                 } else {
+            @endphp
+
+               <tr width="100%">
+                        <td colspan="2"><b>Party Total</b></td>
+                        <td class="text-right"><b>{{ $ptotal1 }}</b></td>
+                        <td class="text-right"><b>{{ $ptotal_commission1 }}</b></td>
+                        <td colspan="4"></td>
+                        </tr>
+            @php
+               }
+                $gtotal += $ptotal;
+                $gtotal_commission += $ptotal_commission;
+            @endphp
+            @endforeach
+            @php
+                $gtotal1 = number_format($gtotal);
+                $gtotal_commission1 = number_format($gtotal_commission);
+                if ($request->show_detail == 1) {
+            @endphp
+                <tr width="100%">
+                        <td colspan="2"><b>Grand Total</b></td>
+                        <td class="text-right"><b>{{ $gtotal1 }}</b></td>
+                        <td class="text-right"><b>{{ $gtotal_commission1 }}</b></td>
+                     </tr>
+            @php
+                } else {
+            @endphp
+                <tr width="100%">
+                        <td colspan="2"><b>Grand Total</b></td>
+                        <td class="text-right"><b>{{ $gtotal1 }}</b></td>
+                        <td class="text-right"><b>{{ $gtotal_commission1 }}</b></td>
+                        <td colspan="4"></td>
+                        </tr>
+            @php
+                }
+            @endphp
+
+    </tbody>
 </table>
 
