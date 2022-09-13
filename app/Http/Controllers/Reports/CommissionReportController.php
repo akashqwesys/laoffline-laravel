@@ -501,13 +501,13 @@ class CommissionReportController extends Controller
         if ($request->report_type == 'supplier'){
             if ($request->show_detail == 1) {
                 $html .= '<tr width="100%">
-                            <th colspan="4" class="text-center">'.$sup.'</th>
+                            <th colspan="4" class="text-center">'.$sup. '</th>
                         </tr>
                         <tr width="100%">
                                 <th>Sr_No</th>
                                 <th>Supplier Name</th>
                                 <th class="text-right">Amount</th>
-                                <th>Commission Amount</th>
+                                <th class="text-right">Commission Amount</th>
                             </tr>';
             } else {
                 $html .= '<tr width="100%">
@@ -527,13 +527,13 @@ class CommissionReportController extends Controller
         } else {
             if ($request->show_detail == 1) {
                 $html .= '<tr width="100%">
-                            <th colspan="4" class="text-center">'.$sup1.'</th>
+                            <th colspan="4" class="text-center">'.$sup1. '</th>
                         </tr>
                         <tr width="100%">
                                 <th>Sr_No</th>
                                 <th>Customer Name</th>
                                 <th class="text-right">Amount</th>
-                                <th>Commission Amount</th>
+                                <th class="text-right">Commission Amount</th>
                             </tr>';
             } else {
                 $html .= '<tr width="100%">
@@ -552,45 +552,50 @@ class CommissionReportController extends Controller
             }
         }
 
-        if ($request->show_detail == 1) {
-            $tot_payment = $total_payment = $total_commission_amount = 0;
-            foreach ($data1 as $keys => $row) {
-                if ($request->report_type == 'supplier') {
-                    $company_name = $row->supplier_name;
-                } else {
-                    $company_name = $row->customer_name;
-                }
-                $receipt_amount = number_format($row->receipt_amount);
-                $total_comm_amount = number_format($row->total_comm_amount);
-                $html .= '<tr width="100%">
-                            <td>'.++$keys.'</td>
-                            <td>'.$company_name.'</td>
-                            <td class="text-right">'.$receipt_amount.'</td>
-                            <td class="text-right">'.$total_comm_amount.'</td>
-                        </tr>';
-                $tot_payment += $row->receipt_amount;
-                $total_commission_amount += $row->total_comm_amount;
-            }
-            if (!empty($data1)){
-                $tot_payment1 = number_format($tot_payment);
-                $total_commission_amount1 = number_format($total_commission_amount);
-                $html .= '<tr width="100%">
-                            <td colspan="2"><b>Party Total</b></td>
-                            <td class="text-right"><b>'.$tot_payment1.'</b></td>
-                            <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
-                        </tr>';
-            }
-            $data['detail'] = $data1;
-        } else {
+
+            // $tot_payment = $total_payment = $total_commission_amount = 0;
+            // foreach ($data1 as $keys => $row) {
+            //     if ($request->report_type == 'supplier') {
+            //         $company_name = $row->supplier_name;
+            //     } else {
+            //         $company_name = $row->customer_name;
+            //     }
+            //     $receipt_amount = number_format($row->receipt_amount);
+            //     $total_comm_amount = number_format($row->total_comm_amount);
+            //     $html .= '<tr width="100%">
+            //                 <td>'.++$keys.'</td>
+            //                 <td>'.$company_name.'</td>
+            //                 <td class="text-right">'.$receipt_amount.'</td>
+            //                 <td class="text-right">'.$total_comm_amount.'</td>
+            //             </tr>';
+            //     $tot_payment += $row->receipt_amount;
+            //     $total_commission_amount += $row->total_comm_amount;
+            // }
+            // if (!empty($data1)){
+            //     $tot_payment1 = number_format($tot_payment);
+            //     $total_commission_amount1 = number_format($total_commission_amount);
+            //     $html .= '<tr width="100%">
+            //                 <td colspan="2"><b>Party Total</b></td>
+            //                 <td class="text-right"><b>'.$tot_payment1.'</b></td>
+            //                 <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
+            //             </tr>';
+            // }
+            // $data['detail'] = $data1;
+
             $data3 = array();
             $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
-            $gtotal = $gtotal_commission = 0;
-            foreach ($data2 as $key1 => $sc) {
+            $gtotal = $gtotal_commission = 0; $i = 1;
+             foreach ($data2 as $key1 => $sc) {
+
                 if ($request->report_type == 'supplier') {
 
                         $supplier_name = $key1;
                         $address_supp = $sc[0]->company_address;
-
+                if ($request->show_detail == 1) {
+                    $html .= '<tr width="100%">
+                                <td>'. $i++ .'</td>
+                                <td><b>' . $supplier_name . '</b></td>';
+                } else {
                         $html .= '<tr width="100%">
 		    					<td colspan="8"></td>
 							</tr>
@@ -598,12 +603,16 @@ class CommissionReportController extends Controller
                                 <td colspan="2"><b>' . $supplier_name . '</b></td>
                                 <td colspan="6"><b>' . $address_supp . '</b></td>
                             </tr>';
-
+                }
                 } else {
 
                         $customer_name = $key1;
                         $address_supp = $sc[0]->company_address;
-
+                if ($request->show_detail == 1) {
+                    $html .= '<tr width="100%">
+                                <td>' . $i++ . '</td>
+                                <td><b>' . $customer_name . '</b></td>';
+                } else {
                         $html .= '<tr width="100%">
                                     <td colspan="8"></td>
                                 </tr>
@@ -611,9 +620,11 @@ class CommissionReportController extends Controller
                                     <td colspan="2"><b>' . $customer_name . '</b></td>
                                     <td colspan="6"><b>' . $address_supp . '</b></td>
                                 </tr>';
+                }
 
                 }
                 $ptotal = $ptotal_commission = 0;
+
                 foreach ($sc as $key1 => $row) {
                     $color = "";
                     $paymentdate = strtotime($row->date);
@@ -670,51 +681,71 @@ class CommissionReportController extends Controller
                 } else {
                     $receipt_amount = number_format($row->receipt_amount);
                     $commission_amount = number_format($row->commission_amount);
+                    if ($request->show_detail == 1) {
+
+                    } else {
                     $html .= '<tr width="100%" ' . $color . '>
                                 <td>' . $row->payment_id . '</td>
                                 <td>' . date("d-m-Y", strtotime($row->date)) . '</td>
                                 <td class="text-right">' . $receipt_amount . '</td>
                                 <td class="text-right">' . $commission_amount . '</td>';
-
+                    }
                     if ($request->report_type == 'supplier') {
                         $cust_supp_name = $row->customer_name;
                     } else {
                         $cust_supp_name = $row->supplier_name;
                     }
+                    if ($request->show_detail == 1) {
+                    } else {
                     $html .= '<td>' . $pending_percentage . '</td>
                               <td>' . $cust_supp_name . '</td>
                               <td>' . floor($due_day) . '</td>';
+
                     if ($request->export_pdf == 0) {
                         $html .=  '<td><a href="/account/commission/invoice/view-invoice/' . $commission_invoice_id . '" target="_blank">' . $bill_no . '</a></td>';
                     } else {
                         $html .=  '<td>' . $bill_no . '</td>';
                     }
                     $html .=  '</tr>';
+                    }
                     $ptotal += $row->receipt_amount;
                     $ptotal_commission += $row->commission_amount;
                 }
             }
                 $ptotal1 = number_format($ptotal);
                 $ptotal_commission1 = number_format($ptotal_commission);
+                if ($request->show_detail == 1) {
+                    $html .= '<td class="text-right"><b>' . $ptotal1 . '</b></td>
+                        <td class="text-right"><b>' . $ptotal_commission1 . '</b></td></tr>';
+                } else {
                 $html .= '<tr width="100%">
                         <td colspan="2"><b>Party Total</b></td>
                         <td class="text-right"><b>' . $ptotal1 . '</b></td>
                         <td class="text-right"><b>' . $ptotal_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
+                }
                 $gtotal += $ptotal;
                 $gtotal_commission += $ptotal_commission;
         }
             $gtotal1 = number_format($gtotal);
             $gtotal_commission1 = number_format($gtotal_commission);
+        if ($request->show_detail == 1) {
+            $html .= '<tr width="100%">
+                        <td colspan="2"><b>Grand Total</b></td>
+                        <td class="text-right"><b>' . $gtotal1 . '</b></td>
+                        <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
+                     </tr>';
+        } else {
             $html .= '<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td class="text-right"><b>' . $gtotal1 . '</b></td>
                         <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
-            $data['detail'] = $data2;
         }
+            $data['detail'] = $data2;
+
         $data['table'] = $html;
         $data['report_type'] = $request->report_type;
 
