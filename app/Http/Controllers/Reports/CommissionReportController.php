@@ -607,6 +607,7 @@ class CommissionReportController extends Controller
                                 </tr>';
 
                 }
+                $ptotal = $ptotal_commission = 0;
                 foreach ($sc as $key1 => $row) {
                     $color = "";
                     $paymentdate = strtotime($row->date);
@@ -683,8 +684,18 @@ class CommissionReportController extends Controller
                         $html .=  '<td>' . $bill_no . '</td>';
                     }
                     $html .=  '</tr>';
+                    $ptotal += $row->receipt_amount;
+                    $ptotal_commission += $row->commission_amount;
                 }
             }
+                $ptotal1 = number_format($ptotal);
+                $ptotal_commission1 = number_format($ptotal_commission);
+                $html .= '<tr width="100%">
+                        <td colspan="2"><b>Party Total</b></td>
+                        <td class="text-right"><b>' . $ptotal1 . '</b></td>
+                        <td class="text-right"><b>' . $ptotal_commission1 . '</b></td>
+                        <td colspan="4"></td>
+                        </tr>';
         }
             // foreach ($data3 as $keys => $row) {
             //     $color = "";
