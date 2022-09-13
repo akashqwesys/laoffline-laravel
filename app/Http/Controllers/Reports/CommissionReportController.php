@@ -464,7 +464,7 @@ class CommissionReportController extends Controller
         $morethan = '';
         $sup = '';
         $sup1 = '';
-
+        $data2 =collect($data2)->groupBy('supplier_name');
 
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $morethan .= "( More then ". $request->day['report_days'] ." Days)";
@@ -578,114 +578,72 @@ class CommissionReportController extends Controller
             $data['detail'] = $data1;
         } else {
             $data3 = array();
-            if ($request->report_type == 'supplier') {
-            foreach($data2 as $row) {
-                foreach ($data1 as $key => $row1) {
-                    if ($row1->supplier_id == $row->supplier_id) {
-                        $row->total_comm_amount = $row1->total_comm_amount;
-                    }
-                }
-                array_push($data3, $row);
-            }} else {
-                foreach($data2 as $row) {
-                    foreach ($data1 as $key => $row1) {
-                        if ($row1->customer_id == $row->customer_id) {
-                            $row->total_comm_amount = $row1->total_comm_amount;
-                        }
-                    }
-                    array_push($data3, $row);
-                }
-            }
             $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
-
-            foreach ($data3 as $keys => $row) {
-                $color = "";
-                $paymentdate = strtotime($row->date);
-                $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
-                $due_day = ($currentdate - $paymentdate) / 84600;
-                if ($due_day )
-                if($due_day >= 90) {
-                    $color = "style='color:red'";
-                }
-                $i = 0;
-                $tot_payment1 = number_format($tot_payment);
-                $prev_com1 = number_format($prev_com);
+            foreach ($data2 as $key1 => $sc) {
                 if ($request->report_type == 'supplier') {
-                if($supplier_name != $row->supplier_name) {
-                    $supplier_name = $row->supplier_name;
-                    $address_supp = $row->company_address;
 
-                    if($keys != 0) {
+                        $supplier_name = $key1;
+                        $address_supp = $sc[0]->company_address;
+
                         $html .= '<tr width="100%">
-                                <td colspan="2"><b>Party Total</b></td>
-                                <td class="text-right"><b>'.$tot_payment1.'</b></td>
-                                <td class="text-right"><b>'.$prev_com1.'</b></td>
-                                <td colspan="4"></td>
-							</tr>';
-                        $tot_payment = 0;
-                    }
-
-                    $html .='<tr width="100%">
 		    					<td colspan="8"></td>
 							</tr>
                             <tr width="100%">
-                                <td colspan="2"><b>'.$supplier_name.'</b></td>
-                                <td colspan="6"><b>'.$address_supp.'</b></td>
+                                <td colspan="2"><b>' . $supplier_name . '</b></td>
+                                <td colspan="6"><b>' . $address_supp . '</b></td>
                             </tr>';
-                }
+
                 } else {
-                    if($customer_name != $row->customer_name) {
-                        $customer_name = $row->customer_name;
-                        $address_supp = $row->company_address;
 
-                        if($keys != 0) {
+                        $customer_name = $key1;
+                        $address_supp = $sc[0]->company_address;
 
-                            $html .= '<tr width="100%">
-                                    <td colspan="2"><b>Party Total</b></td>
-                                    <td class="text-right"><b>'.$tot_payment1.'</b></td>
-                                    <td class="text-right"><b>'.$prev_com1.'</b></td>
-                                    <td colspan="4"></td>
-                                </tr>';
-                            $tot_payment = 0;
-                        }
-
-                        $html .='<tr width="100%">
+                        $html .= '<tr width="100%">
                                     <td colspan="8"></td>
                                 </tr>
                                 <tr width="100%">
-                                    <td colspan="2"><b>'.$customer_name.'</b></td>
-                                    <td colspan="6"><b>'.$address_supp.'</b></td>
+                                    <td colspan="2"><b>' . $customer_name . '</b></td>
+                                    <td colspan="6"><b>' . $address_supp . '</b></td>
                                 </tr>';
-                    }
+
                 }
+                foreach ($sc as $key1 => $row) {
+                    $color = "";
+                    $paymentdate = strtotime($row->date);
+                    $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
+                    $due_day = ($currentdate - $paymentdate) / 84600;
+                    if ($due_day)
+                    if ($due_day >= 90) {
+                        $color = "style='color:red'";
+                    }
 
 
                 if ($request->report_type == 'supplier') {
                     $invoices = DB::table('commission_invoices as ci')
-                                ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                                ->where('ipd.flag', 1)
-                                ->where('ci.is_deleted', 0)
-                                ->where('ipd.payment_id', $row->payment_id)
-                                ->where('ipd.financial_year_id', $row->financial_year_id)
-                                ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
-                                ->get();
+                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                    ->where('ipd.flag', 1)
+                        ->where('ci.is_deleted', 0)
+                        ->where('ipd.payment_id', $row->payment_id)
+                        ->where('ipd.financial_year_id', $row->financial_year_id)
+                        ->select('ci.id', 'ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+                        ->get();
                 } else {
                     $invoices = DB::table('commission_invoices as ci')
-                                ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                                ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                                ->where('ipd.flag', 2)
-                                ->where('ci.is_deleted', 0)
-                                ->where('ipd.payment_id', $row->payment_id)
-                                ->where('ipd.financial_year_id', $row->financial_year_id)
-                                ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
-                                ->get();
+                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                    ->where('ipd.flag', 2)
+                        ->where('ci.is_deleted', 0)
+                        ->where('ipd.payment_id', $row->payment_id)
+                        ->where('ipd.financial_year_id', $row->financial_year_id)
+                        ->select('ci.id', 'ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+                        ->get();
                 }
                 if (count($invoices)) {
                     $total = 0;
                     $pending_parcent = collect($invoices)->groupBy('id');
-                    foreach($pending_parcent as $inv) {
-                        foreach($inv as $pp){
+                    foreach ($pending_parcent as $inv) {
+                        foreach ($inv as $pp) {
                             $total += (int)$pp->received_commission_amount;
                             $final_amount = $pp->final_amount;
                             $commission_invoice_id = $pp->id;
@@ -694,67 +652,197 @@ class CommissionReportController extends Controller
                     }
 
                     $pending_amount = (int)$final_amount - (int)$total;
-                    $pending_percentage = round((($pending_amount * 100) / $final_amount),2);
-                    $pending_percentage = $pending_percentage." %";
-
+                    $pending_percentage = round((($pending_amount * 100) / $final_amount), 2);
+                    $pending_percentage = $pending_percentage . " %";
                 } else {
                     $pending_percentage = "100 %";
-					$commission_invoice_id = '';
-					$bill_no = '';
+                    $commission_invoice_id = '';
+                    $bill_no = '';
                 }
-
                 if ($pending_percentage == '0 %') {
-
                 } else {
-                $receipt_amount = number_format($row->receipt_amount);
-                $commission_amount = number_format($row->commission_amount);
-                    $html .= '<tr width="100%" '.$color.'>
-                                <td>'.$row->payment_id.'</td>
-                                <td>'.date("d-m-Y", strtotime($row->date)).'</td>
-                                <td class="text-right">'.$receipt_amount.'</td>
-                                <td class="text-right">'.$commission_amount.'</td>';
+                    $receipt_amount = number_format($row->receipt_amount);
+                    $commission_amount = number_format($row->commission_amount);
+                    $html .= '<tr width="100%" ' . $color . '>
+                                <td>' . $row->payment_id . '</td>
+                                <td>' . date("d-m-Y", strtotime($row->date)) . '</td>
+                                <td class="text-right">' . $receipt_amount . '</td>
+                                <td class="text-right">' . $commission_amount . '</td>';
 
-                if ($request->report_type == 'supplier') {
-                    $cust_supp_name = $row->customer_name;
-                } else {
-                    $cust_supp_name = $row->supplier_name;
-                }
-                    $html .= '<td>'.$pending_percentage.'</td>
-                              <td>'.$cust_supp_name.'</td>
-                              <td>'.floor($due_day).'</td>';
-                    if ($request->export_pdf == 0) {
-                        $html .=  '<td><a href="/account/commission/invoice/view-invoice/'.$commission_invoice_id.'" target="_blank">'.$bill_no.'</a></td>';
+                    if ($request->report_type == 'supplier') {
+                        $cust_supp_name = $row->customer_name;
                     } else {
-                        $html .=  '<td>'.$bill_no.'</td>';
+                        $cust_supp_name = $row->supplier_name;
+                    }
+                    $html .= '<td>' . $pending_percentage . '</td>
+                              <td>' . $cust_supp_name . '</td>
+                              <td>' . floor($due_day) . '</td>';
+                    if ($request->export_pdf == 0) {
+                        $html .=  '<td><a href="/account/commission/invoice/view-invoice/' . $commission_invoice_id . '" target="_blank">' . $bill_no . '</a></td>';
+                    } else {
+                        $html .=  '<td>' . $bill_no . '</td>';
                     }
                     $html .=  '</tr>';
-                $prev_com = $row->total_comm_amount;
-                $tot_payment += $row->receipt_amount;
-                $total_payment += $row->receipt_amount;
-                $total_commission_amount += $row->commission_amount;
                 }
             }
-            $total_payment1 = number_format($total_payment);
-            $total_commission_amount1 = number_format($total_commission_amount);
-            if (!empty($data3)) {
-                $tot_payment1 = number_format($tot_payment);
-                $prev_com1 = number_format($prev_com);
-                $html .= '<tr width="100%">
-                        <td colspan="2"><b>Party Total</b></td>
-                        <td class="text-right"><b>'.$tot_payment1.'</b></td>
-                        <td class="text-right"><b>'.$prev_com1.'</b></td>
-                        <td colspan="4"></td>
-                        </tr>
-                        <tr width="100%">
-                            <td colspan="8">&nbsp;</td>
-                        </tr>
-                        <tr width="100%">
-                            <td colspan="2"><b>Grand Total</b></td>
-                            <td class="text-right"><b>'.$total_payment1.'</b></td>
-                            <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
-                            <td colspan="4"></td>
-                        </tr>';
-            }
+        }
+            // foreach ($data3 as $keys => $row) {
+            //     $color = "";
+            //     $paymentdate = strtotime($row->date);
+            //     $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
+            //     $due_day = ($currentdate - $paymentdate) / 84600;
+            //     if ($due_day )
+            //     if($due_day >= 90) {
+            //         $color = "style='color:red'";
+            //     }
+            //     $i = 0;
+            //     $tot_payment1 = number_format($tot_payment);
+            //     $prev_com1 = number_format($prev_com);
+            //     if ($request->report_type == 'supplier') {
+            //     if($supplier_name != $row->supplier_name) {
+            //         $supplier_name = $row->supplier_name;
+            //         $address_supp = $row->company_address;
+
+            //         if($keys != 0) {
+            //             $html .= '<tr width="100%">
+            //                     <td colspan="2"><b>Party Total</b></td>
+            //                     <td class="text-right"><b>'.$tot_payment1.'</b></td>
+            //                     <td class="text-right"><b>'.$prev_com1.'</b></td>
+            //                     <td colspan="4"></td>
+			// 				</tr>';
+            //             $tot_payment = 0;
+            //         }
+
+            //         $html .='<tr width="100%">
+		    // 					<td colspan="8"></td>
+			// 				</tr>
+            //                 <tr width="100%">
+            //                     <td colspan="2"><b>'.$supplier_name.'</b></td>
+            //                     <td colspan="6"><b>'.$address_supp.'</b></td>
+            //                 </tr>';
+            //     }
+            //     } else {
+            //         if($customer_name != $row->customer_name) {
+            //             $customer_name = $row->customer_name;
+            //             $address_supp = $row->company_address;
+
+            //             if($keys != 0) {
+
+            //                 $html .= '<tr width="100%">
+            //                         <td colspan="2"><b>Party Total</b></td>
+            //                         <td class="text-right"><b>'.$tot_payment1.'</b></td>
+            //                         <td class="text-right"><b>'.$prev_com1.'</b></td>
+            //                         <td colspan="4"></td>
+            //                     </tr>';
+            //                 $tot_payment = 0;
+            //             }
+
+            //             $html .='<tr width="100%">
+            //                         <td colspan="8"></td>
+            //                     </tr>
+            //                     <tr width="100%">
+            //                         <td colspan="2"><b>'.$customer_name.'</b></td>
+            //                         <td colspan="6"><b>'.$address_supp.'</b></td>
+            //                     </tr>';
+            //         }
+            //     }
+
+
+            //     if ($request->report_type == 'supplier') {
+            //         $invoices = DB::table('commission_invoices as ci')
+            //                     ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+            //                     ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+            //                     ->where('ipd.flag', 1)
+            //                     ->where('ci.is_deleted', 0)
+            //                     ->where('ipd.payment_id', $row->payment_id)
+            //                     ->where('ipd.financial_year_id', $row->financial_year_id)
+            //                     ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+            //                     ->get();
+            //     } else {
+            //         $invoices = DB::table('commission_invoices as ci')
+            //                     ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+            //                     ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+            //                     ->where('ipd.flag', 2)
+            //                     ->where('ci.is_deleted', 0)
+            //                     ->where('ipd.payment_id', $row->payment_id)
+            //                     ->where('ipd.financial_year_id', $row->financial_year_id)
+            //                     ->select('ci.id','ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
+            //                     ->get();
+            //     }
+            //     if (count($invoices)) {
+            //         $total = 0;
+            //         $pending_parcent = collect($invoices)->groupBy('id');
+            //         foreach($pending_parcent as $inv) {
+            //             foreach($inv as $pp){
+            //                 $total += (int)$pp->received_commission_amount;
+            //                 $final_amount = $pp->final_amount;
+            //                 $commission_invoice_id = $pp->id;
+            //                 $bill_no = $pp->bill_no;
+            //             }
+            //         }
+
+            //         $pending_amount = (int)$final_amount - (int)$total;
+            //         $pending_percentage = round((($pending_amount * 100) / $final_amount),2);
+            //         $pending_percentage = $pending_percentage." %";
+
+            //     } else {
+            //         $pending_percentage = "100 %";
+			// 		$commission_invoice_id = '';
+			// 		$bill_no = '';
+            //     }
+
+            //     if ($pending_percentage == '0 %') {
+
+            //     } else {
+            //     $receipt_amount = number_format($row->receipt_amount);
+            //     $commission_amount = number_format($row->commission_amount);
+            //         $html .= '<tr width="100%" '.$color.'>
+            //                     <td>'.$row->payment_id.'</td>
+            //                     <td>'.date("d-m-Y", strtotime($row->date)).'</td>
+            //                     <td class="text-right">'.$receipt_amount.'</td>
+            //                     <td class="text-right">'.$commission_amount.'</td>';
+
+            //     if ($request->report_type == 'supplier') {
+            //         $cust_supp_name = $row->customer_name;
+            //     } else {
+            //         $cust_supp_name = $row->supplier_name;
+            //     }
+            //         $html .= '<td>'.$pending_percentage.'</td>
+            //                   <td>'.$cust_supp_name.'</td>
+            //                   <td>'.floor($due_day).'</td>';
+            //         if ($request->export_pdf == 0) {
+            //             $html .=  '<td><a href="/account/commission/invoice/view-invoice/'.$commission_invoice_id.'" target="_blank">'.$bill_no.'</a></td>';
+            //         } else {
+            //             $html .=  '<td>'.$bill_no.'</td>';
+            //         }
+            //         $html .=  '</tr>';
+            //     $prev_com = $row->total_comm_amount;
+            //     $tot_payment += $row->receipt_amount;
+            //     $total_payment += $row->receipt_amount;
+            //     $total_commission_amount += $row->commission_amount;
+            //     }
+            // }
+            // $total_payment1 = number_format($total_payment);
+            // $total_commission_amount1 = number_format($total_commission_amount);
+            // if (!empty($data3)) {
+            //     $tot_payment1 = number_format($tot_payment);
+            //     $prev_com1 = number_format($prev_com);
+            //     $html .= '<tr width="100%">
+            //             <td colspan="2"><b>Party Total</b></td>
+            //             <td class="text-right"><b>'.$tot_payment1.'</b></td>
+            //             <td class="text-right"><b>'.$prev_com1.'</b></td>
+            //             <td colspan="4"></td>
+            //             </tr>
+            //             <tr width="100%">
+            //                 <td colspan="8">&nbsp;</td>
+            //             </tr>
+            //             <tr width="100%">
+            //                 <td colspan="2"><b>Grand Total</b></td>
+            //                 <td class="text-right"><b>'.$total_payment1.'</b></td>
+            //                 <td class="text-right"><b>'.$total_commission_amount1.'</b></td>
+            //                 <td colspan="4"></td>
+            //             </tr>';
+            // }
             $data['detail'] = $data3;
         }
         $data['table'] = $html;
