@@ -103,14 +103,14 @@
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Period : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="bill_period_from" id="datepicker_bill_from" class="date-picker" data-date-format="dd-mm-yyyy">to &nbsp;&nbsp;
-                                                                    <input style="width: 80px;" type="text" v-model="bill_period_to" id="datepicker_bill_to" class="date-picker" data-date-format="dd-mm-yyyy">
+                                                                    <input style="width: 80px;" type="text" v-model="bill_period_from" id="datepicker_bill_from" class="date-picker-" data-date-format="dd-mm-yyyy">to &nbsp;&nbsp;
+                                                                    <input style="width: 80px;" type="text" v-model="bill_period_to" id="datepicker_bill_to" class="date-picker-" data-date-format="dd-mm-yyyy">
                                                                 </td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="border:0px"><b>Bill Date : </b></td>
                                                                 <td colspan="3" style="border:0px">
-                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker_bill_date" class="date-picker" data-date-format="dd-mm-yyyy">
+                                                                    <input style="width: 80px;" type="text" v-model="invoice_bill_date" id="datepicker_bill_date" class="date-picker-" data-date-format="dd-mm-yyyy">
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -273,7 +273,6 @@
         </div>
     </div>
 </template>
-
 <script>
     import $ from "jquery";
     import Multiselect from 'vue-multiselect';
@@ -618,7 +617,13 @@
             // $('#datepicker_bill_to').datepicker('setDate', self.bill_period_to);
             // $('#datepicker_bill_date').datepicker('setDate', self.invoice_bill_date);
 
-            $(document).on('blur', '#datepicker_bill_from', function(e) {
+            $( function() {
+                $( "#datepicker_bill_from, #datepicker_bill_to, #datepicker_bill_date" ).datepicker({
+                    dateFormat: "dd-mm-yy"
+                });
+            } );
+
+            /* $(document).on('blur', '#datepicker_bill_from', function(e) {
                 $('#datepicker_bill_from').val(self.bill_period_from);
             });
             $(document).on('blur', '#datepicker_bill_to', function(e) {
@@ -626,7 +631,7 @@
             });
             $(document).on('blur', '#datepicker_bill_date', function(e) {
                 $('#datepicker_bill_date').val(self.invoice_bill_date);
-            });
+            }); */
         }
     };
 </script>
