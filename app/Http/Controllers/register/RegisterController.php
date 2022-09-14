@@ -1386,11 +1386,9 @@ class RegisterController extends Controller
     public function searchCommissionInvoice(Request $request) {
         $user = Session::get('user');
         $company = Company::where('id', $request->supplier)->first();
-        $commissioninvoice = CommissionInvoice::where('supplier_id', $request->supplier)
-                //   ->whereBetween('created_at', [$request->date." 00:00:00", $request->date." 23:59:59"])
-                  ->whereRaw("created_at::date >= '" . $request->date . "'")
-                  ->whereRaw("created_at::date <= '" . $request->date . "'" )
-                  ->whereNot('done_outward', 1)
+        $commissioninvoice = CommissionInvoice::whereRaw("created_at::date = '" . $request->date . "'")
+                  ->whereRaw("(customer_id = '". $request->supplier . "' or supplier_id = '". $request->supplier."')")
+                  ->where('done_outward', 0)
                   ->where('is_deleted', 0)
                   ->get();
         $data['commissioninvoice'] = [];
