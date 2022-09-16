@@ -97,7 +97,7 @@ class InvoiceController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('ci.bill_date', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[3]['search']['value'] . '%')->whereIn('company_type', [2, 3])->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[3]['search']['value'] )->whereIn('company_type', [2, 3])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->where(function($q) use($cc_id) {
                 $q->whereIn('ci.customer_id', $cc_id)
                 ->orWhereIn('ci.supplier_id', $cc_id);
@@ -158,7 +158,7 @@ class InvoiceController extends Controller
             $grand_total = $grand_total->whereDate('ci.bill_date', '=', $columnName_arr[1]['search']['value']);
         }
         if (isset($columnName_arr[3]['search']['value']) && !empty($columnName_arr[3]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[3]['search']['value'] . '%')->whereIn('company_type', [2, 3])->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[3]['search']['value'] )->whereIn('company_type', [2, 3])->pluck('id')->toArray();
             $invoice = $invoice->where(function($q) use($cc_id) {
                 $q->whereIn('ci.customer_id', $cc_id)
                 ->orWhereIn('ci.supplier_id', $cc_id);

@@ -87,11 +87,11 @@ class SaleBillController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->where('select_date', '=', $columnName_arr[4]['search']['value']);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->where('company_type', 2)->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[5]['search']['value'] )->where('company_type', 2)->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $ss_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->where('company_type', 3)->pluck('id')->toArray();
+            $ss_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[6]['search']['value'])->where('company_type', 3)->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $ss_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
@@ -124,11 +124,11 @@ class SaleBillController extends Controller
             $SaleBill = $SaleBill->where('s.select_date', '=', $columnName_arr[4]['search']['value']);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[5]['search']['value'] . '%')->where('company_type', 2)->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[5]['search']['value'] )->where('company_type', 2)->pluck('id')->toArray();
             $SaleBill = $SaleBill->whereIn('s.company_id', $cc_id);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $ss_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->where('company_type', 3)->pluck('id')->toArray();
+            $ss_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[6]['search']['value'] )->where('company_type', 3)->pluck('id')->toArray();
             $SaleBill = $SaleBill->whereIn('s.supplier_id', $ss_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {

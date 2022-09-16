@@ -209,10 +209,12 @@ class PaymentsReportController extends Controller
         $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($supplier, $value->company_id);
-                array_push($supplier, $value->link_companies_id);
+            if ($request->group) {
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+                foreach ($link_companies as $key => $value) {
+                    array_push($supplier, $value->company_id);
+                    array_push($supplier, $value->link_companies_id);
+                }
             }
             $supplier = array_unique($supplier);
             if (count($supplier) < 1) {
@@ -488,10 +490,12 @@ class PaymentsReportController extends Controller
         $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($supplier, $value->company_id);
-                array_push($supplier, $value->link_companies_id);
+            if ($request->group) {
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+                foreach ($link_companies as $key => $value) {
+                    array_push($supplier, $value->company_id);
+                    array_push($supplier, $value->link_companies_id);
+                }
             }
             $supplier = array_unique($supplier);
             if (count($supplier) < 1) {

@@ -105,7 +105,7 @@ class CommissionController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('commissions.created_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[4]['search']['value'])->pluck('id')->toArray();
             $cc_id = implode(',', $cc_id);
             $totalRecordswithFilter = $totalRecordswithFilter->whereRaw('supplier_id in (' . $cc_id . ') or customer_id in (' . $cc_id . ')');
         }
@@ -131,7 +131,7 @@ class CommissionController extends Controller
             $records = $records->whereDate('commissions.created_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[4]['search']['value'])->pluck('id')->toArray();
             $cc_id = implode(',', $cc_id);
             $records = $records->whereRaw('supplier_id in ('. $cc_id.') or customer_id in (' .$cc_id.')');
         }

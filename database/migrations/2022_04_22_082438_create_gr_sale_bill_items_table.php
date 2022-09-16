@@ -19,9 +19,9 @@ return new class extends Migration
             $table->integer('goods_return_id')->default('0');
             $table->integer('product_or_fabric_id')->default('0');
             $table->integer('peices')->default('0');
-            $table->integer('meters')->default('0');
+            $table->double('meters')->default('0');
             $table->integer('peices_meters')->default('0');
-            $table->integer('rate')->default('0');
+            $table->double('rate')->default('0');
             $table->double('discount_per')->default('0');
             $table->double('discount_amt')->default('0');
             $table->double('cgst_per')->default('0');
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->double('sgst_amt')->default('0');
             $table->double('igst_per')->default('0');
             $table->double('igst_amt')->default('0');
-            $table->integer('amount')->default('0');
+            $table->double('amount')->default('0');
             $table->integer('is_deleted')->default('0');
             $table->timestamps();
         });

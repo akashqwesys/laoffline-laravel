@@ -375,10 +375,12 @@ class CommissionReportController extends Controller
         $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($supplier, $value->company_id);
-                array_push($supplier, $value->link_companies_id);
+            if ($request->group) {
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+                foreach ($link_companies as $key => $value) {
+                    array_push($supplier, $value->company_id);
+                    array_push($supplier, $value->link_companies_id);
+                }
             }
             $supplier = array_unique($supplier);
             if (count($supplier) < 1) {
@@ -397,10 +399,12 @@ class CommissionReportController extends Controller
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($customer, $value->company_id);
-                array_push($customer, $value->link_companies_id);
+            if ($request->group) {
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+                foreach ($link_companies as $key => $value) {
+                    array_push($customer, $value->company_id);
+                    array_push($customer, $value->link_companies_id);
+                }
             }
             $customer = array_unique($customer);
             if (count($customer) < 1) {
