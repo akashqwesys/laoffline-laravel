@@ -215,6 +215,7 @@
         name: 'payment',
         props: {
             id: Number,
+            fid: Number
         },
         data() {
             return {
@@ -247,9 +248,8 @@
                 currency: 'INR',
                 minimumFractionDigits: 0
             });
-             axios.get(`/payments/fetch-payment/${this.id}`)
+             axios.get(`/payments/fetch-payment/${this.id}?fid=${this.fid}`)
                 .then(response => {
-
                         gData = response.data;
                         if (gData.paymentData.reciept_mode == 'cash') {
                             $(".cash").removeClass("d-none");

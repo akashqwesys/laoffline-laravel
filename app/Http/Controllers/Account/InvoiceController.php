@@ -726,10 +726,13 @@ class InvoiceController extends Controller
         $paymentIds = json_decode(session()->get('commission_payment_id'));
         $p_ids = $fy_ids = [];
         $total_amount = 0;
+        $pf = '';
         foreach ($paymentIds as $v) {
             $a = explode('-', $v);
             $p_ids[] = $a[0];
             $fy_ids[] = $a[1];
+            $total_amount += floatval($a[2]);
+            $pf .= " (p.payment_id = " . $a[0] . " and p.financial_year_id =" . $a[1] . ") or";
             $total_amount += floatval($a[2]);
         }
 
@@ -738,8 +741,9 @@ class InvoiceController extends Controller
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
             ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
             ->select('p.payment_id', 'p.financial_year_id', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.receipt_amount', 'p.receipt_from', 'p.supplier_id', 'cc.company_name as customer_name', 'cs.company_name as supplier_name', DB::raw("TO_CHAR(p.date, 'dd-mm-yyyy') as date"), 'p.id as p_id')
-            ->whereIn('p.financial_year_id', $fy_ids)
-            ->whereIn('p.payment_id', $p_ids)
+            // ->whereIn('p.financial_year_id', $fy_ids)
+            // ->whereIn('p.payment_id', $p_ids)
+            ->whereRaw(rtrim($pf, ' or'))
             ->get();
         foreach ($payments as $v) {
             $with_gst_amt += $v->receipt_amount;
@@ -749,8 +753,9 @@ class InvoiceController extends Controller
         $pay_n_pay_det = DB::table('payments as p')
             ->join('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->select('pd.adjust_amount', DB::raw('(SELECT (cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = pd.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
-            ->whereIn('p.id', $p_ids)
-            ->whereIn('p.financial_year_id', $fy_ids)
+            // ->whereIn('p.id', $p_ids)
+            // ->whereIn('p.financial_year_id', $fy_ids)
+            ->whereRaw(rtrim($pf, ' or'))
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();
@@ -879,8 +884,15 @@ class InvoiceController extends Controller
             ->select(DB::raw("TO_CHAR(payment_date, 'dd-mm-yyyy') as date"), 'id', 'received_amount', 'commission_invoice_id', 'payment_id', 'company_id', 'financial_year_id')
             ->where('commission_invoice_id', $id)
             ->get();
-        $p_ids = implode(',', collect($invoice_payment_details)->pluck('payment_id')->toArray());
-        $f_ids = implode(',', collect($invoice_payment_details)->pluck('financial_year_id')->toArray());
+        // $p_ids = implode(',', collect($invoice_payment_details)->pluck('payment_id')->toArray());
+        // $f_ids = implode(',', collect($invoice_payment_details)->pluck('financial_year_id')->toArray());
+        $p_ids = collect($invoice_payment_details)->pluck('payment_id')->toArray();
+        $f_ids = collect($invoice_payment_details)->pluck('financial_year_id')->toArray();
+
+        $pf = "";
+        for ($i = 0; $i < count($p_ids); $i++) {
+            $pf .= " (p.payment_id = " . $p_ids[0] . " and p.financial_year_id =" . $f_ids[1] . ") or";
+        }
 
         $payment_details = DB::table('payments as p')
             ->leftJoin('companies as c', function ($j) {
@@ -888,7 +900,8 @@ class InvoiceController extends Controller
                 ->orOn('p.supplier_id', '=', 'c.id');
             })
             ->select('c.id as company_id', 'c.company_name')
-            ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
+            // ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
+            ->whereRaw(rtrim($pf, ' or'))
             // ->whereIn('p.payment_id', $p_ids)
             // ->whereIn('p.financial_year_id', $f_ids)
             ->get();
@@ -901,7 +914,8 @@ class InvoiceController extends Controller
         $pay_n_pay_det = DB::table('payments as p')
             ->leftJoin('payment_details as pd', 'p.id', '=', 'pd.p_increment_id')
             ->select('pd.adjust_amount', DB::raw('(SELECT (cgst + sgst + igst) as gst from sale_bill_items WHERE financial_year_id = pd.financial_year_id AND sale_bill_id = pd.sr_no AND is_deleted = 0 LIMIT 1) as gst'))
-            ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
+            // ->whereRaw('p.payment_id in (' . $p_ids . ') and p.financial_year_id in (' . $f_ids . ')')
+            ->whereRaw(rtrim($pf, ' or'))
             ->where('p.is_deleted', 0)
             ->where('pd.is_deleted', 0)
             ->get();

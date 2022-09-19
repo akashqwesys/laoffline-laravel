@@ -1724,8 +1724,12 @@ class PaymentsController extends Controller
         return view('payment.editPayment',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    public function fetchPayment($id) {
-        $user = session()->get('user');
+    public function fetchPayment(Request $request, $id) {
+
+        $user = Session::get('user');
+        if ($request->fid != 0 && $request->fid != $user->financial_year_id) {
+            $user->financial_year_id = $request->fid;
+        }
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $customer = Company::where('id', $payment->receipt_from)->first();
         $supplier = Company::where('id', $payment->supplier_id)->first();
@@ -2562,7 +2566,7 @@ class PaymentsController extends Controller
         return $data;
     }
 
-    public function viewPayment($id) {
+    public function viewPayment(Request $request, $id) {
         $page_title = 'View Payment';
         $financialYear = FinancialYear::where('id',$id);
         $user = Session::get('user');
@@ -2570,8 +2574,9 @@ class PaymentsController extends Controller
                                 join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
         $employees['id'] = $id;
+        $fid = isset($request->fid) && !empty($request->fid) ? $request->fid : 0;
 
-        return view('payment.viewpayment',compact('financialYear', 'page_title'))->with('employees', $employees);
+        return view('payment.viewpayment', compact('financialYear', 'page_title', 'fid'))->with('employees', $employees);
     }
 
     public function viewVoucher($id) {

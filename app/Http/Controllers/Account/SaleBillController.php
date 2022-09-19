@@ -168,7 +168,7 @@ class SaleBillController extends Controller
 
         $payment_status_ids = DB::table('payment_details as pd')
             ->leftJoin('payments as p', 'pd.p_increment_id', '=', 'p.id')
-            ->select('p.payment_id', 'pd.sr_no')
+            ->select('p.payment_id', 'pd.sr_no', 'p.financial_year_id')
             ->whereIn('pd.sr_no', $sale_bill_ids)
             ->where('pd.financial_year_id', $user->financial_year_id)
             ->where('p.is_deleted', 0)
@@ -195,7 +195,7 @@ class SaleBillController extends Controller
 
             $payment_id = collect($payment_status_ids)->where('sr_no', $s->sale_bill_id)->values();
             if (count($payment_id)) {
-                $payment_status = '<a href="/payments/view-payment/' . $payment_id[0]->payment_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
+                $payment_status = '<a href="/payments/view-payment/' . $payment_id[0]->payment_id . '?fid=' . $payment_id[0]->financial_year_id . '" class="" ><em class="icon ni ni-check-thick" title="Yes"></em></a>';
             } else {
                 $payment_status = '<em class="icon ni ni-cross" title="No"></em>';
             }
