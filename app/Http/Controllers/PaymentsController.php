@@ -907,9 +907,9 @@ class PaymentsController extends Controller
             }
             $color_flag_id = $record->color_flag_id;
             $action = $action.'<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a>';
-            if (!$record->done_outward) {
+            // if (!$record->done_outward) {
                 $action = $action.'<a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a><a href="/payments/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
-            }
+            // }
             $data_arr[] = array(
                 "id" => $id,
                 "sign" => $sign,
