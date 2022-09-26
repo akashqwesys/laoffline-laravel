@@ -258,7 +258,7 @@ class CommissionController extends Controller
         $commissioninvoice = $commissioninvoice->where('commission_status', 0)
             ->where('is_deleted', 0)
         // ->whereNot('id', $commissioninvoicedone)
-            ->orderBy('bill_date', 'asc')
+            ->orderBy('bill_date', 'bill_no', 'asc')
             ->get();
         $commissioninvoices = array();
 
