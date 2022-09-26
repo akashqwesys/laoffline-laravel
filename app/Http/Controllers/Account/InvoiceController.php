@@ -892,7 +892,7 @@ class InvoiceController extends Controller
 
         $pf = "";
         for ($i = 0; $i < count($p_ids); $i++) {
-            $pf .= " (p.payment_id = " . $p_ids[0] . " and p.financial_year_id =" . $f_ids[0] . ") or";
+            $pf .= " (p.payment_id = " . $p_ids[$i] . " and p.financial_year_id =" . $f_ids[$i] . ") or";
         }
 
         $payment_details = DB::table('payments as p')
