@@ -1534,118 +1534,119 @@
                 $("#error-for-emailfrom").text("");
                 $("#error-for-fromno").text("");
                 var paymentdata = new FormData();
-                if (this.scope == 'edit') {
-
-                    paymentdata.append('billdata', JSON.stringify(this.salebills));
-                    paymentdata.append('formdata', JSON.stringify(this.form));
-                    //paymentdata.append('chequeimage', this.chequeimage);
-                    paymentdata.append('letterimage', this.letterimage);
-                    this.chequeimage.forEach((contact,index)=>{
-                    if(contact){
-                        paymentdata.append(`chequeimage[${index}]`, contact);
-                    }});
-                   axios.post('/payments/update',paymentdata)
-                    .then(() => {
-                         window.location.href = '/payments';
-                    })
-                    .catch((error) => {
-                        var validationError = error.response.data.errors;
-                    })
-                } else {
-
-                    if (this.form.refrence == '') {
-                        $("#error-for-reference").text("Select Reference");
-                        this.isValidate = false;
-                    } else {
-                        if (this.form.refrence == 1) {
-                        if (this.form.refrencevia && this.form.refrencevia.name == 'Courier') {
-
-                            if (this.form.courrier == '') {
-                                $("#error-for-couurier").text("Select Courier");
-                                this.isValidate = false;
-                            } else {
-                                $("#error-for-couurier").text("");
-                                this.isValidate = true;
-                            }
-                            if (this.form.recivedate == '') {
-                                $("#error-for-recivedate").text("Select Receive Date");
-                                this.isValidate = false;
-                            } else {
-                                $("#error-for-recivedate").text("");
-                                this.isValidate = true;
-                            }
-                        } else if (this.form.refrencevia && this.form.refrencevia.name == 'Hand') {
-                            if (this.form.recivedate == '') {
-                                $("#error-for-recivedate").text("Select Receive Date");
-                                this.isValidate = false;
-                            } else {
-                                $("#error-for-recivedate").text("");
-                                this.isValidate = true;
-                            }
-                        } else if (this.form.refrencevia.name == 'Email') {
-                            if (this.form.emailfrom == '') {
-
-                                $("#error-for-emailfrom").text("Enter Email");
-                                this.isValidate = false;
-                            } else {
-                                $("#error-for-emailfrom").text("");
-                                this.isValidate = true;
-                            }
-                        } else if (this.form.refrencevia && this.form.refrencevia.name == 'Whatsapp') {
-                            if (this.form.recivedate == '') {
-                                $("#error-for-fromno").text("Enter From No");
-                                this.isValidate = false;
-                            } else {
-                                $("#error-for-fromno").text("");
-                                this.isValidate = true;
-                            }
-                        }
-                    } else {
-                        this.isValidate = true;
-                    }
-                    }
-                    if (this.form.reciptdate == '') {
-                        $("#error-for-reciptdate").text("Select Receipt Date");
-                        this.isValidate = false;
-                    } else {
-                        this.isValidate = true;
-                        $("#error-for-reference").text("");
-                    }
-                    if (this.form.recipt_mode == 'cheque') {
-                        if (this.form.chequedate == '') {
-                            $("#error-for-chequedate").text("Select Cheque Date");
-                            this.isValidate = false;
-                        } else {
-                            $("#error-for-chequedate").text("");
-                            this.isValidate = true;
-                        }
-                    }
-
-
-                    paymentdata.append('billdata', JSON.stringify(this.salebills));
-                    paymentdata.append('formdata', JSON.stringify(this.form));
-                    paymentdata.append('chequeimage', this.chequeimage);
-                    paymentdata.append('letterimage', this.letterimage);
-                    this.chequeimage.forEach((contact,index)=>{
-                    if(contact){
-                        paymentdata.append(`chequeimage[${index}]`, contact);
-                    }});
-                    if (this.isValidate) {
-                        axios.post('/payments/create', paymentdata)
-                        .then((response2) => {
-                            if (response2.data.redirect_url == ''){
-                                window.location.href = '/payments';
-                            } else {
-                                window.location.href = response2.data.redirect_url;
-                            }
+                setTimeout(() => {
+                    if (this.scope == 'edit') {
+                        paymentdata.append('billdata', JSON.stringify(this.salebills));
+                        paymentdata.append('formdata', JSON.stringify(this.form));
+                        //paymentdata.append('chequeimage', this.chequeimage);
+                        paymentdata.append('letterimage', this.letterimage);
+                        this.chequeimage.forEach((contact,index)=>{
+                        if(contact){
+                            paymentdata.append(`chequeimage[${index}]`, contact);
+                        }});
+                       axios.post('/payments/update',paymentdata)
+                        .then(() => {
+                             window.location.href = '/payments';
                         })
                         .catch((error) => {
                             var validationError = error.response.data.errors;
                         })
                     } else {
-                        alert('Please Fill required Field');
+
+                        if (this.form.refrence == '') {
+                            $("#error-for-reference").text("Select Reference");
+                            this.isValidate = false;
+                        } else {
+                            if (this.form.refrence == 1) {
+                            if (this.form.refrencevia && this.form.refrencevia.name == 'Courier') {
+
+                                if (this.form.courrier == '') {
+                                    $("#error-for-couurier").text("Select Courier");
+                                    this.isValidate = false;
+                                } else {
+                                    $("#error-for-couurier").text("");
+                                    this.isValidate = true;
+                                }
+                                if (this.form.recivedate == '') {
+                                    $("#error-for-recivedate").text("Select Receive Date");
+                                    this.isValidate = false;
+                                } else {
+                                    $("#error-for-recivedate").text("");
+                                    this.isValidate = true;
+                                }
+                            } else if (this.form.refrencevia && this.form.refrencevia.name == 'Hand') {
+                                if (this.form.recivedate == '') {
+                                    $("#error-for-recivedate").text("Select Receive Date");
+                                    this.isValidate = false;
+                                } else {
+                                    $("#error-for-recivedate").text("");
+                                    this.isValidate = true;
+                                }
+                            } else if (this.form.refrencevia.name == 'Email') {
+                                if (this.form.emailfrom == '') {
+
+                                    $("#error-for-emailfrom").text("Enter Email");
+                                    this.isValidate = false;
+                                } else {
+                                    $("#error-for-emailfrom").text("");
+                                    this.isValidate = true;
+                                }
+                            } else if (this.form.refrencevia && this.form.refrencevia.name == 'Whatsapp') {
+                                if (this.form.recivedate == '') {
+                                    $("#error-for-fromno").text("Enter From No");
+                                    this.isValidate = false;
+                                } else {
+                                    $("#error-for-fromno").text("");
+                                    this.isValidate = true;
+                                }
+                            }
+                        } else {
+                            this.isValidate = true;
+                        }
+                        }
+                        if (this.form.reciptdate == '') {
+                            $("#error-for-reciptdate").text("Select Receipt Date");
+                            this.isValidate = false;
+                        } else {
+                            this.isValidate = true;
+                            $("#error-for-reference").text("");
+                        }
+                        if (this.form.recipt_mode == 'cheque') {
+                            if (this.form.chequedate == '') {
+                                $("#error-for-chequedate").text("Select Cheque Date");
+                                this.isValidate = false;
+                            } else {
+                                $("#error-for-chequedate").text("");
+                                this.isValidate = true;
+                            }
+                        }
+
+
+                        paymentdata.append('billdata', JSON.stringify(this.salebills));
+                        paymentdata.append('formdata', JSON.stringify(this.form));
+                        paymentdata.append('chequeimage', this.chequeimage);
+                        paymentdata.append('letterimage', this.letterimage);
+                        this.chequeimage.forEach((contact,index)=>{
+                        if(contact){
+                            paymentdata.append(`chequeimage[${index}]`, contact);
+                        }});
+                        if (this.isValidate) {
+                            axios.post('/payments/create', paymentdata)
+                            .then((response2) => {
+                                if (response2.data.redirect_url == ''){
+                                    window.location.href = '/payments';
+                                } else {
+                                    window.location.href = response2.data.redirect_url;
+                                }
+                            })
+                            .catch((error) => {
+                                var validationError = error.response.data.errors;
+                            })
+                        } else {
+                            alert('Please Fill required Field');
+                        }
                     }
-                }
+                }, 2000);
             },
         },
         mounted() {
