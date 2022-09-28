@@ -92,7 +92,7 @@
                                             <label class="form-label">Sample For : </label> {{ Inward.samplefor }}
                                         </div>
                                         <div class="row">
-                                            <label class="form-label">Assign For : </label> {{ Inward.assignemp.name }}
+                                            <label class="form-label">Assign For : </label> {{ assignname }}
                                         </div>
                                     </div>
                                 </div>
@@ -128,7 +128,7 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-
+                                                <th>Select</th>
                                                 <th>Sr no</th>
 	    								        <th>Name</th>
 		    									<th>Attachment</th>
@@ -139,6 +139,8 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="(sample,index) in samples" :key="index">
+                                                <td><input type="checkbox" class="d-block" v-model="selected" @change="sample_form_check"
+                                                    :value="{'id':sample.sample_id}" required></td>
                                                 <td>{{ ++index }}</td>
                                                 <td>{{ sample.name }}</td>
                                                 <td><a :href="'/upload/InwardSample/'+sample.image" target="_blank">
@@ -152,6 +154,85 @@
                                     </table>
                                 </div>
                         </div>
+                        <div class="card card-bordered sample-outward d-none">
+                            <div class="card-header">
+                                <h6>Insert Courier Details</h6>
+                            </div>
+                            <form action="#" class="form-validate" @submit.prevent="register()">
+                                <div class="card-inner salebilldata">
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-company">Company</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                        <multiselect v-model="form.company" :options="company" placeholder="Select Comapny" label="company_name" track-by="company_name">
+                                        </multiselect>
+
+                                        </div>
+                                    </div>
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-refrencevia">Sample Via</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <multiselect v-model="form.referncevia" :options="referncevia" placeholder="Select Sample Via" label="name"
+                                                track-by="name" @select="getRefencevia"></multiselect>
+                                        </div>
+                                        <div id="error-for-referencevia" class="mt-2 text-danger"></div>
+                                    </div>
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-datetime">Outward Date Time</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="date" class="form-control" id="fv-datetime" v-model="form.datetime"
+                                                onfocus="this.showPicker()">
+                                        </div>
+                                    </div>
+
+                                    <div class="row gy-4 courrier">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-courrier">Courrier Name</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <multiselect v-model="form.courrier" :options="courier" placeholder="Select Courrier" label="name"
+                                                track-by="name"></multiselect>
+                                        </div>
+                                        <div id="error-for-courrier" class="mt-2 text-danger"></div>
+                                    </div>
+
+                                    <div class="row gy-4 courrier">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-reciptno">Courrier Receipt No</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="fv-reciptno" v-model="form.reciptno">
+
+                                        </div>
+                                    </div>
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-weightparcel">Weight Of Parcel</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="fv-weightparcel" v-model="form.weightparcel">
+                                        </div>
+                                    </div>
+
+                                    <div class="row gy-4">
+                                        <div class="col-sm-2 text-right">
+                                            <label class="form-label" for="fv-delivery">Delivery By</label>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="fv-delivery" v-model="form.delivery">
+
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary generatepayment mb-2 float-right">Save Changes</button>
+                                </div>
+                            </form>
+                        </div><!-- .card -->
                     </div><!-- .nk-block -->
                 </div>
             </div>
@@ -160,6 +241,7 @@
 </template>
 
 <script>
+    import Multiselect from 'vue-multiselect';
     import 'jquery/dist/jquery.min.js';
     import 'datatables.net-bs5/js/dataTables.bootstrap5';
     import 'datatables.net-responsive-bs4/js/responsive.bootstrap4';
@@ -167,6 +249,8 @@
     import "datatables.net-buttons/js/buttons.flash.js";
     import "datatables.net-buttons/js/buttons.html5.js";
     import "datatables.net-buttons/js/buttons.print.js";
+    import Form from 'vform';
+
     import $ from 'jquery';
 
     var gData = [];
@@ -175,25 +259,109 @@
         props: {
             id: Number,
         },
+        components: {
+            Multiselect,
+        },
         data() {
             return {
                 Inward: [],
                 attachments: [],
                 samples: [],
+                company:[],
+                selected: [],
+                isValidate: 0,
+                courier: [],
+                assignname: '',
+                referncevia: [{ name: 'Courier' }, { name: 'Hand' }],
+                form: new Form({
+                    datetime: '',
+                    company: '',
+                    referncevia: '',
+                    courrier: '',
+                    reciptno: '',
+                    weightparcel: '',
+                    delivery: '',
+                })
             }
         },
         created() {
+            const date = new Date();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const y = String(date.getFullYear());
+            this.form.datetime = [y, m, d].join('-');
              axios.get(`/register/fetch-inward/${this.id}`)
                 .then(response => {
                         gData = response.data;
                         let total = 0;
                         this.Inward = gData.inward;
+                        this.assignname = gData.inward.assignemp.firstname + ' ' + gData.inward.assignemp.lastname;
                         this.attachments = gData.inward.attachment;
                         this.samples = gData.sample;
                 });
+            axios.get('/commission/list-company')
+                .then(response => {
+                    this.company = response.data;
+                });
+            axios.get('/register/list-agentcourier')
+                .then(response => {
+                    this.courier = response.data.courier;
+                });
         },
         methods: {
+            getRefencevia(option, id) {
+                let refernceby = option.name;
+                if (refernceby == 'Hand') {
+                    $(".courrier").addClass("d-none");
+                } else if (refernceby == 'Courier') {
+                    $(".courrier").removeClass("d-none");
+                }
+            },
+            sample_form_check(event){
+                console.log(this.selected);
+                if(this.selected.length > 0){
+                    $(".sample-outward").removeClass("d-none");
+                } else {
+                    $(".sample-outward").addClass("d-none");
+                }
+            },
+            register(event){
+                $("#error-for-referencevia").text("");
+                $("#error-for-courrier").text("");
+                if (this.form.referncevia == '') {
+                    $("#error-for-referencevia").text("Select Reference Via");
+                    this.isValidate = 0;
+                } else {
+                    $("#error-for-referencevia").text("");
+                    if (this.form.referncevia.name == 'Courier') {
+                        if (this.form.courrier == '') {
+                            $("#error-for-courrier").text("Select Courier");
+                            this.isValidate = 0;
+                        } else {
+                            $("#error-for-courrier").text("");
+                            this.isValidate = 1;
+                        }
+                    } else {
+                        this.isValidate = 1;
+                    }
+                }
+                var formdata = new FormData();
+                formdata.append("outward_sample", JSON.stringify(this.form));
+                formdata.append("sample_ids", JSON.stringify(this.selected));
+                // console.log(JSON.stringify(this.selected));
+                // console.log(JSON.stringify(this.form));
+                if (this.isValidate == 1) {
+                    axios.post('/register/insertsampleoutward', formdata)
+                        .then(function (responce) {
+                            //window.location.href = `/register/outward/view-inward/${this.id}`;
+                        }).catch(function (error) {
 
+                        });
+                } else {
+                    alert('Please Fill Required Field');
+                    return false;
+                }
+            }
         },
         mounted() {
 

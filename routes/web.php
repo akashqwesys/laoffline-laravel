@@ -424,6 +424,7 @@ Route::group(['prefix' => 'register', 'middleware' => ['auth', 'permission:modif
     Route::post('/insertcourier', [App\Http\Controllers\register\RegisterController::class, 'insertCourier']);
     Route::post('/updateoutward', [App\Http\Controllers\register\RegisterController::class, 'updateOutward']);
     Route::post('/insertpaymentoutward', [App\Http\Controllers\register\RegisterController::class, 'insertPaymentOutward']);
+    Route::post('/insertsampleoutward', [App\Http\Controllers\register\RegisterController::class, 'insertSampleOutward']);
     Route::post('/insertcommissionoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionOutward']);
     Route::post('/insertcommissioninvoiceoutward', [App\Http\Controllers\register\RegisterController::class, 'insertCommissionInvoiceOutward']);
     Route::post('/insertinward/{type}/', [App\Http\Controllers\register\RegisterController::class, 'insertInward']);
@@ -727,7 +728,7 @@ Route::group(['prefix' => 'payments', 'middleware' => ['auth', 'permission:acces
     Route::get('/list-seller', [App\Http\Controllers\PaymentsController::class, 'listSeller'])->name('list-seller');
     Route::get('/list-customer', [App\Http\Controllers\PaymentsController::class, 'listCustomer'])->name('list-customer');
     Route::get('/list-bank', [App\Http\Controllers\PaymentsController::class, 'listbank'])->name('list-bank');
-    
+
     Route::post('/storepaymentsearch', [App\Http\Controllers\PaymentsController::class, 'storePaymentSearch']);
     Route::get('/getpaymentsearch', [App\Http\Controllers\PaymentsController::class, 'getPaymentSearch']);
     Route::get('/clearpaymentsearch', [App\Http\Controllers\PaymentsController::class, 'clearPaymentSearch']);

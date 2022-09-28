@@ -557,7 +557,7 @@ class InvoiceController extends Controller
             $main_cmp_id = $company_details->id;
             $add_in = null;
             if (count($link_companies)) {
-                $add_in = ' or "p"."supplier_id" in (' . implode(',', $link_companies) . ')';
+                $add_in = ' or "p"."supplier_id" in (' . implode(',', $link_companies) . ') or "p"."customer_id" in (' . implode(',', $link_companies) . ')';
             }
             $payment = $payment->whereRaw('("p"."supplier_id" = ' . $main_cmp_id . ' or "p"."customer_id" = ' . $main_cmp_id . ' ' . $add_in . ' )');
         }
