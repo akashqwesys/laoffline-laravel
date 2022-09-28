@@ -348,6 +348,7 @@
                 var formdata = new FormData();
                 formdata.append("outward_sample", JSON.stringify(this.form));
                 formdata.append("sample_ids", JSON.stringify(this.selected));
+                formdata.append("inward_id", this.id);
                 // console.log(JSON.stringify(this.selected));
                 // console.log(JSON.stringify(this.form));
                 if (this.isValidate == 1) {

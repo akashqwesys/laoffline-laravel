@@ -5,6 +5,7 @@ namespace App\Http\Controllers\register;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use App\Models\Sample;
 use App\Models\Logs;
 use App\Models\FinancialYear;
 use App\Models\IncrementId;
@@ -3341,6 +3342,7 @@ class RegisterController extends Controller
     public function insertSampleOutward(Request $request) {
         $outward_data = json_decode($request->outward_sample);
         $sampledata =  json_decode($request->sample_ids);
+        $inward_id = $request->inward_id;
         $user = Session::get('user');
         $financialid = $user->financial_year_id;
         if ($outward_data->referncevia->name == 'Courier'){
@@ -3427,10 +3429,32 @@ class RegisterController extends Controller
         } else {
             $typeName = '';
         }
-        $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
-        $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
 
+        $sampleLastid = Sample::orderBy('sample_id', 'DESC')->first('sample_id');
+        $sampleid = !empty($sampleLastid) ? $sampleLastid->sample_id + 1 : 1;
 
+        $sample = new Sample();
+        $sample->sample_id = $sampleid;
+        $sample->ouid = $ouid;
+        $sample->reference_id = $ref_id;
+        $sample->inward_id = $inward_id;
+        $sample->company_id = $outward_data->company->id;
+        $sample->supplier_id = 0;
+        $sample->reference_via = 0;
+        $sample->sample_via = $ref_via;
+        $sample->courier_name = $courier_name;
+        $sample->weight_of_parcel = $weight_of_parcel;
+        $sample->courier_receipt_no = $courier_receipt_no;
+        $sample->courier_received_time = $courier_received_time;
+        $sample->delivery_by = $delivery_by;
+        $sample->product_qty = 0;
+        $sample->fabric_meters = 0;
+        $sample->save();
+
+        foreach ($sampledata as $key => $value) {
+            $remainingQty = InwardSample::where('inward_sample_id', $value)->first();
+            $sampleDetails = $this->dbinward->getRemainingValue($value);
+        }
 
     }
 }

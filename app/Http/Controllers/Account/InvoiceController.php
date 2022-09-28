@@ -91,7 +91,7 @@ class InvoiceController extends Controller
             ->join('employees as e', 'ci.generated_by', '=', 'e.id')
             ->where('ci.financial_year_id', $user->financial_year_id);
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $totalRecordswithFilter = $totalRecordswithFilter->where('ci.bill_no', $columnName_arr[0]['search']['value']);
+            $totalRecordswithFilter = $totalRecordswithFilter->where('ci.bill_no', 'like', '%'.$columnName_arr[0]['search']['value'].'%');
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('ci.bill_date', '=', $columnName_arr[1]['search']['value']);
@@ -150,8 +150,8 @@ class InvoiceController extends Controller
             ->where('ci.financial_year_id', $user->financial_year_id);
 
         if (isset($columnName_arr[0]['search']['value']) && !empty($columnName_arr[0]['search']['value'])) {
-            $invoice = $invoice->where('ci.bill_no', $columnName_arr[0]['search']['value']);
-            $grand_total = $grand_total->where('ci.bill_no', $columnName_arr[0]['search']['value']);
+            $invoice = $invoice->where('ci.bill_no','like', '%' . $columnName_arr[0]['search']['value'] . '%');
+            $grand_total = $grand_total->where('ci.bill_no','like', '%' . $columnName_arr[0]['search']['value'] . '%');
         }
         if (isset($columnName_arr[1]['search']['value']) && !empty($columnName_arr[1]['search']['value'])) {
             $invoice = $invoice->whereDate('ci.bill_date', '=', $columnName_arr[1]['search']['value']);
