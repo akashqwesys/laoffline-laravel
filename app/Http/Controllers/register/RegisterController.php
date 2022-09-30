@@ -2628,7 +2628,7 @@ class RegisterController extends Controller
         ->leftJoin('transport_details as td', 'td.id', '=', 's.courier_name')
         ->leftJoin('comboids as co', 'co.sample_id','=', 's.sample_id')
         ->leftJoin('sample_details as sd', 'sd.sample_id', '=', 's.sample_id')
-        ->where('co.inward_or_outward_flag', 0)
+        //->where('co.inward_or_outward_flag', 0)
         ->where('sd.inward_id', $id)
         ->orderBy('s.sample_id', 'asc')->select('s.*', 'co.color_flag_id', 'c.company_name as company_name', 'td.name as courier')->get();
         $data['inward']['attachment'] = $itmdata;
