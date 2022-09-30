@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 // });
 /* Route::get('/truncateDB', [App\Http\Controllers\settings\ConnectionController::class, 'truncateDB']);
 Route::get('/products', [App\Http\Controllers\settings\ConnectionController::class, 'products']);
+
 Route::get('/bankDetails', [App\Http\Controllers\settings\ConnectionController::class, 'bankDetails']);
 Route::get('/comboID/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'comboID']);
 Route::get('/commissionAndInvoice', [App\Http\Controllers\settings\ConnectionController::class, 'commissionAndInvoice']);
@@ -34,6 +35,7 @@ Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\Connect
 Route::get('/salebills/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'salebills']); */
 // Route::get('/userLog/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'userLog']);
 Route::get('/goodreturnAttachment', [App\Http\Controllers\settings\ConnectionController::class, 'goodreturnAttachment']);
+Route::get('/sample', [App\Http\Controllers\settings\ConnectionController::class, 'sample']);
 
 Auth::routes();
 

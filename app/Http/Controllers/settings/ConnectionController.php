@@ -72,6 +72,8 @@ use App\Models\Settings\BankDetails;
 use App\Models\InwardOutward\InwardActions;
 use App\Models\Settings\TypeOfAddress;
 use App\Models\Logs;
+use App\Models\Sample;
+use App\Models\SampleDetail;
 // use Spatie\Permission\Models\Role;
 // use Spatie\Permission\Models\Permission;
 use DB;
@@ -137,6 +139,7 @@ class ConnectionController extends Controller
     public function sample()
     {
         $sampleData = [];
+        $sampleDetailData = [];
         $pcat = "SELECT * FROM sample";
         $pquery = mysqli_query($this->conn, $pcat);
         if (mysqli_num_rows($pquery) != 0) {
@@ -144,12 +147,86 @@ class ConnectionController extends Controller
             while ($result = mysqli_fetch_assoc($pquery)) {
                 $sampleData[$i]['sample_id'] = $result['sample_id'];
                 $sampleData[$i]['ouid'] = $result['ouid'];
-                $sampleData[$i]['sample_id'] = $result['sample_id'];
-                $sampleData[$i]['sample_id'] = $result['sample_id'];
-                $sampleData[$i]['sample_id'] = $result['sample_id'];
-                $sampleData[$i]['sample_id'] = $result['sample_id'];
-                $sampleData[$i]['sample_id'] = $result['sample_id'];
-                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['reference_id'] = $result['reference_id'];
+                $sampleData[$i]['inward_id'] = $result['inward_id'];
+                $sampleData[$i]['company_id'] = $result['company_id'];
+                $sampleData[$i]['supplier_id'] = $result['supplier_id'];
+                $sampleData[$i]['reference_via'] = $result['reference_via'];
+                $sampleData[$i]['sample_via'] = $result['sample_via'];
+                $sampleData[$i]['courier_name'] = $result['courier_name'];
+                $sampleData[$i]['courier_receipt_no'] = $result['courier_receipt_no'];
+                $sampleData[$i]['courier_received_time'] = $result['courier_received_time'];
+                $sampleData[$i]['weight_of_parcel'] = $result['weight_of_parcel'];
+                $sampleData[$i]['delivery_by'] = $result['delivery_by'];
+                $sampleData[$i]['product_qty'] = $result['product_qty'];
+                $sampleData[$i]['fabric_meters'] = $result['fabric_meters'];
+                $i++;
+            }
+            if (!empty($sampleData)) {
+                DB::table('samples')->truncate();
+                foreach ($sampleData as $result) {
+                    $samples = new Sample();
+                    $samples->sample_id = $result['sample_id'];
+                    $samples->ouid = $result[ 'ouid'];
+                    $samples->reference_id = $result['reference_id'];
+                    $samples->inward_id = $result['inward_id'];
+                    $samples->company_id = $result['company_id'];
+                    $samples->supplier_id = $result['supplier_id'];
+                    $samples->reference_via = $result['reference_via'];
+                    $samples->sample_via = $result['sample_via'];
+                    $samples->courier_name = $result['courier_name'];
+                    $samples->courier_receipt_no = $result['courier_receipt_no'];
+                    $samples->courier_received_time = $result['courier_received_time'];
+                    $samples->weight_of_parcel = $result['weight_of_parcel'];
+                    $samples->delivery_by = $result['delivery_by'];
+                    $samples->product_qty = $result['product_qty'];
+                    $samples->fabric_meters = $result['fabric_meters'];
+                    $samples->save();
+                }
+            }
+
+            $pcat = "SELECT * FROM sample_details";
+            $pquery = mysqli_query($this->conn, $pcat);
+            if (mysqli_num_rows($pquery) != 0) {
+                $i = 0;
+                while ($result = mysqli_fetch_assoc($pquery)) {
+                    $sampleDetailData[$i]['sample_details_id'] = $result['sample_details_id'];
+                    $sampleDetailData[$i]['sample_id'] = $result['sample_id'];
+                    $sampleDetailData[$i]['inward_sample_id'] = $result['inward_sample_id'];
+                    $sampleDetailData[$i]['inward_id'] = $result['inward_id'];
+                    $sampleDetailData[$i]['name'] = $result['name'];
+                    $sampleDetailData[$i]['image'] = $result['image'];
+                    $sampleDetailData[$i]['price'] = $result['price'];
+                    $sampleDetailData[$i]['qty'] = $result['qty'];
+                    $sampleDetailData[$i]['new_qty'] = $result['new_qty'];
+                    $sampleDetailData[$i]['remaining_qty'] = $result['remaining_qty'];
+                    $sampleDetailData[$i]['meters'] = $result['meters'];
+                    $sampleDetailData[$i]['new_meters'] = $result['new_meters'];
+                    $sampleDetailData[$i]['remaining_meters'] = $result['remaining_meters'];
+                    $sampleDetailData[$i]['is_deleted'] = $result['is_deleted'];
+                    $i++;
+                }
+            }
+            if (!empty($sampleDetailData)) {
+                DB::table('sample_details')->truncate();
+                foreach ($sampleDetailData as $result) {
+                    $sampledetail = new SampleDetail();
+                    $sampledetail->sample_details_id = $result['sample_details_id'];
+                    $sampledetail->sample_id = $result['sample_id'];
+                    $sampledetail->inward_sample_id = $result['inward_sample_id'];
+                    $sampledetail->inward_id = $result['inward_id'];
+                    $sampledetail->name = $result['name'];
+                    $sampledetail->image = $result['image'];
+                    $sampledetail->price = $result['price'];
+                    $sampledetail->qty = $result['qty'];
+                    $sampledetail->new_qty = $result['new_qty'];
+                    $sampledetail->remaining_qty = $result['remaining_qty'];
+                    $sampledetail->meters = $result['meters'];
+                    $sampledetail->new_meters = $result['new_meters'];
+                    $sampledetail->remaining_meters = $result['remaining_meters'];
+                    $sampledetail->is_deleted = $result['is_deleted'];
+                    $sampledetail->save();
+                }
             }
         }
     }
