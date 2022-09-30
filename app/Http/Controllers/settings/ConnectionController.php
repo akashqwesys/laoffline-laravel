@@ -124,13 +124,33 @@ class ConnectionController extends Controller
     public function goodreturnAttachment ()
     {
         $gr = GoodsReturn::where('is_deleted', 0)->get();
-       
+
         foreach ($gr as $goodreturn) {
-            $multiple_attachment = $goodreturn->multiple_attachment ? json_encode(@unserialize($goodreturn->multiple_attachment)) : '[]';   
+            $multiple_attachment = $goodreturn->multiple_attachment ? json_encode(@unserialize($goodreturn->multiple_attachment)) : '[]';
             $goodreturnupdate = GoodsReturn::find($goodreturn->id);
             $goodreturnupdate->multiple_attachment = $multiple_attachment;
             $goodreturnupdate->save();
 
+        }
+    }
+
+    public function sample()
+    {
+        $sampleData = [];
+        $pcat = "SELECT * FROM sample";
+        $pquery = mysqli_query($this->conn, $pcat);
+        if (mysqli_num_rows($pquery) != 0) {
+            $i = 0;
+            while ($result = mysqli_fetch_assoc($pquery)) {
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['ouid'] = $result['ouid'];
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+                $sampleData[$i]['sample_id'] = $result['sample_id'];
+            }
         }
     }
     public function products()

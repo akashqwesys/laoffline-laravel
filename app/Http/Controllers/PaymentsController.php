@@ -976,6 +976,7 @@ class PaymentsController extends Controller
                     ->where('supplier_id', $supplier_id)
                     ->Where('payment_status', 0)
                     ->where('is_deleted', 0)
+                    ->where('sale_bill_flag', 0)
                     ->orderBy('sale_bill_id', 'desc')
                     ->get();
 
