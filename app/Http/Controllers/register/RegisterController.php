@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Sample;
+use App\Models\SampleDetail;
 use App\Models\Logs;
 use App\Models\FinancialYear;
 use App\Models\IncrementId;
@@ -2610,9 +2611,22 @@ class RegisterController extends Controller
         $sample = InwardSample::where('inward_id', $id)->where('is_deleted', 0)->get();
         $sampledata = array();
         foreach ($sample as $itm) {
-            array_push($sampledata, array('sample_id' => $itm->inward_sample_id, 'name'=> $itm->name, 'price' => $itm->price, 'quantity' => $itm->qty, 'image' => $itm->image, 'meter' => $itm->meters));
+            $sampledetail = SampleDetail::where('inward_sample_id', $itm->inward_sample_id)->where('is_deleted', 0)->orderBy('sample_details_id', 'desc')->first();
+            if (!empty($sampledetail)) {
+                $rem_qty = $sampledetail->remaining_qty;
+                $rem_meter = $sampledetail->remaining_meters;
+            } else {
+                $rem_qty = $itm->qty;
+                $rem_meter = $itm->meters;
+            }
+            array_push($sampledata, array('sample_id' => $itm->inward_sample_id, 'name'=> $itm->name, 'price' => $itm->price, 'quantity' => $itm->qty, 'image' => $itm->image, 'meter' => $itm->meters, 'rem_qty' => $rem_qty, 'rem_meter' => $rem_meter));
         }
-
+        $sample_outward = DB::table('samples as s')->leftJoin('companies as c', 'c.id', '=', 's.company_id')
+        ->leftJoin('transport_details as td', 'td.id', '=', 's.courier_name')
+        ->leftJoin('comboids as co', 'co.sample_id','=', 's.sample_id')
+        ->where('co.inward_or_outward_flag', 0)
+        ->where('s.inward_id', $id)
+        ->orderBy('s.sample_id', 'asc')->select('s.*', 'co.color_flag_id', 'c.company_name as company_name', 'td.name as courier')->get();
         $data['inward']['attachment'] = $itmdata;
         $data['inward']['courier'] = $courier;
         $data['inward']['todaydate'] = Carbon::now()->format('Y-m-d');
@@ -2625,6 +2639,7 @@ class RegisterController extends Controller
         $data['inward']['generateby'] = $employee;
         $data['inward']['company'] = $company;
         $data['inward']['comboids'] = $comboid;
+        $data['sample_outward'] = $sample_outward;
         return $data;
     }
 
@@ -3343,22 +3358,35 @@ class RegisterController extends Controller
         $outward_data = json_decode($request->outward_sample);
         $sampledata =  json_decode($request->sample_ids);
         $inward_id = $request->inward_id;
+        $samples = json_decode($request->samples);
+        $inward_data = json_decode($request->inward_data);
+        $new_sample = [];
+        foreach ($sampledata as $key => $value) {
+
+            foreach ($samples as $key1 => $value1) {
+                if ($value->id == $value1->sample_id) {
+                    array_push($new_sample, $value1);
+                }
+            }
+
+        }
+
         $user = Session::get('user');
         $financialid = $user->financial_year_id;
         if ($outward_data->referncevia->name == 'Courier'){
             $ref_via = 'Courier';
-            $courier_name = $outward_data->courier_name->id;
-            $weight_of_parcel = $outward_data->weight_of_parcel;
-            $courier_receipt_no = $outward_data->courier_receipt_number;
-            $courier_received_time = date('Y-m-d', strtotime($outward_data->received_date_time));
-            $delivery_by = $outward_data->delivery_by;
+            $courier_name = $outward_data->courrier->id;
+            $weight_of_parcel = $outward_data->weightparcel;
+            $courier_receipt_no = $outward_data->reciptno;
+            $courier_received_time = date('Y-m-d', strtotime($outward_data->datetime));
+            $delivery_by = $outward_data->delivery;
         } else {
             $ref_via = 'Hand';
-            $courier_name = '';
-            $weight_of_parcel = $outward_data->weight_of_parcel;
+            $courier_name = 0;
+            $weight_of_parcel = $outward_data->weightparcel;
             $courier_receipt_no = '';
-            $courier_received_time = date('Y-m-d', strtotime($outward_data->received_date_time));
-            $delivery_by = $outward_data->delivery_by;
+            $courier_received_time = date('Y-m-d', strtotime($outward_data->datetime));
+            $delivery_by = $outward_data->delivery;
         }
 
         $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
@@ -3383,7 +3411,7 @@ class RegisterController extends Controller
             $increment_id->save();
         }
 
-        $ouids = Iuid::orderBy('id', 'DESC')->first('id');
+        $ouids = Ouid::orderBy('id', 'DESC')->first('id');
         $nextAutoID = !empty($ouids) ? $ouids->id + 1 : 1;
         $ouid_data = new Ouid();
         $ouid_data->id = $nextAutoID;
@@ -3402,7 +3430,7 @@ class RegisterController extends Controller
         $refence->employee_id = $user->employee_id;
         $refence->inward_or_outward = '0';
         $refence->type_of_inward = $ref_via;
-        $refence->company_id = $outward_data->companyid;
+        $refence->company_id = $outward_data->company->id;
         $refence->selection_date = $outward_data->datetime;
         $refence->from_name = '';
         $refence->courier_name = $courier_name;
@@ -3450,11 +3478,126 @@ class RegisterController extends Controller
         $sample->product_qty = 0;
         $sample->fabric_meters = 0;
         $sample->save();
+        foreach ($new_sample as $sample) {
+            $remainingQty = InwardSample::where('inward_sample_id', $sample->sample_id)->first();
+            $sampleDetails = SampleDetail::where('inward_sample_id', $sample->sample_id)->orderBy('sample_details_id', 'desc')->first();
+            $qty = "";
+            $new_qty = "";
+            $remaining_qty = "";
+            $remaining_mtr = "";
+            $meters = "";
+            $new_meters = "";
+            $remaining_meters = "";
+            if ($inward_data->sample_for == 1 || $inward_data->sample_for == 3) {
+                $new_qty = $sample->rem_qty;
+                if (!empty($sampleDetails)) {
+                    $remainqty = $sampleDetails->remaining_qty;
+                } else {
+                    $remainqty = $remainingQty->qty;
+                }
+                $remaining_qty = $remainqty - $new_qty;
+            } else {
 
-        foreach ($sampledata as $key => $value) {
-            $remainingQty = InwardSample::where('inward_sample_id', $value)->first();
-            $sampleDetails = $this->dbinward->getRemainingValue($value);
+                $new_meters = $sample->rem_meter;
+                if ($sampleDetails) {
+                    $remainqty = $sampleDetails->remaining_qty;
+                } else {
+                    $remainqty = $remainingQty->meters;
+                }
+                $remaining_mtr = $remainqty - $new_meters;
+            }
+            $sampledetailLastid = SampleDetail::orderBy('sample_details_id', 'DESC')->first('sample_details_id');
+            $sampledetailid = !empty($sampledetailLastid) ? $sampledetailLastid->sample_details_id + 1 : 1;
+            $sample_detail = new SampleDetail();
+            $sample_detail->sample_details_id = $sampledetailid;
+            $sample_detail->sample_id = $sampleid;
+            $sample_detail->inward_sample_id = $sample->sample_id;
+            $sample_detail->inward_id = $inward_id;
+            $sample_detail->new_qty = (int)$new_qty;
+            $sample_detail->remaining_qty = (int)$remaining_qty;
+            $sample_detail->new_meters = (int)$new_meters;
+            $sample_detail->remaining_meters = (int)$remaining_mtr;
+            $sample_detail->name = '';
+            $sample_detail->image = '';
+            $sample_detail->price = 0;
+            $sample_detail->qty = 0;
+            $sample_detail->meters = 0;
+            $sample_detail->is_deleted = 0;
+            $sample_detail->save();
         }
 
+        $comboLastid = Comboids::orderBy('comboid', 'DESC')->first('comboid');
+        $combo_id = !empty($comboLastid) ? $comboLastid->comboid + 1 : 1;
+
+        $comboids = new Comboids();
+        $comboids->company_id = $outward_data->company->id;
+        $comboids->supplier_id = 0;
+        $comboids->comboid = $combo_id;
+        $comboids->payment_id = 0;
+        $comboids->iuid = 0;
+        $comboids->ouid = $ouid;
+        $comboids->system_module_id = '15';
+        $comboids->general_ref_id = $ref_id;
+        $comboids->generated_by = $user->employee_id;
+        $comboids->assigned_to = $user->employee_id;
+        $comboids->company_type = $typeName;
+        $comboids->followup_via = $ref_via;
+        $comboids->inward_or_outward_via = $ref_via;
+        $comboids->selection_date = $outward_data->datetime;
+        $comboids->from_name = '';
+        $comboids->receipt_mode = 0;
+        $comboids->receipt_amount = 0;
+        $comboids->total = 0;
+        $comboids->subject = 'Sample followup : for' . $outward_data->company->company_name;
+        $comboids->financial_year_id = $financialid;
+        $comboids->attachments = '';
+        $comboids->updated_by = Session::get('user')->employee_id;
+        $comboids->inward_or_outward_flag = 0;
+        $comboids->inward_or_outward_id = 0;
+        $comboids->sale_bill_id = 0;
+        $comboids->goods_return_id = 0;
+        $comboids->commission_id = 0;
+        $comboids->commission_invoice_id = 0;
+        $comboids->is_invoice = 0;
+        $comboids->sample_id = $sampleid;
+        $comboids->inward_ref_via = 0;
+        $comboids->new_or_old_inward_or_outward = 0;
+        $comboids->outward_employe_id = 0;
+        $comboids->default_category_id = 0;
+        $comboids->main_category_id = 0;
+        $comboids->agent_id = 0;
+        $comboids->sale_bill_flag = 0;
+        $comboids->tds = 0;
+        $comboids->net_received_amount = 0;
+        $comboids->received_commission_amount = 0;
+        $comboids->is_completed = 0;
+        $comboids->mark_as_draft = 0;
+        $comboids->color_flag_id = $color_flag_id;
+        $comboids->product_qty = 0;
+        $comboids->fabric_meters = 0;
+        $comboids->sample_return_qty = 0;
+        $comboids->mobile_flag = 0;
+        $comboids->is_deleted = 0;
+        $comboids->save();
+    }
+    public function sampleOutward($id) {
+        $financialYear = FinancialYear::get();
+        $user = Session::get('user');
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees['excelAccess'] = $user->excel_access;
+        $employees['id'] = $id;
+        return view('register.inward.viewsampleoutward', compact('financialYear'))->with('employees', $employees);
+    }
+
+    public function fetchSampleoutward($id){
+        $data = [];
+        $sample_outward = DB::table('samples as s')->leftJoin('companies as c', 'c.id', '=', 's.company_id')
+        ->leftJoin('transport_details as td', 'td.id', '=', 's.courier_name')
+        ->leftJoin('sample_details as sd', 'sd.sample_id', '=', 's.sample_id')
+        ->where('sd.inward_sample_id', $id)
+        ->orderBy('s.sample_id', 'asc')->select('s.*', 'c.company_name as company_name', 'td.name as courier', 'sd.new_qty', 'sd.new_meters')
+        ->get();
+        $data['outward'] = $sample_outward;
+        return $data;
     }
 }

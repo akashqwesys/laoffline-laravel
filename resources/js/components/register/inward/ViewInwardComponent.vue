@@ -125,7 +125,7 @@
                                     <h6>Sample Details</h6>
                                 </div>
                                 <div class="class-inner">
-                                    <table class="table">
+                                    <table class="table" id="sampledata">
                                         <thead>
                                             <tr>
                                                 <th>Select</th>
@@ -135,6 +135,9 @@
 			    			        			<th>Price</th>
                                                 <th v-if="Inward.sample_for == 1 || Inward.sample_for == 3">Main Qty</th>
                                                 <th v-else>Meter</th>
+                                                <th v-if="Inward.sample_for == 1 || Inward.sample_for == 3">Remaining Qty</th>
+                                                <th v-else>Remaining Meter</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -149,6 +152,10 @@
                                                 <td>{{ sample.price }}</td>
                                                 <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3">{{ sample.quantity }}</td>
                                                 <td v-else>{{ sample.meters }}</td>
+                                                <td v-if="Inward.sample_for == 1 || Inward.sample_for == 3"><input type="number" class="form-control" :readonly="true" v-model=sample.rem_qty></td>
+                                                <td v-else><input type="number" :readonly="true" class="form-control" v-model=sample.rem_meter></td>
+                                                <td><a :href="'/register/inward/sampleoutward/'+sample.sample_id" class="btn btn-trigger btn-icon" data-toggle="tooltip"
+                                                    data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -233,6 +240,45 @@
                                 </div>
                             </form>
                         </div><!-- .card -->
+                        <div v-if="Inward.type_of_inward == 'sample'" class="mt-2 card card-bordered card-stretch">
+                            <div class="card-header">
+                                <h6>OutWard Details</h6>
+                            </div>
+                            <div class="class-inner">
+                                <table class="table" id="sampleoutwarddata">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Reference Id</th>
+                                            <th>OUID</th>
+                                            <th>Sample Via</th>
+                                            <th>Customer</th>
+                                            <th>Courier Name</th>
+                                            <th>Courrier Receipt No</th>
+                                            <th>Out. Date Time</th>
+                                            <th>Weight Of Parcel</th>
+                                            <th>Delivery By</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(outward,index) in sample_outward" :key="index">
+                                            <td><i v-if="outward.color_flag_id = 3" class="icon ni ni-check-thick"></i></td>
+                                            <td><a :href="'/reference/view-reference/'+outward.reference_id">{{ outward.reference_id }}</a></td>
+                                            <td>{{ outward.ouid }}</td>
+                                            <td>{{ outward.sample_via }}</td>
+                                            <td>{{ outward.company_name }}</td>
+                                            <td>{{ outward.courier }}</td>
+                                            <td>{{ outward.courier_receipt_no }}</td>
+                                            <td>{{ outward.courier_received_time }}</td>
+                                            <td>{{ outward.weight_of_parcel }}</td>
+                                            <td>{{ outward.delivery_by }}</td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div><!-- .nk-block -->
                 </div>
             </div>
@@ -267,6 +313,7 @@
                 Inward: [],
                 attachments: [],
                 samples: [],
+                sample_outward:[],
                 company:[],
                 selected: [],
                 isValidate: 0,
@@ -298,6 +345,7 @@
                         this.assignname = gData.inward.assignemp.firstname + ' ' + gData.inward.assignemp.lastname;
                         this.attachments = gData.inward.attachment;
                         this.samples = gData.sample;
+                        this.sample_outward = gData.sample_outward;
                 });
             axios.get('/commission/list-company')
                 .then(response => {
@@ -318,14 +366,23 @@
                 }
             },
             sample_form_check(event){
-                console.log(this.selected);
+                var index = event.target.parentElement.parentElement.rowIndex;
                 if(this.selected.length > 0){
                     $(".sample-outward").removeClass("d-none");
                 } else {
                     $(".sample-outward").addClass("d-none");
                 }
+                var status = $('#sampledata tbody tr').eq(index - 1).find('td').find('input[type=checkbox]').prop('checked');
+                if (status) {
+                    $('#sampledata tbody tr').eq(index - 1).find('td').find('input[type=number]').removeAttr('readonly');
+                } else {
+                    $('#sampledata tbody tr').eq(index - 1).find('td').find('input[type=number]').attr('readonly', 'true');
+                }
+
+
             },
             register(event){
+
                 $("#error-for-referencevia").text("");
                 $("#error-for-courrier").text("");
                 if (this.form.referncevia == '') {
@@ -348,6 +405,8 @@
                 var formdata = new FormData();
                 formdata.append("outward_sample", JSON.stringify(this.form));
                 formdata.append("sample_ids", JSON.stringify(this.selected));
+                formdata.append("inward_data", JSON.stringify(this.Inward));
+                formdata.append("samples", JSON.stringify(this.samples));
                 formdata.append("inward_id", this.id);
                 // console.log(JSON.stringify(this.selected));
                 // console.log(JSON.stringify(this.form));

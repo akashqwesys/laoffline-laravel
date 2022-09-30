@@ -160,6 +160,7 @@ import AvarageCommissionDaysComponent from './components/reports/AvarageCommissi
 import DailyCommissionComponent from './components/reports/DailyCommissionComponent.vue';
 import CommissionCollectionComponent from './components/reports/CommissionCollectionComponent.vue';
 import CommissionRightofComponent from './components/reports/CommissionRightofComponent.vue';
+import ViewSampleOutwardComponent from './components/register/inward/ViewSampleOutwardComponent.vue';
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -192,6 +193,7 @@ const routes = [
             { path: 'view-inward/:id', component: ViewInwardComponent },
             { path: 'edit-outward/:id', component: EditOutwardComponent },
             { path: 'edit-inward/:id', component: InsertInwardComponent },
+            { path: 'inward/sampleoutward/:id', component: ViewSampleOutwardComponent },
         ]
     },
     {
@@ -599,5 +601,6 @@ createApp({
         DailyCommissionComponent,
         CommissionCollectionComponent,
         CommissionRightofComponent,
+        ViewSampleOutwardComponent,
     }
 }).use(router).mount('#app');
