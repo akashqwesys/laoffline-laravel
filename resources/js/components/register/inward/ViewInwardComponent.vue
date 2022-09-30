@@ -413,7 +413,7 @@
                 if (this.isValidate == 1) {
                     axios.post('/register/insertsampleoutward', formdata)
                         .then(function (responce) {
-                            //window.location.href = `/register/outward/view-inward/${this.id}`;
+                            window.location.href = `/register/outward/view-inward/${this.id}`;
                         }).catch(function (error) {
 
                         });
