@@ -240,7 +240,7 @@
                                 </div>
                             </form>
                         </div><!-- .card -->
-                        <div v-if="Inward.type_of_inward == 'sample'" class="mt-2 card card-bordered card-stretch">
+                        <div class="mt-2 card card-bordered card-stretch">
                             <div class="card-header">
                                 <h6>OutWard Details</h6>
                             </div>
