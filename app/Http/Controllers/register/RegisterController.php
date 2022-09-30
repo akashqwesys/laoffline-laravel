@@ -2586,7 +2586,10 @@ class RegisterController extends Controller
             $company = Company::where('id', $inward->supplier_id)->first();
         }
         $comboid = Comboids::where('inward_or_outward_id', $id)->where('iuid', $inward->iuid)->where('financial_year_id', $inward->financial_year_id)->first();
-        $assignemp = Employee::select("*", DB::raw("CONCAT(firstname,' ',lastname) as name"))->where('id', $comboid->assigned_to)->first();
+        $assignemp = '';
+        if (!empty($comboid->assigned_to)){
+            $assignemp = Employee::select("*", DB::raw("CONCAT(firstname,' ',lastname) as name"))->where('id', $comboid->assigned_to)->first();
+        }
         $courier = '';
         if (!empty($inward->courier_name)) {
             $courier = TransportDetails::where('id', $inward->courier_name)->first();
