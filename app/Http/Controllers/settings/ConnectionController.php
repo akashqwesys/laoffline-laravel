@@ -194,8 +194,8 @@ class ConnectionController extends Controller
                     $sampleDetailData[$i]['sample_id'] = $result['sample_id'];
                     $sampleDetailData[$i]['inward_sample_id'] = $result['inward_sample_id'];
                     $sampleDetailData[$i]['inward_id'] = $result['inward_id'];
-                    $sampleDetailData[$i]['name'] = $result['name'];
-                    $sampleDetailData[$i]['image'] = $result['image'];
+                    $sampleDetailData[$i]['name'] = empty($result['name'])? '' : $result['name'] ;
+                    $sampleDetailData[$i]['image'] = empty($result['image'])? '' : $result['image'] ;;
                     $sampleDetailData[$i]['price'] = $result['price'];
                     $sampleDetailData[$i]['qty'] = $result['qty'];
                     $sampleDetailData[$i]['new_qty'] = $result['new_qty'];
