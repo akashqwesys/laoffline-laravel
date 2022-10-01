@@ -808,7 +808,7 @@ class InvoiceController extends Controller
         $bill = DB::table('commission_invoices')
             ->select('id', 'bill_no')
             ->where('financial_year_id', $user->financial_year_id)
-            ->where('agent_id', 1)
+            ->where('agent_id', $id)
             ->where('service_tax_flag', ($request->gst == 1 ? 1 : 0))
             ->orderBy('id', 'desc')
             ->first();
