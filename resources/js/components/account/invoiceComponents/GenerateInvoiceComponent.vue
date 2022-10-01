@@ -36,7 +36,7 @@
                                     <div class="col-md-2">
                                         <select class="form-control" v-model="courier_agent" id="courier_agent" required @change="changeAgentForInvoice(e)">
                                         <template v-for="(k, i) in agents" :key="i">
-                                            <option :value="{ id: k.id, name: k.name, pan_no: k.pan_no, gst_no: k.gst_no, inv_prefix: k.inv_prefix }" > {{ k.name }} </option>
+                                            <option :value="{ id: k.id, name: k.name, pan_no: k.pan_no, gst_no: k.gst_no, inv_prefix: k.inv_prefix, default: k.default }" > {{ k.name }} </option>
                                         </template>
                                         </select>
                                     </div>
