@@ -701,10 +701,12 @@ class InvoiceController extends Controller
             ->where('c.is_delete', 0)
             ->first();
 
+        $def_agent = collect($agents)->where('default', 1)->pluck('id')->first();
+
         $bill = DB::table('commission_invoices')
             ->select('id', 'bill_no')
             ->where('financial_year_id', $user->financial_year_id)
-            ->where('agent_id', 1)
+            ->where('agent_id', $def_agent ?? 1)
             ->where('service_tax_flag', 1)
             ->orderBy('id', 'desc')
             ->first();
