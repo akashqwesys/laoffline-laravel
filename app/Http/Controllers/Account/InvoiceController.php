@@ -691,7 +691,7 @@ class InvoiceController extends Controller
     public function getData()
     {
         $user = Session::get('user');
-        $agents = DB::table('agents')->select('id', 'name', 'gst_no', 'pan_no', 'inv_prefix')->where('is_delete', '0')->get();
+        $agents = DB::table('agents')->select('id', 'name', 'gst_no', 'pan_no', 'inv_prefix', 'default')->where('is_delete', '0')->get();
 
         $company = DB::table('companies as c')
             ->leftJoin('company_packaging_details as cpd', 'c.id', '=', 'cpd.company_id')

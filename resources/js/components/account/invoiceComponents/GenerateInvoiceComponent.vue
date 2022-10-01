@@ -364,12 +364,13 @@
                 axios.get('/account/commission/invoice/get-data')
                 .then(response => {
                     var data = response.data;
+                    var def_agent = data.agents.find(_ => (_.default == 1 || _.default == '1'));
                     this.agents = data.agents;
-                    this.courier_agent = data.agents[0];
+                    this.courier_agent = def_agent;
                     this.company = data.company;
                     this.payments = data.payments;
                     this.bill = data.bill;
-                    this.full_bill_no = data.agents[0].inv_prefix + '-' + data.fid_prefix + '-' + data.suffix_bill;
+                    this.full_bill_no = def_agent.inv_prefix + '-' + data.fid_prefix + '-' + data.suffix_bill;
                     this.bill_no = data.suffix_bill;
                     this.bill_period_from = data.bill_period_from;
                     this.bill_period_to = data.bill_period_to;
