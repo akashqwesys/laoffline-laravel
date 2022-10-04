@@ -794,7 +794,7 @@ class CompanyController extends Controller
 
         $company = new Company;
         $company->id = $companyId;
-        $company->company_name = $companyData->company_name;
+        $company->company_name = trim($companyData->company_name);
         $company->company_type = !empty($companyData->company_type) ? $companyData->company_type->id : 0;
         $company->company_country = !empty($companyData->company_country) ? $companyData->company_country->id : 0;
         $company->company_state = !empty($companyData->company_state) ? $companyData->company_state->id : 0;
@@ -1068,7 +1068,7 @@ class CompanyController extends Controller
         // }
 
         $company = Company::where('id', $id)->first();
-        $company->company_name = $companyData->company_name;
+        $company->company_name = trim($companyData->company_name);
         $company->company_type = !empty($companyData->company_type) ? $companyData->company_type->id : 0;
         $company->company_country = !empty($companyData->company_country) ? $companyData->company_country->id : 0;
         $company->company_state = !empty($companyData->company_state) ? $companyData->company_state->id : 0;
