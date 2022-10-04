@@ -1468,19 +1468,14 @@ class SaleBillController extends Controller
                 $general_ref = $this->getReferenceDetailsWithCompany($ref_company_id, $referenceDetails->reference_via->name);
                 if ($referenceDetails->new_old_sale_bill == 1 || count($general_ref) < 1) {
                     $ref_via = $referenceDetails->reference_via->name;
-                    $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = null;
+                    $from_name = $from_email_id = $latter_by_id = $courier_name = $weight_of_parcel = $courier_receipt_no = $courier_received_time = $delivery_by = $from_number = null;
                     if ($referenceDetails->reference_via->name == "Email") {
-                        $from_name = $referenceDetails->from_name;
                         $from_email_id = $referenceDetails->from_email;
-                        $latter_by_id = null;
-                        $courier_name = null;
-                        $weight_of_parcel = null;
-                        $courier_receipt_no = null;
-                        $courier_received_time = null;
-                        $delivery_by = null;
+                        $latter_by_id = 0;
+                    } else if ($referenceDetails->reference_via->name == "Whatsapp") {
+                        $from_number = $referenceDetails->from_whatsapp;
+                        $latter_by_id = 0;
                     } else if ($referenceDetails->reference_via->name == "Courier") {
-                        $from_name = $referenceDetails->from_name;
-                        $from_email_id = null;
                         $latter_by_id = 1;
                         $courier_name = $transport_id;
                         $weight_of_parcel = $transportDetails->courier_weight;
@@ -1488,15 +1483,12 @@ class SaleBillController extends Controller
                         $courier_received_time = $transport_date;
                         $delivery_by = $referenceDetails->delivery_by;
                     } else if ($referenceDetails->reference_via->name == "Hand") {
-                        $from_name = $referenceDetails->from_name;
-                        $from_email_id = null;
                         $latter_by_id = 0;
-                        $courier_name = null;
-                        $courier_weight_of_parcel = $transportDetails->courier_weight;
-                        $courier_receipt_no = null;
+                        $weight_of_parcel = $transportDetails->courier_weight;
                         $courier_received_time = $transport_date;
                         $delivery_by = $referenceDetails->delivery_by;
                     }
+
                     if ($increment_id_details) {
                         $ref_id = $increment_id_details->reference_id + 1;
                         $data_ref = array('reference_id' => $ref_id, 'updated_at' => $dateAdded);
@@ -1528,6 +1520,7 @@ class SaleBillController extends Controller
                         'inward_or_outward' => 1,
                         'company_id' => $ref_company_id,
                         'selection_date' => $select_date,
+                        'from_number' => $from_number,
                         'from_name' => $from_name,
                         'receiver_email_id' => $receiver_details,
                         'from_email_id' => $from_email_id,
