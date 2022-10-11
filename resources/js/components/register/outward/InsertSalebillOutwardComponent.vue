@@ -327,8 +327,10 @@
                     $(".generatepayment").removeClass('disabled');
                     setTimeout(() => {
                         self.salebill = response.data.salebill;
-                        self.form.company = response.data.company.company_name;
-                        self.form.companyid = response.data.company.id;
+                        if (response.data.company) {
+                            self.form.company = response.data.company.company_name;
+                            self.form.companyid = response.data.company.id;
+                        }
                         self.form.datetime = response.data.todaydate;
                         self.form.recivetime = response.data.todaydate;
                     }, 500);

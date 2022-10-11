@@ -823,18 +823,20 @@ class CompanyController extends Controller
         // Contact Details Data
         if(is_array($contactDetails) && !empty($contactDetails)) {
             foreach($contactDetails as $contactDetail) {
-                $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
-                $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
+                if (trim($contactDetail->contact_person_name)) {
+                    $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
+                    $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
 
-                $companyContactDetails = new CompanyContactDetails;
-                $companyContactDetails->id = $companyContactId;
-                $companyContactDetails->company_id = $companyId;
-                $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
-                $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
-                $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
-                $companyContactDetails->contact_person_mobile = $contactDetail->contact_person_mobile;
-                $companyContactDetails->contact_person_email = $contactDetail->contact_person_email;
-                $companyContactDetails->save();
+                    $companyContactDetails = new CompanyContactDetails;
+                    $companyContactDetails->id = $companyContactId;
+                    $companyContactDetails->company_id = $companyId;
+                    $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
+                    $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
+                    $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
+                    $companyContactDetails->contact_person_mobile = $contactDetail->contact_person_mobile;
+                    $companyContactDetails->contact_person_email = $contactDetail->contact_person_email;
+                    $companyContactDetails->save();
+                }
             }
         }
 
@@ -1090,22 +1092,24 @@ class CompanyController extends Controller
         // Contact Details Data
         if(is_array($contactDetails) && !empty($contactDetails)) {
             foreach($contactDetails as $contactDetail) {
-                if (isset($contactDetail->id)) {
-                    $companyContactDetails = CompanyContactDetails::where('company_id', $id)->where('id', $contactDetail->id)->first();
-                } else {
-                    $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
-                    $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
+                if ($contactDetail->contact_person_name) {
+                    if (isset($contactDetail->id)) {
+                        $companyContactDetails = CompanyContactDetails::where('company_id', $id)->where('id', $contactDetail->id)->first();
+                    } else {
+                        $companyContactLastId = CompanyContactDetails::orderBy('id', 'DESC')->first('id');
+                        $companyContactId = !empty($companyContactLastId) ? $companyContactLastId->id + 1 : 1;
 
-                    $companyContactDetails = new CompanyContactDetails;
-                    $companyContactDetails->company_id = $id;
-                    $companyContactDetails->id = $companyContactId;
+                        $companyContactDetails = new CompanyContactDetails;
+                        $companyContactDetails->company_id = $id;
+                        $companyContactDetails->id = $companyContactId;
+                    }
+                    $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
+                    $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
+                    $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
+                    $companyContactDetails->contact_person_mobile = $contactDetail->contact_person_mobile;
+                    $companyContactDetails->contact_person_email = $contactDetail->contact_person_email;
+                    $companyContactDetails->save();
                 }
-                $companyContactDetails->contact_person_name = $contactDetail->contact_person_name;
-                $companyContactDetails->contact_person_designation = !empty($contactDetail->contact_person_designation) ? $contactDetail->contact_person_designation->id : 0;
-                $companyContactDetails->contact_person_profile_pic = $contactDetail->contact_person_profile_pic;
-                $companyContactDetails->contact_person_mobile = $contactDetail->contact_person_mobile;
-                $companyContactDetails->contact_person_email = $contactDetail->contact_person_email;
-                $companyContactDetails->save();
             }
         }
 

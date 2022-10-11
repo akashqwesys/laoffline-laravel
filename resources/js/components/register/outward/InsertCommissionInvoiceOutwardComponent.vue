@@ -319,7 +319,10 @@
             },
             searchCommissioninvoices(event) {
                 const self = this;
-
+                if (!(self.form.supplier && self.form.supplier.id)) {
+                    alert('Please select the supplier first')
+                    return false;
+                }
                 axios.post('/register/searchcommissioninvoice', {
                     supplier: self.form.supplier.id,
                     date: self.form.date
@@ -329,8 +332,10 @@
                     $(".generatepayment").removeClass('disabled');
                     setTimeout(() => {
                         self.commissioninvoice = response.data.commissioninvoice;
-                        self.form.company = response.data.company.company_name;
-                        self.form.companyid = response.data.company.id;
+                        if (response.data.company) {
+                            self.form.company = response.data.company.company_name;
+                            self.form.companyid = response.data.company.id;
+                        }
                         self.form.datetime = response.data.todaydate;
                         self.form.recivetime = response.data.todaydate;
                     }, 500);
