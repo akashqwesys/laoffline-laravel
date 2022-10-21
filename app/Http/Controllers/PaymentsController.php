@@ -2563,6 +2563,12 @@ class PaymentsController extends Controller
         $goodretun = GoodsReturn::where('goods_return_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $goodretun->is_deleted = 1;
         $goodretun->save();
+
+        $sale_bill = SaleBill::where('sale_bill_id', $goodretun->sale_bill_id)->where('financial_year_id', $user->financial_year_id)->first();
+        $sale_bill->receipt_payment = $goodretun->goods_return + $sale_bill->receipt_payment;
+        $sale_bill->pending_payment = $goodretun->pending_payment - $sale_bill->goods_return;
+        $sale_bill->save();
+
         $data['status'] = 1;
         return $data;
     }
