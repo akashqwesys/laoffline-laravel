@@ -182,11 +182,11 @@
 
     						        </tbody>
                                     <tfoot>
-						                  	<tr>
-						                      	<td colspan="3" class="text-left">Prepared by<br><br></td>
-                                                <td colspan="3" class="text-right">Delivery by</td>
-                                              </tr>
-						                </tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-left">Prepared by<br><br></td>
+                                            <td colspan="3" class="text-right">Delivery by</td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
 
 						    </div>
@@ -195,7 +195,7 @@
                         </div>
                         <div v-if="outwardtype == 4" class="card card-bordered card-stretch">
                             <div class="card-header">
-                                <span><strong>Ourward Commission Invoice Detail</strong></span>
+                                <span><strong>Outward Commission Invoice Detail</strong></span>
                             </div>
                             <div class="card-inner">
                             <div id="print_area1">
@@ -211,7 +211,6 @@
                                             <tr>
 				            					<td colspan="3">Please Find The Details Below</td>
 							            	</tr>
-
 							            </tbody>
                                 </table>
 
@@ -228,16 +227,14 @@
                                             <td>{{ salebill.invoicedetail ? salebill.invoicedetail.bill_no : ''}}</td>
                                             <td>{{ salebill.date_add }}</td>
         									<td>{{ salebill.billdate}}</td>
-
 				        				</tr>
-
     						        </tbody>
                                     <tfoot>
-						                  	<tr>
-						                      	<td colspan="2" class="text-left">Prepared by<br><br></td>
-                                                <td colspan="2" class="text-right">Delivery by</td>
-                                              </tr>
-						                </tfoot>
+                                        <tr>
+                                            <td colspan="2" class="text-left">Prepared by<br><br></td>
+                                            <td colspan="2" class="text-right">Delivery by</td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
 
 						    </div>
@@ -247,7 +244,7 @@
 
                         <div class="text-center mt-2">
                             <button class="btn btn-dark mr-2" @click="printOutward">Print</button>
-                            <a class="btn btn-primary" href="/register/outward/salebill" >Back</a>
+                            <a class="btn btn-primary" href="javascript:void(0);" @click="backToInsert" >Back</a>
                         </div>
                     </div><!-- .nk-block -->
                 </div>
@@ -284,20 +281,19 @@
         created() {
              axios.get(`/register/fetch-outward/${this.id}`)
                 .then(response => {
+                    gData = response.data;
+                    let total = 0;
+                    this.Outward = gData.outward;
+                    this.salebills = gData.salebill;
+                    this.agent = gData.outward.courier_agent.name
 
-                        gData = response.data;
-                        let total = 0;
-                        this.Outward = gData.outward;
-                        this.salebills = gData.salebill;
-                        this.agent = gData.outward.courier_agent.name
-
-                        this.outwardtype = gData.outward_type;
-                        if (this.outwardtype == 1) {
-                            this.salebills.forEach((value)=>{
-                                total += parseInt(value.transport ? value.transport.cases : '');
-                            });
-                        }
-                        this.totalParcel = total;
+                    this.outwardtype = gData.outward_type;
+                    if (this.outwardtype == 1) {
+                        this.salebills.forEach((value)=>{
+                            total += parseInt(value.transport ? value.transport.cases : '');
+                        });
+                    }
+                    this.totalParcel = total;
                 });
         },
         methods: {
@@ -308,6 +304,17 @@
                 popupWin.document.open()
                 popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
                 popupWin.document.close();
+            },
+            backToInsert (e) {
+                if (this.outwardtype == 1) {
+                    window.location.href = '/register/outward/salebill';
+                } else if (this.outwardtype == 2) {
+                    window.location.href = '/register/outward/payment';
+                } else if (this.outwardtype == 3) {
+                    window.location.href = '/register/outward/commission';
+                } else if (this.outwardtype == 4) {
+                    window.location.href = '/register/outward/commissioninvoice';
+                }
             }
         },
         mounted() {

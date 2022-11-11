@@ -834,9 +834,9 @@ class PaymentsController extends Controller
 
             $action = '';
             $id = $record->payment_id;
-            if ($record->reciept_mode == 'fullreturn') {
+            if ($record->reciept_mode == 'fullreturn' || $record->reciept_mode == 'full return') {
                 $sign = '<em class="icon ni ni-alert-fill"></em>';
-            } else if ($record->reciept_mode == 'partreturn'){
+            } else if ($record->reciept_mode == 'partreturn' || $record->reciept_mode == 'part return'){
                 $sign = '<em class="icon ni ni-archived-fill"></em>';
             } else {
                 $sign = '';
@@ -895,7 +895,7 @@ class PaymentsController extends Controller
                 $outwardlink = DB::table('outward_sale_bills')->where('payment_id', $id)->where('is_deleted', 0)->where('financial_year_id', $record->financial_year_id)->first();
                 $outward = '<a href="/register/view-outward/'.$outwardlink->outward_id.'" class="btn btn-trigger btn-icon"><em class="icon ni ni-check"></em></a>';
             }
-            if ($record->reciept_mode == 'partreturn' || $record->reciept_mode == 'fullreturn') {
+            if ($record->reciept_mode == 'partreturn' || $record->reciept_mode == 'fullreturn' || $record->reciept_mode == 'part return' || $record->reciept_mode == 'full return') {
                 $goodretun = GoodsReturn::where('p_increment_id', $record->id)
                             ->where('is_deleted', 0)
                             ->first();
@@ -1229,9 +1229,10 @@ class PaymentsController extends Controller
             $cheque_dd_bank = 0;
         }
 
-        if ($paymentData->recipt_mode == 'partreturn') {
+        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'part
+        return') {
             $payment_tot_adjust_amount = 0;
-        } else if ($paymentData->recipt_mode == 'fullreturn') {
+        } else if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
             $payment_tot_adjust_amount= $paymentData->totalamount;
         } else {
             $payment_tot_adjust_amount= $paymentData->totaladjustamount;
@@ -1262,7 +1263,7 @@ class PaymentsController extends Controller
         $payment->total_amount = $paymentData->totalamount;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount;
 
-        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn') {
+        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return' || $paymentData->recipt_mode == 'part return') {
             $payment->tot_rate_difference = 0;
         } else {
             $payment->tot_rate_difference = $paymentData->ratedifference;
@@ -1330,7 +1331,7 @@ class PaymentsController extends Controller
                     $bill2->save();
 
                     $tot_good_returns += $salebill->goodreturn;
-                } else if ($paymentData->recipt_mode == 'fullreturn') {
+                } else if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
                     $paymentDetail = new PaymentDetail();
                     $paymentDetail->id = $Id;
                     $paymentDetail->payment_id = $payment_id;
@@ -1418,14 +1419,14 @@ class PaymentsController extends Controller
                 }
             }
         }
-        if ($paymentData->recipt_mode != 'fullreturn') {
+        if ($paymentData->recipt_mode != 'fullreturn' && $paymentData->recipt_mode == 'full return') {
             $tot_receipt_adjust_amt = (int)$paymentData->reciptamount - $tot_adjust_amount;
             if ($tot_receipt_adjust_amt != 0) {
                 $payment_ok_or_not = 0;
             } else {
                 $payment_ok_or_not = 1;
             }
-        } else if($paymentData->recipt_mode != 'partreturn') {
+        } else if($paymentData->recipt_mode != 'partreturn' && $paymentData->recipt_mode != 'part return') {
             $payment_ok_or_not = 0;
         } else {
             $payment_ok_or_not = 1;
@@ -1435,13 +1436,13 @@ class PaymentsController extends Controller
         $payment1->payment_ok_or_not = $payment_ok_or_not;
         $payment1->save();
 
-        if ($paymentData->recipt_mode != 'fullreturn') {
+        if ($paymentData->recipt_mode != 'fullreturn' && $paymentData->recipt_mode != 'full return') {
             if ($paymentData->goodreturn == 0) {
                 $color_flag_id = 3;
             } else {
                 $color_flag_id = 1;
             }
-        } else if($paymentData->recipt_mode != 'partreturn') {
+        } else if($paymentData->recipt_mode != 'partreturn' && $paymentData->recipt_mode != 'part return') {
             $color_flag_id = 1;
         } else {
             $color_flag_id = 3;
@@ -1977,7 +1978,7 @@ class PaymentsController extends Controller
         $payment->total_amount = $paymentData->totalamount ?? 0;
         $payment->tot_adjust_amount = $payment_tot_adjust_amount ?? 0;
 
-        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn') {
+        if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return' || $paymentData->recipt_mode == 'part return') {
             $payment->tot_rate_difference = 0;
         } else {
             $payment->tot_rate_difference = $paymentData->ratedifference;
@@ -2020,7 +2021,7 @@ class PaymentsController extends Controller
             foreach($paymentSalebill as $salebill) {
                 $paymentDetailLastid = PaymentDetail::orderBy('payment_details_id', 'DESC')->first('payment_details_id');
                 $paymentDetailId = !empty($paymentDetailLastid) ? $paymentDetailLastid->payment_details_id + 1 : 1;
-                if ($paymentData->recipt_mode == 'partreturn') {
+                if ($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'part return') {
                     $paymentDetail = new PaymentDetail();
                     $paymentDetail->payment_id = $paymentData->id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
@@ -2049,7 +2050,7 @@ class PaymentsController extends Controller
                     $bill2->save();
 
                     $tot_good_returns += $salebill->goodreturn;
-                } else if ($paymentData->recipt_mode == 'fullreturn') {
+                } else if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
                     $paymentDetail = new PaymentDetail();
                     $paymentDetail->payment_id = $paymentData->id;
                     $paymentDetail->payment_details_id = $paymentDetailId;
@@ -2135,14 +2136,14 @@ class PaymentsController extends Controller
                 }
             }
         }
-        if ($paymentData->recipt_mode == 'fullreturn') {
+        if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
             $tot_receipt_adjust_amt = (int)$paymentData->reciptamount - $tot_adjust_amount;
             if ($tot_receipt_adjust_amt != 0) {
                 $payment_ok_or_not = 0;
             } else {
                 $payment_ok_or_not = 1;
             }
-        } else if($paymentData->recipt_mode == 'partreturn') {
+        } else if($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'part return') {
             $payment_ok_or_not = 0;
         } else {
             $payment_ok_or_not = 1;
@@ -2154,13 +2155,13 @@ class PaymentsController extends Controller
 
         $payment1->save();
 
-        if ($paymentData->recipt_mode == 'fullreturn') {
+        if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
             if ($tot_good_returns != 0) {
                 $color_flag_id = 3;
             } else {
                 $color_flag_id = 1;
             }
-        } else if($paymentData->recipt_mode == 'partreturn') {
+        } else if($paymentData->recipt_mode == 'partreturn' || $paymentData->recipt_mode == 'part return') {
             $color_flag_id = 1;
         } else {
             $color_flag_id = 3;
