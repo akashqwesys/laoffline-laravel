@@ -1599,24 +1599,26 @@ class PaymentsController extends Controller
 
     public function getSalbillforAdd(Request $request) {
         $user = session()->get('user');
-        if ($request->session()->has('saleBill')) {
+        $sid = array();
+        if ($request->session()->has('saleBill') && empty($request->payment_id)) {
             $customer_id = $request->session()->get('customer');
             $seller_id = $request->session()->get('seller');
             $salebill_ids = $request->session()->get('saleBill');
+
+            foreach ($salebill_ids as $ids) {
+                array_push($sid, $ids['id']);
+            }
         } else {
             $payment = Payment::where('payment_id', $request->payment_id)->where('financial_year_id', $user->financial_year_id)->first();
             $customer_id = $payment->receipt_from;
             $seller_id = $payment->supplier_id;
-            $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
+            $sid = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
         }
 
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
         $salebill_data2 = array();
-        $sid = array();
-        foreach ($salebill_ids as $ids) {
-            array_push($sid, $ids['id']);
-        }
+
 
         $salebills2 = DB::table('sale_bills')
                         ->where('company_id', $customer_id)

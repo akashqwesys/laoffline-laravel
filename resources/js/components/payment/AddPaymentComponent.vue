@@ -1655,14 +1655,16 @@
                     $("#paymentsave").click();
                 }
             });
-            // var main_url = location.href.split('/');
-            // if (main_url[main_url.length - 2] != 'edit-payment') {
+            var main_url = location.href.split('/');
+            if (main_url[main_url.length - 2] == 'edit-payment') {
                 var getsalbillforadd_url = '/payments/getsalbillforadd?payment_id='+ this.id;
-                axios.get(getsalbillforadd_url)
-                .then(responce => {
-                    this.items = responce.data.salebilldata;
-                });
-            // }
+            } else {
+                var getsalbillforadd_url = '/payments/getsalbillforadd';
+            }
+            axios.get(getsalbillforadd_url)
+            .then(responce => {
+                this.items = responce.data.salebilldata;
+            });
 
             const self = this;
             //this.form.refrencevia = {name: 'Courier', code: '1'};
