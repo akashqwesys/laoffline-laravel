@@ -1743,10 +1743,10 @@ class PaymentsController extends Controller
             ->where('c.financial_year_id', $user->financial_year_id)
             ->where('c.is_deleted', 0)
             ->first();
-        $updated_by = DB::table('employees')
+        /* $updated_by = DB::table('employees')
             ->select('id', 'firstname', 'lastname', 'email_id', 'mobile')
             ->where('id', $generated_by->updated_by ?? 0)
-            ->first();
+            ->first(); */
         $attch = explode(',', trim(trim($payment->attachments,'"[\"'), '\"]"'));
         $itmdata = array();
         foreach ($attch as $itm) {
@@ -1764,7 +1764,7 @@ class PaymentsController extends Controller
             $bill = SaleBill::where('sale_bill_id', $details->sr_no)
                     ->where('financial_year_id', $details->financial_year_id)
                     ->first();
-            $overdue = floor((time() - strtotime($bill->select_date)) / (60 * 60 * 24));
+            $overdue = floor((strtotime($payment->date) - strtotime($bill->select_date)) / (60 * 60 * 24));
             $bill_date = date('d-m-Y', strtotime($bill->select_date));
             $status = array("status" => 'Pending', "code" => 0);
             if ($details->status == 1) {

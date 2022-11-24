@@ -324,8 +324,8 @@
                                             <div class="col-sm-9">
                                                 <label class="form-label" for="fv-sale-bill-detail">Sale Bill Details</label>
                                             </div>
-                                            <div v-if="scope == 'edit'" class="col-sm-3 text-right"></div>
-                                            <div v-else class="col-sm-3 text-right">
+                                            <!-- <div v-if="scope == 'edit'" class="col-sm-3 text-right"></div> -->
+                                            <div  class="col-sm-3 text-right">
                                                 <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addSalebill" title="Add new company"><span class="clipboard-text">Add New</span></button>
                                             </div>
                                         </div>
