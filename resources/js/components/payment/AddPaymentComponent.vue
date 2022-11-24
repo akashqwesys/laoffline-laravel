@@ -1657,7 +1657,7 @@
             });
             // var main_url = location.href.split('/');
             // if (main_url[main_url.length - 2] != 'edit-payment') {
-                var getsalbillforadd_url = '/payments/getsalbillforadd';
+                var getsalbillforadd_url = '/payments/getsalbillforadd?payment_id='+ this.id;
                 axios.get(getsalbillforadd_url)
                 .then(responce => {
                     this.items = responce.data.salebilldata;

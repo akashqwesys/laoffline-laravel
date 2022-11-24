@@ -137,7 +137,7 @@
             }
         },
         created() {
-            
+
             axios.get('/payments/list-seller')
             .then(response => {
                 this.seller = response.data;
@@ -148,7 +148,7 @@
             });
         },
         methods: {
-            
+
             salebillselect(event) {
                 let total = 0;
                 let totalbill = 0;
@@ -156,10 +156,10 @@
                 this.selected.forEach(value => {
                 this.salebill.forEach(value1 => {
                     if (value.id == value1.sallbillid) {
-                        
+
                         totalbill += parseInt(value1.amount);
                         total += parseInt(value1.pending_payment);
-                        
+
                     }
                 });
             });
@@ -171,7 +171,6 @@
                     alert('please select Sale Bill');
                     return false;
                 }
-               console.log(this.selected);
                axios.post('/payments/generatepayment', {
                     salebill: this.selected,
                     customer: this.form.customer.id,
@@ -196,7 +195,7 @@
                     $(".salebill").removeClass("d-none");
                     setTimeout(() => {
                         self.salebill = response.data.salebill;
-                        
+
                     }, 500);
                     setTimeout(() => {
                     self.salebill.forEach((value1,index) => {
