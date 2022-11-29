@@ -2667,7 +2667,7 @@ class RegisterController extends Controller
         $personname = '';
         if ($outward->company_id) {
             $company = Company::where('id', $outward->company_id)->first()->company_name;
-            $personname = CompanyContactDetails::where('company_id', $outward->company_id)->first()->contact_person_name;
+            $personname = CompanyContactDetails::where('company_id', $outward->company_id)->first()->contact_person_name ?? '';
         } else {
             $company = Company::where('id', $outward->supplier_id)->first()->company_name;
         }

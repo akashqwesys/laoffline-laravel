@@ -34,9 +34,14 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <select class="form-control" v-model="courier_agent" id="courier_agent" required @change="changeAgentForInvoice(e)">
+                                        <select class="form-control" v-model="courier_agent" id="courier_agent"  @change="changeAgentForInvoice(e)" >
                                         <template v-for="(k, i) in agents" :key="i">
-                                            <option :value="{ id: k.id, name: k.name, pan_no: k.pan_no, gst_no: k.gst_no, inv_prefix: k.inv_prefix, default: k.default }" > {{ k.name }} </option>
+                                            <template v-if="scope == 'edit'">
+                                                <option :value="k.id" > {{ k.name }} </option>
+                                            </template>
+                                            <template v-else>
+                                                <option :value="{ id: k.id, name: k.name, pan_no: k.pan_no, gst_no: k.gst_no, inv_prefix: k.inv_prefix, default: k.default }" > {{ k.name }} </option>
+                                            </template>
                                         </template>
                                         </select>
                                     </div>
@@ -329,7 +334,9 @@
                 .then(response => {
                     var data = response.data;
                     this.agents = data.agents;
-                    this.courier_agent = this.agents.find( _ => _.id == data.invoice_details.agent_id );
+                    // this.courier_agent = this.agents.find( _ => _.id == data.invoice_details.agent_id );
+                    this.courier_agent = data.invoice_details.agent_id;
+                    $('#courier_agent').attr('disabled', true)
                     this.company = (data.invoice_details.supplier_id != 0) ? data.supplier : data.customer;
                     this.comm_invoice_gst = data.invoice_details.service_tax_flag;
                     this.comm_invoice_tds = data.invoice_details.tds_flag;
@@ -577,7 +584,7 @@
                     bill_period_from: this.bill_period_from,
                     invoice_bill_date: this.invoice_bill_date,
                     with_without_gst: this.with_without_gst,
-                    courier_agent: this.courier_agent,
+                    // courier_agent: this.courier_agent,
                     total_amount: this.total_amount,
                     select_tax: this.select_tax
                 })
