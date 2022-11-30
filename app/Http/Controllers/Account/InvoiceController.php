@@ -1065,7 +1065,7 @@ class InvoiceController extends Controller
         $invoice->rounded_off        = $rounded_off;
         $invoice->tds_amount         = (int)$tds_amt;
         $invoice->final_amount       = $final_amount;
-        $invoice->agent_id           = $new_req['courier_agent']['id'];
+        // $invoice->agent_id           = $new_req['courier_agent']['id'];
         $invoice->total_payment_received_amount = $new_req['total_amount'];
         $invoice->save();
 
