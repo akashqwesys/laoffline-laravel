@@ -734,7 +734,7 @@ class PaymentsReportController extends Controller
         foreach($data1 as $key => $company) {
             $companydetail = array();
 
-            $noofbill = count($company);
+            $noofbill = count((array) $company);
             $totalday = 0;
             foreach ($company as $c) {
                 $companyname = $c->company_name;

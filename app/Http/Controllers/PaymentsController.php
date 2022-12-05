@@ -1881,7 +1881,6 @@ class PaymentsController extends Controller
             $payment->attachments = json_encode($cheque_image);
         }
 
-
         if ($image = $request->letterimage) {
             $LetterImage = date('YmdHis') . "_letterImage." . $image->getClientOriginalExtension();
             $payment->letter_attachment = $LetterImage;
@@ -1893,14 +1892,12 @@ class PaymentsController extends Controller
         $cmpTypeName = Company::where('id', $payment2->receipt_from)->first();
         $companyName = Company::where('id', $payment2->supplier_id)->first();
 
-
         if ($cmpTypeName && $cmpTypeName->company_type != 0) {
             $companyTypeName = CompanyType::where('id', $cmpTypeName->company_type)->first();
             $typeName = $companyTypeName->name;
         } else {
             $typeName = '';
         }
-
 
         $combo = Comboids::where('payment_id', $paymentData->id)->first();
         $personName = '';
@@ -2515,7 +2512,7 @@ class PaymentsController extends Controller
             if ($pending_amount != 0) {
                $salebill->pending_payment = $salebill->pending_payment + $pending_amount;
             }
-            $salebill->received_payment = $salebill->received_payment - $pending_amount;
+            $salebill->received_payment = $salebill->received_payment - $paymentData->adjust_amount;
             $salebill->payment_status = 0;
             $salebill->save();
         }
