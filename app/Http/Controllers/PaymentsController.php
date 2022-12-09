@@ -1022,20 +1022,20 @@ class PaymentsController extends Controller
 
         $salebill_data = array();
         foreach($newSalebill as $ids){
-        $salebills = DB::table('sale_bills')
-            ->where('company_id', $customer_id)
-            ->where('supplier_id', $seller_id)
-            ->where('financial_year_id', $ids['fid'])
-            ->where('sale_bill_id', $ids['id'])
-            ->where('payment_status', 0)
-            ->first();
-
-
-            $status_c = new \stdClass;
-            $status_c->code = 1;
-            $status_c->status = 'Complete';
-            $salebill = array('id' => $salebills->sale_bill_id, 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
-            array_push($salebill_data, $salebill);
+            $salebills = DB::table('sale_bills')
+                ->where('company_id', $customer_id)
+                ->where('supplier_id', $seller_id)
+                ->where('financial_year_id', $ids['fid'])
+                ->where('sale_bill_id', $ids['id'])
+                ->where('payment_status', 0)
+                ->first();
+            if ($salebills) {
+                $status_c = new \stdClass;
+                $status_c->code = 1;
+                $status_c->status = 'Complete';
+                $salebill = array('id' => $salebills->sale_bill_id, 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
+                array_push($salebill_data, $salebill);
+            }
         }
         $data['salebill'] = $salebill_data;
         $oldSalebill = $request->session()->get('saleBill');
