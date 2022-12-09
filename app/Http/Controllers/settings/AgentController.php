@@ -160,7 +160,7 @@ class AgentController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'pan_no' => 'required',
-            'gst_no' => 'required',
+            // 'gst_no' => 'required',
             'default' => 'required',
         ]);
 

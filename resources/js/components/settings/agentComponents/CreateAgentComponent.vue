@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -11,7 +11,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -41,7 +41,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="fv-gst_no">GST No</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" class="form-control" id="fv-gst_no" v-model="form.gst_no" required>
+                                                        <input type="text" class="form-control" id="fv-gst_no" v-model="form.gst_no" >
                                                     </div>
                                                 </div>
                                             </div>
@@ -66,7 +66,7 @@
                                             </div>
                                         </div>
                                         <hr class="preview-hr">
-                                        <div class="row gy-4">                                        
+                                        <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <a v-bind:href="cancel_url" class="btn btn-dim btn-secondary">Cancel</a>
