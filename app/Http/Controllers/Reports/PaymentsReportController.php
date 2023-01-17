@@ -694,6 +694,16 @@ class PaymentsReportController extends Controller
     }
 
     public function listAvaragePaymentDaysData(Request $request) {
+        /* SELECT x.*, SUM(x.payment_day) total_days, COUNT(x.company_id) total, ROUND(SUM(x.payment_day)/SUM(x.total_bill)) AS avg_day FROM
+		(SELECT c.company_name, s.id, s.company_id, s.select_date, p.date, SUM(DATE_PART('day', '2011-12-31 01:00:00'::timestamp - '2011-12-29 23:00:00'::timestamp)) AS payment_day, COUNT(s.company_id) total_bill
+		FROM sale_bills s
+		INNER JOIN payment_details pd ON pd.sr_no = s.sale_bill_id AND pd.financial_year_id = s.financial_year_id
+		INNER JOIN payments p ON p.id = pd.p_increment_id
+		INNER JOIN companies c ON c.id = s.company_id
+		WHERE s.is_deleted = 0 AND pd.is_deleted = 0 AND p.is_deleted = 0 AND s.select_date BETWEEN '2015-01-01' AND '2022-12-12'
+		GROUP BY s.sale_bill_id, s.financial_year_id, c.company_name, s.id, s.company_id, p.date) x
+		GROUP BY company_id
+		ORDER BY avg_day DESC */
         $data1 = DB::table('sale_bills')
             ->select('companies.company_name', 'sale_bills.sale_bill_id', 'sale_bills.financial_year_id', 'sale_bills.company_id', 'sale_bills.select_date', 'payments.date')
             ->join('payment_details as pd',function($join) {
@@ -773,7 +783,7 @@ class PaymentsReportController extends Controller
             $html .= '<tr>
                 <td><b>No</b></td>
                 <td><b>Company Name</b></td>
-                <td><b>Avarage Days</b></td>
+                <td><b>Average Days</b></td>
             </tr>';
             foreach ($companydata as $cd) {
                 $html .= '<tr>
@@ -798,11 +808,11 @@ class PaymentsReportController extends Controller
             $pdf = PDF::loadView('reports.avarage_payments_days_export_pdf', compact('data', 'request'))
                 ->setOptions(['defaultFont' => 'sans-serif']);
             $path = storage_path('app/public/pdf/avarage-payment-days-reports');
-            $fileName =  'Avarage-Payment-Days-Report-' . time() . '.pdf';
+            $fileName =  'Average-Payment-Days-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
             return response()->json(['url' => url('/storage/pdf/avarage-payment-days-reports/' . $fileName)]);
         } else if ($request->export_sheet == 1) {
-            $fileName =  'Avarage-Payment-Days-Report' . time() . '.xlsx';
+            $fileName =  'Average-Payment-Days-Report' . time() . '.xlsx';
             Excel::store(new AvaragePaymentDaysExport($data, $request), 'excel-sheets/avarage-payment-days-reports/' . $fileName, 'public');
             return response()->json(['url' => url('/storage/excel-sheets/avarage-payment-days-reports/' . $fileName)]);
         } else {

@@ -1121,6 +1121,7 @@ class SaleBillController extends Controller
     {
         $user = Session::get('user');
         if ($fid != $user->financial_year_id) {
+            $temp_fid = $user->financial_year_id;
             $user->financial_year_id = $fid;
         }
         $sale_bill = DB::table('sale_bills as s')
@@ -1222,6 +1223,10 @@ class SaleBillController extends Controller
             ->select('name')
             ->where('id', ($sale_bill_transports ? intval($sale_bill_transports->station) : 0))
             ->first();
+
+        if ($fid != $user->financial_year_id) {
+            $user->financial_year_id = $temp_fid;
+        }
 
         return response()->json([
             'sale_bill' => $sale_bill,
