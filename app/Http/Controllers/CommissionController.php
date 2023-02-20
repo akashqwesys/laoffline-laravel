@@ -276,7 +276,7 @@ class CommissionController extends Controller
             $billdate = date('d-m-y', strtotime($invoice->bill_date));
             $financial_year_id = FinancialYear::where('id', $invoice->financial_year_id)->select('name')->first()->name;
 
-            $exist = collect($comm_details)->where('commission_invoice_id', $invoice->id)->toArray();
+            $exist = collect($comm_details)->where('commission_invoice_id', $invoice->id)->values();
             if (count($exist)) {
                 $remain_amt = $invoice->final_amount - $exist[0]->received_amount;
             } else {
