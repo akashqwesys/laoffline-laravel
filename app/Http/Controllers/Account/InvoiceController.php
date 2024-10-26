@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Account;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Employee;
-use App\Models\Commission\CommissionInvoice;
-use App\Models\FinancialYear;
 use App\Models\Logs;
-use App\Models\InvoicePaymentDetails;
+use App\Models\Employee;
+use Illuminate\Http\Request;
+use App\Models\FinancialYear;
 use App\Models\Comboids\Comboids;
-use App\Http\Controllers\Account\SaleBillController;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\InvoicePaymentDetails;
 use Illuminate\Support\Facades\Session;
-use DB;
+use App\Models\Commission\CommissionInvoice;
+use App\Http\Controllers\Account\SaleBillController;
 
 class InvoiceController extends Controller
 {
@@ -431,6 +431,7 @@ class InvoiceController extends Controller
         $igst                = 0;
         $igst_amt            = 0;
         $tds_amt             = 0;
+        $tds                 = $request->tds ?? 0;
         if (isset($new_req['comm_invoice_gst'])) {
             $service_tax_flag = 1;
             if (isset($new_req['cgst_amount'])) {    // for gujarat
@@ -472,6 +473,7 @@ class InvoiceController extends Controller
         $invoice->other_amount       = $invoice_others;
         $invoice->rounded_off        = $rounded_off;
         $invoice->tds_amount         = (int)$tds_amt;
+        $invoice->tds                = $tds_flag == 1 ? $tds : 0;
         $invoice->final_amount       = $final_amount;
         $invoice->agent_id           = $new_req['courier_agent']['id'];
 
@@ -970,6 +972,9 @@ class InvoiceController extends Controller
             ->where('is_deleted', 0)
             ->get();
 
+        $invTds = $invoice_details->tds;
+        $tds = ($invoice_details->tds_amount != 0 && $invTds == 0) ? 0 : ($invTds ?: $user->tds);
+
         return response()->json([
             'invoice_details' => $invoice_details,
             'invoice_payment_details' => $invoice_payment_details,
@@ -986,7 +991,7 @@ class InvoiceController extends Controller
             'cgst' => $user->cgst,
             'sgst' => $user->sgst,
             'igst' => $user->igst,
-            'tds' => $user->tds,
+            'tds' => $tds,
         ]);
     }
 
@@ -1025,6 +1030,7 @@ class InvoiceController extends Controller
         $igst                = 0;
         $igst_amt            = 0;
         $tds_amt             = 0;
+        $tds                 = $request->tds ?? 0;
         if (isset($new_req['comm_invoice_gst'])) {
             $service_tax_flag = 1;
             if (isset($new_req['cgst_amount'])) {    // for gujarat
@@ -1064,6 +1070,7 @@ class InvoiceController extends Controller
         $invoice->other_amount       = $invoice_others;
         $invoice->rounded_off        = $rounded_off;
         $invoice->tds_amount         = (int)$tds_amt;
+        $invoice->tds                = $tds_flag == 1 ? $tds : 0;
         $invoice->final_amount       = $final_amount;
         // $invoice->agent_id           = $new_req['courier_agent']['id'];
         $invoice->total_payment_received_amount = $new_req['total_amount'];
