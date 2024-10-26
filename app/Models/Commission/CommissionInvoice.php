@@ -24,6 +24,7 @@ class CommissionInvoice extends Model
         'service_tax',
         'other_amount',
         'rounded_off',
+        'tds',
         'tds_amount',
         'final_amount',
         'service_tax_flag',

@@ -1,5 +1,4 @@
 <template>
-    
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -11,7 +10,7 @@
                                 <div class="nk-block-des text-soft">
                                     <p>Please fill the all details.</p>
                                 </div>
-                            </div><!-- .nk-block-head-content -->                            
+                            </div><!-- .nk-block-head-content -->
                         </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
@@ -60,10 +59,10 @@
                                                         <input type="text" class="form-control" id="fv-service_tax_limit" v-model="form.service_tax_limit" required>
                                                     </div>
                                                 </div>
-                                            </div> 
+                                            </div>
                                         </div>
                                         <hr class="preview-hr">
-                                        <div class="row gy-4">                                        
+                                        <div class="row gy-4">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <button type="submit" class="btn btn-primary">Save changes</button>

@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Carbon;
 use App\Models\Logs;
 use App\Models\Employee;
+use Illuminate\Http\Request;
 use App\Models\FinancialYear;
-use Carbon;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Session;
+use App\Models\Settings\DefaultSettings;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
@@ -42,10 +43,9 @@ class LoginController extends Controller
      */
     public function index()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             return redirect()->route('home');
-        }
-        else{
+        } else {
             return view('auth.login');
         }
     }
@@ -59,23 +59,24 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        if(auth()->attempt(array('username' => $input['email'], 'password' => $input['password'], 'is_active' => 1))) {
+        if (auth()->attempt(array('username' => $input['email'], 'password' => $input['password'], 'is_active' => 1))) {
             $financialYear = FinancialYear::where('current_year_flag', '1')->first();
 
             $user = Auth::User();
             $employee = Employee::where('id', $user->employee_id)->first();
+            $defaultSetting = DefaultSettings::first();
             $user['excel_access'] = $employee->excel_access;
             $user['user_email'] = $employee->email_id;
             $user['financial_year'] = $financialYear->name;
             $user['financial_year_start_date'] = $financialYear->start_date;
             $user['financial_year_end_date'] = $financialYear->end_date;
-            $user['service_tax'] = 15;
-            $user['tds'] = 5;
+            $user['service_tax'] = $defaultSetting->service_tax_limit ?? 15;
+            $user['tds'] = $defaultSetting->tds ?? 5;
             $user['tax_limit'] = 0;
-            $user['cgst'] = 9;
-            $user['sgst'] = 9;
+            $user['cgst'] = $defaultSetting->cgst ?? 9;
+            $user['sgst'] = $defaultSetting->sgst ?? 9;
             $user['sgst_per'] = 9;
-            $user['igst'] = 18;
+            $user['igst'] = $defaultSetting->igst ?? 18;
 
             $user['financial_year_id'] = $financialYear->id;
 
@@ -94,7 +95,7 @@ class LoginController extends Controller
             $logs->employee_id = $user->employee_id;
             $logs->log_path = 'Login';
             $logs->log_subject = 'Login Successfully.';
-            $logs->log_url = 'https://'.$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
             $logs->save();
 
             $employee = Employee::where('id', $user->employee_id)->first();
@@ -102,9 +103,9 @@ class LoginController extends Controller
             $employee->save();
 
             return redirect()->route('home');
-        }else{
+        } else {
             return redirect()->route('login')
-                ->with('error','Email-Address And Password Are Wrong.');
+                ->with('error', 'Email-Address And Password Are Wrong.');
         }
     }
 }

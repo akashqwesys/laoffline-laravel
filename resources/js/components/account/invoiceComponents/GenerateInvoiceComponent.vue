@@ -14,7 +14,7 @@
                         <div class="card card-bordered">
                             <div class="card-inner">
                                 <div class="row gy-4">
-                                    <div class="col-md-3"><b>Commission Invoice Details</b></div>
+                                    <div class="col-md-2"><b>Commission Invoice Details</b></div>
                                     <div class="col-md-1">
                                         <div class="custom-control custom-checkbox checked">
                                             <input type="checkbox" class="custom-control-input" v-model="comm_invoice_gst" id="comm_invoice_gst" true-value="1" false-value="0"  @click="updateData">
@@ -26,6 +26,9 @@
                                             <input type="checkbox" class="custom-control-input" v-model="comm_invoice_tds" id="comm_invoice_tds" true-value="1" false-value="0"  @click="updateData">
                                             <label class="custom-control-label" for="comm_invoice_tds"> TDS</label>
                                         </div>
+                                    </div>
+                                    <div v-if="comm_invoice_tds == 1" class="col-md-1">
+                                        <input type="number" v-model="tds" id="tds" class="form-control" @change="everyLoadChange(e)" step="any">
                                     </div>
                                     <div class="col-md-2">
                                         <select class="form-control" v-model="with_without_gst" id="with_without_gst" @change="changeGST(e)" required>
@@ -341,6 +344,7 @@
                     this.comm_invoice_gst = data.invoice_details.service_tax_flag;
                     this.comm_invoice_tds = data.invoice_details.tds_flag;
                     this.hideShowSelect_tax();
+                    this.hideShowTdsPercentage();
                     this.with_without_gst = data.invoice_details.with_without_gst;
                     this.payment_comm = data.invoice_details.commission_percent;
                     this.select_tax = data.invoice_details.tax_class;
@@ -501,8 +505,18 @@
             updateData (e) {
                 this.changeAgentForInvoice();
                 this.hideShowSelect_tax();
+                this.hideShowTdsPercentage();
                 setTimeout(() => {
                     this.everyLoadChange();
+                }, 100);
+            },
+            hideShowTdsPercentage() {
+                setTimeout(() => {
+                    if (this.comm_invoice_tds == 1) {
+                        $('#tds').show();
+                    } else {
+                        $('#tds').hide();
+                    }
                 }, 100);
             },
             changeGST (e) {
@@ -542,6 +556,7 @@
                     igst_amount: this.igst_amount,
                     comm_invoice_tds: this.comm_invoice_tds,
                     tds_amount: this.tds_amount,
+                    tds: this.tds,
                     full_bill_no: this.full_bill_no,
                     bill_period_to: this.bill_period_to,
                     bill_period_from: this.bill_period_from,
@@ -579,6 +594,7 @@
                     igst_amount: this.igst_amount,
                     comm_invoice_tds: this.comm_invoice_tds,
                     tds_amount: this.tds_amount,
+                    tds: this.tds,
                     full_bill_no: this.full_bill_no,
                     bill_period_to: this.bill_period_to,
                     bill_period_from: this.bill_period_from,

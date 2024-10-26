@@ -257,8 +257,8 @@
 import $ from 'jquery';
 import Form from 'vform';
 import Multiselect from 'vue-multiselect';
-import AddCompany from './modal/AddNewCompanyModelComponent';
-import AddPerson from './modal/AddNewPersonModelComponent';
+import AddCompany from './Modal/AddNewCompanyModelComponent.vue';
+import AddPerson from './Modal/AddNewPersonModelComponent.vue';
 var Receiver = [];
 var fromName = [];
 export default {
