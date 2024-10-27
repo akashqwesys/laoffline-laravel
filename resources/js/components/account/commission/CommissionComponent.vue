@@ -285,6 +285,13 @@
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
             });
+
+            $(document).on('click', '.delete-commission', function(e) {
+                if (confirm('Are you sure you want to delete?')) {
+                    location.href = '/commission/delete/' + $(this).attr('data-id') + '/' + $(this).attr('data-fid');
+                }
+                return;
+            });
         },
     };
 </script>

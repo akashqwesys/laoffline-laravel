@@ -27,7 +27,7 @@ use App\Models\Settings\Agent;
 use App\Models\Commission\CommissionInvoice;
 use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Session;
@@ -190,7 +190,7 @@ class CommissionController extends Controller
             }
             $color_flag_id = $record->color_flag_id;
             $action = '<a href="/commission/view-commission/'.$id.'/'.$record->financial_year_id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a><a href="/commission/edit-commission/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="/commission/delete/'.$id.'/'.$record->financial_year_id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+            <a href="javascript:void(0)" data-id="' . $id .'" data-fid="' . $record->financial_year_id . '" class="btn btn-trigger btn-icon delete-commission" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
@@ -943,10 +943,11 @@ class CommissionController extends Controller
         return view('commission.viewcommission',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    public function deleteCommission($id, $fid){
-        $commissions = commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
+    public function deleteCommission($id, $fid)
+    {
+        $commission = Commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
 
-        $commissioncomboids = Comboids::where('commission_id', $id)->where('financial_year_id', $commissions->financial_year_id)->get();
+        $commissioncomboids = Comboids::where('commission_id', $id)->where('financial_year_id', $commission->financial_year_id)->get();
         foreach ($commissioncomboids as $comboids) {
             $comboid = Comboids::where('commission_id', $comboids->commission_id)->where('financial_year_id', $comboids->financial_year_id)->first();
             $comboid->is_deleted = 1;
@@ -954,14 +955,15 @@ class CommissionController extends Controller
             Iuid::where('iuid', $comboids->iuid)->where('financial_year_id', $comboids->financial_year_id)->delete();
             Ouid::where('ouid', $comboids->ouid)->where('financial_year_id', $comboids->financial_year_id)->delete();
         }
-        $commissiondetalids = CommissionDetail::where('c_increment_id', $commissions->id)->get();
-        foreach ($commissiondetalids as $comboids) {
-            $commissiondetail = CommissionDetail::where('c_increment_id', $comboids->id)->where('is_deleted', 0)->first();
-            $commissiondetail->is_deleted = 1;
-            $commissiondetail->save();
+
+        $details = CommissionDetail::where('c_increment_id', $commission->id)->where('is_deleted', 0)->get();
+        foreach ($details as $detail) {
+            $detail->is_deleted = 1;
+            $detail->save();
         }
-        $commissions->is_deleted = 1;
-        $commissions->save();
+
+        $commission->is_deleted = 1;
+        $commission->save();
         return redirect('/commission');
     }
 
