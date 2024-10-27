@@ -10,7 +10,7 @@ use App\Models\SampleDetail;
 use App\Models\Logs;
 use App\Models\FinancialYear;
 use App\Models\IncrementId;
-use App\Models\linkCompanies;
+use App\Models\LinkCompanies;
 use App\Models\Product;
 use App\Models\SaleBill;
 use App\Models\Comboids\Comboids;
@@ -221,12 +221,12 @@ class RegisterController extends Controller
 
     public function getProductWithSupplier($id) {
         $company = Company::where('id', $id)->first();
-        $linkCompanies = linkCompanies::where('company_id', $id)->get();
+        $linkCompanies = LinkCompanies::where('company_id', $id)->get();
         if (empty($linkCompanies)) {
-            $isLinked = linkCompanies::where('link_companies_id', $id)->first();
+            $isLinked = LinkCompanies::where('link_companies_id', $id)->first();
             if(!empty($isLinked)) {
                 $company = Company::where('id', $isLinked->company_id)->first();
-                $linkCompanies = linkCompanies::where('company_id', $isLinked->company_id)->get();
+                $linkCompanies = LinkCompanies::where('company_id', $isLinked->company_id)->get();
             }
         }
 

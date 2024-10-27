@@ -62,7 +62,7 @@ use App\Models\OutwardOrder;
 use App\Models\OutwardProductFabric;
 use App\Models\OutwardOrderDetail;
 use App\Models\OutwardFrequentMessage;
-use App\Models\linkCompanies;
+use App\Models\LinkCompanies;
 // use App\Models\linkCompaniesLog;
 use App\Models\Reference\ReferenceId;
 // use App\Models\Settings\Agent;
@@ -1496,7 +1496,7 @@ class ConnectionController extends Controller
         if(!empty($ComapnyLinkList)) {
             DB::table('link_companies')->truncate();
             foreach($ComapnyLinkList as $cl) {
-                $linkcompany = new linkCompanies();
+                $linkcompany = new LinkCompanies();
                 $linkcompany->id = $cl['id'];
                 $linkcompany->company_id = $cl['company_id'];
                 $linkcompany->link_companies_id = $cl['link_companies_id'];

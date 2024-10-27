@@ -21,24 +21,24 @@
             $morethan = '';
             $sup = '';
             $agent = '';
-        
-        if ($request->day != '' && $request->day['report_days'] != 0) { 
+
+        if ($request->day != '' && $request->day['report_days'] != 0) {
                 $morethan .= '( More then '. $request->day['report_days'] .'Days)';
         } else {
                 $morethan .= '';
-        }   
-        
+        }
+
         if ($request->agent == '') {
-                $agent .= 'All Agents';  
+                $agent .= 'All Agents';
         } else {
                 $agent .= $request->agent['name'];
-        }   
+        }
 
         if ($request->customer != '') {
                 $sup .= 'Customer: '.$data['cus_disp_name'] . '<br>';
         }
 
-        if ($request->supplier != '') { 
+        if ($request->supplier != '') {
             if($data['sup_disp_name']) {
                 $sup .= 'Supplier: ' .$data['sup_disp_name'] . '<br>';
             } else {
@@ -66,12 +66,12 @@
             <th>Purchase Party</th>
             <th>Bill No</th>
         </tr>
-        @else 
+        @else
         <tr width="100%">
             <th>No.</th>
             <th>Name</th>
             <th colspan="4">Party Amount</th>
-        </tr>    
+        </tr>
         @endif
 
         @php
@@ -80,7 +80,7 @@
             if (!empty($data['company_data'])) {
         @endphp
         @foreach ($data['company_data'] as $row)
-        @php    
+        @php
             $ptotal = 0;
             if ($request->show_detail == 1) {
         @endphp
@@ -115,8 +115,8 @@
                             <td colspan="2"><b>{{ $row[0]->customer_name }}</b></td>
                             <td colspan="4"><b>{{ $row[0]->company_address }}</b></td>
                 </tr>
-            
-            
+
+
             @foreach($row as $key1 => $row2){
         @php
                 $startTimeStamp = strtotime($row2->select_date);
@@ -128,6 +128,8 @@
                 if ($numberDays >= $report_days){
                     if ($numberDays >= 90) {
                         $tr_color="style='color:red'";
+                    } else {
+                        $tr_color="";
                     }
         @endphp
                     <tr width="100%" {{ $tr_color }}>
@@ -146,7 +148,7 @@
                             <td>{{ $row2->supplier_invoice_no }}</td>
                     </tr>
         @php
-                            $ptotal += $final_amount; 
+                            $ptotal += $final_amount;
                 }
         @endphp
         @endforeach
@@ -164,12 +166,12 @@
             } else {
         @endphp
                 <td colspan="4">{{ $ptotal }}</td></tr>
-        @php 
+        @php
             }
             $grand_total += $ptotal;
         @endphp
         @endforeach
-            
+
         @php
         if ($request->show_detail == 0) {
         @endphp
@@ -195,6 +197,6 @@
             @php
             }
             @endphp
-        
+
     </tbody>
 </table>
