@@ -152,7 +152,7 @@
             clearallfilter(event){
                 axios.get('payments/clearpaymentsearch')
                 .then(response => {
-                
+
                 });
                 $("#payment_filter").find('input').val("");
                 $('#payment').DataTable().clear().draw();
@@ -405,7 +405,12 @@
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
             });
-
+            $(document).on('click', '.delete-payment', function(e) {
+                if (confirm('Are you sure you want to delete?')) {
+                    location.href = '/payments/delete/' + $(this).attr('data-id');
+                }
+                return;
+            });
         },
     };
 </script>
