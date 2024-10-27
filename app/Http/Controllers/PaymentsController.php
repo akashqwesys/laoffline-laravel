@@ -2,31 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Spatie\Permission\Traits\HasRoles;
-use App\Models\FinancialYear;
-use App\Models\Employee;
-use App\Models\Reference\ReferenceId;
-use App\Models\Logs;
+use Carbon\Carbon;
 use App\Models\Iuid;
+use App\Models\Logs;
 use App\Models\Ouid;
 use App\Models\Payment;
-use App\Models\CompanyType;
+use App\Models\Employee;
 use App\Models\SaleBill;
-use App\Models\PaymentDetail;
+use App\Models\CompanyType;
 use App\Models\IncrementId;
-use App\Models\Goods\GoodsReturn;
-use App\Models\Goods\GrSaleBillItem;
-use App\Models\Settings\BankDetails;
+use Illuminate\Http\Request;
+use App\Models\FinancialYear;
+use App\Models\PaymentDetail;
 use App\Models\Company\Company;
 use App\Models\Comboids\Comboids;
-use App\Models\Settings\TransportDetails;
-use DB;
+use App\Models\Goods\GoodsReturn;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Goods\GrSaleBillItem;
+use App\Models\Settings\BankDetails;
+use App\Models\Reference\ReferenceId;
+use Spatie\Permission\Traits\HasRoles;
 // use Spatie\Permission\Models\Role;
 // use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Session;
-use Carbon\Carbon;
+use App\Models\Settings\TransportDetails;
 
 
 class PaymentsController extends Controller
@@ -796,7 +796,7 @@ class PaymentsController extends Controller
         }
 
         // Fetch records
-        $records = $records->select('payments.id', 'payments.financial_year_id','payments.reciept_mode', 'payments.payment_id','payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount','payments.tot_good_returns','payments.customer_commission_status' , 'payments.old_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
+        $records = $records->select('payments.id', 'payments.financial_year_id', 'payments.reciept_mode', 'payments.payment_id', 'payments.iuid', 'payments.reference_id', 'payments.created_at', 'payments.date', 'payments.customer_id', 'payments.supplier_id', 'payments.payment_id', 'payments.receipt_amount', 'payments.tot_adjust_amount', 'payments.tot_good_returns', 'payments.customer_commission_status', 'payments.old_commission_status', 'payments.done_outward', 'payments.reciept_mode', DB::raw('(SELECT "color_flag_id" FROM "comboids" WHERE "comboids"."payment_id" = "payments"."payment_id" and goods_return_id = 0 and financial_year_id = payments.financial_year_id ORDER BY "id" DESC LIMIT 1) as color_flag_id'));
 
         $records = $records->orderBy($columnName,$columnSortOrder)
             ->skip($start)
@@ -908,7 +908,7 @@ class PaymentsController extends Controller
             $color_flag_id = $record->color_flag_id;
             $action = $action.'<a href="/payments/view-voucher/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="voucher"><em class="icon ni ni-file-docs"></em></a><a href="/payments/view-payment/'.$id. '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show" target="_blank"><em class="icon ni ni-eye"></em></a>';
             // if (!$record->done_outward) {
-                $action = $action.'<a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a><a href="/payments/delete/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+                $action = $action.'<a href="/payments/edit-payment/'.$id.'" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a><a href="javascript:void(0)" class="btn btn-trigger btn-icon delete-payment" data-id="'. $id . '" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
             // }
             $data_arr[] = array(
                 "id" => $id,
