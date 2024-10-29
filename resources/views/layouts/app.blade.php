@@ -19,6 +19,9 @@
     </head>
 
 <body class="nk-body bg-lighter npc-general has-sidebar ">
+    <script>
+      window.laReportLogo = '{{ url("assets/images/logo_report.png") }}';
+    </script>
     <div class="nk-app-root">
         <!-- main @s -->
         <div id="overlay" class="loader-wrap">
