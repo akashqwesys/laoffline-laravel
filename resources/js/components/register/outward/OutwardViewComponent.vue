@@ -303,7 +303,7 @@
                 var originalContents = document.body.innerHTML;
                 var popupWin = window.open('', '_blank', 'width=1000,height=1000');
                 popupWin.document.open()
-                popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
+                popupWin.document.write('<html><head><link rel="stylesheet" href="/assets/css/dashlite.css"><link rel="stylesheet" href="/assets/css/custom.css"></head><body onload="window.print()">' + printContents + '</html>');
                 popupWin.document.close();
             },
             backToInsert (e) {
