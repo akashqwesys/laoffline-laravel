@@ -1137,6 +1137,10 @@
                     })
                     .then (response => {
                         $('#check-supplier-no-div').html(response.data);
+                        this.isSubmitDisabled = false;
+                        if ($('#check-supplier-no-div').text() != "SUCCESS") {
+                            this.isSubmitDisabled = true;
+                        }
                     });
                 }
             },
