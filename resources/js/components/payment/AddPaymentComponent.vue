@@ -1,5 +1,4 @@
 <template>
-
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -1526,7 +1525,8 @@
                 }, 500);
 
             },
-            register () {
+            register() {
+                $('#overlay').show();
                 $("#error-for-couurier").text("");
                 $("#error-for-reference").text("");
                 $("#error-for-recivedate").text("");
@@ -1540,19 +1540,20 @@
                         paymentdata.append('formdata', JSON.stringify(this.form));
                         //paymentdata.append('chequeimage', this.chequeimage);
                         paymentdata.append('letterimage', this.letterimage);
-                        this.chequeimage.forEach((contact,index)=>{
-                        if(contact){
-                            paymentdata.append(`chequeimage[${index}]`, contact);
-                        }});
+                        this.chequeimage.forEach((contact, index) => {
+                            if (contact) {
+                                paymentdata.append(`chequeimage[${index}]`, contact);
+                            }
+                        });
                        axios.post('/payments/update',paymentdata)
                         .then(() => {
                              window.location.href = '/payments';
                         })
                         .catch((error) => {
                             var validationError = error.response.data.errors;
+                            $('#overlay').hide();
                         })
                     } else {
-
                         if (this.form.refrence == '') {
                             $("#error-for-reference").text("Select Reference");
                             this.isValidate = false;
@@ -1621,15 +1622,15 @@
                             }
                         }
 
-
                         paymentdata.append('billdata', JSON.stringify(this.salebills));
                         paymentdata.append('formdata', JSON.stringify(this.form));
                         paymentdata.append('chequeimage', this.chequeimage);
                         paymentdata.append('letterimage', this.letterimage);
-                        this.chequeimage.forEach((contact,index)=>{
-                        if(contact){
-                            paymentdata.append(`chequeimage[${index}]`, contact);
-                        }});
+                        this.chequeimage.forEach((contact, index) => {
+                            if (contact) {
+                                paymentdata.append(`chequeimage[${index}]`, contact);
+                            }
+                        });
                         if (this.isValidate) {
                             axios.post('/payments/create', paymentdata)
                             .then((response2) => {
@@ -1641,8 +1642,10 @@
                             })
                             .catch((error) => {
                                 var validationError = error.response.data.errors;
+                                $('#overlay').hide();
                             })
                         } else {
+                            $('#overlay').hide();
                             alert('Please Fill required Field');
                         }
                     }
@@ -1781,5 +1784,4 @@
         width: 85%;
         float: right;
     }
-
 </style>
