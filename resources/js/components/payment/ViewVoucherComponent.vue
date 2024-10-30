@@ -8,7 +8,7 @@
                             <div class="nk-block-head-content">
                                 <h3  class="nk-block-title page-title">View Payment Detail</h3>
                             </div><!-- .nk-block-head-content -->
-                        </div><!-- .nk-block-between --> 
+                        </div><!-- .nk-block-between -->
                     </div><!-- .nk-block-head -->
                     <div class="nk-block">
                         <div class="card card-bordered card-stretch">
@@ -18,7 +18,7 @@
 							        <table class="table m-b-none">
 								        <tbody>
                                             <tr class="text-center py-2">
-                                                <td colspan="5"><img src="https://laoffline.com/img/logo_report.png" style="width: 150px;"></td>
+                                                <td colspan="5"><img :src="reportLogo" style="width: 150px;"></td>
                                             </tr>
                                             <tr>
 									            <th colspan="5" class="text-center">PAYMENT VOUCHER</th>
@@ -93,7 +93,7 @@
 		        							<td></td>
                                         </tr>
 							        </tbody>
-                                    
+
                                 </table>
 							    <table v-if="paymentData.reciept_mode == 'cheque'" class="table table-striped m-b-none">
 		    						<tbody>
@@ -168,13 +168,14 @@
                 customer: [],
                 supplier: [],
                 created_at: '',
-                bank: '', 
+                bank: '',
+                reportLogo: window.laReportLogo,
             }
         },
         created() {
              axios.get(`/payments/fetch-voucher/${this.id}`)
                 .then(response => {
-                        
+
                         gData = response.data;
                         if (gData.paymentData.reciept_mode != 'cheque') {
                             $('.cheque').addClass('d-none');
@@ -185,7 +186,7 @@
                         this.supplier = gData.supplier;
                         this.created_at = gData.created_at;
                         this.bank = gData.bank;
-                });    
+                });
         },
         methods: {
             printOutward (event) {
@@ -193,12 +194,12 @@
                 var originalContents = document.body.innerHTML;
                 var popupWin = window.open('', '_blank', 'width=900,height=900');
                 popupWin.document.open()
-                popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
-                popupWin.document.close();  
+                popupWin.document.write('<html><head><link rel="stylesheet" href="/assets/css/dashlite.css"><link rel="stylesheet" href="/assets/css/custom.css"></head><body onload="window.print()">' + printContents + '</html>');
+                popupWin.document.close();
             }
         },
         mounted() {
-            
+
         },
     };
 </script>

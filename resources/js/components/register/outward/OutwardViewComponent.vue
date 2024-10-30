@@ -25,7 +25,7 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <th width="66%" class="text-center"><img class="mb-1" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <th width="66%" class="text-center"><img class="mb-1" :src="reportLogo" style="width: 100px;">
                                                 <br><span class="mt-2">Kind Attention to {{ Outward.personname }}</span></th>
                                                 <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
@@ -92,7 +92,7 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <th width="66%" class="text-center"><img class="mb-2" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <th width="66%" class="text-center"><img class="mb-2" :src="reportLogo" style="width: 100px;">
                                                 <br><span>Payment Outward Slip</span></th>
                                                 <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
@@ -150,7 +150,7 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <th width="66%" class="text-center"><img class="mb-2" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <th width="66%" class="text-center"><img class="mb-2" :src="reportLogo" style="width: 100px;">
                                                 <br><span>{{ Outward.company }}</span></th>
                                                 <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
@@ -204,7 +204,7 @@
 								        <tbody>
                                             <tr>
                                                 <td width="16%"></td>
-                                                <th width="66%" class="text-center"><img class="mb-2" src="https://laoffline.com/img/logo_report.png" style="width: 100px;">
+                                                <th width="66%" class="text-center"><img class="mb-2" :src="reportLogo" style="width: 100px;">
                                                 <br><span>{{ Outward.company }}</span></th>
                                                 <th width="16%" class="text-right"><span>{{ Outward.todaydate }}</span></th>
                                             </tr>
@@ -276,6 +276,7 @@
                 agent: '',
                 outwardtype: '',
                 totalParcel: 0,
+                reportLogo: window.laReportLogo,
             }
         },
         created() {
@@ -302,7 +303,7 @@
                 var originalContents = document.body.innerHTML;
                 var popupWin = window.open('', '_blank', 'width=1000,height=1000');
                 popupWin.document.open()
-                popupWin.document.write('<html><head><link rel="stylesheet" href="https://laoffline.com/bower_components/bootstrap/dist/css/bootstrap.css" type="text/css" /><link rel="stylesheet" href="https://laoffline.com/css/app.css" type="text/css" /></head><body onload="window.print()">' + printContents + '</html>');
+                popupWin.document.write('<html><head><link rel="stylesheet" href="/assets/css/dashlite.css"><link rel="stylesheet" href="/assets/css/custom.css"></head><body onload="window.print()">' + printContents + '</html>');
                 popupWin.document.close();
             },
             backToInsert (e) {
