@@ -1474,7 +1474,8 @@ class PaymentsController extends Controller
         return $data;
     }
 
-    public function getBasicData(Request $request) {
+    public function getBasicData(Request $request)
+    {
         $user = session()->get('user');
         if ($request->session()->has('saleBill')) {
             $customer_id = $request->session()->get('customer');
@@ -1486,44 +1487,81 @@ class PaymentsController extends Controller
         $seller = Company::where('id', $seller_id)->first();
         $salebill_data = array();
         $salebill_data2 = array();
-        foreach($salebill_ids as $ids){
+        foreach ($salebill_ids as $ids) {
             $salebills = DB::table('sale_bills')
-                    ->where('company_id', $customer_id)
-                    ->where('supplier_id', $seller_id)
-                    ->where('financial_year_id', $ids['fid'])
-                    ->where('sale_bill_id', $ids['id'])
-                    ->where('payment_status', 0)
-                    ->first();
+            ->where('company_id', $customer_id)
+                ->where('supplier_id', $seller_id)
+                ->where('financial_year_id', $ids['fid'])
+                ->where('sale_bill_id', $ids['id'])
+                ->where('payment_status', 0)
+                ->first();
             $salebills2 = DB::table('sale_bills')
-                    ->where('company_id', $customer_id)
-                    ->where('supplier_id', $seller_id)
-                    ->where('financial_year_id', $ids['fid'])
-                    ->whereNot('sale_bill_id', $ids['id'])
-                    ->orderBy('sale_bill_id', 'desc')
-                    ->first();
-
+            ->where('company_id', $customer_id)
+                ->where('supplier_id', $seller_id)
+                ->where('financial_year_id', $ids['fid'])
+                ->whereNot('sale_bill_id', $ids['id'])
+                ->orderBy('sale_bill_id', 'desc')
+                ->first();
 
             $status_c = new \stdClass;
             $status_c->code = 1;
             $status_c->status = 'Complete';
             $overdue = floor((time() - strtotime($salebills->select_date)) / (60 * 60 * 24));
-            if ($salebills->pending_payment != 0){
-                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->pending_payment, 'adjustamount' => $salebills->pending_payment, 'status' => $status_c, 'overdue' => $overdue, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
+            if ($salebills->pending_payment != 0) {
+                $salebill = [
+                    'id' => $salebills->sale_bill_id,
+                    'fid' => $ids['fid'],
+                    'sup_inv' => $salebills->supplier_invoice_no,
+                    'amount' => $salebills->pending_payment,
+                    'adjustamount' => $salebills->pending_payment,
+                    'status' => $status_c,
+                    'overdue' => $overdue,
+                    'discount' => 0,
+                    'discountamount' => 0,
+                    'goodreturn' => 0,
+                    'ratedifference' => 0,
+                    'bankcommission' => 0,
+                    'vatav' => 0,
+                    'agentcommission' => 0,
+                    'claim' => 0,
+                    'short' => 0,
+                    'interest' => 0,
+                    'remark' => ''
+                ];
             } else {
-                $salebill = array('id' => $salebills->sale_bill_id, 'fid'=> $ids['fid'], 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'overdue' => $overdue, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0,'interest'=> 0, 'remark' => '');
+                $salebill = [
+                    'id' => $salebills->sale_bill_id,
+                    'fid' => $ids['fid'],
+                    'sup_inv' => $salebills->supplier_invoice_no,
+                    'amount' => $salebills->total,
+                    'adjustamount' => $salebills->total,
+                    'status' => $status_c,
+                    'overdue' => $overdue,
+                    'discount' => 0,
+                    'discountamount' => 0,
+                    'goodreturn' => 0,
+                    'ratedifference' => 0,
+                    'bankcommission' => 0,
+                    'vatav' => 0,
+                    'agentcommission' => 0,
+                    'claim' => 0,
+                    'short' => 0,
+                    'interest' => 0,
+                    'remark' => ''
+                ];
             }
             array_push($salebill_data, $salebill);
 
             if ($salebills2) {
-                $financialyear = FinancialYear::where('id', $ids['fid'] )->first();
+                $financialyear = FinancialYear::where('id', $ids['fid'])->first();
                 $overdue = floor((time() - strtotime($salebills2->select_date)) / (60 * 60 * 24));
-                $salebill2 = array('sallbillid' => $salebills2->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $salebills2->supplier_invoice_no, 'date'=> $salebills2->select_date, 'supplier' => $seller->company_name, 'amount' => $salebills2->total, 'overdue' => $overdue);
+                $salebill2 = array('sallbillid' => $salebills2->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $salebills2->supplier_invoice_no, 'date' => $salebills2->select_date, 'supplier' => $seller->company_name, 'amount' => $salebills2->total, 'overdue' => $overdue);
                 array_push($salebill_data2, $salebill2);
             }
         }
-        usort($salebill_data, function($a, $b) {
+        usort($salebill_data, function ($a, $b) {
             if ($a['overdue'] == $b['overdue']) {
-              return 0;
+                return 0;
             }
             return ($a['overdue'] > $b['overdue']) ? -1 : 1;
         });
@@ -2497,20 +2535,28 @@ class PaymentsController extends Controller
         return view('payment.paymentstatus',compact('financialYear', 'page_title'))->with('employees', $employees);
     }
 
-    public function deletePayment($id){
+    public function deletePayment($id)
+    {
         $user = Session::get('user');
         $payment = Payment::where('payment_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $paymentDetail = PaymentDetail::where('payment_id', $id)
-                        ->where('p_increment_id', $payment->id)
-                        ->get();
-        foreach($paymentDetail as $paymentData) {
+            ->where('p_increment_id', $payment->id)
+            ->get();
+
+        foreach ($paymentDetail as $paymentData) {
             $salebill = SaleBill::where('sale_bill_id', $paymentData->sr_no)
-                        ->where('financial_year_id', $paymentData->financial_year_id)
-                        ->where('is_deleted', 0)
-                        ->first();
-            $pending_amount = $paymentData->adjust_amount + $paymentData->discount_amount + $paymentData->vatav + $paymentData->agent_commission + $paymentData->bank_commission + $paymentData->claim + $paymentData->goods_return + $paymentData->short - $paymentData->interest;
+                ->where('financial_year_id', $paymentData->financial_year_id)
+                ->where('is_deleted', 0)
+                ->first();
+
+            $pending_amount = $paymentData->adjust_amount + $paymentData->discount_amount + $paymentData->vatav + $paymentData->agent_commission + $paymentData->bank_commission + $paymentData->claim + $paymentData->short - $paymentData->interest;
+
+            if ($payment->reciept_mode != 'fullreturn') {
+                $pending_amount += $paymentData->goods_return;
+            }
+
             if ($pending_amount != 0) {
-               $salebill->pending_payment = $salebill->pending_payment + $pending_amount;
+                $salebill->pending_payment = $salebill->pending_payment + $pending_amount;
             }
             $salebill->received_payment = $salebill->received_payment - $paymentData->adjust_amount;
             $salebill->payment_status = 0;
@@ -2522,6 +2568,7 @@ class PaymentsController extends Controller
             $pdetail->is_deleted = 1;
             $pdetail->save();
         }
+
         $paymentcomboids = Comboids::where('payment_id', $id)->where('financial_year_id', $payment->financial_year_id)->get();
         foreach ($paymentcomboids as $comboids) {
             $comboid = Comboids::where('payment_id', $comboids->payment_id)->where('financial_year_id', $payment->financial_year_id)->where('is_deleted', 0)->first();
@@ -2530,9 +2577,11 @@ class PaymentsController extends Controller
             Iuid::where('iuid', $comboids->iuid)->where('financial_year_id', $payment->financial_year_id)->delete();
             Ouid::where('ouid', $comboids->ouid)->where('financial_year_id', $payment->financial_year_id)->delete();
         }
+
         $paymentgoodreturn = GoodsReturn::where('p_increment_id', $payment->id)->where('financial_year_id', $payment->financial_year_id)->get();
         foreach ($paymentgoodreturn as $goodreturn) {
             $getgoodsreturn = GoodsReturn::where('id', $goodreturn->id)->where('financial_year_id', $payment->financial_year_id)->where('is_deleted', 0)->first();
+
             $goods_return = Comboids::where('goods_return_id', $getgoodsreturn->goods_return_id)->where('financial_year_id', $payment->financial_year_id)->get();
             foreach ($goods_return as $row_goods_return) {
                 $grcomboids = Comboids::where('goods_return_id', $row_goods_return->goods_return_id)->where('financial_year_id', $payment->financial_year_id)->first();
@@ -2541,6 +2590,7 @@ class PaymentsController extends Controller
                 Iuid::where('iuid', $row_goods_return->iuid)->where('financial_year_id', $payment->financial_year_id)->delete();
                 Ouid::where('ouid', $row_goods_return->ouid)->where('financial_year_id', $payment->financial_year_id)->delete();
             }
+
             $grsalebillitem = GrSaleBillItem::where('gr_increment_id', $goodreturn->id)->get();
             foreach ($grsalebillitem as $gritem) {
                 $gritem = GrSaleBillItem::where('id', $gritem->id)->first();
@@ -2552,7 +2602,6 @@ class PaymentsController extends Controller
         }
         $payment->is_deleted = 1;
         $payment->save();
-
 
         $data['status'] = 1;
         return redirect('/payments');
