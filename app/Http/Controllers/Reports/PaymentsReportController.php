@@ -212,7 +212,7 @@ class PaymentsReportController extends Controller
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
             if ($request->group) {
-                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ' limit 1)')->get();
                 foreach ($link_companies as $key => $value) {
                     array_push($supplier, $value->company_id);
                     array_push($supplier, $value->link_companies_id);
@@ -235,7 +235,7 @@ class PaymentsReportController extends Controller
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ' limit 1)')->get();
             foreach ($link_companies as $key => $value) {
                 array_push($customer, $value->company_id);
                 array_push($customer, $value->link_companies_id);
