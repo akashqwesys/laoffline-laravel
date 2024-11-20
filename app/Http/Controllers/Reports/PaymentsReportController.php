@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\FinancialYear;
-use App\Models\Logs;
-use App\Models\Employee;
-use App\Models\Settings\Cities;
-use App\Models\Company\Company;
-use App\Models\LinkCompanies;
-use App\Models\Company\CompanyAddress;
-use Illuminate\Support\Facades\Session;
-use DB;
 use PDF;
 use Excel;
-use App\Exports\OutstandingPaymentExport;
+use App\Models\Logs;
+use App\Models\Employee;
+use Illuminate\Http\Request;
+use App\Models\FinancialYear;
+use App\Models\LinkCompanies;
+use App\Models\Company\Company;
+use App\Models\Settings\Cities;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Company\CompanyAddress;
 use App\Exports\PaymentsRegisterExport;
+use Illuminate\Support\Facades\Session;
 use App\Exports\AvaragePaymentDaysExport;
+use App\Exports\OutstandingPaymentExport;
 use App\Exports\OutstandingPaymentMonthWiseSummeryExport;
+
 class PaymentsReportController extends Controller
 {
 
@@ -187,15 +188,16 @@ class PaymentsReportController extends Controller
         return $cities;
     }
 
-    public function listOutstandingPaymentData(Request $request) {
+    public function listOutstandingPaymentData(Request $request)
+    {
         $data1 = DB::table('sale_bills as s');
         $data1 = $data1->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 's.company_id', '=', 'cc.id')
-                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 's.supplier_id', '=', 'cs.id')
-                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses Where address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 's.company_id', '=', 'cadd.company_id')
-                ->where('s.sale_bill_flag', 0)
-                ->where('s.is_deleted', 0)
-                ->where('s.payment_status', 0)
-                ->selectRaw('s.*,to_char(s.select_date, \'dd-mm-yyyy\') as select_date1,cc.company_name as customer_name, cs.company_name as supplier_name,cc.company_city as cc_city, cs.company_city as cs_city, cadd.address as company_address');
+        ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 's.supplier_id', '=', 'cs.id')
+        ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses Where address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 's.company_id', '=', 'cadd.company_id')
+        ->where('s.sale_bill_flag', 0)
+        ->where('s.is_deleted', 0)
+        ->where('s.payment_status', 0)
+        ->selectRaw('s.*,to_char(s.select_date, \'dd-mm-yyyy\') as select_date1,cc.company_name as customer_name, cs.company_name as supplier_name,cc.company_city as cc_city, cs.company_city as cs_city, cadd.address as company_address');
 
         if ($request->agent && $request->agent['id']) {
             $data1 = $data1->where('s.agent_id', $request->agent['id']);
@@ -203,14 +205,14 @@ class PaymentsReportController extends Controller
 
         if ($request->city && $request->city['id']) {
             $data1 = $data1->where('cc.company_city', $request->city['name'])
-                    ->orWhere('cs.company_city', $request->city['name']);
+            ->orWhere('cs.company_city', $request->city['name']);
         }
         $supplier = array();
         $customer = array();
         if ($request->supplier && $request->supplier['id']) {
             $company_details = Company::where('id', $request->supplier['id'])->first();
             if ($request->group) {
-                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ')')->get();
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->supplier['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->supplier['id'] . ' limit 1)')->get();
                 foreach ($link_companies as $key => $value) {
                     array_push($supplier, $value->company_id);
                     array_push($supplier, $value->link_companies_id);
@@ -224,7 +226,7 @@ class PaymentsReportController extends Controller
 
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 $supplier_data = [];
-                foreach($supplier as $row) {
+                foreach ($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
                 $data['sup_disp_name'] = implode(', ', $supplier_data);
@@ -233,7 +235,7 @@ class PaymentsReportController extends Controller
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ' limit 1)')->get();
             foreach ($link_companies as $key => $value) {
                 array_push($customer, $value->company_id);
                 array_push($customer, $value->link_companies_id);
@@ -245,7 +247,7 @@ class PaymentsReportController extends Controller
             if ($company_details) {
 
                 $data1 = $data1->WhereIn('s.company_id', $customer);
-                foreach($customer as $row) {
+                foreach ($customer as $row) {
                     $customer_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
                 $data['cus_disp_name'] = implode(',  ', $customer_data);
@@ -264,19 +266,19 @@ class PaymentsReportController extends Controller
                 $data1 = $data1->orderBy('cs.company_name', 'desc');
             } else if ($sorting == 3) {
                 $data1 = $data1->orderBy('cc.company_name', 'asc');
-            }  else if ($sorting == 4) {
+            } else if ($sorting == 4) {
                 $data1 = $data1->orderBy('cc.company_name', 'desc');
             }
         }
         $data1 = $data1->orderBy('s.select_date', 'asc');
         if ($request->start_date && $request->end_date) {
             $data1 = $data1->whereRaw("s.select_date::date >= '" . $request->start_date . "'")
-                    ->whereRaw("s.select_date::date <= '" . $request->end_date . "'");
+                ->whereRaw("s.select_date::date <= '" . $request->end_date . "'");
         }
         if ($request->group) {
             $supplier_data = array();
             if ($supplier) {
-                foreach($supplier as $row) {
+                foreach ($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
             }
@@ -284,42 +286,42 @@ class PaymentsReportController extends Controller
         }
         $morethan = '';
         if ($request->day != '' && $request->day['report_days'] != 0) {
-            $morethan .= "( More then ". $request->day['report_days'] ." Days)";
+            $morethan .= "( More then " . $request->day['report_days'] . " Days)";
         } else {
             $morethan .= "";
         }
-        $sup="";
-        $agent="";
+        $sup = "";
+        $agent = "";
         if ($request->agent == '') {
             $agent .= 'All Agents';
         } else {
             $agent .= $request->agent['name'];
         }
         if ($request->customer != '') {
-            $sup .= "Customer: ".$data['cus_disp_name'] . "<br>";
+            $sup .= "Customer: " . $data['cus_disp_name'] . "<br>";
         }
 
         if ($request->supplier != '') {
-            if($data['sup_disp_name']) {
-                $sup .= "Supplier: " .$data['sup_disp_name'] ."<br>";
+            if ($data['sup_disp_name']) {
+                $sup .= "Supplier: " . $data['sup_disp_name'] . "<br>";
             } else {
                 $sup .= "Supplier: " . $request->supplier->company_name . "<br>";
             }
         }
 
-        if($request->customer == '' && $request->supplier == '') {
+        if ($request->customer == '' && $request->supplier == '') {
             $sup .= "All Parties";
         }
         $sup .= $morethan;
         $html = '';
         $html .= '<tr width="100%">
-                    <th colspan="6" class="text-center">'.$sup.'</th>
+                    <th colspan="6" class="text-center">' . $sup . '</th>
                 </tr>
                 <tr width="100%">
-                    <td colspan="6" class="text-center">'.$agent.'</td>
+                    <td colspan="6" class="text-center">' . $agent . '</td>
                 </tr>';
         if ($request->show_detail == 0) {
-            $html .='<tr width="100%">
+            $html .= '<tr width="100%">
                     <th>Bill Date</th>
                     <th>Sr.</th>
                     <th>Bill Amount</th>
@@ -328,7 +330,7 @@ class PaymentsReportController extends Controller
                     <th>Bill No</th>
                 </tr>';
         } else {
-            $html .='<tr width="100%">
+            $html .= '<tr width="100%">
                         <th>No.</th>
                         <th>Name</th>
                         <th colspan="4">Party Amount</th>
@@ -341,110 +343,112 @@ class PaymentsReportController extends Controller
         $report_days = $request->day ? $request->day['report_days'] : 0;
         $grand_total = 0;
         $i = 0;
-        foreach($data2 as $key => $row) {
+        foreach ($data2 as $key => $row) {
             $ptotal = 0;
             $final_amount = 0;
             if ($request->show_detail == 1) {
-                foreach($row as $key1 => $row2){
+                foreach ($row as $key1 => $row2) {
                     $startTimeStamp = strtotime($row2->select_date);
                     $endTimeStamp = strtotime(date('Y-m-d'));
                     $timeDiff = abs($endTimeStamp - $startTimeStamp);
-                    $numberDays = $timeDiff/86400;
+                    $numberDays = $timeDiff / 86400;
                     $numberDays = intval($numberDays);
 
-                    if ($numberDays >= $report_days){
-                        if($row2->pending_payment == 0) {
-                            $final_amount=$row2->total;
+                    if ($numberDays >= $report_days) {
+                        if ($row2->pending_payment == 0) {
+                            $final_amount = $row2->total;
                         } else {
-                            $final_amount=$row2->pending_payment;
+                            $final_amount = $row2->pending_payment;
                         }
                         $ptotal += $final_amount;
                     }
                 }
-                if ($ptotal == 0) { continue; }
+                if ($ptotal == 0) {
+                    continue;
+                }
                 $html .= '<tr width="100%">
-                            <td>'.++$i.'</td>
-                            <td>'.$row[0]->customer_name.'</td>';
+                            <td>' . ++$i . '</td>
+                            <td>' . $row[0]->customer_name . '</td>';
             } else {
-            $html .= '<tr width="100%">
+                $html .= '<tr width="100%">
                         <td colspan="6" class="text-center" style="height:35px"></td>
                     </tr>';
-            if ($request->export_pdf == 1) {
-                    $html .='<tr width="100%">
-                            <td colspan="6"><b>Customer : '.$row[0]->customer_name.'</b></td>
+                if ($request->export_pdf == 1) {
+                    $html .= '<tr width="100%">
+                            <td colspan="6"><b>Customer : ' . $row[0]->customer_name . '</b></td>
                         </tr>
                         <tr width="100%">
-                            <td colspan="6"><b>Address : '.$row[0]->company_address.'</b></td>
+                            <td colspan="6"><b>Address : ' . $row[0]->company_address . '</b></td>
                         </tr>';
-                        $ptotal += $final_amount;
-            } else {
-                $html .='<tr width="100%">
-                            <td colspan="2"><b>'.$row[0]->customer_name.'</b></td>
-                            <td colspan="4"><b>'.$row[0]->company_address.'</b></td>
+                    $ptotal += $final_amount;
+                } else {
+                    $html .= '<tr width="100%">
+                            <td colspan="2"><b>' . $row[0]->customer_name . '</b></td>
+                            <td colspan="4"><b>' . $row[0]->company_address . '</b></td>
                         </tr>';
-            }
-
-            foreach($row as $key1 => $row2){
-                $startTimeStamp = strtotime($row2->select_date);
-			    $endTimeStamp = strtotime(date('Y-m-d'));
-			    $timeDiff = abs($endTimeStamp - $startTimeStamp);
-			    $numberDays = $timeDiff/86400;
-			    $numberDays = intval($numberDays);
-
-                if ($numberDays >= $report_days){
-                    if ($numberDays >= 90) {
-                        $tr_color = "style='color:red'";
-                    } else {
-                        $tr_color = "";
-                    }
-                    if($row2->pending_payment == 0) {
-                        $final_amount=$row2->total;
-                    } else {
-                        $final_amount=$row2->pending_payment;
-                    }
-                    $final_amount1 = number_format($final_amount);
-
-                    $html .='<tr width="100%"'.$tr_color.'>
-                                <td>'.$row2->select_date.'</td>';
-                            if ($request->export_pdf == 1) {
-                                $html .= '<td>'.$row2->sale_bill_id.'</td>';
-                            } else {
-                                $html .= '<td><a target="_blank" href="/account/sale-bill/view-sale-bill/'.$row2->sale_bill_id.'/' .$row2->financial_year_id.'">'.$row2->sale_bill_id.'</a></td>';
-                            }
-
-                            $html .= '<td>'. $final_amount1 .'</td>
-                                    <td>'.$numberDays.'</td>
-                                    <td>'.$row2->supplier_name.'</td>
-                                    <td>'.$row2->supplier_invoice_no.'</td>
-                                </tr>';
-                            $ptotal += $final_amount;
                 }
-            }
+
+                foreach ($row as $key1 => $row2) {
+                    $startTimeStamp = strtotime($row2->select_date);
+                    $endTimeStamp = strtotime(date('Y-m-d'));
+                    $timeDiff = abs($endTimeStamp - $startTimeStamp);
+                    $numberDays = $timeDiff / 86400;
+                    $numberDays = intval($numberDays);
+
+                    if ($numberDays >= $report_days) {
+                        if ($numberDays >= 90) {
+                            $tr_color = "style='color:red'";
+                        } else {
+                            $tr_color = "";
+                        }
+                        if ($row2->pending_payment == 0) {
+                            $final_amount = $row2->total;
+                        } else {
+                            $final_amount = $row2->pending_payment;
+                        }
+                        $final_amount1 = number_format($final_amount);
+
+                        $html .= '<tr width="100%"' . $tr_color . '>
+                                <td>' . $row2->select_date . '</td>';
+                        if ($request->export_pdf == 1) {
+                            $html .= '<td>' . $row2->sale_bill_id . '</td>';
+                        } else {
+                            $html .= '<td><a target="_blank" href="/account/sale-bill/view-sale-bill/' . $row2->sale_bill_id . '/' . $row2->financial_year_id . '">' . $row2->sale_bill_id . '</a></td>';
+                        }
+
+                        $html .= '<td>' . $final_amount1 . '</td>
+                                    <td>' . $numberDays . '</td>
+                                    <td>' . $row2->supplier_name . '</td>
+                                    <td>' . $row2->supplier_invoice_no . '</td>
+                                </tr>';
+                        $ptotal += $final_amount;
+                    }
+                }
             }
             $ptotal1 = number_format($ptotal);
             if ($request->show_detail == 0) {
-            $html .='<tr width="100%">
+                $html .= '<tr width="100%">
                             <td><b>Party Total</b></td>
                             <td></td>
-                            <td><b>'.$ptotal1.'</b></td>
+                            <td><b>' . $ptotal1 . '</b></td>
                             <td colspan="3"></td>
                         </tr>';
             } else {
-                $html .= '<td colspan="4">'.$ptotal1.'</td></tr>';
+                $html .= '<td colspan="4">' . $ptotal1 . '</td></tr>';
             }
             $grand_total += $ptotal;
         }
         $grand_total1 = number_format($grand_total);
         if ($request->show_detail == 0) {
-           $html .='<tr width="100%">
+            $html .= '<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
-                        <td><b>'.$grand_total1.'</b></td>
+                        <td><b>' . $grand_total1 . '</b></td>
                         <td colspan="3"></td>
                     </tr>';
         } else {
-            $html .='<tr width="100%">
+            $html .= '<tr width="100%">
                     <td colspan="2"><b>Grand Total</b></td>
-                    <td colspan="4"><b>'.$grand_total1.'</b></td>
+                    <td colspan="4"><b>' . $grand_total1 . '</b></td>
                 </tr>';
         }
 
@@ -456,7 +460,7 @@ class PaymentsReportController extends Controller
         }
         if ($request->export_pdf == 1) {
             $pdf = PDF::loadView('reports.outstanding_payment_export_pdf', compact('data', 'request'))
-                ->setOptions(['defaultFont' => 'sans-serif']);
+            ->setOptions(['defaultFont' => 'sans-serif']);
             $path = storage_path('app/public/pdf/outstanding-payment-reports');
             $fileName =  'Outstanding-Payment-Report-' . time() . '.pdf';
             $pdf->save($path . '/' . $fileName);
