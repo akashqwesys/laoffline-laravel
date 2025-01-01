@@ -2607,7 +2607,8 @@ class PaymentsController extends Controller
         return redirect('/payments');
     }
 
-    public function deleteGoodReturn($id){
+    public function deleteGoodReturn($id)
+    {
         $user = Session::get('user');
         $goodretun = GoodsReturn::where('goods_return_id', $id)->where('financial_year_id', $user->financial_year_id)->first();
         $goodretun->is_deleted = 1;
@@ -2622,12 +2623,12 @@ class PaymentsController extends Controller
         return $data;
     }
 
-    public function viewPayment(Request $request, $id) {
+    public function viewPayment(Request $request, $id)
+    {
         $page_title = 'View Payment';
-        $financialYear = FinancialYear::where('id',$id);
+        $financialYear = FinancialYear::where('id', $id);
         $user = Session::get('user');
-        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->
-                                join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
+        $employees = Employee::join('users', 'employees.id', '=', 'users.employee_id')->join('user_groups', 'employees.user_group', '=', 'user_groups.id')->where('employees.id', $user->employee_id)->first();
 
         $employees['id'] = $id;
         $fid = isset($request->fid) && !empty($request->fid) ? $request->fid : 0;
