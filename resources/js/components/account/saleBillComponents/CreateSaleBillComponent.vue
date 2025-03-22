@@ -146,7 +146,7 @@
                                                 <div class="form-group">
                                                     <label class="form-label" for="supplier_invoice_no">Supplier Invoice No.</label>
                                                     <div class="form-control-wrap">
-                                                        <input type="text" v-model="supplier_invoice_no" id="supplier_invoice_no" class="form-control" @change="checkSupplierInvoiceNo">
+                                                        <input type="text" v-model="supplier_invoice_no" id="supplier_invoice_no" class="form-control" @change="checkSupplierInvoiceNo" @keydown.enter.prevent="checkSupplierInvoiceNo">
                                                         <div v-if="v$.supplier_invoice_no.$error" class="invalid mt-1">Enter Supplier Invoice Number</div>
                                                         <div id="check-supplier-no-div" class="mt-2"></div>
                                                     </div>
@@ -891,20 +891,19 @@
             uploadAttachment (e) {
                 this.extra_attachment = e.target.files[0];
             },
-            checkSupplierInvoiceNo (e) {
+            async checkSupplierInvoiceNo (e) {
                 if (this.supplier_invoice_no != '' && this.invoice_no != '') {
-                    axios.post('/account/sale-bill/check-supplier-invoice', {
+                    const response = await axios.post('/account/sale-bill/check-supplier-invoice', {
                         supplier_id: this.supplier,
                         invoice_no: this.supplier_invoice_no,
                         type: 'insert'
-                    })
-                    .then (response => {
-                        $('#check-supplier-no-div').html(response.data);
-                        this.isSubmitDisabled = false;
-                        if ($('#check-supplier-no-div').text() != "SUCCESS") {
-                            this.isSubmitDisabled = true;
-                        }
                     });
+
+                    $('#check-supplier-no-div').html(response.data);
+                    this.isSubmitDisabled = false;
+                    if ($('#check-supplier-no-div').text() != "SUCCESS") {
+                        this.isSubmitDisabled = true;
+                    }
                 }
             },
             addProductDetailsRow () {
@@ -1120,6 +1119,11 @@
                 });
             },
             async submitForm () {
+                if (this.isSubmitDisabled) {
+                    alert("Invoice number is duplicate. Please enter a unique number.");
+                    return;
+                }
+
                 const isFormCorrect = await this.v$.$validate();
                 // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
                 if (!isFormCorrect) return;
