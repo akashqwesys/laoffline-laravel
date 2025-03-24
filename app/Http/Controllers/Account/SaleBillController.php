@@ -1913,7 +1913,7 @@ class SaleBillController extends Controller
         }
         if ($request->type == "insert") {
             $sameData = DB::table('sale_bills')
-                ->select('sale_bill_id')
+                ->select('sale_bill_id', 'financial_year_id')
                 ->where('is_deleted', 0)
                 ->where('supplier_id', $request->supplier_id)
                 ->where('supplier_invoice_no', $request->invoice_no)
@@ -1922,7 +1922,7 @@ class SaleBillController extends Controller
                 ->first();
         } else {
             $sameData = DB::table('sale_bills')
-                ->select('sale_bill_id')
+                ->select('sale_bill_id', 'financial_year_id')
                 ->where('is_deleted', 0)
                 ->where('supplier_id', $request->supplier_id)
                 ->where('supplier_invoice_no', $request->invoice_no)
@@ -1933,7 +1933,7 @@ class SaleBillController extends Controller
         }
 
         if ($sameData) {
-            $link = "/account/sale-bill/view-sale-bill/" . $sameData->sale_bill_id;
+            $link = "/account/sale-bill/view-sale-bill/{$sameData->sale_bill_id}/{$sameData->financial_year_id}";
             echo '<br><div class="text-danger">Supplier Invoice Number already exist!!! &nbsp;&nbsp;<a href="' . $link . '"> Visit Link</a></div>';
         } else {
             echo '<div class="text-success">SUCCESS</div>';

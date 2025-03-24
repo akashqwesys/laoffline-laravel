@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14.2
+    container_name: laoffline_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: laoffline
+      POSTGRES_PASSWORD: laoffline
+      POSTGRES_DB: laoffline
+    ports:
+      - "5433:5432"
+    volumes:
+      - laoffline_pgdata:/var/lib/postgresql/data
+
+volumes:
+  laoffline_pgdata:
+    driver: local

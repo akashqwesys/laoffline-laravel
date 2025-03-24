@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  up:
+    desc: Start the PostgreSQL container
+    cmds:
+      - docker-compose up -d
+
+  down:
+    desc: Stop and remove the PostgreSQL container
+    cmds:
+      - docker-compose down
+
+  logs:
+    desc: View PostgreSQL logs
+    cmds:
+      - docker logs -f laoffline_postgres
+
+  import-db:
+    desc: Import database from a pgdump file
+    cmds:
+      - docker cp {{.DB_FILE}} laoffline_postgres:/tmp/database.pgdump && \
+        docker exec -i laoffline_postgres pg_restore -U laoffline -d laoffline < /tmp/database.pgdump
+
+  exec:
+    desc: Open a psql shell inside the container
+    cmds:
+      - docker exec -it laoffline_postgres psql -U laoffline -d laoffline
