@@ -57,6 +57,12 @@ php artisan serve
 npx mix watch
 ```
 
+## Import database
+
+```sh
+task import-db DB_FILE=20250329.pgdump
+```
+
 This will start the development server at http://localhost:8000.
 
 ### Laravel Mix and Vue.js
