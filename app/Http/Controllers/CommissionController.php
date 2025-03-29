@@ -265,10 +265,10 @@ class CommissionController extends Controller
 
         $commission_invoice_ids = collect($commissioninvoice)->pluck('id')->toArray();
         $comm_details = DB::table('commission_details')
-            ->selectRaw('commission_invoice_id, commission_id, financial_year_id, sum(received_commission_amount) as received_amount')
+            ->selectRaw('commission_invoice_id, financial_year_id, sum(received_commission_amount) as received_amount')
             ->where('is_deleted', 0)
             ->whereIn('commission_invoice_id', $commission_invoice_ids)
-            ->groupByRaw('commission_invoice_id, commission_id, financial_year_id')
+            ->groupByRaw('commission_invoice_id, financial_year_id')
             ->get();
 
         foreach ($commissioninvoice as $invoice) {
