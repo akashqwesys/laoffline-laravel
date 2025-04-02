@@ -561,6 +561,7 @@ class CommissionReportController extends Controller
         $prev_com = 0;
         $tot_payment = $total_payment = $total_commission_amount = 0;
         $gtotal = $gtotal_commission = 0;
+        $gparty_pending_commission = 0;
         $i = 1;
         foreach ($data2 as $key1 => $sc) {
 
@@ -600,6 +601,8 @@ class CommissionReportController extends Controller
                 }
             }
             $ptotal = $ptotal_commission = 0;
+            $party_pending_commission = 0;
+            $invoices_included = [];
 
             foreach ($sc as $key1 => $row) {
                 $color = "";
@@ -615,7 +618,7 @@ class CommissionReportController extends Controller
                 if ($request->report_type == 'supplier') {
                     $invoices = DB::table('commission_invoices as ci')
                         ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                        ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                        ->leftJoin(DB::raw('(SELECT "commission_invoice_id", SUM("received_commission_amount") as received_commission_amount FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
                         ->where('ipd.flag', 1)
                         ->where('ci.is_deleted', 0)
                         ->where('ipd.payment_id', $row->payment_id)
@@ -633,15 +636,24 @@ class CommissionReportController extends Controller
                         ->select('ci.id', 'ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
                         ->get();
                 }
+
+                $pending_amount = 0;
                 if (count($invoices)) {
                     $total = 0;
                     $pending_parcent = collect($invoices)->groupBy('id');
+                    $total_invoice_received = 0;
                     foreach ($pending_parcent as $inv) {
                         foreach ($inv as $pp) {
                             $total += (int)$pp->received_commission_amount;
                             $final_amount = $pp->final_amount;
                             $commission_invoice_id = $pp->id;
                             $bill_no = $pp->bill_no;
+                        }
+
+                        $lastInvoice = $inv->last();
+                        if (!in_array($lastInvoice->id, $invoices_included)) {
+                            $invoices_included[] = $lastInvoice->id;
+                            $party_pending_commission += ((int)$lastInvoice->final_amount - $pp->received_commission_amount);
                         }
                     }
 
@@ -652,6 +664,7 @@ class CommissionReportController extends Controller
                     $pending_percentage = "100 %";
                     $commission_invoice_id = '';
                     $bill_no = '';
+                    $pending_amount = $row->commission_amount;
                 }
                 if ($pending_percentage == '0 %') {
                 } else {
@@ -689,33 +702,36 @@ class CommissionReportController extends Controller
             }
             $ptotal1 = number_format($ptotal);
             $ptotal_commission1 = number_format($ptotal_commission);
+            $party_pending_commission1 = number_format($party_pending_commission);
             if ($request->show_detail == 1) {
                 $html .= '<td class="text-right"><b>' . $ptotal1 . '</b></td>
-                        <td class="text-right"><b>' . $ptotal_commission1 . '</b></td></tr>';
+                        <td class="text-right"><b>' . $party_pending_commission1 . '</b></td></tr>';
             } else {
                 $html .= '<tr width="100%">
                         <td colspan="2"><b>Party Total</b></td>
                         <td class="text-right"><b>' . $ptotal1 . '</b></td>
-                        <td class="text-right"><b>' . $ptotal_commission1 . '</b></td>
+                        <td class="text-right"><b>' . $party_pending_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
             }
             $gtotal += $ptotal;
             $gtotal_commission += $ptotal_commission;
+            $gparty_pending_commission += $party_pending_commission;
         }
         $gtotal1 = number_format($gtotal);
         $gtotal_commission1 = number_format($gtotal_commission);
+        $gparty_pending_commission1 = number_format($gparty_pending_commission);
         if ($request->show_detail == 1) {
             $html .= '<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td class="text-right"><b>' . $gtotal1 . '</b></td>
-                        <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
+                        <td class="text-right"><b>' . $gparty_pending_commission1 . '</b></td>
                      </tr>';
         } else {
             $html .= '<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td class="text-right"><b>' . $gtotal1 . '</b></td>
-                        <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
+                        <td class="text-right"><b>' . $gparty_pending_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
         }
