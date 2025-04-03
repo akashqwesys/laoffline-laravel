@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\FinancialYear;
-use App\Models\Logs;
-use App\Models\Employee;
-use App\Models\Settings\Agent;
-use App\Models\Company\Company;
-use App\Models\LinkCompanies;
-use Illuminate\Support\Facades\Session;
-use DB;
 use PDF;
 use Excel;
-use App\Exports\CommissionRegisterExport;
-use App\Exports\OutstandingCommissionExport;
-use App\Exports\AvarageCommissionDaysExport;
-use App\Exports\OutstandingCommissionMonthWiseSummeryExport;
-use App\Exports\CommissionCollectionExport;
-use App\Exports\CommissionRightofExport;
 use Carbon\Carbon;
+use App\Models\Logs;
+use App\Models\Employee;
+use Illuminate\Http\Request;
+use App\Models\FinancialYear;
+use App\Models\LinkCompanies;
+use App\Models\Settings\Agent;
+use App\Models\Company\Company;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
+use App\Exports\CommissionRightofExport;
+use App\Exports\CommissionRegisterExport;
+use App\Exports\CommissionCollectionExport;
+use App\Exports\AvarageCommissionDaysExport;
+use App\Exports\OutstandingCommissionExport;
+use App\Exports\OutstandingCommissionMonthWiseSummeryExport;
 
 class CommissionReportController extends Controller
 {
@@ -295,81 +295,80 @@ class CommissionReportController extends Controller
         }
     }
 
-    public function listOutstandingCommissionData(Request $request) {
+    public function listOutstandingCommissionData(Request $request)
+    {
         if ($request->report_type == 'supplier') {
-        if ($request->show_detail == 1) {
-        $data1 = DB::table('payments as p1')
-                    ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
-                    $join->on('p1.receipt_from', '=', 'ccomm_per1.customer_id')
-                    ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
-                    ->where('ccomm_per1.flag', 1);
-                })
-                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
-                ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
-                ->orderBy('cs.company_name')
-                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->where('p1.right_of_amount', 0)
-                ->select('cs.company_name as supplier_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
-
-        } else {
-        $data1 = DB::table('payments as p1')
-                ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
-                    $join->on('p1.receipt_from', '=', 'ccomm_per1.customer_id')
-                    ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
-                    ->where('ccomm_per1.flag', 1);
-                })
-                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
-                ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
-                ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->where('p1.right_of_amount', 0)
-                ->select('p1.supplier_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
-        }
-        $data2 = DB::table('payments as p')
+            if ($request->show_detail == 1) {
+                $data1 = DB::table('payments as p1')
+                    ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function ($join) {
+                        $join->on('p1.receipt_from', '=', 'ccomm_per1.customer_id')
+                            ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
+                            ->where('ccomm_per1.flag', 1);
+                    })
+                    ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
+                    ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
+                    ->orderBy('cs.company_name')
+                    ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->where('p1.right_of_amount', 0)
+                    ->select('cs.company_name as supplier_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
+            } else {
+                $data1 = DB::table('payments as p1')
+                    ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function ($join) {
+                        $join->on('p1.receipt_from', '=', 'ccomm_per1.customer_id')
+                            ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
+                            ->where('ccomm_per1.flag', 1);
+                    })
+                    ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p1.supplier_id', '=', 'cs.id')
+                    ->groupBy('p1.supplier_id', 'cs.company_name', 'cs.company_city')
+                    ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.old_commission_status', 0)->where('p1.right_of_amount', 0)
+                    ->select('p1.supplier_id', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
+            }
+            $data2 = DB::table('payments as p')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cc"'), 'p.receipt_from', '=', 'cc.id')
                 ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cs"'), 'p.supplier_id', '=', 'cs.id')
                 ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 'p.supplier_id', '=', 'cadd.company_id')
-                ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
+                ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function ($join) {
                     $join->on('p.receipt_from', '=', 'ccomm_per2.customer_id')
-                    ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
-                    ->where('ccomm_per2.flag', 1);
+                        ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
+                        ->where('ccomm_per2.flag', 1);
                 })
                 ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.old_commission_status', 0)->where('p.right_of_amount', 0)
-                ->select('cc.company_name as customer_name', 'cs.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
+                ->select('cc.company_name as customer_name', 'cs.company_city as city_name', 'cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
         } else {
             if ($request->show_detail == 1) {
                 $data1 = DB::table('payments as p1')
-                        ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
-                            $join->on('p1.customer_id', '=', 'ccomm_per1.customer_id')
+                    ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function ($join) {
+                        $join->on('p1.customer_id', '=', 'ccomm_per1.customer_id')
                             ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
                             ->where('ccomm_per1.flag', 2);
-                        })
-                        ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
-                        ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
-                        ->orderBy('cc.company_name')
-                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->where('p1.right_of_amount', 0)
-                        ->select('cc.company_name as customer_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
-
-                } else {
+                    })
+                    ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
+                    ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
+                    ->orderBy('cc.company_name')
+                    ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->where('p1.right_of_amount', 0)
+                    ->select('cc.company_name as customer_name', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'), DB::raw('SUM(p1.receipt_amount) as receipt_amount'));
+            } else {
                 $data1 = DB::table('payments as p1')
-                        ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function($join){
-                            $join->on('p1.customer_id', '=', 'ccomm_per1.customer_id')
+                    ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per1"'), function ($join) {
+                        $join->on('p1.customer_id', '=', 'ccomm_per1.customer_id')
                             ->on('p1.supplier_id', '=', 'ccomm_per1.supplier_id')
                             ->where('ccomm_per1.flag', 2);
-                        })
-                        ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
-                        ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
-                        ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->where('p1.right_of_amount', 0)
-                        ->select('p1.customer_id',DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
-                }
-                $data2 = DB::table('payments as p')
-                        ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
-                        ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p.customer_id', '=', 'cc.id')
-                        ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 'p.customer_id', '=', 'cadd.company_id')
-                        ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function($join){
-                            $join->on('p.customer_id', '=', 'ccomm_per2.customer_id')
-                            ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
-                            ->where('ccomm_per2.flag', 2);
-                        })
-                        ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.customer_commission_status', 0)->where('p.right_of_amount', 0)
-                        ->select('cc.company_name as customer_name', 'cc.company_city as city_name','cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
+                    })
+                    ->join(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p1.customer_id', '=', 'cc.id')
+                    ->groupBy('p1.customer_id', 'cc.company_name', 'cc.company_city')
+                    ->where('p1.is_deleted', 0)->whereNot('p1.receipt_amount', 0)->where('p1.customer_commission_status', 0)->where('p1.right_of_amount', 0)
+                    ->select('p1.customer_id', DB::raw('SUM(ROUND(p1.receipt_amount * ccomm_per1.commission_percentage / 100)) as total_comm_amount'));
+            }
+            $data2 = DB::table('payments as p')
+                ->leftJoin(DB::raw('(SELECT "company_name", "id" FROM companies group by "company_name", "id") as "cs"'), 'p.supplier_id', '=', 'cs.id')
+                ->leftJoin(DB::raw('(SELECT "company_name", "id", "company_city" FROM companies group by "company_name", "id", "company_city") as "cc"'), 'p.customer_id', '=', 'cc.id')
+                ->leftJoin(DB::raw('(SELECT "address", "company_id" FROM company_addresses WHERE address_type = 1 group by "address", "company_id" limit 1) as "cadd"'), 'p.customer_id', '=', 'cadd.company_id')
+                ->join(DB::raw('(SELECT "commission_percentage", "customer_id", "supplier_id", "flag" FROM company_commissions group by "commission_percentage","customer_id", "supplier_id", "flag") as "ccomm_per2"'), function ($join) {
+                    $join->on('p.customer_id', '=', 'ccomm_per2.customer_id')
+                        ->on('p.supplier_id', '=', 'ccomm_per2.supplier_id')
+                        ->where('ccomm_per2.flag', 2);
+                })
+                ->where('p.is_deleted', 0)->whereNot('p.receipt_amount', 0)->where('p.customer_commission_status', 0)->where('p.right_of_amount', 0)
+                ->select('cc.company_name as customer_name', 'cc.company_city as city_name', 'cs.company_name as supplier_name', 'cadd.address as company_address', 'p.*', DB::raw('ROUND(p.receipt_amount * ccomm_per2.commission_percentage / 100) as commission_amount'));
         }
         $supplier = array();
         $customer = array();
@@ -390,7 +389,7 @@ class CommissionReportController extends Controller
                 $data2 = $data2->WhereIn('p.supplier_id', $supplier);
                 $data1 = $data1->WhereIn('p1.supplier_id', $supplier);
                 $supplier_data = [];
-                foreach($supplier as $row) {
+                foreach ($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
                 $data['sup_disp_name'] = implode(', ', $supplier_data);
@@ -413,7 +412,7 @@ class CommissionReportController extends Controller
             if ($company_details) {
                 $data2 = $data2->WhereIn('p.customer_id', $customer);
                 $data1 = $data1->WhereIn('p1.customer_id', $customer);
-                foreach($customer as $row) {
+                foreach ($customer as $row) {
                     $customer_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
                 $data['cust_disp_name'] = implode(',  ', $customer_data);
@@ -422,9 +421,9 @@ class CommissionReportController extends Controller
 
         if ($request->start_date && $request->end_date) {
             $data1 = $data1->whereRaw("p1.date::date >= '" . $request->start_date . "'")
-                    ->whereRaw("p1.date::date <= '" . $request->end_date . "'");
+                ->whereRaw("p1.date::date <= '" . $request->end_date . "'");
             $data2 = $data2->whereRaw("p.date::date >= '" . $request->start_date . "'")
-                    ->whereRaw("p.date::date <= '" . $request->end_date . "'");
+                ->whereRaw("p.date::date <= '" . $request->end_date . "'");
         }
 
         if ($request->city && $request->city['id']) {
@@ -438,8 +437,8 @@ class CommissionReportController extends Controller
         }
         if ($request->day != '' && $request->day['report_days'] != 0) {
             $todaydate = Carbon::now()->format('Y-m-d');
-            $data2 = $data2->whereRaw('\'' . $todaydate . '\'' . ' - p.date > '. $request->day['report_days']);
-            $data1 = $data1->whereRaw('\'' . $todaydate . '\'' . ' - p1.date > '. $request->day['report_days']);
+            $data2 = $data2->whereRaw('\'' . $todaydate . '\'' . ' - p.date > ' . $request->day['report_days']);
+            $data1 = $data1->whereRaw('\'' . $todaydate . '\'' . ' - p1.date > ' . $request->day['report_days']);
         }
 
         if ($request->sorting && $request->sorting['id']) {
@@ -461,7 +460,6 @@ class CommissionReportController extends Controller
             } else if ($sorting == 8) {
                 $data2 = $data2->orderBy('commission_amount', 'desc');
             }
-
         }
         $data2 = $data2->get();
         $data1 = $data1->get();
@@ -476,36 +474,36 @@ class CommissionReportController extends Controller
 
 
         if ($request->day != '' && $request->day['report_days'] != 0) {
-            $morethan .= "( More then ". $request->day['report_days'] ." Days)";
+            $morethan .= "( More then " . $request->day['report_days'] . " Days)";
         } else {
             $morethan .= "";
         }
 
         if ($request->supplier != '') {
-            if($data['sup_disp_name']) {
-                $sup .= "Supplier: " .$data['sup_disp_name'] . $morethan;
+            if ($data['sup_disp_name']) {
+                $sup .= "Supplier: " . $data['sup_disp_name'] . $morethan;
             } else {
-                $sup .= "Supplier: " .$data['sup_disp_name'] . $morethan;
+                $sup .= "Supplier: " . $data['sup_disp_name'] . $morethan;
             }
         } else {
-            $sup .= "All Parties". $morethan;
+            $sup .= "All Parties" . $morethan;
         }
 
         if ($request->customer != '') {
-            if($data['cust_disp_name']) {
-                $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
+            if ($data['cust_disp_name']) {
+                $sup1 .= "Customer: " . $data['cust_disp_name'] . $morethan;
             } else {
-                $sup1 .= "Customer: " .$data['cust_disp_name'] . $morethan;
+                $sup1 .= "Customer: " . $data['cust_disp_name'] . $morethan;
             }
         } else {
-            $sup1 .= "All Parties". $morethan;
+            $sup1 .= "All Parties" . $morethan;
         }
 
         $html = '';
-        if ($request->report_type == 'supplier'){
+        if ($request->report_type == 'supplier') {
             if ($request->show_detail == 1) {
                 $html .= '<tr width="100%">
-                            <th colspan="4" class="text-center">'.$sup. '</th>
+                            <th colspan="4" class="text-center">' . $sup . '</th>
                         </tr>
                         <tr width="100%">
                                 <th>Sr_No</th>
@@ -515,7 +513,7 @@ class CommissionReportController extends Controller
                             </tr>';
             } else {
                 $html .= '<tr width="100%">
-                            <th colspan="8" class="text-center">'.$sup.'</th>
+                            <th colspan="8" class="text-center">' . $sup . '</th>
                         </tr>
                         <tr width="100%" class=""text-center>
                                 <th>Payment Id</th>
@@ -531,7 +529,7 @@ class CommissionReportController extends Controller
         } else {
             if ($request->show_detail == 1) {
                 $html .= '<tr width="100%">
-                            <th colspan="4" class="text-center">'.$sup1. '</th>
+                            <th colspan="4" class="text-center">' . $sup1 . '</th>
                         </tr>
                         <tr width="100%">
                                 <th>Sr_No</th>
@@ -541,7 +539,7 @@ class CommissionReportController extends Controller
                             </tr>';
             } else {
                 $html .= '<tr width="100%">
-                            <th colspan="8" class="text-center">'.$sup1.'</th>
+                            <th colspan="8" class="text-center">' . $sup1 . '</th>
                         </tr>
                         <tr width="100%" class=""text-center>
                                 <th>Payment Id</th>
@@ -557,21 +555,26 @@ class CommissionReportController extends Controller
         }
 
 
-            $data3 = array();
-            $supplier_name = "";$customer_name = "";$prev_com = 0; $tot_payment = $total_payment = $total_commission_amount = 0;
-            $gtotal = $gtotal_commission = 0; $i = 1;
-             foreach ($data2 as $key1 => $sc) {
+        $data3 = array();
+        $supplier_name = "";
+        $customer_name = "";
+        $prev_com = 0;
+        $tot_payment = $total_payment = $total_commission_amount = 0;
+        $gtotal = $gtotal_commission = 0;
+        $gparty_pending_commission = 0;
+        $i = 1;
+        foreach ($data2 as $key1 => $sc) {
 
-                if ($request->report_type == 'supplier') {
+            if ($request->report_type == 'supplier') {
 
-                        $supplier_name = $key1;
-                        $address_supp = $sc[0]->company_address;
+                $supplier_name = $key1;
+                $address_supp = $sc[0]->company_address;
                 if ($request->show_detail == 1) {
                     $html .= '<tr width="100%">
-                                <td>'. $i++ .'</td>
+                                <td>' . $i++ . '</td>
                                 <td><b>' . $supplier_name . '</b></td>';
                 } else {
-                        $html .= '<tr width="100%">
+                    $html .= '<tr width="100%">
 		    					<td colspan="8"></td>
 							</tr>
                             <tr width="100%">
@@ -579,16 +582,16 @@ class CommissionReportController extends Controller
                                 <td colspan="6"><b>' . $address_supp . '</b></td>
                             </tr>';
                 }
-                } else {
+            } else {
 
-                        $customer_name = $key1;
-                        $address_supp = $sc[0]->company_address;
+                $customer_name = $key1;
+                $address_supp = $sc[0]->company_address;
                 if ($request->show_detail == 1) {
                     $html .= '<tr width="100%">
                                 <td>' . $i++ . '</td>
                                 <td><b>' . $customer_name . '</b></td>';
                 } else {
-                        $html .= '<tr width="100%">
+                    $html .= '<tr width="100%">
                                     <td colspan="8"></td>
                                 </tr>
                                 <tr width="100%">
@@ -596,16 +599,17 @@ class CommissionReportController extends Controller
                                     <td colspan="6"><b>' . $address_supp . '</b></td>
                                 </tr>';
                 }
+            }
+            $ptotal = $ptotal_commission = 0;
+            $party_pending_commission = 0;
+            $invoices_included = [];
 
-                }
-                $ptotal = $ptotal_commission = 0;
-
-                foreach ($sc as $key1 => $row) {
-                    $color = "";
-                    $paymentdate = strtotime($row->date);
-                    $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
-                    $due_day = ($currentdate - $paymentdate) / 84600;
-                    if ($due_day)
+            foreach ($sc as $key1 => $row) {
+                $color = "";
+                $paymentdate = strtotime($row->date);
+                $currentdate = strtotime(Carbon::now()->format('d-m-Y'));
+                $due_day = ($currentdate - $paymentdate) / 84600;
+                if ($due_day)
                     if ($due_day >= 90) {
                         $color = "style='color:red'";
                     }
@@ -613,9 +617,9 @@ class CommissionReportController extends Controller
 
                 if ($request->report_type == 'supplier') {
                     $invoices = DB::table('commission_invoices as ci')
-                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                    ->where('ipd.flag', 1)
+                        ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                        ->leftJoin(DB::raw('(SELECT "commission_invoice_id", SUM("received_commission_amount") as received_commission_amount FROM commission_details where is_deleted = 0 group by "commission_invoice_id") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                        ->where('ipd.flag', 1)
                         ->where('ci.is_deleted', 0)
                         ->where('ipd.payment_id', $row->payment_id)
                         ->where('ipd.financial_year_id', $row->financial_year_id)
@@ -623,24 +627,33 @@ class CommissionReportController extends Controller
                         ->get();
                 } else {
                     $invoices = DB::table('commission_invoices as ci')
-                    ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
-                    ->leftJoin(DB::raw('(SELECT "commission_invoice_id", "received_commission_amount" FROM commission_details where is_deleted = 0 group by "commission_invoice_id", "received_commission_amount") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
-                    ->where('ipd.flag', 2)
+                        ->leftJoin(DB::raw('(SELECT "payment_id", "commission_invoice_id", "financial_year_id", "flag" FROM invoice_payment_details group by "payment_id", "commission_invoice_id", "financial_year_id", "flag") as ipd'), 'ci.id', '=', 'ipd.commission_invoice_id')
+                        ->leftJoin(DB::raw('(SELECT "commission_invoice_id", SUM("received_commission_amount") as received_commission_amount FROM commission_details where is_deleted = 0 group by "commission_invoice_id") as cd'), 'ci.id', '=', 'cd.commission_invoice_id')
+                        ->where('ipd.flag', 2)
                         ->where('ci.is_deleted', 0)
                         ->where('ipd.payment_id', $row->payment_id)
                         ->where('ipd.financial_year_id', $row->financial_year_id)
                         ->select('ci.id', 'ci.bill_no', 'ipd.payment_id', 'ipd.financial_year_id', 'ci.final_amount', 'cd.received_commission_amount')
                         ->get();
                 }
+
+                $pending_amount = 0;
                 if (count($invoices)) {
                     $total = 0;
                     $pending_parcent = collect($invoices)->groupBy('id');
+                    $total_invoice_received = 0;
                     foreach ($pending_parcent as $inv) {
                         foreach ($inv as $pp) {
                             $total += (int)$pp->received_commission_amount;
                             $final_amount = $pp->final_amount;
                             $commission_invoice_id = $pp->id;
                             $bill_no = $pp->bill_no;
+                        }
+
+                        $lastInvoice = $inv->last();
+                        if (!in_array($lastInvoice->id, $invoices_included)) {
+                            $invoices_included[] = $lastInvoice->id;
+                            $party_pending_commission += ((int)$lastInvoice->final_amount - $pp->received_commission_amount);
                         }
                     }
 
@@ -651,15 +664,15 @@ class CommissionReportController extends Controller
                     $pending_percentage = "100 %";
                     $commission_invoice_id = '';
                     $bill_no = '';
+                    $pending_amount = $row->commission_amount;
                 }
                 if ($pending_percentage == '0 %') {
                 } else {
                     $receipt_amount = number_format($row->receipt_amount);
                     $commission_amount = number_format($row->commission_amount);
                     if ($request->show_detail == 1) {
-
                     } else {
-                    $html .= '<tr width="100%" ' . $color . '>
+                        $html .= '<tr width="100%" ' . $color . '>
                                 <td>' . $row->payment_id . '</td>
                                 <td>' . date("d-m-Y", strtotime($row->date)) . '</td>
                                 <td class="text-right">' . $receipt_amount . '</td>
@@ -672,50 +685,53 @@ class CommissionReportController extends Controller
                     }
                     if ($request->show_detail == 1) {
                     } else {
-                    $html .= '<td>' . $pending_percentage . '</td>
+                        $html .= '<td>' . $pending_percentage . '</td>
                               <td>' . $cust_supp_name . '</td>
                               <td>' . floor($due_day) . '</td>';
 
-                    if ($request->export_pdf == 0) {
-                        $html .=  '<td><a href="/account/commission/invoice/view-invoice/' . $commission_invoice_id . '" target="_blank">' . $bill_no . '</a></td>';
-                    } else {
-                        $html .=  '<td>' . $bill_no . '</td>';
-                    }
-                    $html .=  '</tr>';
+                        if ($request->export_pdf == 0) {
+                            $html .=  '<td><a href="/account/commission/invoice/view-invoice/' . $commission_invoice_id . '" target="_blank">' . $bill_no . '</a></td>';
+                        } else {
+                            $html .=  '<td>' . $bill_no . '</td>';
+                        }
+                        $html .=  '</tr>';
                     }
                     $ptotal += $row->receipt_amount;
                     $ptotal_commission += $row->commission_amount;
                 }
             }
-                $ptotal1 = number_format($ptotal);
-                $ptotal_commission1 = number_format($ptotal_commission);
-                if ($request->show_detail == 1) {
-                    $html .= '<td class="text-right"><b>' . $ptotal1 . '</b></td>
-                        <td class="text-right"><b>' . $ptotal_commission1 . '</b></td></tr>';
-                } else {
+            $ptotal1 = number_format($ptotal);
+            $ptotal_commission1 = number_format($ptotal_commission);
+            $party_pending_commission1 = number_format($party_pending_commission);
+            if ($request->show_detail == 1) {
+                $html .= '<td class="text-right"><b>' . $ptotal1 . '</b></td>
+                        <td class="text-right"><b>' . $party_pending_commission1 . '</b></td></tr>';
+            } else {
                 $html .= '<tr width="100%">
                         <td colspan="2"><b>Party Total</b></td>
                         <td class="text-right"><b>' . $ptotal1 . '</b></td>
-                        <td class="text-right"><b>' . $ptotal_commission1 . '</b></td>
+                        <td class="text-right"><b>' . $party_pending_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
-                }
-                $gtotal += $ptotal;
-                $gtotal_commission += $ptotal_commission;
+            }
+            $gtotal += $ptotal;
+            $gtotal_commission += $ptotal_commission;
+            $gparty_pending_commission += $party_pending_commission;
         }
-            $gtotal1 = number_format($gtotal);
-            $gtotal_commission1 = number_format($gtotal_commission);
+        $gtotal1 = number_format($gtotal);
+        $gtotal_commission1 = number_format($gtotal_commission);
+        $gparty_pending_commission1 = number_format($gparty_pending_commission);
         if ($request->show_detail == 1) {
             $html .= '<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td class="text-right"><b>' . $gtotal1 . '</b></td>
-                        <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
+                        <td class="text-right"><b>' . $gparty_pending_commission1 . '</b></td>
                      </tr>';
         } else {
             $html .= '<tr width="100%">
                         <td colspan="2"><b>Grand Total</b></td>
                         <td class="text-right"><b>' . $gtotal1 . '</b></td>
-                        <td class="text-right"><b>' . $gtotal_commission1 . '</b></td>
+                        <td class="text-right"><b>' . $gparty_pending_commission1 . '</b></td>
                         <td colspan="4"></td>
                         </tr>';
         }
