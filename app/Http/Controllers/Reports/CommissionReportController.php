@@ -665,6 +665,7 @@ class CommissionReportController extends Controller
                     $commission_invoice_id = '';
                     $bill_no = '';
                     $pending_amount = $row->commission_amount;
+                    $party_pending_commission += $pending_amount;
                 }
                 if ($pending_percentage == '0 %') {
                 } else {
