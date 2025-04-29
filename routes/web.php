@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\PasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/common/list-customers-and-suppliers', [App\Http\Controllers\CommonController::class, 'getCustomersAndSuppliers']);
     Route::get('/common/list-all-companies', [App\Http\Controllers\CommonController::class, 'getAllCompanies']);
     Route::get('/common/list-all-agents', [App\Http\Controllers\CommonController::class, 'getAllAgents']);
+
+    // Password Update Routes
+    Route::get('/change-password', [PasswordController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('/change-password', [PasswordController::class, 'changePassword'])->name('password.update');
 });
 
 Route::group(['prefix' => 'financialyear', 'middleware' => ['auth', 'permission:access-financial-year']], function () {
@@ -568,7 +573,6 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modif
         Route::get('/delete/{id}', [App\Http\Controllers\settings\TypeOfAddressController::class, 'deleteTypeOfAddress'])->name('delete');
     });
 });
-
 
 // Routes for Settings / Default Settings
 Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:access-default-settings']], function () {
