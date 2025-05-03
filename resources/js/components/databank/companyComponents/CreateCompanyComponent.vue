@@ -807,16 +807,26 @@
                         // company Data
                         this.company = companies.company;
                         this.company.company_landline = companies.company.company_landline.toString();
-                        if (companies.company.company_category != '0' || companies.company.company_category != 0) {
-                            this.company.company_category = this.companyCategoryList.find(_ => _.id == companies.company.company_category);
+
+                        // Fix company category selection with proper array handling
+                        if (companies.company.company_category) {
+                            // Handle different formats of company_category
+                            let categoryIds = companies.company.company_category.map(cat => cat.id.toString());
+
+                            this.company.company_category = this.companyCategoryList.filter(category => 
+                                categoryIds.includes(category.id.toString())
+                            );
                         } else {
-                            this.company.company_category = '';
+                            this.company.company_category = [];
                         }
-                        if (companies.company.company_transport != '0' || companies.company.company_transport != 0) {
-                            this.company.company_transport = this.transportList.find(_ => _.id == companies.company.company_transport);
+
+                        // Fix transport selection
+                        if (companies.company.company_transport && companies.company.company_transport !== '0' && companies.company.company_transport !== 0) {
+                            this.company.company_transport = this.transportList.find(transport => transport.id == companies.company.company_transport.id);
                         } else {
                             this.company.company_transport = '';
                         }
+
                         // this.company.company_country = this.countryList.find(_ => _.id == companies.company.company_country.id);
                         this.getStateList(companies.company.company_country);
                         this.getCityList(companies.company.company_state);
