@@ -39,6 +39,13 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    @if (session('error'))
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif
+
                                     <form method="POST" action="{{ url('/login') }}">
                                         @csrf
                                         <div class="form-group">
@@ -57,7 +64,6 @@
                                         <div class="form-group">
                                             <div class="form-label-group">
                                                 <label class="form-label" for="password">Password</label>
-                                                <!-- <a class="link link-primary link-sm" href="html/pages/auths/auth-reset-v2.html">Forgot Code?</a> -->
                                             </div>
                                             <div class="form-control-wrap">
                                                 <a href="#" class="form-icon form-icon-right passcode-switch lg" data-target="password">
@@ -76,14 +82,6 @@
                                             <button type="submit" class="btn btn-lg btn-primary btn-block">{{ __('Sign in') }}</button>
                                         </div>
                                     </form>
-                                    <!-- <div class="form-note-s2 text-center pt-4"> New on our platform? <a href="html/pages/auths/auth-register-v2.html">Create an account</a></div>
-                                    <div class="text-center pt-4 pb-3">
-                                        <h6 class="overline-title overline-title-sap"><span>OR</span></h6>
-                                    </div>
-                                    <ul class="nav justify-center gx-4">
-                                        <li class="nav-item"><a class="nav-link" href="#">Facebook</a></li>
-                                        <li class="nav-item"><a class="nav-link" href="#">Google</a></li>
-                                    </ul> -->
                                 </div>
                             </div>
                         </div>
