@@ -2,8 +2,10 @@
 
 namespace App\Models\Commission;
 
+use App\Models\InvoicePaymentDetails;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CommissionInvoice extends Model
 {
@@ -46,4 +48,24 @@ class CommissionInvoice extends Model
         'right_of_remark',
         'is_deleted',
     ];
+
+    /**
+     * Get all of the invoice payment details for the CommissionInvoice
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoicePaymentDetails(): HasMany
+    {
+        return $this->hasMany(InvoicePaymentDetails::class, 'commission_invoice_id', 'id');
+    }
+
+    public function pending()
+    {
+        $this->commission_status = 0;
+    }
+
+    public function complete()
+    {
+        $this->commission_status = 1;
+    }
 }

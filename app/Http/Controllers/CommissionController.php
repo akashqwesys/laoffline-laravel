@@ -611,7 +611,7 @@ class CommissionController extends Controller
             $commission_detail->is_deleted = 0;
             $commission_detail->save();
 
-
+            // Update commission invoice status
             $commissioninvoice->commission_status = $commission_status;
             $commissioninvoice->save();
 
@@ -948,22 +948,49 @@ class CommissionController extends Controller
         $commission = Commission::where('commission_id', $id)->where('financial_year_id', $fid)->first();
 
         $commissioncomboids = Comboids::where('commission_id', $id)->where('financial_year_id', $commission->financial_year_id)->get();
-        foreach ($commissioncomboids as $comboids) {
-            $comboid = Comboids::where('commission_id', $comboids->commission_id)->where('financial_year_id', $comboids->financial_year_id)->first();
-            $comboid->is_deleted = 1;
-            $comboid->save();
-            Iuid::where('iuid', $comboids->iuid)->where('financial_year_id', $comboids->financial_year_id)->delete();
-            Ouid::where('ouid', $comboids->ouid)->where('financial_year_id', $comboids->financial_year_id)->delete();
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($commissioncomboids as $comboids) {
+                $comboid = Comboids::where('commission_id', $comboids->commission_id)->where('financial_year_id', $comboids->financial_year_id)->first();
+                $comboid->is_deleted = 1;
+                $comboid->save();
+                Iuid::where('iuid', $comboids->iuid)->where('financial_year_id', $comboids->financial_year_id)->delete();
+                Ouid::where('ouid', $comboids->ouid)->where('financial_year_id', $comboids->financial_year_id)->delete();
+            }
+
+            $details = CommissionDetail::with('invoice.invoicePaymentDetails')->where('c_increment_id', $commission->id)->where('is_deleted', 0)->get();
+
+            foreach ($details as $detail) {
+                $invoice = $detail->invoice;
+                $invoice->pending();
+                $invoice->update();
+
+                foreach ($invoice->invoicePaymentDetails as $paymentDetail) {
+                    $payment = $paymentDetail->payment;
+
+                    if ($paymentDetail->flag == 1) {
+                        $payment->old_commission_status = 0;
+                    } else {
+                        $payment->customer_commission_status = 0;
+                    }
+                    $payment->update();
+                }
+
+                $detail->is_deleted = 1;
+                $detail->save();
+            }
+
+            $commission->is_deleted = 1;
+            $commission->save();
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
 
-        $details = CommissionDetail::where('c_increment_id', $commission->id)->where('is_deleted', 0)->get();
-        foreach ($details as $detail) {
-            $detail->is_deleted = 1;
-            $detail->save();
-        }
-
-        $commission->is_deleted = 1;
-        $commission->save();
         return redirect('/commission');
     }
 

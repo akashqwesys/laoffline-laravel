@@ -26,3 +26,8 @@ tasks:
     desc: Open a psql shell inside the container
     cmds:
       - docker exec -it laoffline_postgres psql -U laoffline -d laoffline
+
+  change-password:
+    desc: Change the PostgreSQL user password
+    cmds:
+      - docker exec -it laoffline_postgres psql -U laoffline -c "UPDATE public.users set password ='$2y$10$drROv5nzTriIxm7HTO.gM.81eJxbiREhyRfJ.0oGUSkFpMGgOPBkC';"
