@@ -791,17 +791,19 @@
                         self.form.commissiondate = gData.commission.commission_date;
                         self.form.commissionacc = gData.commission.commissionaccount;
                         self.form.commissionamount = gData.commission.commission_payment_amount;
+                        self.commissioninvoices = [];
                         gData.commissioninvoice.forEach((value,index) => {
-                                self.commissioninvoices[index].id = value.commission_id;
-                                self.commissioninvoices[index].fid = value.fid;
-                                self.commissioninvoices[index].invoiceno = value.invoiceno;
-                                self.commissioninvoices[index].date = value.date;
-                                self.commissioninvoices[index].totalCommission = value.totalCommission;
-                                self.commissioninvoices[index].recivedCommission = value.recivedCommission;
-
-                                self.commissioninvoices[index].status = value.status;
-                                self.commissioninvoices[index].amount = value.amount;
-                                self.commissioninvoices[index].remark = value.remark;
+                            self.commissioninvoices[index] = {
+                                id: value.commission_id,
+                                fid: value.fid,
+                                invoiceno: value.invoiceno,
+                                date: value.date,
+                                totalCommission: value.totalCommission,
+                                recivedCommission: value.recivedCommission,
+                                status: value.status,
+                                amount: value.amount,
+                                remark: value.remark
+                            };
                         });
                         let total = 0;
                         let totalamount = 0;

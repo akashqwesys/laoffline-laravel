@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Commission\CommissionInvoice;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CommissionDetail extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'c_increment_id',
         'commission_id',
@@ -32,4 +35,14 @@ class CommissionDetail extends Model
         'remark',
         'is_deleted'
     ];
+
+    /**
+     * Get the invoice that owns the CommissionDetail
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice(): BelongsTo
+    {
+        return $this->belongsTo(CommissionInvoice::class, 'commission_invoice_id', 'id');
+    }
 }
