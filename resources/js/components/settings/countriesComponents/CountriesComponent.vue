@@ -11,7 +11,7 @@
                                         <h3 class="nk-block-title page-title">Country Lists</h3>
                                     </div>
                                     <div class="col-md-8 text-right">
-                                        <a v-bind:href="create_countries" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
+                                        <a v-bind:href="create_countries" v-if="canModify" class="dropdown-toggle btn btn-icon btn-primary mx-2"><em class="icon ni ni-plus"></em></a>
                                         <button @click="clearallfilter" class="btn btn-dark px-2">Clear</button>                                        
 				                    </div>
                                 </div>
@@ -49,6 +49,7 @@
         name: 'country',
         props: {
             excelAccess: Number,
+            canModify: Boolean,
         },
         components: {
         },

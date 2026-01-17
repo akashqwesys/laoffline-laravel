@@ -840,6 +840,28 @@
                         // Multiple Address
                         this.multipleAddresses = companies.multiple_address;
 
+                        this.multipleAddresses.forEach(address => {
+                            address.multipleAddressesOwners.forEach(owner => {
+
+                                // CASE 1: designation = 0 / null / empty
+                                if (
+                                    owner.designation === 0 ||
+                                    owner.designation === '0' ||
+                                    owner.designation === null ||
+                                    owner.designation === undefined ||
+                                    (Array.isArray(owner.designation) && owner.designation.length === 0)
+                                ) {
+                                    owner.designation = [];
+                                    return;
+                                }
+
+                                // CASE 2: designation is array of objects from API
+                                owner.designation = this.designationList.filter(d =>
+                                    owner.designation.some(apiD => apiD.id === d.id)
+                                );
+                            });
+                        });
+
                         // Multiple Emails
                         this.multipleEmails = companies.multiple_emails;
 
