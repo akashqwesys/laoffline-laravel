@@ -12,31 +12,31 @@ This project is a Laravel application built with Laravel Mix and Vue.js.
 
 1.  Clone the repository:
 
-```
+```sh
 git clone https://your-repository-url.git
 ```
 
 2.  Navigate to the project directory:
 
-```
+```sh
 cd {{ Project Name }}
 ```
 
 3.  Install dependencies:
 
-```
+```sh
 composer install
 ```
 
 4.  Install Node.js dependencies:
 
-```
+```sh
 npm install
 ```
 
 5.  Generate application key:
 
-```
+```sh
 php artisan key:generate
 ```
 
@@ -44,16 +44,18 @@ php artisan key:generate
 
 7.  Migrate and seed database (if applicable):
 
-```
+```sh
 php artisan migrate
 php artisan db:seed (optional)
 ```
 
 8.  Run development server:
 
-```
+```sh
+# phpbrew use php-8.1.31
 php artisan serve
 
+# nvm use 16
 npx mix watch
 ```
 

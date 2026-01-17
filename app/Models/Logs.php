@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\GeneratesAutoId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Logs extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesAutoId;
 
     protected $fillable = [
         'log_path',
