@@ -124,6 +124,7 @@
                     processing: true,
                     serverSide: true,
                     responsive: true,
+                    order: [[3, 'desc']],
                     ajax: {
                         url: "/payments/goodreturn-list",
                         data: function (data) {
@@ -261,6 +262,13 @@
             });
             document.getElementById('viewCompany1').addEventListener('hidden.bs.modal', function (event) {
                 $('.modal-backdrop').remove();
+            });
+
+            $(document).on('click', '.delete-goods-return', function(e) {
+                if (confirm('Are you sure you want to delete?')) {
+                    location.href = '/payments/deletegoodreturn/' + $(this).attr('data-id');
+                }
+                return;
             });
         },
     };
