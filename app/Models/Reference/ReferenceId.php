@@ -2,12 +2,13 @@
 
 namespace App\Models\Reference;
 
+use App\Traits\GeneratesAutoId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ReferenceId extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesAutoId;
 
     protected $fillable = [
         'reference_id',

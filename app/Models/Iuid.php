@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\GeneratesAutoId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Iuid extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesAutoId;
 
     protected $fillable = [
         'iuid',

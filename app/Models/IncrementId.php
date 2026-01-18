@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\GeneratesAutoId;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class IncrementId extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesAutoId;
 
     protected $fillable = [
         'id',
