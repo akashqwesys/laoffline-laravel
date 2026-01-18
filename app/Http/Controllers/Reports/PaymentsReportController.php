@@ -223,33 +223,36 @@ class PaymentsReportController extends Controller
                 $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 $supplier_data = [];
                 foreach ($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
+                $supplier_data = array_filter($supplier_data, 'strlen');
                 $data['sup_disp_name'] = implode(', ', $supplier_data);
             }
         }
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ' limit 1)')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($customer, $value->company_id);
-                array_push($customer, $value->link_companies_id);
+
+            if ($request->group) {
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ' limit 1)')->get();
+                foreach ($link_companies as $key => $value) {
+                    array_push($customer, $value->company_id);
+                    array_push($customer, $value->link_companies_id);
+                }
             }
             $customer = array_unique($customer);
             if (count($customer) < 1) {
                 $customer = [$request->customer['id']];
             }
             if ($company_details) {
-
                 $data1 = $data1->WhereIn('s.company_id', $customer);
                 foreach ($customer as $row) {
                     $customer_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
+                $customer_data = array_filter($customer_data, 'strlen');
                 $data['cus_disp_name'] = implode(',  ', $customer_data);
             }
         }
@@ -506,33 +509,35 @@ class PaymentsReportController extends Controller
                 $supplier = [$request->supplier['id']];
             }
             if ($company_details) {
-
                 $data1 = $data1->WhereIn('s.supplier_id', $supplier);
                 $supplier_data = [];
                 foreach($supplier as $row) {
                     $supplier_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
                 }
+                $supplier_data = array_filter($supplier_data, 'strlen');
                 $data['sup_disp_name'] = implode(', ', $supplier_data);
             }
         }
 
         if ($request->customer && $request->customer['id']) {
             $company_details = Company::where('id', $request->customer['id'])->first();
-            $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
-            foreach ($link_companies as $key => $value) {
-                array_push($customer, $value->company_id);
-                array_push($customer, $value->link_companies_id);
+            if ($request->group) {
+                $link_companies = LinkCompanies::whereRaw('company_id = ' . $request->customer['id'] . ' OR company_id = (SELECT company_id FROM link_companies WHERE link_companies_id = ' . $request->customer['id'] . ')')->get();
+                foreach ($link_companies as $key => $value) {
+                    array_push($customer, $value->company_id);
+                    array_push($customer, $value->link_companies_id);
+                }
             }
             $customer = array_unique($customer);
             if (count($customer) < 1) {
                 $customer = [$request->customer['id']];
             }
             if ($company_details) {
-
                 $data1 = $data1->WhereIn('s.company_id', $customer);
                 foreach($customer as $row) {
-                    $customer_data[] = Company::where('id', $row)->select('company_name')->first()->company_name;
+                    $customer_data[] = Company::where('id', $row)->select('company_name')->pluck('company_name')->first();
                 }
+                $customer_data = array_filter($customer_data, 'strlen');
                 $data['cus_disp_name'] = implode(',  ', $customer_data);
             }
         }
@@ -541,15 +546,17 @@ class PaymentsReportController extends Controller
             $data1 = $data1->whereRaw("s.select_date::date >= '" . $request->start_date . "'")
                     ->whereRaw("s.select_date::date <= '" . $request->end_date . "'");
         }
-        if ($request->group) {
-            $supplier_data = array();
-            if ($supplier) {
-                foreach($supplier as $row) {
-                    $supplier_data[] = Company::where('id', $row)->select('company_name')->first();
-                }
-            }
-            $data['sup_disp_name'] = implode(', ', $supplier_data);
-        }
+
+        // TODO: Remove this if it working fine.
+        // if ($request->group) {
+        //     $supplier_data = array();
+        //     if ($supplier) {
+        //         foreach($supplier as $row) {
+        //             $supplier_data[] = Company::where('id', $row)->select('company_name')->first();
+        //         }
+        //     }
+        //     $data['sup_disp_name'] = implode(', ', $supplier_data);
+        // }
         $data1 = $data1->get();
         $data2 = collect($data1)->groupBy('monthyear');
 
@@ -595,6 +602,7 @@ class PaymentsReportController extends Controller
                     <td colspan="3" class="text-center">'.$agent.'</td>
                 </tr>';
 
+        $finaldata = [];
         if ($request->start_date != '' && $request->end_date != '') {
             $gtotal = 0;
             foreach ($data2 as $keys => $row) {
