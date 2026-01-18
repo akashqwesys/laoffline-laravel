@@ -209,7 +209,7 @@ class PaymentsController extends Controller
             $gramount = $record->goods_return;
 
             $action = '<a href="/payments/view-goodreturn/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="show"><em class="icon ni ni-eye"></em></a><a href="/payments/edit-goodreturn/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Update"><em class="icon ni ni-edit-alt"></em></a>
-            <a href="/payments/deletegoodreturn/' . $id . '" class="btn btn-trigger btn-icon" data-toggle="tooltip" data-placement="top" title="Remove"><em class="icon ni ni-trash"></em></a>';
+            <a class="btn btn-trigger btn-icon delete-goods-return" data-toggle="tooltip" data-placement="top" data-id=' . $id . ' title="Remove"><em class="icon ni ni-trash"></em></a>';
 
             $data_arr[] = array(
                 "id" => $id,
@@ -2597,7 +2597,13 @@ class PaymentsController extends Controller
                 if ($pending_amount != 0) {
                     $salebill->pending_payment = $salebill->pending_payment + $pending_amount;
                 }
-                $salebill->received_payment = $salebill->received_payment - $paymentData->adjust_amount;
+
+                if ($payment->reciept_mode == 'partreturn') {
+                    $salebill->received_payment = $salebill->received_payment - $paymentData->goods_return;
+                } else {
+                    $salebill->received_payment = $salebill->received_payment - $paymentData->adjust_amount;
+                }
+
                 $salebill->payment_status = 0;
                 $salebill->timestamps = false;
                 $salebill->save();
@@ -2673,7 +2679,7 @@ class PaymentsController extends Controller
             throw $th;
         }
 
-        return response()->json(['status' => 1]);
+        return redirect()->route('goodreturn');
     }
 
     public function viewPayment(Request $request, $id)
