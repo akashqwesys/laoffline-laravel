@@ -9,7 +9,9 @@ trait GeneratesAutoId
      */
     public static function generateAutoId(): int
     {
-        $maxId = static::max('id');
+        $instance = new static;
+        $primaryKey = $instance->getKeyName() ?? 'id';
+        $maxId = static::max($primaryKey);
         return ($maxId ?? 0) + 1;
     }
 }
