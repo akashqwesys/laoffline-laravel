@@ -26,7 +26,6 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Session;
 use App\Models\Settings\TransportDetails;
 
-
 class PaymentsController extends Controller
 {
     use HasRoles;
@@ -120,11 +119,11 @@ class PaymentsController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('goods_returns.created_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[4]['search']['value'] . '%'])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('company_id', $cc_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[5]['search']['value'] . '%'])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('supplier_id', $sp_id);
         }
 
@@ -147,11 +146,11 @@ class PaymentsController extends Controller
             $records = $records->whereDate('goods_returns.created_at', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[4]['search']['value']) && !empty($columnName_arr[4]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[4]['search']['value'] . '%'])->pluck('id')->toArray();
             $records = $records->whereIn('company_id', $cc_id);
         }
         if (isset($columnName_arr[5]['search']['value']) && !empty($columnName_arr[5]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[4]['search']['value'] . '%')->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[5]['search']['value'] . '%'])->pluck('id')->toArray();
             $records = $records->whereIn('supplier_id', $sp_id);
         }
         $records = $records->select('goods_return_id', 'iuid', 'reference_id', 'created_at', 'company_id', 'supplier_id', 'goods_return');
@@ -276,11 +275,11 @@ class PaymentsController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[6]['search']['value'] . '%'])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[7]['search']['value'] . '%'])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
@@ -312,11 +311,11 @@ class PaymentsController extends Controller
             $records = $records->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[6]['search']['value'] . '%'])->pluck('id')->toArray();
             $records = $records->whereIn('payments.customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[7]['search']['value'] . '%'])->pluck('id')->toArray();
             $records = $records->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
@@ -494,11 +493,11 @@ class PaymentsController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[6]['search']['value'] . '%'])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[7]['search']['value'] . '%'])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
@@ -530,11 +529,11 @@ class PaymentsController extends Controller
             $records = $records->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[6]['search']['value'] . '%')->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[6]['search']['value'] . '%'])->pluck('id')->toArray();
             $records = $records->whereIn('payments.customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', 'ilike', '%' . $columnName_arr[7]['search']['value'] . '%')->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", ['%' . $columnName_arr[7]['search']['value'] . '%'])->pluck('id')->toArray();
             $records = $records->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value'])) {
@@ -733,11 +732,11 @@ class PaymentsController extends Controller
             $totalRecordswithFilter = $totalRecordswithFilter->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[6]['search']['value'])->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", [$columnName_arr[6]['search']['value']])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[7]['search']['value'])->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", [$columnName_arr[7]['search']['value']])->pluck('id')->toArray();
             $totalRecordswithFilter = $totalRecordswithFilter->whereIn('payments.supplier_id', $sp_id);
         }
 
@@ -771,11 +770,11 @@ class PaymentsController extends Controller
             $records = $records->whereDate('payments.date', '=', $columnName_arr[3]['search']['value']);
         }
         if (isset($columnName_arr[6]['search']['value']) && !empty($columnName_arr[6]['search']['value'])) {
-            $cc_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[6]['search']['value'])->pluck('id')->toArray();
+            $cc_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", [$columnName_arr[6]['search']['value']])->pluck('id')->toArray();
             $records = $records->whereIn('payments.customer_id', $cc_id);
         }
         if (isset($columnName_arr[7]['search']['value']) && !empty($columnName_arr[7]['search']['value'])) {
-            $sp_id = DB::table('companies')->select('id')->where('company_name', '=', $columnName_arr[7]['search']['value'])->pluck('id')->toArray();
+            $sp_id = DB::table('companies')->select('id')->whereRaw("TRIM(company_name) ILIKE ?", [$columnName_arr[7]['search']['value']])->pluck('id')->toArray();
             $records = $records->whereIn('payments.supplier_id', $sp_id);
         }
         if (isset($columnName_arr[8]['search']['value']) && !empty($columnName_arr[8]['search']['value']) && is_int($columnName_arr[8]['search']['value'])) {
