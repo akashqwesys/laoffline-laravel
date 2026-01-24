@@ -499,6 +499,8 @@
                 referncevia :[{name: 'Courier'},{name: 'Hand'},{name: 'Email'},{name: 'Whatsapp'}],
 
                 courier:[],
+                customer_id: null,
+                seller_id: null,
                 errors: {
                     name: ''
                 },
@@ -617,7 +619,9 @@
                 });
 
                 axios.post('/payments/selectsalebills', {
-                    salebill: this.selected
+                    salebill: this.selected,
+                    customer_id: this.customer_id,
+                    seller_id: this.seller_id
                 })
                 .then(responce => {
                     $.merge(this.salebills,responce.data.salebill);
@@ -1727,8 +1731,9 @@
                             $(".table-responsive").removeClass("salebilltable");
                         }
                         setTimeout(() => {
-
                             self.form.id = this.id;
+                            self.customer_id = gData.customer.id;
+                            self.seller_id = gData.supplier.id;
                             self.form.refrence_type = gData.paymentData.reference_id;
                             self.form.reciptdate = gData.paymentData.date;
                             self.form.reciptfrom = gData.customer.company_name;

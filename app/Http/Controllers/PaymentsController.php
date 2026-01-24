@@ -1006,8 +1006,8 @@ class PaymentsController extends Controller
 
     public function selectSaleBills(Request $request)
     {
-        $customer_id = $request->session()->get('customer');
-        $seller_id = $request->session()->get('seller');
+        $customer_id = $request->input('customer_id') ?? $request->session()->get('customer');
+        $seller_id = $request->input('seller_id') ?? $request->session()->get('seller');
         $newSalebill = $request->input('salebill');
 
         $salebill_data = array();
@@ -1023,12 +1023,30 @@ class PaymentsController extends Controller
                 $status_c = new \stdClass;
                 $status_c->code = 1;
                 $status_c->status = 'Complete';
-                $salebill = array('id' => $salebills->sale_bill_id, 'sup_inv' => $salebills->supplier_invoice_no, 'amount' => $salebills->total, 'adjustamount' => $salebills->total, 'status' => $status_c, 'discount' => 0, 'discountamount' => 0, 'goodreturn' => 0, 'ratedifference' => 0, 'bankcommission' => 0,  'vatav' => 0, 'agentcommission' => 0, 'claim' => 0, 'short' => 0, 'interest' => 0, 'remark' => '');
+                $salebill = [
+                    'id' => $salebills->sale_bill_id,
+                    'sup_inv' => $salebills->supplier_invoice_no,
+                    'fid' => $salebills->financial_year_id,
+                    'amount' => $salebills->total,
+                    'adjustamount' => $salebills->total,
+                    'status' => $status_c,
+                    'discount' => 0,
+                    'discountamount' => 0,
+                    'goodreturn' => 0,
+                    'ratedifference' => 0,
+                    'bankcommission' => 0,
+                    'vatav' => 0,
+                    'agentcommission' => 0,
+                    'claim' => 0,
+                    'short' => 0,
+                    'interest' => 0,
+                    'remark' => ''
+                ];
                 array_push($salebill_data, $salebill);
             }
         }
         $data['salebill'] = $salebill_data;
-        $oldSalebill = $request->session()->get('saleBill');
+        $oldSalebill = $request->session()->get('saleBill') ?? [];
         $salebills = array_merge($oldSalebill, $newSalebill);
         $request->session()->forget('saleBill');
         $request->session()->put('saleBill', $salebills);
@@ -1043,6 +1061,7 @@ class PaymentsController extends Controller
         $financialid = Session::get('user')->financial_year_id;
         $attachments = array();
         $cheque_image = array();
+
         if (!file_exists(public_path('upload/payments'))) {
             mkdir(public_path('upload/payments'), 0777, true);
         }
@@ -1363,7 +1382,7 @@ class PaymentsController extends Controller
                         $paymentDetail->payment_details_id = $paymentDetailId;
                         $paymentDetail->payment_id = $payment_id;
                         $paymentDetail->p_increment_id = $p_increment_id;
-                        $paymentDetail->financial_year_id = $salebill->fid;;
+                        $paymentDetail->financial_year_id = $salebill->fid;
                         $paymentDetail->sr_no = $salebill->id;
                         $paymentDetail->flag_sale_bill_sr_no = 1;
                         $paymentDetail->status = $salebill->status->code;

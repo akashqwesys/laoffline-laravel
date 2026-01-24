@@ -81,7 +81,9 @@
                 });
                 
                 axios.post('/payments/selectsalebills', {
-                    salebill: this.selected
+                    salebill: this.selected,
+                    customer_id: this.$parent.customer_id,
+                    seller_id: this.$parent.seller_id
                 })
                 .then(responce => {
                     $.merge(this.$parent.salebills,responce.data.salebill);
