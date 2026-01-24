@@ -893,16 +893,28 @@
             },
             async checkSupplierInvoiceNo (e) {
                 if (this.supplier_invoice_no != '' && this.invoice_no != '') {
-                    const response = await axios.post('/account/sale-bill/check-supplier-invoice', {
-                        supplier_id: this.supplier,
-                        invoice_no: this.supplier_invoice_no,
-                        type: 'insert'
-                    });
+                    try {
+                        const response = await axios.post('/account/sale-bill/check-supplier-invoice', {
+                            supplier_id: this.supplier,
+                            invoice_no: this.supplier_invoice_no,
+                            type: 'insert'
+                        });
 
-                    $('#check-supplier-no-div').html(response.data);
-                    this.isSubmitDisabled = false;
-                    if ($('#check-supplier-no-div').text() != "SUCCESS") {
-                        this.isSubmitDisabled = true;
+                        $('#check-supplier-no-div').html(response.data);
+                        this.isSubmitDisabled = false;
+                        if ($('#check-supplier-no-div').text() != "SUCCESS") {
+                            this.isSubmitDisabled = true;
+                        }
+                    } catch (error) {
+                        // Handle 4xx and other errors when checking supplier invoice
+                        this.isSubmitDisabled = false;
+                        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+                            const errorMessage = error.response.data?.message || 'An error occurred while checking supplier invoice number';
+                            $('#check-supplier-no-div').html('<div class="text-danger">Error: ' + errorMessage + '</div>');
+                            this.isSubmitDisabled = true;
+                        } else {
+                            $('#check-supplier-no-div').html('<div class="text-danger">Unable to verify supplier invoice number. Please try again.</div>');
+                        }
                     }
                 }
             },
@@ -1111,11 +1123,17 @@
                 })
                 .catch((error) => {
                     $('#submit-form').attr('disabled', false);
-                    /* var validationError = error.response.data.errors;
-                    if(validationError) {
-                        $('#supplier').focus();
-                        this.errors.supplier = validationError;
-                    } */
+                    // Handle 4xx errors (validation errors, duplicate invoice, etc.)
+                    if (error.response && error.response.status >= 400 && error.response.status < 500) {
+                        const errorMessage = error.response.data?.message || 'Validation error occurred. Please check your input and try again.';
+                        alert(errorMessage);
+                    } else if (error.response) {
+                        // Handle 5xx server errors
+                        alert('An error occurred on the server. Please try again later.');
+                    } else {
+                        // Handle network or other errors
+                        alert('An error occurred. Please check your internet connection and try again.');
+                    }
                 });
             },
             async submitForm () {
