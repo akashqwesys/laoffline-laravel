@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\PaymentDetail;
 use App\Traits\GeneratesAutoId;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payment extends Model
@@ -48,4 +50,14 @@ class Payment extends Model
         'is_deleted',
         'done_outward'
     ];
+
+    /**
+     * Get all of the details for the Payment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function details(): HasMany
+    {
+        return $this->hasMany(PaymentDetail::class, 'p_increment_id', 'id');
+    }
 }

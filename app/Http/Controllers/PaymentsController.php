@@ -1602,28 +1602,40 @@ class PaymentsController extends Controller
     public function removeSalebill(Request $request)
     {
         $user = session()->get('user');
-        if ($request->session()->has('saleBill')) {
+        $salebill_ids = [];
+        if (!$request->payment_id) {
+            // For create payment.
             $customer_id = $request->session()->get('customer');
             $seller_id = $request->session()->get('seller');
+            $salebill_ids = $request->session()->get('saleBill');
         } else {
+            // For update payment.
             $payment = Payment::where('payment_id', $request->payment_id)->where('financial_year_id', $user->financial_year_id)->first();
             $customer_id = $payment->receipt_from;
             $seller_id = $payment->supplier_id;
-            $salebill_ids = PaymentDetail::select('sr_no')->where('payment_id', $payment->payment_id)->where('financial_year_id', $user->financial_year_id)->pluck('sr_no')->toArray();
+            $salebill_ids = $payment->details()
+                ->get(['sr_no', 'financial_year_id'])
+                ->map(function ($item) {
+                    return [
+                        'id'  => $item->sr_no,
+                        'fid' => $item->financial_year_id,
+                    ];
+                })
+                ->toArray();
         }
+
         $financialyear = FinancialYear::where('id', $user->financial_year_id)->first();
         $customer = Company::where('id', $customer_id)->first();
         $seller = Company::where('id', $seller_id)->first();
         $salebillid = $request->salebill;
-        $salebill_ids = $request->session()->get('saleBill');
         $key = array_search($salebillid[0]['id'], array_column($salebill_ids, 'id'));
 
         unset($salebill_ids[$key]);
 
         $request->session()->forget('saleBill');
         $request->session()->put('saleBill', $salebill_ids);
-        $salebill_data2 = array();
-        $sid = array();
+        $salebill_data2 = [];
+        $sid = [];
         foreach ($salebill_ids as $ids) {
             array_push($sid, $ids['id']);
         }
@@ -1636,12 +1648,22 @@ class PaymentsController extends Controller
             ->whereNotIn('sale_bill_id', $sid)
             ->orderBy('sale_bill_id', 'desc')
             ->get();
+
         foreach ($salebills2 as $bills) {
             $financialyear = FinancialYear::where('id', $bills->financial_year_id)->first();
             $overdue = floor((time() - strtotime($bills->select_date)) / (60 * 60 * 24));
-            $salebill2 = array('sallbillid' => $bills->sale_bill_id, 'financialyear' => $financialyear, 'invoiceid' => $bills->supplier_invoice_no, 'date' => $bills->select_date, 'supplier' => $seller->company_name, 'amount' => $bills->total, 'overdue' => $overdue);
+            $salebill2 = [
+                'sallbillid' => $bills->sale_bill_id,
+                'financialyear' => $financialyear,
+                'invoiceid' => $bills->supplier_invoice_no,
+                'date' => $bills->select_date,
+                'supplier' => $seller->company_name,
+                'amount' => $bills->total,
+                'overdue' => $overdue
+            ];
             array_push($salebill_data2, $salebill2);
         }
+
         $data['customer'] = $customer;
         $data['seller'] = $seller;
         $data['salebilldata'] = $salebill_data2;
@@ -2072,6 +2094,7 @@ class PaymentsController extends Controller
                 $salebill = SaleBill::where('sale_bill_id', $salebilldata->sr_no)->where('financial_year_id', $salebilldata->financial_year_id)->where('is_deleted', 0)->first();
                 $salebill->received_payment = $salebill->received_payment - $recive_payment;
                 $salebill->pending_payment = $salebill->pending_payment + $recive_payment;
+                $salebill->payment_status = 0; // Set status back to pending
                 $salebill->timestamps = false;
                 $salebill->save();
             }
@@ -2247,11 +2270,8 @@ class PaymentsController extends Controller
             $comboid1->color_flag_id = $color_flag_id;
             $comboid1->save();
 
-            $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
-            $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
-
             $logs = new Logs;
-            $logs->id = $logsId;
+            $logs->id = $logs->generateAutoId();
             $logs->employee_id = Session::get('user')->employee_id;
             $logs->log_path = 'payment / update';
             $logs->log_subject = 'Payment update page visited.';
