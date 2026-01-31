@@ -469,6 +469,8 @@
     import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
+    import { showErrorToast, showWarningToast } from '../../utils/toastHelper';
+    import { getErrorMessage } from '../../utils/error';
     //import addSalebill from './modal/AddSalebillModelComponent.vue';
 
     var referncevia = [];
@@ -610,20 +612,19 @@
         methods: {
             selectSalebill(event){
                 this.selected.forEach(value => {
-                for(var i = 0; i < this.items.length; i++) {
-                    if (this.items[i].sallbillid && this.items[i].sallbillid === value.id) {
-                        this.items.splice(i, 1);
-                        break;
+                    for(var i = 0; i < this.items.length; i++) {
+                        if (this.items[i].sallbillid && this.items[i].sallbillid === value.id) {
+                            this.items.splice(i, 1);
+                            break;
+                        }
                     }
-                }
                 });
 
                 axios.post('/payments/selectsalebills', {
                     salebill: this.selected,
                     customer_id: this.customer_id,
                     seller_id: this.seller_id
-                })
-                .then(responce => {
+                }).then(responce => {
                     $.merge(this.salebills,responce.data.salebill);
                     let totalamount = 0;
                     let totalAdjustamount = 0;
@@ -638,6 +639,9 @@
                     $('.modal-backdrop').remove();
                     this.selected = [];
                     //window.location.href = '/payments/addpayment';
+                }).catch(error => {
+                    const errorMessage = getErrorMessage(error)
+                    showErrorToast(errorMessage);
                 })
             },
 
@@ -659,9 +663,13 @@
                 this.form.totaladjustamount = totalAdjustamount;
                 this.extraAmount = parseInt(this.form.reciptamount) - totalAdjustamount;
                 axios.post('/payments/removesalebill', {
-                    salebill : [{'id' : salebillid, 'fid' : fid}]
+                    salebill : [{'id' : salebillid, 'fid' : fid}],
+                    payment_id: this.id
                 }).then(responce =>{
                     this.items = responce.data.salebilldata;
+                }).catch(error => {
+                    const errorMessage = getErrorMessage(error)
+                    showErrorToast(errorMessage);
                 })
             },
             getOldReferences: function (event) {
@@ -676,20 +684,23 @@
                     $('#error-validate-reference-div').text('');
                     $('#overlay').show();
                     $(".new").addClass("d-none");
-                    axios.get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
-                    .then(response => {
-                        this.old_reference_data = response.data;
-                        $("#show-references").removeClass('d-none');
-                        $('#show-references').slideDown();
-                        setTimeout(() => {
-                            $('#show-references tr input[type="radio"]').first().prop('checked', true);
-                            this.form.refrence_type = $('#show-references tr input[type="radio"]').first().val();
-                        }, 500);
-                        $('#overlay').hide();
-                    })
-                    .catch(function (error) {
-                        $('#overlay').hide();
-                    });
+                    axios
+                        .get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
+                        .then(response => {
+                            this.old_reference_data = response.data;
+                            $("#show-references").removeClass('d-none');
+                            $('#show-references').slideDown();
+                            setTimeout(() => {
+                                $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                                this.form.refrence_type = $('#show-references tr input[type="radio"]').first().val();
+                            }, 500);
+                            $('#overlay').hide();
+                        })
+                        .catch(function (error) {
+                            $('#overlay').hide();
+                            const errorMessage = getErrorMessage(error)
+                            showErrorToast(errorMessage);
+                        });
                 }
             },
             newRefence: function (event) {
@@ -701,18 +712,19 @@
                 } else {
                     $(".new").removeClass("d-none");
                     $("#show-references").addClass('d-none');
-                    axios.get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
-                    .then(response => {
-                        this.old_reference_data = response.data;
-                        $('#show-references').slideDown();
-                        setTimeout(() => {
-                            $('#show-references tr input[type="radio"]').first().prop('checked', true);
-                        }, 500);
-                        $('#overlay').hide();
-                    })
-                    .catch(function (error) {
-                        $('#overlay').hide();
-                    });
+                    axios
+                        .get('/payments/getReferenceForSaleBill?ref_via='+this.form.refrencevia.name)
+                        .then(response => {
+                            this.old_reference_data = response.data;
+                            $('#show-references').slideDown();
+                            setTimeout(() => {
+                                $('#show-references tr input[type="radio"]').first().prop('checked', true);
+                            }, 500);
+                            $('#overlay').hide();
+                        })
+                        .catch(function (error) {
+                            $('#overlay').hide();
+                        });
                 }
             },
 
@@ -1554,8 +1566,9 @@
                              window.location.href = '/payments';
                         })
                         .catch((error) => {
-                            var validationError = error.response.data.errors;
                             $('#overlay').hide();
+                            const errorMessage = getErrorMessage(error);
+                            showErrorToast(errorMessage);
                         })
                     } else {
                         if (this.form.refrence == '') {
@@ -1645,16 +1658,18 @@
                                 }
                             })
                             .catch((error) => {
-                                var validationError = error.response.data.errors;
                                 $('#overlay').hide();
+                                const errorMessage = getErrorMessage(error);
+                                showErrorToast(errorMessage);
                             })
                         } else {
                             $('#overlay').hide();
-                            alert('Please Fill required Field');
+                            showWarningToast('Please fill required field.')
                         }
                     }
                 }, 2000);
             },
+
         },
         mounted() {
             $(document).keypress(function(event) {
