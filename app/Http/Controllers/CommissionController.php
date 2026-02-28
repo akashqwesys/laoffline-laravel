@@ -539,7 +539,7 @@ class CommissionController extends Controller
                 $chequebank = 0;
                 $chequeno = '';
             }
-            DB::enableQueryLog();
+
             $commissions->id = $commissionId;
             $commissions->commission_id = $commission_id;
             $commissions->iuid = $iuid;
@@ -571,10 +571,6 @@ class CommissionController extends Controller
             $commissions->is_deleted = 0;
             $commissions->is_invoice = 1;
             $commissions->save();
-
-            DB::rollBack();
-
-            dd(DB::getQueryLog());
 
             $c_increment_id = $commissionId;
             $comboid1 = Comboids::where('comboid', $combo_id)->first();
@@ -634,12 +630,10 @@ class CommissionController extends Controller
                     $payments->save();
                 }
             }
-            $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
-            $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
 
             $logs = new Logs;
-            $logs->id = $logsId;
-            $logs->employee_id = Session::get('user')->employee_id;
+            $logs->id = $logs->generateAutoId();
+            $logs->employee_id = $user->employee_id;
             $logs->log_path = 'Commission / Insert';
             $logs->log_subject = 'Commission insert page visited.';
             $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
