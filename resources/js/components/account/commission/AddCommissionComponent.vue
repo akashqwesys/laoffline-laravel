@@ -333,7 +333,7 @@
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.totalCommission"></td>
                                                         <td><input type="text" :readonly="true" class="form-control" v-model="commissioninvoice.recivedCommission.totalrecived"></td>
                                                         <td><multiselect v-model="commissioninvoice.status" :options="[{status: 'Complete', code: '1'},{status: 'Pending', code: '0'}]" placeholder="Select one" label="status" track-by="status"></multiselect></td>
-                                                        <td><input type="text" class="form-control" @change="changeAmount(index, event)" v-model="commissioninvoice.amount"></td>
+                                                        <td><input type="text" class="form-control" @input="changeAmount(index, event)" @change="changeAmount(index, event)" v-model="commissioninvoice.amount"></td>
                                                         <td><input type="text" class="form-control" v-model="commissioninvoice.remark"></td>
                                                     </tr>
                                                 </tbody>
@@ -375,6 +375,8 @@
     import $ from 'jquery';
     import Form from 'vform';
     import Multiselect from 'vue-multiselect';
+    import { showErrorToast } from '../../../utils/toastHelper';
+    import { getErrorMessage } from '../../../utils/error';
 
     var items = [];
     var referncevia = [];
@@ -481,6 +483,20 @@
 
         },
         methods: {
+            safeParseInt: function(value) {
+                if (value === '' || value === null || value === undefined) {
+                    return 0;
+                }
+                const parsed = parseInt(value, 10);
+                return isNaN(parsed) ? 0 : parsed;
+            },
+            updateTotalAmount: function() {
+                let total = 0;
+                this.commissioninvoices.forEach(value => {
+                    total += this.safeParseInt(value.amount);
+                });
+                this.form.totalamount = total;
+            },
             changeAmount: function (index, event) {
                 let amount = this.commissioninvoices[index].amount;
                 let invoiceamount = this.commissioninvoices[index].totalCommission;
@@ -489,7 +505,11 @@
                 if (!receiveamount){
                     receiveamount = 0;
                 }
-                if (parseInt(amount) > parseInt(invoiceamount)) {
+                const parsedAmount = this.safeParseInt(amount);
+                const parsedInvoiceAmount = this.safeParseInt(invoiceamount);
+                const parsedReceiveAmount = this.safeParseInt(receiveamount);
+
+                if (parsedAmount > parsedInvoiceAmount) {
                     if (this.scope == 'edit') {
                         alert('Amount is not more than :' + invoiceamount);
                         this.commissioninvoices[index].amount = invoiceamount;
@@ -498,29 +518,19 @@
                     }
                 } else {
                     if (this.scope != 'edit'){
-                        let diff = parseInt(invoiceamount) - parseInt(receiveamount);
-                        if (diff > parseInt(invoiceamount)) {
+                        let diff = parsedInvoiceAmount - parsedReceiveAmount;
+                        if (diff > parsedInvoiceAmount) {
                             this.commissioninvoices[index].amount = diff;
                             alert('Amount is not more than :' + diff);
                         }
                     } else {
-                        if (parseInt(amount) > parseInt(invoiceamount)) {
-                            alert('Amount is not more than :' + amount);
+                        if (parsedAmount > parsedInvoiceAmount) {
+                            alert('Amount is not more than :' + parsedAmount);
                         }
                     }
                 }
-                let total = 0;
-                this.commissioninvoices.forEach(value =>{
-                    let amount = value.amount;
-                    if (!amount) {
-                        amount = 0;
-                    }
-                    total += parseInt(amount);
-                })
-                setTimeout(() => {
-                    this.form.totalamount = total;
-                }, 500);
-
+                // Update total immediately without setTimeout
+                this.updateTotalAmount();
             },
             getOldReferences: function (event) {
 
@@ -630,6 +640,17 @@
                     $(".referncechange").addClass('d-none');
                 }
             },
+            sanitizeFormData: function() {
+                // Ensure all numeric fields are properly formatted
+                this.form.totalamount = this.safeParseInt(this.form.totalamount);
+                this.form.commissionamount = this.safeParseInt(this.form.commissionamount);
+                this.form.totalCommission = this.safeParseInt(this.form.totalCommission);
+
+                // Sanitize commission invoice amounts
+                this.commissioninvoices.forEach((invoice, index) => {
+                    invoice.amount = this.safeParseInt(invoice.amount);
+                });
+            },
             register () {
                 $("#error-for-couurier").text("");
                 $("#error-for-reference").text("");
@@ -637,6 +658,10 @@
                 $("#error-for-chequedate").text("");
                 $("#error-for-emailfrom").text("");
                 $("#error-for-fromno").text("");
+                
+                // Sanitize data before submission
+                this.sanitizeFormData();
+                
                 var commissiondata = new FormData();
                 if (this.scope == 'edit') {
 
@@ -649,7 +674,8 @@
                         window.location.href = '/commission';
                     })
                     .catch((error) => {
-                        var validationError = error.response.data.errors;
+                        const errorMessage = getErrorMessage(error);
+                        showErrorToast(errorMessage);
                     })
                 } else {
 
@@ -707,7 +733,6 @@
                     }
 
                     if (this.form.recipt_mode == 'cheque') {
-
                         if (this.form.chequedate == '') {
                             $("#error-for-chequedate").text("Select Cheque Date");
                             this.isValidate = false;
@@ -715,6 +740,12 @@
                             $("#error-for-chequedate").text("");
                             this.isValidate = true;
                         }
+                    }
+
+                    // Validate that totalamount is not empty
+                    if (this.safeParseInt(this.form.totalamount) === 0) {
+                        alert('Please enter at least one invoice amount');
+                        this.isValidate = false;
                     }
 
                     commissiondata.append('invoicedata', JSON.stringify(this.commissioninvoices));
@@ -726,7 +757,8 @@
                             window.location.href = '/commission';
                         })
                         .catch((error) => {
-                            var validationError = error.response.data.errors;
+                            const errorMessage = getErrorMessage(error);
+                            showErrorToast(errorMessage);
                         })
                     } else {
                         alert('Please Fill required Field');
