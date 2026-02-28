@@ -80,3 +80,47 @@ This project uses Laravel Mix for compiling frontend assets and Vue.js for build
   * You can adjust the instructions based on your specific project setup (e.g., if you have custom commands for seeding data).
 
 This README.md file provides a basic overview of your Laravel project with the mentioned dependencies. You can further customize it to include additional information like project features, testing instructions, deployment steps, etc.
+
+## Project path on droplet
+
+```Bash
+cd ../var/www/dev.laoffline.com/
+```
+
+## Reboot and php.ini
+
+```Bash
+sudo a2dismod reqtimeout
+sudo apache2ctl configtest
+sudo systemctl restart php8.1-fpm
+sudo reboot
+```
+
+### after reboot
+
+```Bash
+sudo bash -c 'echo "ProxyTimeout 600" >> /etc/apache2/apache2.conf'
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+sudo systemctl restart php8.1-fpm
+```
+
+### Step 1: Create the missing directory
+
+Run these commands to create the folder and set the correct ownership:
+
+```Bash
+sudo mkdir -p /run/php/
+sudo chown www-data:www-data /run/php/
+```
+
+### Step 2: Restart PHP-FPM
+
+Now that the directory exists, try starting the service again:
+
+```Bash
+sudo systemctl restart php8.1-fpm
+
+# to check status
+sudo systemctl status php8.1-fpm
+```
