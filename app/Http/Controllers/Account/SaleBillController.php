@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Account;
 
-use App\Models\Logs;
-use App\Models\Employee;
-use App\Models\SaleBill;
-use Illuminate\Http\Request;
-use App\Models\FinancialYear;
-use App\Models\ProductCategory;
-use App\Models\Comboids\Comboids;
-use App\Models\SaleBillTransport;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Session;
+use App\Http\Requests\SaleBill\StoreSaleBillRequest;
+use App\Models\Comboids\Comboids;
+use App\Models\Employee;
+use App\Models\FinancialYear;
+use App\Models\Logs;
+use App\Models\ProductCategory;
+use App\Models\SaleBill;
+use App\Models\SaleBillTransport;
 use App\Models\Settings\TransportDetails;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class SaleBillController extends Controller
 {
@@ -285,22 +286,20 @@ class SaleBillController extends Controller
         return view('account.sale_bill.createSaleBill', compact('financialYear', 'page_title', 'employees'));
     }
 
-    public function addSaleBill(Request $request)
+    public function addSaleBill(StoreSaleBillRequest $request)
     {
-        $referenceDetails = json_decode($request->referenceDetails);
+        $referenceDetails = $request->getReferenceDetails();
         $referenceDetails->sale_bill_via = 3;
-        $productDetails = json_decode($request->productDetails);
-        $fabricDetails = json_decode($request->fabricDetails);
-        // $totals = json_decode($request->totals);
-        $transportDetails = json_decode($request->transportDetails);
-        $changeAmount = json_decode($request->changeAmount);
-
+        $productDetails = $request->getProductDetails();
+        $fabricDetails = $request->getFabricDetails();
+        $transportDetails = $request->getTransportDetails();
+        $changeAmount = $request->getChangeAmount();
         $user = Session::get('user');
+
+        $extra_attachment = '';
         if ($request->hasFile('extra_attachment')) {
             $extra_attachment = date('YmdHis') . "_." . $request->extra_attachment->getClientOriginalExtension();
             $request->extra_attachment->move(public_path('upload/sale_bill'), $extra_attachment);
-        } else {
-            $extra_attachment = '';
         }
 
         $dateAdded = date('Y-m-d H:i:s');
@@ -1286,6 +1285,7 @@ class SaleBillController extends Controller
             ->where('sale_bill_id', $id)
             ->where('is_deleted', 0)
             ->get();
+
         $sale_bill_ids = $iuids = $ouids = [];
         foreach ($combo_id as $v) {
             $sale_bill_ids[] = $v->sale_bill_id;
@@ -1293,44 +1293,54 @@ class SaleBillController extends Controller
             $ouids[] = $v->ouid;
         }
 
-        DB::table('comboids')
-            ->whereIn('sale_bill_id', $sale_bill_ids)
-            ->where('financial_year_id', $user->financial_year_id)
-            ->update([
-                'is_deleted' => 1,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-        DB::table('iuids')->whereIn('iuid', $iuids)->delete();
-        DB::table('ouids')->whereIn('ouid', $ouids)->delete();
-        DB::table('sale_bill_items')
-            ->where('sale_bill_id', $id)
-            ->where('financial_year_id', $user->financial_year_id)
-            ->delete();
-        DB::table('sale_bill_transports')
-            ->where('sale_bill_id', $id)
-            ->where('financial_year_id', $user->financial_year_id)
-            ->update([
-                'is_deleted' => 1,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-        DB::table('sale_bills')
-            ->where('sale_bill_id', $id)
-            ->where('financial_year_id', $user->financial_year_id)
-            ->update([
-                'is_deleted' => 1,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+        DB::beginTransaction();
 
-        $logsLastId = Logs::orderBy('id', 'DESC')->first('id');
-        $logsId = !empty($logsLastId) ? $logsLastId->id + 1 : 1;
+        try {
+            DB::table('comboids')
+                ->whereIn('sale_bill_id', $sale_bill_ids)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->update([
+                    'is_deleted' => 1,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
 
-        $logs = new Logs;
-        $logs->id = $logsId;
-        $logs->employee_id = $user->employee_id;
-        $logs->log_path = 'Sale Bill / Insert';
-        $logs->log_subject = 'Sale Bill Details was inserted by ' . $user->username . '.';
-        $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $logs->save();
+            DB::table('iuids')->whereIn('iuid', $iuids)->delete();
+            DB::table('ouids')->whereIn('ouid', $ouids)->delete();
+
+            DB::table('sale_bill_items')
+                ->where('sale_bill_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->delete();
+
+            DB::table('sale_bill_transports')
+                ->where('sale_bill_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->update([
+                    'is_deleted' => 1,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+
+            DB::table('sale_bills')
+                ->where('sale_bill_id', $id)
+                ->where('financial_year_id', $user->financial_year_id)
+                ->update([
+                    'is_deleted' => 1,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+
+            $logs = new Logs;
+            $logs->id = $logs->generateAutoId();
+            $logs->employee_id = $user->employee_id;
+            $logs->log_path = 'Sale Bill / Delete';
+            $logs->log_subject = 'Sale Bill was deleted by ' . $user->username . '.';
+            $logs->log_url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $logs->save();
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
 
         return redirect('/account/sale-bill');
     }

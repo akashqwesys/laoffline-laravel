@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\settings\CompanyTypeController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\PasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -692,23 +693,23 @@ Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modif
 
 
 // Routes for Settings / Company Type
-Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:access-companytype']], function () {
+Route::group(['prefix' => 'settings', 'middleware' => ['auth']], function () {
     Route::group(['prefix' => 'companyType'], function () {
-        Route::get('/', [App\Http\Controllers\settings\CompanyTypeController::class, 'index'])->name('companyType');
-        Route::get('/list', [App\Http\Controllers\settings\CompanyTypeController::class, 'listCompanyType'])->name('list');
-        Route::get('/list-data', [App\Http\Controllers\settings\CompanyTypeController::class, 'listData'])->name('list-data');
-        Route::get('/fetch-companyType/{id}', [App\Http\Controllers\settings\CompanyTypeController::class, 'fetchCompanyType']);
+        Route::get('/', [CompanyTypeController::class, 'index'])->name('companyType')->middleware('permission:access-companytype');
+        Route::get('/list', [CompanyTypeController::class, 'listCompanyType'])->name('list');
+        Route::get('/list-data', [CompanyTypeController::class, 'listData'])->name('list-data');
+        Route::get('/fetch-companyType/{id}', [CompanyTypeController::class, 'fetchCompanyType']);
     });
 });
 
 
 Route::group(['prefix' => 'settings', 'middleware' => ['auth', 'permission:modify-companytype']], function () {
     Route::group(['prefix' => 'companyType'], function () {
-        Route::get('/create-companyType', [App\Http\Controllers\settings\CompanyTypeController::class, 'createCompanyType']);
-        Route::post('/create', [App\Http\Controllers\settings\CompanyTypeController::class, 'insertCompanyTypeData']);
-        Route::post('/update', [App\Http\Controllers\settings\CompanyTypeController::class, 'updateCompanyTypeData']);
-        Route::get('/edit-companyType/{id}', [App\Http\Controllers\settings\CompanyTypeController::class, 'editCompanyType']);
-        Route::get('/delete/{id}', [App\Http\Controllers\settings\CompanyTypeController::class, 'deleteCompanyType'])->name('delete');
+        Route::get('/create-companyType', [CompanyTypeController::class, 'createCompanyType']);
+        Route::post('/create', [CompanyTypeController::class, 'insertCompanyTypeData']);
+        Route::post('/update', [CompanyTypeController::class, 'updateCompanyTypeData']);
+        Route::get('/edit-companyType/{id}', [CompanyTypeController::class, 'editCompanyType']);
+        Route::get('/delete/{id}', [CompanyTypeController::class, 'deleteCompanyType'])->name('delete');
     });
 });
 
