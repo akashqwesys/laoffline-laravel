@@ -59,6 +59,12 @@ php artisan serve
 npx mix watch
 ```
 
+9. For production build
+
+```sh
+npx mix --production
+```
+
 ## Import database
 
 ```sh

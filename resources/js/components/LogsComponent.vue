@@ -121,6 +121,7 @@
                         { data: 'Employee', orderable: false },
                         { data: 'created_at' }, 
                     ],
+                    order: [[4, 'desc']],
                     search: {
                         return: true
                     },
