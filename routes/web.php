@@ -36,6 +36,12 @@ Route::get('/payment/{limit}/{offset}', [App\Http\Controllers\settings\Connectio
 Route::get('/reference/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'reference']);
 Route::get('/salebills/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'salebills']); */
 // Route::get('/userLog/{limit}/{offset}', [App\Http\Controllers\settings\ConnectionController::class, 'userLog']);
+
+// TODO: disable after test
+Route::middleware(['auth'])->group(function () {
+    Route::post('/test/debug-upload-test', [\App\Http\Controllers\DebugUploadController::class, 'testUpload'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->name('debug.upload');
+});
+
 Route::get('/goodreturnAttachment', [App\Http\Controllers\settings\ConnectionController::class, 'goodreturnAttachment']);
 Route::get('/sample', [App\Http\Controllers\settings\ConnectionController::class, 'sample']);
 
