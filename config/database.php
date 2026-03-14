@@ -76,6 +76,11 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            'dump' => env('DEBUG_ENV') === 'local' ? [
+                'dump_binary_path' => base_path('scripts/'),
+                'use_column_inserts' => true,
+                'use_inserts' => true,
+            ] : [],
         ],
 
         'sqlsrv' => [
@@ -123,7 +128,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

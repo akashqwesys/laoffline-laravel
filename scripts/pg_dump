@@ -1,0 +1,8 @@
+#!/bin/bash
+# Inside the docker container, postgres runs on port 5432 and host is localhost or unix socket
+# We replace both the host (127.0.0.1 -> localhost) and port (5433 -> 5432)
+CMD="$*"
+CMD="${CMD/-p 5433/-p 5432}"
+CMD="${CMD/-h 127.0.0.1/-h localhost}"
+
+docker exec laoffline_postgres pg_dump $CMD

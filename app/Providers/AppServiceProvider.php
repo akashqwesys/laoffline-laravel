@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        if ($this->app->runningInConsole()) {
+            // Increase memory limit for artisan commands, such as large database backups
+            ini_set('memory_limit', '512M');
+        }
     }
 }
