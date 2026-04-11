@@ -1439,27 +1439,9 @@ class RegisterController extends Controller
 
         if ($reference == '1') {
 
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $ouid = $increment_id_details->ouid + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->ouid = $ouid;
-                $increment_id->save();
-            } else {
-                $ref_id = '1';
-                $ouid = '1';
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->ouid = $ouid;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment reference_id and ouid
+            $ref_id = IncrementId::increaseReferenceId($financialid);
+            $ouid = IncrementId::increaseOuid($financialid);
 
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
@@ -1667,27 +1649,9 @@ class RegisterController extends Controller
 
         if ($reference == '1') {
 
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $ouid = $increment_id_details->ouid + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->ouid = $ouid;
-                $increment_id->save();
-            } else {
-                $ref_id = '1';
-                $ouid = '1';
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->ouid = $ouid;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment reference_id and ouid
+            $ref_id = IncrementId::increaseReferenceId($financialid);
+            $ouid = IncrementId::increaseOuid($financialid);
 
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
@@ -1895,27 +1859,9 @@ class RegisterController extends Controller
 
         if ($reference == '1') {
 
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $ouid = $increment_id_details->ouid + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->ouid = $ouid;
-                $increment_id->save();
-            } else {
-                $ref_id = '1';
-                $ouid = '1';
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->ouid = $ouid;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment reference_id and ouid
+            $ref_id = IncrementId::increaseReferenceId($financialid);
+            $ouid = IncrementId::increaseOuid($financialid);
 
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
@@ -2128,27 +2074,9 @@ class RegisterController extends Controller
 
         if ($reference == '1') {
 
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $ouid = $increment_id_details->ouid + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->ouid = $ouid;
-                $increment_id->save();
-            } else {
-                $ref_id = '1';
-                $ouid = '1';
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->ouid = $ouid;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment reference_id and ouid
+            $ref_id = IncrementId::increaseReferenceId($financialid);
+            $ouid = IncrementId::increaseOuid($financialid);
 
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
@@ -2970,23 +2898,8 @@ class RegisterController extends Controller
         $company_id = $inward_data->companyid;
         $companytype = $inward_data->companytype;
         $typeName = DB::table('company_types')->where('id', $companytype)->first();
-        $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-        $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-        $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-        if ($increment_id_details) {
-            $iuid = $increment_id_details->iuid + 1;
-            $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-            $increment_id->iuid = $iuid;
-            $increment_id->save();
-        } else {
-            $iuid = '1';
-            $increment_id = new IncrementId();
-            $increment_id->id = $Incrementids;
-            $increment_id->iuid = $iuid;
-            $increment_id->financial_year_id = $financialid;
-            $increment_id->save();
-        }
+        // Atomically increment iuid
+        $iuid = IncrementId::increaseIuid($financialid);
         $iuids = Iuid::orderBy('id', 'DESC')->first('id');
         $nextAutoID = !empty($iuids) ? $iuids->id + 1 : 1;
         $iuid_data = new Iuid();
@@ -3206,23 +3119,8 @@ class RegisterController extends Controller
             $general_ref_no = $inward_data->reference_sample_data;
             $companyId = $inward_data->company->id;
         } else {
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-            $companyId = $inward_data->company->id;
-            if ($increment_id_details) {
-                $general_ref_no = $increment_id_details->reference_id + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $general_ref_no;
-                $increment_id->save();
-            } else {
-                $general_ref_no = '1';
-                $increment_id = new IncrementId();
-                $increment_id->id = $Incrementids;
-                $increment_id->reference_id = $general_ref_no;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment reference_id
+            $general_ref_no = IncrementId::increaseReferenceId($financialid);
 
             $refrenceLastid = ReferenceId::orderBy('id', 'DESC')->first('id');
             $refrenceid = !empty($refrenceLastid) ? $refrenceLastid->id + 1 : 1;
@@ -3393,27 +3291,9 @@ class RegisterController extends Controller
             $delivery_by = $outward_data->delivery;
         }
 
-        $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-        $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-        $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-        if ($increment_id_details) {
-            $ref_id = $increment_id_details->reference_id + 1;
-            $ouid = $increment_id_details->ouid + 1;
-            $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-            $increment_id->reference_id = $ref_id;
-            $increment_id->ouid = $ouid;
-            $increment_id->save();
-        } else {
-            $ref_id = '1';
-            $ouid = '1';
-            $increment_id = new IncrementId();
-            $increment_id->reference_id = $ref_id;
-            $increment_id->id = $Incrementids;
-            $increment_id->ouid = $ouid;
-            $increment_id->financial_year_id = $financialid;
-            $increment_id->save();
-        }
+        // Atomically increment reference_id and ouid
+        $ref_id = IncrementId::increaseReferenceId($financialid);
+        $ouid = IncrementId::increaseOuid($financialid);
 
         $ouids = Ouid::orderBy('id', 'DESC')->first('id');
         $nextAutoID = !empty($ouids) ? $ouids->id + 1 : 1;

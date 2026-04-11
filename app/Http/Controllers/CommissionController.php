@@ -358,34 +358,13 @@ class CommissionController extends Controller
             array_push($attachments, $ExtraImage);
         }
 
-        $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-        $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-        $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
         try {
             DB::beginTransaction();
 
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $commission_id = $increment_id_details->commission_id + 1;
-                $iuid = $increment_id_details->iuid + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->commission_id = $commission_id;
-                $increment_id->iuid = $iuid;
-                $increment_id->save();
-            } else {
-                $ref_id = 1;
-                $commission_id = 1;
-                $iuid = 1;
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->commission_id = $commission_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->iuid = $iuid;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment all required counters
+            $ref_id = IncrementId::increaseReferenceId($financialid);
+            $commission_id = IncrementId::increaseCommissionId($financialid);
+            $iuid = IncrementId::increaseIuid($financialid);
             if ($commissionData->refrence == 1) {
                 if ($commissionData->refrencevia->name == 'Email') {
                     $courier_name = '';
@@ -778,24 +757,8 @@ class CommissionController extends Controller
         $personName = '';
 
         if ($commissionData->referecechange == '1') {
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-            $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->save();
-            } else {
-                $ref_id = 1;
-                $iuid = 1;
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment reference_id
+            $ref_id = IncrementId::increaseReferenceId($financialid);
             if ($commissionData->refrence == '1') {
                 if ($commissionData->refrencevia->name == 'Email') {
                     $courier_name = '';
