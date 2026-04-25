@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\comboids;
+namespace App\Models\Comboids;
 
 use App\Traits\GeneratesAutoId;
 use Illuminate\Database\Eloquent\Model;

@@ -1085,31 +1085,10 @@ class PaymentsController extends Controller
         try {
             DB::beginTransaction();
 
-            $increment_id_details = IncrementId::where('financial_year_id', $financialid)->first();
-            $Incrementids = IncrementId::generateAutoId();
-
-            //reference_id
-            if ($increment_id_details) {
-                $ref_id = $increment_id_details->reference_id + 1;
-                $payment_id = $increment_id_details->payment_id + 1;
-                $iuid = $increment_id_details->iuid + 1;
-                $increment_id = IncrementId::where('financial_year_id', $financialid)->first();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->payment_id = $payment_id;
-                $increment_id->iuid = $iuid;
-                $increment_id->save();
-            } else {
-                $ref_id = 1;
-                $payment_id = 1;
-                $iuid = 1;
-                $increment_id = new IncrementId();
-                $increment_id->reference_id = $ref_id;
-                $increment_id->payment_id = $payment_id;
-                $increment_id->id = $Incrementids;
-                $increment_id->iuid = $iuid;
-                $increment_id->financial_year_id = $financialid;
-                $increment_id->save();
-            }
+            // Atomically increment all required counters
+            $ref_id = IncrementId::increaseReferenceId($financialid);
+            $payment_id = IncrementId::increasePaymentId($financialid);
+            $iuid = IncrementId::increaseIuid($financialid);
 
             if ($paymentData->refrence == '1') {
                 if ($paymentData->refrencevia->name == 'Email') {
@@ -1441,9 +1420,8 @@ class PaymentsController extends Controller
                 $payment_ok_or_not = 1;
             }
 
-            $payment1 = Payment::where('payment_id', $payment_id)->first();
-            $payment1->payment_ok_or_not = $payment_ok_or_not;
-            $payment1->save();
+            $payment->payment_ok_or_not = $payment_ok_or_not;
+            $payment->save();
 
             if ($paymentData->recipt_mode != 'fullreturn' && $paymentData->recipt_mode != 'full return') {
                 if ($paymentData->goodreturn == 0) {
@@ -1993,10 +1971,9 @@ class PaymentsController extends Controller
         try {
             DB::beginTransaction();
 
-            $combo = Comboids::where('payment_id', $paymentData->id)->first();
+            $comboids = $payment->combo;
             $personName = '';
             $ref_id = $paymentData->refrence_type;
-            $comboids = Comboids::where('iuid', $combo->iuid)->first();
             $comboids->general_ref_id = $ref_id;
             $comboids->generated_by = $user->employee_id;
             $comboids->assigned_to = $user->employee_id;
@@ -2250,9 +2227,8 @@ class PaymentsController extends Controller
                 $payment_ok_or_not = 1;
             }
 
-            $payment1 = Payment::where('payment_id', $paymentData->id)->first();
-            $payment1->payment_ok_or_not = $payment_ok_or_not;
-            $payment1->save();
+            $payment->payment_ok_or_not = $payment_ok_or_not;
+            $payment->save();
 
             if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
                 if ($tot_good_returns != 0) {
@@ -2266,9 +2242,8 @@ class PaymentsController extends Controller
                 $color_flag_id = 3;
             }
 
-            $comboid1 = Comboids::where('payment_id', $paymentData->id)->first();
-            $comboid1->color_flag_id = $color_flag_id;
-            $comboid1->save();
+            $comboids->color_flag_id = $color_flag_id;
+            $comboids->save();
 
             $logs = new Logs;
             $logs->id = $logs->generateAutoId();
@@ -2381,27 +2356,9 @@ class PaymentsController extends Controller
                     ->first();
                 $bill = DB::table('sale_bill_items')->where('sale_bill_id', $salebill->sr_no)->get();
 
-                $increment_id_details = IncrementId::where('financial_year_id', $user->financial_year_id)->first();
-                $IncrementLastid = IncrementId::orderBy('id', 'DESC')->first('id');
-                $Incrementids = !empty($IncrementLastid) ? $IncrementLastid->id + 1 : 1;
-
-                if ($increment_id_details) {
-                    $iuid = $increment_id_details->iuid + 1;
-                    $goods_return_id = $increment_id_details->goods_return_id + 1;
-                    $increment_id = IncrementId::where('financial_year_id', $user->financial_year_id)->first();
-                    $increment_id->iuid = $iuid;
-                    $increment_id->goods_return_id = $goods_return_id;
-                    $increment_id->save();
-                } else {
-                    $iuid = '1';
-                    $goods_return_id = '1';
-                    $increment_id = new IncrementId();
-                    $increment_id->id = $Incrementids;
-                    $increment_id->iuid = $iuid;
-                    $increment_id->goods_return_id = $goods_return_id;
-                    $increment_id->financial_year_id = $user->financial_year_id;
-                    $increment_id->save();
-                }
+                // Atomically increment iuid and goods_return_id
+                $iuid = IncrementId::increaseIuid($user->financial_year_id);
+                $goods_return_id = IncrementId::increaseGoodsReturnId($user->financial_year_id);
                 $iuids = Iuid::orderBy('id', 'DESC')->first('id');
                 $nextAutoID = !empty($iuids) ? $iuids->id + 1 : 1;
 

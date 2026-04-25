@@ -7,6 +7,7 @@ use App\Http\Requests\SaleBill\StoreSaleBillRequest;
 use App\Models\Comboids\Comboids;
 use App\Models\Employee;
 use App\Models\FinancialYear;
+use App\Models\IncrementId;
 use App\Models\Logs;
 use App\Models\ProductCategory;
 use App\Models\SaleBill;
@@ -344,7 +345,6 @@ class SaleBillController extends Controller
         } else {
             $personName = '';
         }
-        $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
         $receiver_details = $user->user_email;
         $general_ref = $this->getReferenceDetails($referenceDetails->sale_bill_via, $referenceDetails->reference_via->name);
 
@@ -373,27 +373,8 @@ class SaleBillController extends Controller
                     $courier_received_time = $transport_date;
                     $delivery_by = $referenceDetails->delivery_by;
                 }
-                if ($increment_id_details) {
-                    $ref_id = $increment_id_details->reference_id + 1;
-                    $data_ref = array('reference_id' => $ref_id, 'updated_at' => $dateAdded);
-                    $this->updateIncrementIds($data_ref, $user->financial_year_id);
-                } else {
-                    $ref_id = 1;
-                    $data_ref = array(
-                        'id' => (getLastID('increment_ids', 'id') + 1),
-                        'iuid' => 0,
-                        'ouid' => 0,
-                        'sale_bill_id' => 0,
-                        'payment_id' => 0,
-                        'commission_id' => 0,
-                        'goods_return_id' => 0,
-                        'reference_id' => $ref_id,
-                        'financial_year_id' => $user->financial_year_id,
-                        'created_at' => $dateAdded,
-                        'updated_at' => $dateAdded
-                    );
-                    $this->insertIncrementIds($data_ref);
-                }
+                // Atomically increment reference_id counter
+                $ref_id = IncrementId::increaseReferenceId($user->financial_year_id);
                 $next_ref_id = DB::table('reference_ids')->select('id')->orderBy('id', 'desc')->limit(1)->first();
                 DB::table('reference_ids')->insert([
                     'id' => ($next_ref_id->id + 1),
@@ -421,27 +402,8 @@ class SaleBillController extends Controller
             } else {
                 $general_ref_no = $referenceDetails->reference_id;
             }
-            if ($increment_id_details) {
-                $iuid = $increment_id_details->iuid + 1;
-                $data_iuid = array('iuid' => $iuid, 'updated_at' => $dateAdded);
-                $this->updateIncrementIds($data_iuid, $user->financial_year_id);
-            } else {
-                $iuid = 1;
-                $data_iuid = array(
-                    'id' => (getLastID('increment_ids', 'id') + 1),
-                    'ouid' => 0,
-                    'sale_bill_id' => 0,
-                    'payment_id' => 0,
-                    'commission_id' => 0,
-                    'goods_return_id' => 0,
-                    'reference_id' => 0,
-                    'iuid' => $iuid,
-                    'financial_year_id' => $user->financial_year_id,
-                    'created_at' => $dateAdded,
-                    'updated_at' => $dateAdded
-                );
-                $this->insertIncrementIds($data_iuid);
-            }
+            // Atomically increment iuid counter
+            $iuid = IncrementId::increaseIuid($user->financial_year_id);
             $dataentry_iuid = array(
                 'id' => (getLastID('iuids', 'id') + 1),
                 'iuid' => $iuid,
@@ -534,27 +496,8 @@ class SaleBillController extends Controller
             } else {
                 $subCategory = 0;
             }
-            if ($increment_id_details) {
-                $sale_bill_id = $increment_id_details->sale_bill_id + 1;
-                $data_sale_bill_id = array('sale_bill_id' => $sale_bill_id, 'updated_at' => $dateAdded);
-                $this->updateIncrementIds($data_sale_bill_id, $user->financial_year_id);
-            } else {
-                $sale_bill_id = 1;
-                $data_sale_bill_id = array(
-                    'id' => (getLastID('increment_ids', 'id') + 1),
-                    'iuid' => 0,
-                    'ouid' => 0,
-                    'reference_id' => 0,
-                    'payment_id' => 0,
-                    'commission_id' => 0,
-                    'goods_return_id' => 0,
-                    'sale_bill_id' => $sale_bill_id,
-                    'financial_year_id' => $user->financial_year_id,
-                    'created_at' => $dateAdded,
-                    'updated_at' => $dateAdded
-                );
-                $this->insertIncrementIds($data_sale_bill_id);
-            }
+            // Atomically increment sale_bill_id counter
+            $sale_bill_id = IncrementId::increaseSaleBillId($user->financial_year_id);
 
             $sale_bill = new SaleBill;
             $sale_bill->id                       = (getLastID('sale_bills', 'id') + 1);
@@ -726,28 +669,8 @@ class SaleBillController extends Controller
         try {
             DB::beginTransaction();
 
-            $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
-            if ($increment_id_details) {
-                $iuid = $increment_id_details->iuid + 1;
-                $data_iuid = array('iuid' => $iuid);
-                $this->updateIncrementIds($data_iuid, $user->financial_year_id);
-            } else {
-                $iuid = 1;
-                $data_iuid = array(
-                    'id' => (getLastID('increment_ids', 'id') + 1),
-                    'reference_id' => 0,
-                    'ouid' => 0,
-                    'sale_bill_id' => 0,
-                    'payment_id' => 0,
-                    'commission_id' => 0,
-                    'goods_return_id' => 0,
-                    'iuid' => $iuid,
-                    'financial_year_id' => $user->financial_year_id,
-                    'created_at' => $dateAdded,
-                    'updated_at' => $dateAdded
-                );
-                $this->insertIncrementIds($data_iuid);
-            }
+            // Atomically increment iuid counter
+            $iuid = IncrementId::increaseIuid($user->financial_year_id);
             $dataentry_iuid = array(
                 'id' => (getLastID('iuids', 'id') + 1),
                 'iuid' => $iuid,
@@ -830,27 +753,8 @@ class SaleBillController extends Controller
 
             $comboid = $combo_id->comboid;
 
-            if ($increment_id_details) {
-                $sale_bill_id = $increment_id_details->sale_bill_id + 1;
-                $data_sale_bill_id = array('sale_bill_id' => $sale_bill_id, 'updated_at' => $dateAdded);
-                $this->updateIncrementIds($data_sale_bill_id, $user->financial_year_id);
-            } else {
-                $sale_bill_id = 1;
-                $data_sale_bill_id = array(
-                    'id' => (getLastID('increment_ids', 'id') + 1),
-                    'iuid' => 0,
-                    'ouid' => 0,
-                    'reference_id' => 0,
-                    'payment_id' => 0,
-                    'commission_id' => 0,
-                    'goods_return_id' => 0,
-                    'sale_bill_id' => $sale_bill_id,
-                    'financial_year_id' => $user->financial_year_id,
-                    'created_at' => $dateAdded,
-                    'updated_at' => $dateAdded
-                );
-                $this->insertIncrementIds($data_sale_bill_id);
-            }
+            // Atomically increment sale_bill_id counter
+            $sale_bill_id = IncrementId::increaseSaleBillId($user->financial_year_id);
             $sale_bill = new SaleBill;
             $sale_bill->id                       = (getLastID('sale_bills', 'id') + 1);
             $sale_bill->sale_bill_id             = $sale_bill_id;
@@ -1405,8 +1309,6 @@ class SaleBillController extends Controller
             $personName = '';
         }
 
-        $increment_id_details = $this->getIncrementIdDetails($user->financial_year_id);
-
         $receiver_details = $user->user_email;
 
         $ReferenceVia = DB::table('comboids')
@@ -1446,27 +1348,8 @@ class SaleBillController extends Controller
                     $courier_received_time = $transport_date;
                     $delivery_by = $referenceDetails->delivery_by;
                 }
-                if ($increment_id_details) {
-                    $ref_id = $increment_id_details->reference_id + 1;
-                    $data_ref = array('reference_id' => $ref_id, 'updated_at' => $dateAdded);
-                    $this->updateIncrementIds($data_ref, $user->financial_year_id);
-                } else {
-                    $ref_id = 1;
-                    $data_ref = array(
-                        'id' => (getLastID('increment_ids', 'id') + 1),
-                        'iuid' => 0,
-                        'ouid' => 0,
-                        'sale_bill_id' => 0,
-                        'payment_id' => 0,
-                        'commission_id' => 0,
-                        'goods_return_id' => 0,
-                        'reference_id' => $ref_id,
-                        'financial_year_id' => $user->financial_year_id,
-                        'created_at' => $dateAdded,
-                        'updated_at' => $dateAdded
-                    );
-                    $this->insertIncrementIds($data_ref);
-                }
+                // Atomically increment reference_id
+                $ref_id = IncrementId::increaseReferenceId($user->financial_year_id);
                 $next_ref_id = DB::table('reference_ids')->select('id')->orderBy('id', 'desc')->limit(1)->first();
                 $dataentry_ref = [
                     'id' => ($next_ref_id->id + 1),
@@ -1536,27 +1419,8 @@ class SaleBillController extends Controller
                             $delivery_by = $referenceDetails->delivery_by;
                         }
 
-                        if ($increment_id_details) {
-                            $ref_id = $increment_id_details->reference_id + 1;
-                            $data_ref = array('reference_id' => $ref_id, 'updated_at' => $dateAdded);
-                            $this->updateIncrementIds($data_ref, $user->financial_year_id);
-                        } else {
-                            $ref_id = 1;
-                            $data_ref = array(
-                                'id' => (getLastID('increment_ids', 'id') + 1),
-                                'iuid' => 0,
-                                'ouid' => 0,
-                                'sale_bill_id' => 0,
-                                'payment_id' => 0,
-                                'commission_id' => 0,
-                                'goods_return_id' => 0,
-                                'reference_id' => $ref_id,
-                                'financial_year_id' => $user->financial_year_id,
-                                'created_at' => $dateAdded,
-                                'updated_at' => $dateAdded
-                            );
-                            $this->insertIncrementIds($data_ref);
-                        }
+                        // Atomically increment reference_id
+                        $ref_id = IncrementId::increaseReferenceId($user->financial_year_id);
                         $next_ref_id = DB::table('reference_ids')->select('id')->orderBy('id', 'desc')->limit(1)->first();
                         $dataentry_ref = [
                             'id' => ($next_ref_id->id + 1),
@@ -1600,27 +1464,8 @@ class SaleBillController extends Controller
 
             if ($sale_bill->is_moved == 1) {
                 if ($sale_bill->iuid == 0) {
-                    if ($increment_id_details) {
-                        $iuid = $increment_id_details->iuid + 1;
-                        $data_iuid = array('iuid' => $iuid, 'updated_at' => $dateAdded);
-                        $this->updateIncrementIds($data_iuid, $user->financial_year_id);
-                    } else {
-                        $iuid = 1;
-                        $data_iuid = array(
-                            'id' => (getLastID('increment_ids', 'id') + 1),
-                            'reference_id' => 0,
-                            'ouid' => 0,
-                            'sale_bill_id' => 0,
-                            'payment_id' => 0,
-                            'commission_id' => 0,
-                            'goods_return_id' => 0,
-                            'iuid' => $iuid,
-                            'financial_year_id' => $user->financial_year_id,
-                            'created_at' => $dateAdded,
-                            'updated_at' => $dateAdded
-                        );
-                        $this->insertIncrementIds($data_iuid);
-                    }
+                    // Atomically increment iuid
+                    $iuid = IncrementId::increaseIuid($user->financial_year_id);
                     $dataentry_iuid = array(
                         'id' => (getLastID('iuids', 'id') + 1),
                         'iuid' => $iuid,
@@ -2098,21 +1943,6 @@ class SaleBillController extends Controller
     public function getCompanyDetails($id)
     {
         return DB::table('company_contact_details')->select('contact_person_name', 'contact_person_mobile', 'contact_person_email')->where('company_id', $id)->orderBy('id', 'desc')->first();
-    }
-
-    public function getIncrementIdDetails($id)
-    {
-        return DB::table('increment_ids')->where('financial_year_id', $id)->first();
-    }
-
-    public function updateIncrementIds($data, $id)
-    {
-        return DB::table('increment_ids')->where('financial_year_id', $id)->update($data);
-    }
-
-    public function insertIncrementIds($data)
-    {
-        return DB::table('increment_ids')->insert($data);
     }
 
     public function getReferenceDetails($company_type, $ref_via)
