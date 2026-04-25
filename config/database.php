@@ -78,8 +78,6 @@ return [
             'sslmode' => 'prefer',
             'dump' => env('DEBUG_ENV') === 'local' ? [
                 'dump_binary_path' => base_path('scripts/'),
-                'use_column_inserts' => true,
-                'use_inserts' => true,
             ] : [],
         ],
 
