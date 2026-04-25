@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\PaymentDetail;
 use App\Traits\GeneratesAutoId;
+use App\Models\Comboids\Comboids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -59,5 +60,14 @@ class Payment extends Model
     public function details(): HasMany
     {
         return $this->hasMany(PaymentDetail::class, 'p_increment_id', 'id');
+    }
+
+    /**
+     * Get the combo record associated with the payment.
+     */
+    public function combo()
+    {
+        return $this->hasOne(Comboids::class, 'payment_id', 'payment_id')
+            ->where('financial_year_id', $this->financial_year_id);
     }
 }

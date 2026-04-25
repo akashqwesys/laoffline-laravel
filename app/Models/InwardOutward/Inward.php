@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\inwardOutward;
+namespace App\Models\InwardOutward;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

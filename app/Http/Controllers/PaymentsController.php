@@ -1420,9 +1420,8 @@ class PaymentsController extends Controller
                 $payment_ok_or_not = 1;
             }
 
-            $payment1 = Payment::where('payment_id', $payment_id)->first();
-            $payment1->payment_ok_or_not = $payment_ok_or_not;
-            $payment1->save();
+            $payment->payment_ok_or_not = $payment_ok_or_not;
+            $payment->save();
 
             if ($paymentData->recipt_mode != 'fullreturn' && $paymentData->recipt_mode != 'full return') {
                 if ($paymentData->goodreturn == 0) {
@@ -1972,10 +1971,9 @@ class PaymentsController extends Controller
         try {
             DB::beginTransaction();
 
-            $combo = Comboids::where('payment_id', $paymentData->id)->first();
+            $comboids = $payment->combo;
             $personName = '';
             $ref_id = $paymentData->refrence_type;
-            $comboids = Comboids::where('iuid', $combo->iuid)->first();
             $comboids->general_ref_id = $ref_id;
             $comboids->generated_by = $user->employee_id;
             $comboids->assigned_to = $user->employee_id;
@@ -2229,9 +2227,8 @@ class PaymentsController extends Controller
                 $payment_ok_or_not = 1;
             }
 
-            $payment1 = Payment::where('payment_id', $paymentData->id)->first();
-            $payment1->payment_ok_or_not = $payment_ok_or_not;
-            $payment1->save();
+            $payment->payment_ok_or_not = $payment_ok_or_not;
+            $payment->save();
 
             if ($paymentData->recipt_mode == 'fullreturn' || $paymentData->recipt_mode == 'full return') {
                 if ($tot_good_returns != 0) {
@@ -2245,9 +2242,8 @@ class PaymentsController extends Controller
                 $color_flag_id = 3;
             }
 
-            $comboid1 = Comboids::where('payment_id', $paymentData->id)->first();
-            $comboid1->color_flag_id = $color_flag_id;
-            $comboid1->save();
+            $comboids->color_flag_id = $color_flag_id;
+            $comboids->save();
 
             $logs = new Logs;
             $logs->id = $logs->generateAutoId();
